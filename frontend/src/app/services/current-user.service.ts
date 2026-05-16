@@ -1,0 +1,21 @@
+import {HttpClient} from '@angular/common/http';
+import {inject, Injectable, signal} from '@angular/core';
+import {User} from '@app/models/user';
+import {environment} from '@environments/environment';
+import {firstValueFrom} from 'rxjs';
+
+@Injectable({providedIn: 'root'})
+export class CurrentUserService {
+    private readonly http = inject(HttpClient);
+    public readonly currentUser = signal<User | null>(null);
+
+    public async load(): Promise<User> {
+        const user = await firstValueFrom(this.http.get<User>(`${environment.apiUrl}/current-user`));
+        this.currentUser.set(user);
+        return user;
+    }
+
+    public clear(): void {
+        this.currentUser.set(null);
+    }
+}

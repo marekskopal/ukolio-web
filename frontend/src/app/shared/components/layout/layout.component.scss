@@ -1,0 +1,78 @@
+@use 'variables' as *;
+
+.shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar {
+    background: $color-surface;
+    border-bottom: 1px solid $color-border;
+}
+
+.topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: $header-height;
+    padding: 0 $space-6;
+    max-width: $layout-max;
+    margin: 0 auto;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-base;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: $color-text;
+
+    &-mark {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: $color-accent;
+        border-radius: $radius-sm;
+    }
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+}
+
+.nav-link {
+    padding: $space-1 $space-3;
+    color: $color-text-muted;
+    border-radius: $radius-md;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+        color: $color-text;
+    }
+
+    &--active {
+        color: $color-text;
+        font-weight: 500;
+    }
+}
+
+.user-email {
+    color: $color-text-subtle;
+    font-size: $font-size-xs;
+    margin: 0 $space-2;
+}
+
+.content {
+    flex: 1;
+    max-width: $layout-max;
+    width: 100%;
+    margin: 0 auto;
+    padding: $space-8 $space-6;
+}

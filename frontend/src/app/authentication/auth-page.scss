@@ -1,0 +1,43 @@
+@use 'variables' as *;
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $space-4;
+}
+
+.auth-page-card {
+    width: 100%;
+    max-width: 380px;
+}
+
+.auth-title {
+    font-size: $font-size-xl;
+    margin-bottom: $space-1;
+}
+
+.auth-subtitle {
+    margin: 0 0 $space-6;
+    color: $color-text-muted;
+    font-size: $font-size-base;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+}
+
+.auth-submit {
+    width: 100%;
+    margin-top: $space-2;
+}
+
+.auth-footer {
+    margin-top: $space-6;
+    text-align: center;
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+}

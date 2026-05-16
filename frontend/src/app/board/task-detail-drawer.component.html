@@ -1,0 +1,73 @@
+<div class="drawer-backdrop" (click)="onCancel()"></div>
+<aside class="drawer">
+    <header class="drawer-header">
+        <h2>{{ task() ? 'Edit task' : 'New task' }}</h2>
+        <button type="button" class="drawer-close" (click)="onCancel()">Close</button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="drawer-body">
+        <div class="field">
+            <label class="field-label">Name</label>
+            <input type="text" formControlName="name" class="input" />
+        </div>
+
+        <div class="field">
+            <div class="field-label-row">
+                <label class="field-label">Description</label>
+                <div class="tab-group">
+                    <button type="button" class="tab-button" [class.is-active]="tab() === 'edit'" (click)="tab.set('edit')">Edit</button>
+                    <button type="button" class="tab-button" [class.is-active]="tab() === 'preview'" (click)="tab.set('preview')">Preview</button>
+                </div>
+            </div>
+            @if (tab() === 'edit') {
+                <textarea formControlName="description" rows="8" placeholder="Markdown supported…" class="textarea md-editor"></textarea>
+            } @else {
+                <div class="md-preview">
+                    @if (description()) {
+                        <markdown [data]="description()"></markdown>
+                    } @else {
+                        <p class="text-subtle">Nothing to preview.</p>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label class="field-label">Status</label>
+                <select formControlName="statusId" class="select">
+                    @for (s of statuses(); track s.id) {
+                        <option [value]="s.id">{{ s.name }}</option>
+                    }
+                </select>
+            </div>
+            <div class="field">
+                <label class="field-label">Priority</label>
+                <select formControlName="priority" class="select">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="field-label">Due date</label>
+            <input type="date" formControlName="dueDate" class="input input--narrow" />
+        </div>
+    </form>
+
+    <footer class="drawer-footer">
+        @if (task()) {
+            <button type="button" class="btn-danger-link" (click)="onDelete()">Delete</button>
+        } @else {
+            <span></span>
+        }
+        <div class="drawer-footer-actions">
+            <button type="button" class="muted-link" (click)="onCancel()">Cancel</button>
+            <button type="button" class="btn btn-primary" [disabled]="form.invalid || saving()" (click)="onSubmit()">
+                {{ saving() ? 'Saving…' : 'Save' }}
+            </button>
+        </div>
+    </footer>
+</aside>

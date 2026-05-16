@@ -1,0 +1,51 @@
+@use 'variables' as *;
+
+@mixin focus-ring {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+
+    &:focus-visible {
+        outline-color: $color-accent;
+    }
+}
+
+@mixin field-base {
+    display: block;
+    width: 100%;
+    padding: $space-2 $space-3;
+    border: 1px solid $color-border-strong;
+    border-radius: $radius-md;
+    background: $color-surface;
+    font-size: $font-size-base;
+    color: $color-text;
+    line-height: 1.4;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+
+    &:focus {
+        outline: none;
+        border-color: $color-border-focus;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+    }
+
+    &::placeholder {
+        color: $color-text-subtle;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+@mixin truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@mixin clamp-lines($lines) {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

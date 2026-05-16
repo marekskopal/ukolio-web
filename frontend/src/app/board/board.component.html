@@ -1,0 +1,55 @@
+@if (loading()) {
+    <p class="text-muted">Loading board…</p>
+} @else if (board(); as board) {
+    <div class="board-header">
+        <div>
+            <h1 class="page-title">{{ board.project.name }}</h1>
+            @if (board.project.description) {
+                <p class="page-subtitle">{{ board.project.description }}</p>
+            }
+        </div>
+        <nav class="board-nav">
+            <a [routerLink]="['/projects', board.project.id, 'workflow']" class="muted-link">Workflow</a>
+            <span class="separator">·</span>
+            <a [routerLink]="['/projects', board.project.id, 'events']" class="muted-link">Events</a>
+        </nav>
+    </div>
+
+    <div cdkDropListGroup class="kanban">
+        @for (col of columns(); track col.status.id) {
+            <div class="column">
+                <header class="column-header">
+                    <div class="column-title">
+                        <span class="column-dot" [style.background]="col.status.color"></span>
+                        <h3>{{ col.status.name }}</h3>
+                        <span class="column-count">{{ col.tasks.length }}</span>
+                    </div>
+                    <button type="button" class="column-add" (click)="openCreate(col.status)" aria-label="Add task">+</button>
+                </header>
+
+                <div cdkDropList
+                     [cdkDropListData]="col.tasks"
+                     (cdkDropListDropped)="onDrop($event, col.status)"
+                     class="column-tasks">
+                    @for (task of col.tasks; track task.id) {
+                        <div cdkDrag (click)="openEdit(task)">
+                            <tm-task-card [task]="task" />
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (drawerOpen()) {
+    <tm-task-detail-drawer
+        [task]="editingTask()"
+        [statuses]="board()?.statuses ?? []"
+        [projectId]="projectId()!"
+        [defaultStatusId]="defaultStatusId()"
+        (saved)="onTaskSaved($event)"
+        (deleted)="onTaskDeleted($event)"
+        (cancelled)="closeDrawer()"
+    />
+}

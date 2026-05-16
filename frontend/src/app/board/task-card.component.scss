@@ -1,0 +1,75 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.task-card {
+    padding: $space-3;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+
+    &:hover {
+        border-color: $color-border-strong;
+        box-shadow: $shadow-sm;
+    }
+}
+
+.task-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-2;
+    margin-bottom: $space-1;
+}
+
+.task-card-name {
+    margin: 0;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $color-text;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.priority-chip {
+    flex-shrink: 0;
+    padding: 2px $space-2;
+    border-radius: $radius-sm;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+
+    &--low {
+        background: $color-priority-low-bg;
+        color: $color-priority-low-text;
+    }
+
+    &--medium {
+        background: $color-priority-med-bg;
+        color: $color-priority-med-text;
+    }
+
+    &--high {
+        background: $color-priority-high-bg;
+        color: $color-priority-high-text;
+    }
+}
+
+.task-card-desc {
+    margin: 0 0 $space-2;
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+    @include clamp-lines(2);
+}
+
+.task-card-meta {
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+
+    &.is-overdue {
+        color: $color-error;
+    }
+}

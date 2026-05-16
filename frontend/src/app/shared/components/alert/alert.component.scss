@@ -1,0 +1,39 @@
+@use 'variables' as *;
+
+.toast-stack {
+    position: fixed;
+    top: $space-4;
+    right: $space-4;
+    z-index: $z-toast;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    max-width: 360px;
+}
+
+.toast {
+    padding: $space-3 $space-4;
+    border-radius: $radius-md;
+    border: 1px solid;
+    font-size: $font-size-sm;
+    box-shadow: $shadow-md;
+    cursor: pointer;
+
+    &--success {
+        background: $color-success-bg;
+        border-color: $color-success-border;
+        color: $color-success;
+    }
+
+    &--error {
+        background: $color-error-bg;
+        border-color: $color-error-border;
+        color: $color-error;
+    }
+
+    &--info {
+        background: $color-info-bg;
+        border-color: $color-info-border;
+        color: $color-info;
+    }
+}

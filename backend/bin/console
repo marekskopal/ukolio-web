@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use TaskManager\Command\MigrationGenerateCommand;
+use TaskManager\Command\MigrationRunCommand;
+
+$application = new Application();
+
+$application->addCommand(new MigrationGenerateCommand());
+$application->addCommand(new MigrationRunCommand());
+
+$application->run();

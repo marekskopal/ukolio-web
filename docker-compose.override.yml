@@ -1,0 +1,7 @@
+services:
+    backend:
+        volumes:
+            - ./backend/migrations:/app/migrations
+            - ./backend/src:/app/src
+            - ./backend/vendor:/app/vendor
+            - ./backend/bin:/app/bin

@@ -1,0 +1,106 @@
+@use 'variables' as *;
+
+.board-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    margin-bottom: $space-6;
+}
+
+.board-nav {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-size-sm;
+}
+
+.separator {
+    color: $color-border-strong;
+}
+
+.kanban {
+    display: flex;
+    gap: $space-4;
+    overflow-x: auto;
+    padding-bottom: $space-4;
+}
+
+.column {
+    flex-shrink: 0;
+    width: 280px;
+    background: $color-surface-muted;
+    border-radius: $radius-lg;
+    padding: $space-3;
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $space-3;
+}
+
+.column-title {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+
+    h3 {
+        font-size: $font-size-sm;
+        font-weight: 500;
+        margin: 0;
+    }
+}
+
+.column-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: $radius-pill;
+}
+
+.column-count {
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+}
+
+.column-add {
+    width: 24px;
+    height: 24px;
+    border-radius: $radius-sm;
+    color: $color-text-subtle;
+    font-size: 18px;
+    line-height: 1;
+
+    &:hover {
+        color: $color-text;
+        background: $color-surface;
+    }
+}
+
+.column-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    min-height: 40px;
+}
+
+// cdk-drag visuals
+:host ::ng-deep {
+    .cdk-drag-preview {
+        box-shadow: $shadow-md;
+    }
+
+    .cdk-drag-placeholder {
+        opacity: 0.4;
+    }
+
+    .cdk-drag-animating {
+        transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    .column-tasks.cdk-drop-list-dragging > div:not(.cdk-drag-placeholder) {
+        transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+    }
+}

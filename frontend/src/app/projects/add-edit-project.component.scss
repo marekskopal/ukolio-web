@@ -1,0 +1,22 @@
+@use 'variables' as *;
+
+.form-page {
+    max-width: 560px;
+}
+
+.page-title {
+    margin-bottom: $space-6;
+}
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: $space-5;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    margin-top: $space-2;
+}

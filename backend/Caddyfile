@@ -1,0 +1,26 @@
+{
+	auto_https off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+:80 {
+	header Access-Control-Allow-Origin  "{$BACKEND_CORS_ALLOWED_ORIGIN:*}"
+	header Access-Control-Allow-Headers "Content-Type, Authorization"
+	header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+
+	@options method OPTIONS
+	respond @options 204
+
+	encode zstd gzip
+
+	php {
+		root /app/src
+		worker {
+			file frankenphp-worker.php
+			num {$BACKEND_FRANKENPHP_WORKERS:4}
+			match *
+		}
+	}
+}

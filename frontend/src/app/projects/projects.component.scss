@@ -1,0 +1,98 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    margin-bottom: $space-6;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-10 $space-6;
+    background: $color-surface;
+    border: 1px dashed $color-border-strong;
+    border-radius: $radius-lg;
+    color: $color-text-muted;
+    text-align: center;
+}
+
+.project-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: $space-4;
+}
+
+.project-card {
+    padding: $space-5;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    transition: border-color 120ms ease;
+
+    &:hover {
+        border-color: $color-border-strong;
+    }
+}
+
+.project-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-2;
+    margin-bottom: $space-2;
+}
+
+.project-name {
+    font-size: $font-size-md;
+    font-weight: 500;
+    color: $color-text;
+    @include truncate;
+
+    &:hover {
+        color: $color-accent;
+    }
+}
+
+.project-actions {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    flex-shrink: 0;
+    font-size: $font-size-xs;
+}
+
+.project-delete {
+    font-size: $font-size-xs;
+    font-weight: normal;
+    color: $color-text-muted;
+
+    &:hover {
+        color: $color-error;
+    }
+}
+
+.separator {
+    color: $color-border-strong;
+}
+
+.project-description {
+    margin: 0 0 $space-3;
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+    @include clamp-lines(2);
+}
+
+.project-links {
+    display: flex;
+    gap: $space-3;
+    font-size: $font-size-xs;
+}

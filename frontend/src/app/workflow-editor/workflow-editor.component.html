@@ -1,0 +1,34 @@
+@if (board(); as board) {
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Workflow</h1>
+            <p class="page-subtitle">{{ board.project.name }} · {{ board.workflow.name }}</p>
+        </div>
+        <a [routerLink]="['/projects', board.project.id, 'board']" class="muted-link">← Back to board</a>
+    </div>
+
+    <div class="status-card">
+        <div cdkDropList (cdkDropListDropped)="onReorder($event)">
+            @for (status of statuses(); track status.id) {
+                <div cdkDrag class="status-row">
+                    <span cdkDragHandle class="status-handle" aria-label="Drag to reorder">⋮⋮</span>
+                    <input type="color" [(ngModel)]="status.color" (change)="save(status)" class="status-color" />
+                    <input type="text" [(ngModel)]="status.name" (blur)="save(status)" class="input status-name" />
+                    <select [(ngModel)]="status.type" (change)="save(status)" class="select status-type">
+                        <option value="Start">Start</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Finish">Finish</option>
+                    </select>
+                    <button type="button" class="btn-danger-link status-delete"
+                            [disabled]="statuses().length <= 1"
+                            (click)="onDelete(status)">Delete</button>
+                </div>
+            }
+        </div>
+        <div class="status-card-footer">
+            <button type="button" class="btn-link" (click)="addStatus()">+ Add status</button>
+        </div>
+    </div>
+
+    <p class="hint">Tip: drag the handle to reorder. Each workflow should have one Start and at least one Finish status.</p>
+}

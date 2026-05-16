@@ -1,0 +1,102 @@
+@use 'variables' as *;
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    margin-bottom: $space-6;
+}
+
+.status-card {
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    overflow: hidden;
+}
+
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-3 $space-4;
+    border-bottom: 1px solid $color-border;
+    background: $color-surface;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.status-handle {
+    color: $color-text-subtle;
+    cursor: grab;
+    user-select: none;
+    font-size: $font-size-base;
+    line-height: 1;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.status-color {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    background: $color-surface;
+}
+
+.status-name {
+    flex: 1;
+    padding: $space-1 $space-3;
+    font-size: $font-size-sm;
+}
+
+.status-type {
+    width: auto;
+    padding: $space-1 $space-6 $space-1 $space-3;
+    font-size: $font-size-sm;
+}
+
+.status-delete {
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+    font-weight: normal;
+
+    &:hover:not(:disabled) {
+        color: $color-error;
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+.status-card-footer {
+    padding: $space-3 $space-4;
+    border-top: 1px solid $color-border;
+    background: $color-surface-muted;
+}
+
+.hint {
+    margin-top: $space-4;
+    font-size: $font-size-xs;
+    color: $color-text-subtle;
+}
+
+// cdk-drag visuals
+:host ::ng-deep {
+    .cdk-drag-preview {
+        box-shadow: $shadow-md;
+        background: $color-surface;
+        border-radius: $radius-md;
+    }
+    .cdk-drag-placeholder {
+        opacity: 0.4;
+    }
+}

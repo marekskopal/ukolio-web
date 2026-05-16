@@ -1,0 +1,49 @@
+@use 'variables' as *;
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    margin-bottom: $space-6;
+}
+
+.event-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    overflow: hidden;
+}
+
+.event-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: $space-3 $space-4;
+    border-bottom: 1px solid $color-border;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.event-text {
+    margin: 0;
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+}
+
+.event-author {
+    color: $color-text;
+    font-weight: 500;
+}
+
+.event-time {
+    flex-shrink: 0;
+    font-size: $font-size-xs;
+    color: $color-text-subtle;
+}

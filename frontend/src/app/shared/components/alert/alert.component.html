@@ -1,0 +1,7 @@
+<div class="toast-stack">
+    @for (alert of alertService.alerts(); track alert.id) {
+        <div class="toast" [class]="'toast--' + alert.kind" (click)="alertService.dismiss(alert.id)">
+            {{ alert.message }}
+        </div>
+    }
+</div>

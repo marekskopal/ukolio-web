@@ -1,0 +1,145 @@
+@use 'variables' as *;
+
+.drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-overlay;
+    background: rgba(15, 23, 42, 0.35);
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: $z-drawer;
+    width: 100%;
+    max-width: 460px;
+    background: $color-surface;
+    border-left: 1px solid $color-border;
+    box-shadow: $shadow-lg;
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: $header-height;
+    padding: 0 $space-5;
+    border-bottom: 1px solid $color-border;
+    flex-shrink: 0;
+
+    h2 {
+        margin: 0;
+        font-size: $font-size-base;
+        font-weight: 600;
+    }
+}
+
+.drawer-close {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+
+    &:hover {
+        color: $color-text;
+    }
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: $space-5;
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-3;
+}
+
+.field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $space-1;
+}
+
+.tab-group {
+    display: inline-flex;
+    gap: $space-1;
+    font-size: $font-size-xs;
+}
+
+.tab-button {
+    padding: $space-1 $space-2;
+    color: $color-text-muted;
+    border-radius: $radius-sm;
+
+    &:hover {
+        color: $color-text;
+    }
+
+    &.is-active {
+        color: $color-accent;
+        font-weight: 500;
+    }
+}
+
+.md-editor {
+    font-family: $font-mono;
+    font-size: $font-size-sm;
+}
+
+.md-preview {
+    min-height: 8rem;
+    padding: $space-3;
+    background: $color-surface-muted;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    line-height: 1.6;
+
+    :host ::ng-deep & {
+        h1, h2, h3 { margin: $space-4 0 $space-2; line-height: 1.25; }
+        p, ul, ol { margin: $space-2 0; }
+        code {
+            font-family: $font-mono;
+            background: $color-surface;
+            padding: 1px 4px;
+            border-radius: $radius-sm;
+            font-size: 0.9em;
+        }
+        pre {
+            background: $color-text;
+            color: $color-text-inverse;
+            padding: $space-3;
+            border-radius: $radius-md;
+            overflow-x: auto;
+        }
+    }
+}
+
+.input--narrow {
+    width: auto;
+}
+
+.drawer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: $header-height;
+    padding: 0 $space-5;
+    border-top: 1px solid $color-border;
+    flex-shrink: 0;
+}
+
+.drawer-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+}

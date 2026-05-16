@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TaskManager\Command;
+
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use TaskManager\App\ApplicationFactory;
+
+final class MigrationGenerateCommand extends AbstractCommand
+{
+    protected function configure(): void
+    {
+        $this->setName('migration:generate');
+    }
+
+    protected function process(InputInterface $input, OutputInterface $output): int
+    {
+        $application = ApplicationFactory::create();
+
+        $application->dbContext->getMigrator()->generate(
+            $application->dbContext->getSchema(),
+            name: 'NewMigration',
+        );
+
+        return self::SUCCESS;
+    }
+}
