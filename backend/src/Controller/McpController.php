@@ -14,14 +14,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TaskManager\Mcp\McpUserContextInterface;
 use TaskManager\Mcp\Server\TaskManagerServer;
+use TaskManager\OAuth\AuthorizationServiceInterface;
 use TaskManager\Response\ErrorResponse;
 use TaskManager\Route\Routes;
-use TaskManager\Service\Authentication\AuthenticationServiceInterface;
 
 final readonly class McpController
 {
 	public function __construct(
-		private AuthenticationServiceInterface $authenticationService,
+		private AuthorizationServiceInterface $authorizationService,
 		private McpUserContextInterface $userContext,
 		private TaskManagerServer $server,
 	) {
@@ -49,13 +49,13 @@ final readonly class McpController
 	{
 		$token = $this->extractBearerToken($request);
 		if ($token === null) {
-			return new ErrorResponse('Missing or invalid Authorization header. Expected: Bearer <access_token>', 401);
+			return $this->unauthorized($request, 'Missing or invalid Authorization header. Expected: Bearer <access_token>');
 		}
 
 		try {
-			$user = $this->authenticationService->validateAccessToken($token);
+			$user = $this->authorizationService->validateAccessToken($token);
 		} catch (RuntimeException) {
-			return new ErrorResponse('Invalid or expired access token.', 401);
+			return $this->unauthorized($request, 'Invalid or expired access token.');
 		}
 
 		$this->userContext->setUser($user);
@@ -77,6 +77,26 @@ final readonly class McpController
 		$token = substr($header, 7);
 
 		return $token !== '' ? $token : null;
+	}
+
+	private function unauthorized(ServerRequestInterface $request, string $message): ErrorResponse
+	{
+		$scheme = $request->getHeaderLine('X-Forwarded-Proto');
+		if ($scheme === '') {
+			$scheme = $request->getUri()->getScheme();
+		}
+		$host = $request->getHeaderLine('X-Forwarded-Host');
+		if ($host === '') {
+			$host = $request->getHeaderLine('Host');
+		}
+		if ($host === '') {
+			$host = $request->getUri()->getAuthority();
+		}
+		$baseUrl = $scheme . '://' . $host;
+
+		return new ErrorResponse($message, 401, [
+			'WWW-Authenticate' => 'Bearer resource_metadata="' . $baseUrl . Routes::OAuthResourceMetadata->value . '"',
+		]);
 	}
 
 	private function sessionDirectory(): string

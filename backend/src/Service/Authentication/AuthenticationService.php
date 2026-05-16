@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace TaskManager\Service\Authentication;
 
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-use RuntimeException;
-use stdClass;
 use TaskManager\Dto\AuthenticationDto;
 use TaskManager\Dto\CredentialsDto;
 use TaskManager\Model\Entity\User;
@@ -47,25 +44,6 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 			refreshToken: $this->createToken(['id' => $user->id, 'exp' => $refreshTokenExpiration]),
 			userId: $user->id,
 		);
-	}
-
-	public function validateAccessToken(string $token): User
-	{
-		$key = (string) getenv('AUTHORIZATION_TOKEN_KEY');
-
-		try {
-			/** @var object{id: int}&stdClass $payload */
-			$payload = JWT::decode($token, new Key($key, self::TokenAlgorithm));
-		} catch (\Throwable $exception) {
-			throw new RuntimeException('Invalid or expired access token.', 401, $exception);
-		}
-
-		$user = $this->userProvider->getUser($payload->id);
-		if ($user === null) {
-			throw new RuntimeException('User not found.', 401);
-		}
-
-		return $user;
 	}
 
 	/** @param array<string,mixed> $claims */

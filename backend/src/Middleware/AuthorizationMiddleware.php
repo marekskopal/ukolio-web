@@ -30,6 +30,11 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		Routes::AuthenticationLogin->value,
 		Routes::AuthenticationSignUp->value,
 		Routes::Mcp->value,
+		Routes::OAuthMetadata->value,
+		Routes::OAuthResourceMetadata->value,
+		Routes::OAuthToken->value,
+		Routes::OAuthRegister->value,
+		Routes::OAuthClientInfo->value,
 	];
 
 	public function __construct(private UserProviderInterface $userProvider)

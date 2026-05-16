@@ -9,6 +9,10 @@ use Psr\Log\LoggerInterface;
 use TaskManager\Mcp\McpUserContext;
 use TaskManager\Mcp\McpUserContextInterface;
 use TaskManager\Mcp\Server\TaskManagerServer;
+use TaskManager\OAuth\AuthorizationService;
+use TaskManager\OAuth\AuthorizationServiceInterface;
+use TaskManager\OAuth\ClientService;
+use TaskManager\OAuth\ClientServiceInterface;
 use TaskManager\Service\Provider\EventProvider;
 use TaskManager\Service\Provider\EventProviderInterface;
 use TaskManager\Service\Provider\ProjectProvider;
@@ -38,6 +42,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			EventProviderInterface::class,
 			McpUserContextInterface::class,
 			TaskManagerServer::class,
+			ClientServiceInterface::class,
+			AuthorizationServiceInterface::class,
 		], true);
 	}
 
@@ -57,5 +63,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			assert($logger instanceof LoggerInterface);
 			return new TaskManagerServer($c, $logger);
 		});
+		$c->add(ClientServiceInterface::class, ClientService::class);
+		$c->add(AuthorizationServiceInterface::class, AuthorizationService::class);
 	}
 }

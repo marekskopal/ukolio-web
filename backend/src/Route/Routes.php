@@ -29,4 +29,11 @@ enum Routes: string
 	case TaskMove = '/api/tasks/{taskId:number}/move';
 
 	case Mcp = '/api/mcp';
+
+	case OAuthMetadata = '/.well-known/oauth-authorization-server/api/mcp';
+	case OAuthResourceMetadata = '/.well-known/oauth-protected-resource/api/mcp';
+	case OAuthAuthorize = '/api/mcp/oauth/authorize';
+	case OAuthToken = '/api/mcp/oauth/token';
+	case OAuthRegister = '/api/mcp/oauth/register';
+	case OAuthClientInfo = '/api/mcp/oauth/client-info';
 }

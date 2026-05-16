@@ -28,7 +28,17 @@ make migrate                               # Apply migrations
 
 ## MCP server
 
-Exposed at `POST/GET/DELETE /api/mcp` (Streamable HTTP transport, `mcp/sdk`). Mirrors `fingather/backend/src/Mcp/`. Bearer auth: send the regular access JWT as `Authorization: Bearer <token>`. Sessions persisted to `MCP_SESSION_DIR` (defaults to `<tmp>/task-manager-mcp-sessions`).
+Exposed at `POST/GET/DELETE /api/mcp` (Streamable HTTP transport, `mcp/sdk`). Mirrors `fingather/backend/src/Mcp/`. Sessions persisted to `MCP_SESSION_DIR` (defaults to `<tmp>/task-manager-mcp-sessions`).
+
+Auth is **OAuth 2.1 with PKCE** (mirrors fingather/backend/src/OAuth/). Discovery endpoints:
+- `GET /.well-known/oauth-authorization-server/api/mcp` — issuer/authz/token/registration URLs
+- `GET /.well-known/oauth-protected-resource/api/mcp` — resource metadata
+- `POST /api/mcp/oauth/register` — dynamic client registration (open)
+- `POST /api/mcp/oauth/authorize` — user approval (requires user JWT)
+- `POST /api/mcp/oauth/token` — code/refresh-token exchange (open)
+- `GET /api/mcp/oauth/client-info` — display name lookup (open)
+
+401 responses include `WWW-Authenticate: Bearer resource_metadata="…"` per RFC 9728 so MCP clients can auto-discover. PKCE `S256` only; no client secret. Access token lifetime 1h, refresh 30d. Storage: `oauth_clients` and `oauth_authorizations` tables (tokens stored as SHA-256 hashes).
 
 Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 - `ProjectTools` — list/find/get/create/delete projects

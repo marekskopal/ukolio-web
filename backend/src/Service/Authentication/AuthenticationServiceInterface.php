@@ -15,6 +15,4 @@ interface AuthenticationServiceInterface
 	public function authenticate(CredentialsDto $credentials): AuthenticationDto;
 
 	public function createAuthentication(User $user): AuthenticationDto;
-
-	public function validateAccessToken(string $token): User;
 }

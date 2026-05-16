@@ -10,12 +10,16 @@ use MarekSkopal\ORM\Database\DatabaseInterface;
 use MarekSkopal\ORM\ORM;
 use MarekSkopal\ORM\Repository\RepositoryInterface;
 use TaskManager\Model\Entity\Event;
+use TaskManager\Model\Entity\OAuthAuthorization;
+use TaskManager\Model\Entity\OAuthClient;
 use TaskManager\Model\Entity\Project;
 use TaskManager\Model\Entity\Status;
 use TaskManager\Model\Entity\Task;
 use TaskManager\Model\Entity\User;
 use TaskManager\Model\Entity\Workflow;
 use TaskManager\Model\Repository\EventRepository;
+use TaskManager\Model\Repository\OAuthAuthorizationRepository;
+use TaskManager\Model\Repository\OAuthClientRepository;
 use TaskManager\Model\Repository\ProjectRepository;
 use TaskManager\Model\Repository\StatusRepository;
 use TaskManager\Model\Repository\TaskRepository;
@@ -40,6 +44,8 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			StatusRepository::class,
 			TaskRepository::class,
 			EventRepository::class,
+			OAuthClientRepository::class,
+			OAuthAuthorizationRepository::class,
 		], true);
 	}
 
@@ -59,6 +65,8 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, StatusRepository::class, Status::class);
 		$this->addRepository($container, $orm, TaskRepository::class, Task::class);
 		$this->addRepository($container, $orm, EventRepository::class, Event::class);
+		$this->addRepository($container, $orm, OAuthClientRepository::class, OAuthClient::class);
+		$this->addRepository($container, $orm, OAuthAuthorizationRepository::class, OAuthAuthorization::class);
 	}
 
 	/**
