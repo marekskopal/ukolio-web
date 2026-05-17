@@ -11,6 +11,10 @@ export const appRoutes: Routes = [
         loadComponent: () => import('@app/authentication/sign-up.component').then((m) => m.SignUpComponent),
     },
     {
+        path: 'invitations/accept',
+        loadComponent: () => import('@app/invitations/accept-invitation.component').then((m) => m.AcceptInvitationComponent),
+    },
+    {
         path: '',
         canActivate: [AuthGuard],
         loadComponent: () => import('@app/shared/components/layout/layout.component').then((m) => m.LayoutComponent),
@@ -39,6 +43,10 @@ export const appRoutes: Routes = [
             {
                 path: 'projects/:id/events',
                 loadComponent: () => import('@app/events/events.component').then((m) => m.EventsComponent),
+            },
+            {
+                path: 'workspaces',
+                loadComponent: () => import('@app/workspaces/workspaces.component').then((m) => m.WorkspacesComponent),
             },
         ],
     },

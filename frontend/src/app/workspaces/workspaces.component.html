@@ -1,0 +1,102 @@
+<section class="page">
+    <header class="page-header">
+        <h1>Workspaces</h1>
+    </header>
+
+    @if (loading()) {
+        <p class="muted">Loading…</p>
+    } @else {
+        <div class="ws-layout">
+            <aside class="ws-list">
+                @for (ws of workspaces(); track ws.id) {
+                    <button
+                        type="button"
+                        class="ws-item"
+                        [class.ws-item--active]="ws.id === selected()?.id"
+                        (click)="select(ws)"
+                    >
+                        <span class="ws-name">{{ ws.name }}</span>
+                        @if (ws.id === user()?.currentWorkspaceId) {
+                            <span class="ws-badge">Current</span>
+                        }
+                    </button>
+                }
+            </aside>
+
+            @if (selected(); as ws) {
+                <div class="ws-detail">
+                    <div class="ws-toolbar">
+                        <h2>{{ ws.name }}</h2>
+                        @if (isOwner()) {
+                            <div class="ws-actions">
+                                <button type="button" class="btn" (click)="rename()">Rename</button>
+                                <button type="button" class="btn btn--danger" (click)="deleteWorkspace()">Delete</button>
+                            </div>
+                        }
+                    </div>
+
+                    <section class="ws-section">
+                        <h3>Members</h3>
+                        <ul class="member-list">
+                            @for (member of members(); track member.userId) {
+                                <li class="member">
+                                    <div>
+                                        <strong>{{ member.name }}</strong>
+                                        <span class="member-email">{{ member.email }}</span>
+                                    </div>
+                                    <div class="member-role">
+                                        <span class="role-chip role-chip--{{ member.role.toLowerCase() }}">{{ member.role }}</span>
+                                        @if (isOwner() && member.role !== 'Owner') {
+                                            <button type="button" class="btn btn--ghost" (click)="removeMember(member)">Remove</button>
+                                        }
+                                    </div>
+                                </li>
+                            } @empty {
+                                <li class="muted">No members.</li>
+                            }
+                        </ul>
+                    </section>
+
+                    @if (isOwner()) {
+                        <section class="ws-section">
+                            <h3>Invite a member</h3>
+                            <form class="invite-form" (submit)="invite(); $event.preventDefault()">
+                                <input
+                                    type="email"
+                                    required
+                                    placeholder="name@example.com"
+                                    class="input"
+                                    [value]="inviteEmail()"
+                                    (input)="updateInviteEmail($any($event.target).value)"
+                                />
+                                <button type="submit" class="btn btn--primary">Send invitation</button>
+                            </form>
+
+                            @if (invitations().length > 0) {
+                                <h3>Pending invitations</h3>
+                                <ul class="invitation-list">
+                                    @for (invitation of invitations(); track invitation.id) {
+                                        <li class="invitation">
+                                            <div>
+                                                <strong>{{ invitation.email }}</strong>
+                                                <span class="muted"> · {{ invitation.role }}</span>
+                                                @if (invitation.acceptedAt !== null) {
+                                                    <span class="invitation-accepted"> · Accepted</span>
+                                                }
+                                            </div>
+                                            @if (invitation.acceptedAt === null) {
+                                                <button type="button" class="btn btn--ghost" (click)="cancelInvitation(invitation)">Cancel</button>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </section>
+                    }
+                </div>
+            } @else {
+                <div class="ws-empty">Select a workspace.</div>
+            }
+        </div>
+    }
+</section>

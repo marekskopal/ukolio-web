@@ -15,26 +15,34 @@ use Ukolio\Dto\ProjectCreateDto;
 use Ukolio\Dto\ProjectDto;
 use Ukolio\Dto\ProjectUpdateDto;
 use Ukolio\Model\Entity\Project;
+use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotFoundResponse;
 use Ukolio\Response\OkResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Provider\ProjectProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 
 final readonly class ProjectController
 {
-	public function __construct(private ProjectProviderInterface $projectProvider, private RequestServiceInterface $requestService,)
-	{
+	public function __construct(
+		private ProjectProviderInterface $projectProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
+		private RequestServiceInterface $requestService,
+	) {
 	}
 
 	#[RouteGet(Routes::Projects->value)]
 	public function actionGetProjects(ServerRequestInterface $request): ResponseInterface
 	{
-		$user = $this->requestService->getUser($request);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->requestService->getUser($request));
+		if ($workspace === null) {
+			return new JsonResponse([]);
+		}
 
 		$projects = array_map(
 			fn (Project $p): ProjectDto => ProjectDto::fromEntity($p),
-			iterator_to_array($this->projectProvider->getProjects($user), false),
+			iterator_to_array($this->projectProvider->getProjects($workspace), false),
 		);
 
 		return new JsonResponse($projects);
@@ -43,7 +51,12 @@ final readonly class ProjectController
 	#[RouteGet(Routes::Project->value)]
 	public function actionGetProject(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
-		$project = $this->projectProvider->getProject($this->requestService->getUser($request), $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->requestService->getUser($request));
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
@@ -55,9 +68,14 @@ final readonly class ProjectController
 	public function actionPostProject(ServerRequestInterface $request): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($user);
+		if ($workspace === null) {
+			return new ErrorResponse('No active workspace.', 422);
+		}
+
 		$dto = $this->requestService->getRequestBodyDto($request, ProjectCreateDto::class);
 
-		$project = $this->projectProvider->createProject($user, $dto->name, $dto->description);
+		$project = $this->projectProvider->createProject($user, $workspace, $dto->name, $dto->description);
 
 		return new JsonResponse(ProjectDto::fromEntity($project));
 	}
@@ -65,7 +83,13 @@ final readonly class ProjectController
 	#[RoutePut(Routes::Project->value)]
 	public function actionPutProject(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
-		$project = $this->projectProvider->getProject($this->requestService->getUser($request), $projectId);
+		$user = $this->requestService->getUser($request);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($user);
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
@@ -73,6 +97,7 @@ final readonly class ProjectController
 		$dto = $this->requestService->getRequestBodyDto($request, ProjectUpdateDto::class);
 
 		$project = $this->projectProvider->updateProject(
+			author: $user,
 			project: $project,
 			name: $dto->name ?? $project->name,
 			description: $dto->description ?? $project->description,
@@ -84,7 +109,12 @@ final readonly class ProjectController
 	#[RouteDelete(Routes::Project->value)]
 	public function actionDeleteProject(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
-		$project = $this->projectProvider->getProject($this->requestService->getUser($request), $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->requestService->getUser($request));
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}

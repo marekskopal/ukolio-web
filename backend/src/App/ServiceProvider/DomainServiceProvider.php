@@ -13,8 +13,12 @@ use Ukolio\OAuth\AuthorizationService;
 use Ukolio\OAuth\AuthorizationServiceInterface;
 use Ukolio\OAuth\ClientService;
 use Ukolio\OAuth\ClientServiceInterface;
+use Ukolio\Service\Email\EmailFactory;
+use Ukolio\Service\Email\MailerFactory;
 use Ukolio\Service\Provider\EventProvider;
 use Ukolio\Service\Provider\EventProviderInterface;
+use Ukolio\Service\Provider\InvitationProvider;
+use Ukolio\Service\Provider\InvitationProviderInterface;
 use Ukolio\Service\Provider\ProjectProvider;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProvider;
@@ -25,6 +29,8 @@ use Ukolio\Service\Provider\UserProvider;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Provider\WorkflowProvider;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProvider;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestService;
 use Ukolio\Service\Request\RequestServiceInterface;
 
@@ -35,6 +41,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		return in_array($id, [
 			RequestServiceInterface::class,
 			UserProviderInterface::class,
+			WorkspaceProviderInterface::class,
+			InvitationProviderInterface::class,
 			ProjectProviderInterface::class,
 			WorkflowProviderInterface::class,
 			StatusProviderInterface::class,
@@ -44,6 +52,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			UkolioServer::class,
 			ClientServiceInterface::class,
 			AuthorizationServiceInterface::class,
+			MailerFactory::class,
+			EmailFactory::class,
 		], true);
 	}
 
@@ -52,6 +62,10 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c = $this->getContainer();
 		$c->add(RequestServiceInterface::class, RequestService::class);
 		$c->add(UserProviderInterface::class, UserProvider::class);
+		$c->add(WorkspaceProviderInterface::class, WorkspaceProvider::class);
+		$c->add(MailerFactory::class, MailerFactory::class);
+		$c->add(EmailFactory::class, EmailFactory::class);
+		$c->add(InvitationProviderInterface::class, InvitationProvider::class);
 		$c->add(EventProviderInterface::class, EventProvider::class);
 		$c->add(StatusProviderInterface::class, StatusProvider::class);
 		$c->add(WorkflowProviderInterface::class, WorkflowProvider::class);

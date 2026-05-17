@@ -14,6 +14,7 @@ use Ukolio\Response\NotFoundResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 
 final readonly class EventController
@@ -21,6 +22,7 @@ final readonly class EventController
 	public function __construct(
 		private ProjectProviderInterface $projectProvider,
 		private EventProviderInterface $eventProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -29,7 +31,12 @@ final readonly class EventController
 	public function actionGetEvents(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
-		$project = $this->projectProvider->getProject($user, $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($user);
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}

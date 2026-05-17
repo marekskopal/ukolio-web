@@ -13,6 +13,7 @@ use Ukolio\Model\Entity\Workflow;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
 final readonly class WorkflowTools
 {
@@ -21,6 +22,7 @@ final readonly class WorkflowTools
 		private ProjectProviderInterface $projectProvider,
 		private WorkflowProviderInterface $workflowProvider,
 		private StatusProviderInterface $statusProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
 	) {
 	}
 
@@ -67,7 +69,12 @@ final readonly class WorkflowTools
 
 	private function resolveWorkflow(int $projectId): Workflow
 	{
-		$project = $this->projectProvider->getProject($this->userContext->getUser(), $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->userContext->getUser());
+		if ($workspace === null) {
+			throw new RuntimeException('No active workspace.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			throw new RuntimeException(sprintf('Project %d not found.', $projectId));
 		}

@@ -9,6 +9,7 @@ use Iterator;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\User;
+use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\ProjectRepository;
 
 final readonly class ProjectProvider implements ProjectProviderInterface
@@ -21,20 +22,20 @@ final readonly class ProjectProvider implements ProjectProviderInterface
 	}
 
 	/** @return Iterator<Project> */
-	public function getProjects(User $user): Iterator
+	public function getProjects(Workspace $workspace): Iterator
 	{
-		return $this->projectRepository->findProjectsByUser($user->id);
+		return $this->projectRepository->findProjectsByWorkspace($workspace->id);
 	}
 
-	public function getProject(User $user, int $projectId): ?Project
+	public function getProject(Workspace $workspace, int $projectId): ?Project
 	{
-		return $this->projectRepository->findProject($user->id, $projectId);
+		return $this->projectRepository->findProject($workspace->id, $projectId);
 	}
 
-	public function createProject(User $user, string $name, ?string $description): Project
+	public function createProject(User $author, Workspace $workspace, string $name, ?string $description): Project
 	{
 		$now = new DateTimeImmutable();
-		$project = new Project(user: $user, name: $name, description: $description);
+		$project = new Project(workspace: $workspace, name: $name, description: $description);
 		$project->createdAt = $now;
 		$project->updatedAt = $now;
 
@@ -42,19 +43,19 @@ final readonly class ProjectProvider implements ProjectProviderInterface
 
 		$this->workflowProvider->createDefaultWorkflow($project);
 
-		$this->eventProvider->recordEvent($user, $project, EventTypeEnum::ProjectCreated, ['name' => $name]);
+		$this->eventProvider->recordEvent($author, $project, EventTypeEnum::ProjectCreated, ['name' => $name]);
 
 		return $project;
 	}
 
-	public function updateProject(Project $project, string $name, ?string $description): Project
+	public function updateProject(User $author, Project $project, string $name, ?string $description): Project
 	{
 		$project->name = $name;
 		$project->description = $description;
 		$project->updatedAt = new DateTimeImmutable();
 		$this->projectRepository->persist($project);
 
-		$this->eventProvider->recordEvent($project->user, $project, EventTypeEnum::ProjectUpdated, ['name' => $name]);
+		$this->eventProvider->recordEvent($author, $project, EventTypeEnum::ProjectUpdated, ['name' => $name]);
 
 		return $project;
 	}

@@ -21,6 +21,7 @@ use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 
 final readonly class BoardController
@@ -30,6 +31,7 @@ final readonly class BoardController
 		private WorkflowProviderInterface $workflowProvider,
 		private StatusProviderInterface $statusProvider,
 		private TaskProviderInterface $taskProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -37,7 +39,12 @@ final readonly class BoardController
 	#[RouteGet(Routes::ProjectBoard->value)]
 	public function actionGetBoard(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
-		$project = $this->projectProvider->getProject($this->requestService->getUser($request), $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->requestService->getUser($request));
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}

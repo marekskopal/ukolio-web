@@ -1,0 +1,35 @@
+<section class="accept">
+    <div class="accept-card">
+        <h1>Workspace invitation</h1>
+
+        @if (loading()) {
+            <p class="muted">Loading…</p>
+        } @else if (error() !== null) {
+            <p class="error">{{ error() }}</p>
+            <a routerLink="/" class="btn">Go home</a>
+        } @else if (invitation(); as inv) {
+            @if (inv.acceptedAt !== null) {
+                <p>This invitation has already been accepted.</p>
+                <a routerLink="/" class="btn">Continue</a>
+            } @else {
+                <p>
+                    <strong>{{ inv.inviterName }}</strong> invited you to join
+                    <strong>{{ inv.workspaceName }}</strong> as {{ inv.role }}.
+                </p>
+                <p class="muted">Invitation is sent to <strong>{{ inv.email }}</strong>.</p>
+
+                @if (isLoggedIn()) {
+                    <button type="button" class="btn btn--primary" [disabled]="accepting()" (click)="accept()">
+                        {{ accepting() ? 'Joining…' : 'Accept invitation' }}
+                    </button>
+                } @else {
+                    <p>Sign in or create an account with this email to accept.</p>
+                    <div class="actions">
+                        <button type="button" class="btn btn--primary" (click)="goToSignUp()">Sign up</button>
+                        <button type="button" class="btn" (click)="goToLogin()">Log in</button>
+                    </div>
+                }
+            }
+        }
+    </div>
+</section>

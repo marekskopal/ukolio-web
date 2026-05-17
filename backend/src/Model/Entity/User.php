@@ -19,6 +19,8 @@ class User extends AEntity
 		public string $password,
 		#[Column(type: Type::String)]
 		public string $name,
+		#[Column(type: Type::Int, nullable: true)]
+		public ?int $currentWorkspaceId = null,
 	) {
 	}
 }

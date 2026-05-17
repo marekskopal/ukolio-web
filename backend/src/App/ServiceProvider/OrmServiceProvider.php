@@ -10,6 +10,7 @@ use MarekSkopal\ORM\Database\DatabaseInterface;
 use MarekSkopal\ORM\ORM;
 use MarekSkopal\ORM\Repository\RepositoryInterface;
 use Ukolio\Model\Entity\Event;
+use Ukolio\Model\Entity\Invitation;
 use Ukolio\Model\Entity\OAuthAuthorization;
 use Ukolio\Model\Entity\OAuthClient;
 use Ukolio\Model\Entity\Project;
@@ -17,7 +18,10 @@ use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workflow;
+use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Entity\WorkspaceUser;
 use Ukolio\Model\Repository\EventRepository;
+use Ukolio\Model\Repository\InvitationRepository;
 use Ukolio\Model\Repository\OAuthAuthorizationRepository;
 use Ukolio\Model\Repository\OAuthClientRepository;
 use Ukolio\Model\Repository\ProjectRepository;
@@ -25,6 +29,8 @@ use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
+use Ukolio\Model\Repository\WorkspaceRepository;
+use Ukolio\Model\Repository\WorkspaceUserRepository;
 use Ukolio\Service\Dbal\DbContext;
 
 final class OrmServiceProvider extends AbstractServiceProvider
@@ -39,6 +45,9 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			DatabaseInterface::class,
 			ORM::class,
 			UserRepository::class,
+			WorkspaceRepository::class,
+			WorkspaceUserRepository::class,
+			InvitationRepository::class,
 			ProjectRepository::class,
 			WorkflowRepository::class,
 			StatusRepository::class,
@@ -60,6 +69,9 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$orm = $this->dbContext->getOrm();
 
 		$this->addRepository($container, $orm, UserRepository::class, User::class);
+		$this->addRepository($container, $orm, WorkspaceRepository::class, Workspace::class);
+		$this->addRepository($container, $orm, WorkspaceUserRepository::class, WorkspaceUser::class);
+		$this->addRepository($container, $orm, InvitationRepository::class, Invitation::class);
 		$this->addRepository($container, $orm, ProjectRepository::class, Project::class);
 		$this->addRepository($container, $orm, WorkflowRepository::class, Workflow::class);
 		$this->addRepository($container, $orm, StatusRepository::class, Status::class);

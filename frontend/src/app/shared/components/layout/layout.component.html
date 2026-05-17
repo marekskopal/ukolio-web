@@ -5,6 +5,33 @@
                 <span class="brand-mark"></span>
                 Ukolio
             </a>
+            <div class="workspace-switcher">
+                <button type="button" class="workspace-current" (click)="toggleSwitcher()">
+                    <span class="workspace-label">{{ currentWorkspace()?.name ?? 'No workspace' }}</span>
+                    <span class="workspace-caret">▾</span>
+                </button>
+                @if (switcherOpen()) {
+                    <div class="workspace-menu">
+                        @for (ws of workspaces(); track ws.id) {
+                            <button
+                                type="button"
+                                class="workspace-item"
+                                [class.workspace-item--active]="ws.id === currentWorkspaceId()"
+                                (click)="switchTo(ws.id)"
+                            >
+                                {{ ws.name }}
+                            </button>
+                        }
+                        <div class="workspace-menu-divider"></div>
+                        <button type="button" class="workspace-item" (click)="createWorkspace()">
+                            + New workspace
+                        </button>
+                        <a class="workspace-item" routerLink="/workspaces" (click)="toggleSwitcher()">
+                            Manage workspaces
+                        </a>
+                    </div>
+                }
+            </div>
             <nav class="nav">
                 <a routerLink="/projects" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="{exact: false}" class="nav-link">
                     Projects

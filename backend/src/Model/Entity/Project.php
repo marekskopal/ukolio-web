@@ -14,8 +14,8 @@ use Ukolio\Model\Repository\ProjectRepository;
 class Project extends AEntity
 {
 	public function __construct(
-		#[ManyToOne(entityClass: User::class)]
-		public readonly User $user,
+		#[ManyToOne(entityClass: Workspace::class)]
+		public readonly Workspace $workspace,
 		#[Column(type: Type::String)]
 		public string $name,
 		#[Column(type: Type::Text, nullable: true)]

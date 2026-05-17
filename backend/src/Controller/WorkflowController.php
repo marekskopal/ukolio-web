@@ -15,6 +15,7 @@ use Ukolio\Response\NotFoundResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 
 final readonly class WorkflowController
@@ -22,6 +23,7 @@ final readonly class WorkflowController
 	public function __construct(
 		private ProjectProviderInterface $projectProvider,
 		private WorkflowProviderInterface $workflowProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -29,7 +31,12 @@ final readonly class WorkflowController
 	#[RouteGet(Routes::ProjectWorkflow->value)]
 	public function actionGetWorkflow(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
-		$project = $this->projectProvider->getProject($this->requestService->getUser($request), $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->requestService->getUser($request));
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
@@ -45,7 +52,12 @@ final readonly class WorkflowController
 	#[RoutePut(Routes::ProjectWorkflow->value)]
 	public function actionPutWorkflow(ServerRequestInterface $request, int $projectId): ResponseInterface
 	{
-		$project = $this->projectProvider->getProject($this->requestService->getUser($request), $projectId);
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->requestService->getUser($request));
+		if ($workspace === null) {
+			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}

@@ -1,0 +1,210 @@
+@use 'variables' as *;
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: $space-6;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.muted {
+    color: $color-text-subtle;
+}
+
+.ws-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: $space-6;
+    align-items: start;
+}
+
+.ws-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    padding: $space-2;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface;
+}
+
+.ws-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    background: transparent;
+    color: $color-text;
+    text-align: left;
+
+    &:hover {
+        background: $color-bg;
+    }
+
+    &--active {
+        background: $color-accent-soft;
+        color: $color-accent-hover;
+    }
+}
+
+.ws-badge {
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+    border: 1px solid $color-border;
+    border-radius: $radius-pill;
+    padding: 0 $space-2;
+}
+
+.ws-detail {
+    display: flex;
+    flex-direction: column;
+    gap: $space-6;
+    padding: $space-6;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface;
+}
+
+.ws-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ws-toolbar h2 {
+    margin: 0;
+    font-size: $font-size-lg;
+}
+
+.ws-actions {
+    display: flex;
+    gap: $space-2;
+}
+
+.ws-section h3 {
+    margin: 0 0 $space-3;
+    font-size: $font-size-md;
+}
+
+.ws-empty {
+    padding: $space-6;
+    color: $color-text-subtle;
+}
+
+.member-list,
+.invitation-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+}
+
+.member,
+.invitation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-2 $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+}
+
+.member-email {
+    margin-left: $space-2;
+    color: $color-text-subtle;
+}
+
+.member-role {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+}
+
+.role-chip {
+    font-size: $font-size-xs;
+    padding: 2px $space-2;
+    border-radius: $radius-pill;
+    background: $color-surface-muted;
+    color: $color-text-muted;
+
+    &--owner {
+        background: $color-accent-soft;
+        color: $color-accent-hover;
+    }
+}
+
+.invitation-accepted {
+    color: $color-success;
+    font-size: $font-size-sm;
+}
+
+.invite-form {
+    display: flex;
+    gap: $space-2;
+    margin-bottom: $space-4;
+}
+
+.input {
+    flex: 1;
+    padding: $space-2 $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    font-size: $font-size-sm;
+    background: $color-surface;
+}
+
+.btn {
+    padding: $space-2 $space-4;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    color: $color-text;
+    cursor: pointer;
+    font-size: $font-size-sm;
+
+    &:hover {
+        background: $color-bg;
+    }
+
+    &--primary {
+        background: $color-accent;
+        color: $color-text-inverse;
+        border-color: $color-accent;
+
+        &:hover {
+            background: $color-accent-hover;
+            border-color: $color-accent-hover;
+        }
+    }
+
+    &--danger {
+        color: $color-error;
+        border-color: $color-error-border;
+
+        &:hover {
+            background: $color-error-bg;
+        }
+    }
+
+    &--ghost {
+        background: transparent;
+        border-color: transparent;
+        color: $color-text-muted;
+
+        &:hover {
+            background: $color-bg;
+            color: $color-text;
+        }
+    }
+}

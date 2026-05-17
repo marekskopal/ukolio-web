@@ -15,10 +15,12 @@ use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Entity\Workspace;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
 final readonly class TaskTools
 {
@@ -28,6 +30,7 @@ final readonly class TaskTools
 		private WorkflowProviderInterface $workflowProvider,
 		private StatusProviderInterface $statusProvider,
 		private TaskProviderInterface $taskProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
 	) {
 	}
 
@@ -218,9 +221,20 @@ final readonly class TaskTools
 		return 'Task deleted.';
 	}
 
+	private function requireWorkspace(): Workspace
+	{
+		$workspace = $this->workspaceProvider->getCurrentWorkspace($this->userContext->getUser());
+		if ($workspace === null) {
+			throw new RuntimeException('No active workspace.');
+		}
+
+		return $workspace;
+	}
+
 	private function requireProject(int $projectId): Project
 	{
-		$project = $this->projectProvider->getProject($this->userContext->getUser(), $projectId);
+		$workspace = $this->requireWorkspace();
+		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			throw new RuntimeException(sprintf('Project %d not found.', $projectId));
 		}
@@ -231,7 +245,7 @@ final readonly class TaskTools
 	private function requireTask(int $taskId): Task
 	{
 		$task = $this->taskProvider->getTask($taskId);
-		if ($task === null || $task->project->user->id !== $this->userContext->getUser()->id) {
+		if ($task === null || !$this->workspaceProvider->isMember($this->userContext->getUser(), $task->project->workspace)) {
 			throw new RuntimeException(sprintf('Task %d not found.', $taskId));
 		}
 

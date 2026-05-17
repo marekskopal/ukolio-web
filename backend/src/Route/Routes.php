@@ -14,6 +14,16 @@ enum Routes: string
 
 	case CurrentUser = '/api/current-user';
 
+	case Workspaces = '/api/workspaces';
+	case Workspace = '/api/workspaces/{workspaceId:number}';
+	case WorkspaceSwitch = '/api/workspaces/{workspaceId:number}/switch';
+	case WorkspaceMembers = '/api/workspaces/{workspaceId:number}/members';
+	case WorkspaceMember = '/api/workspaces/{workspaceId:number}/members/{userId:number}';
+	case WorkspaceInvitations = '/api/workspaces/{workspaceId:number}/invitations';
+	case Invitation = '/api/invitations/{invitationId:number}';
+	case InvitationLookup = '/api/invitations/lookup';
+	case InvitationAccept = '/api/invitations/accept';
+
 	case Projects = '/api/projects';
 	case Project = '/api/projects/{projectId:number}';
 	case ProjectBoard = '/api/projects/{projectId:number}/board';

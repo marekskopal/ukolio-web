@@ -12,16 +12,16 @@ use Ukolio\Model\Entity\Project;
 final class ProjectRepository extends AbstractRepository
 {
 	/** @return Iterator<Project> */
-	public function findProjectsByUser(int $userId): Iterator
+	public function findProjectsByWorkspace(int $workspaceId): Iterator
 	{
 		return $this->select()
-			->where(['user_id' => $userId])
+			->where(['workspace_id' => $workspaceId])
 			->orderBy('id', 'DESC')
 			->fetchAll();
 	}
 
-	public function findProject(int $userId, int $projectId): ?Project
+	public function findProject(int $workspaceId, int $projectId): ?Project
 	{
-		return $this->findOne(['user_id' => $userId, 'id' => $projectId]);
+		return $this->findOne(['workspace_id' => $workspaceId, 'id' => $projectId]);
 	}
 }

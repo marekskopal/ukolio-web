@@ -10,13 +10,17 @@ Minimalistic Kanban task manager. Multi-user JWT auth. Architecture clones FinGa
 
 ## Domain
 
-- `Project` (user, name, description) → has one `Workflow`, many `Tasks`
+- `Workspace` (owner, name) — top-level container; users belong to one or more workspaces
+- `WorkspaceUser` (workspace, user, role ∈ Owner/Member) — membership
+- `Invitation` (workspace, inviter, email, tokenHash, role, expiresAt, acceptedAt?) — pending invites
+- `User` (email, password, name, currentWorkspaceId?) — `currentWorkspaceId` is the active workspace used to scope data
+- `Project` (workspace, name, description) → has one `Workflow`, many `Tasks`
 - `Workflow` (project, name) → has many `Status`
 - `Status` (workflow, name, color, position, type ∈ start/normal/finish)
 - `Task` (project, status, name, description [markdown], priority, dueDate, position)
 - `Event` (author, project, taskId?, type, metadata JSON) — append-only audit log
 
-New `Project` auto-seeds workflow `To Do → In Progress → Done`.
+On sign-up a personal `Workspace` is auto-created and the user becomes its owner. New `Project` auto-seeds workflow `To Do → In Progress → Done`. Inviting a member sends an email via Symfony Mailer (SMTP env: `SMTP_HOST/PORT/USER/PASSWORD`, `EMAIL_FROM`); `mailpit` is wired in `docker-compose.yml` for local capture.
 
 ## Docker
 

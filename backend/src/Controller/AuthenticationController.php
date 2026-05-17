@@ -21,6 +21,7 @@ use Ukolio\Route\Routes;
 use Ukolio\Service\Authentication\AuthenticationServiceInterface;
 use Ukolio\Service\Authentication\Exception\AuthenticationException;
 use Ukolio\Service\Provider\UserProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 use Ukolio\Validator\PasswordValidator;
 
@@ -29,6 +30,7 @@ final readonly class AuthenticationController
 	public function __construct(
 		private AuthenticationServiceInterface $authenticationService,
 		private UserProviderInterface $userProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -58,7 +60,9 @@ final readonly class AuthenticationController
 			return new ConflictResponse('User with email "' . $signUp->email . '" already exists.');
 		}
 
-		$this->userProvider->createUser($signUp->email, $signUp->password, $signUp->name);
+		$user = $this->userProvider->createUser($signUp->email, $signUp->password, $signUp->name);
+
+		$this->workspaceProvider->createWorkspace($user, $signUp->name . "'s Workspace");
 
 		return new JsonResponse($this->authenticationService->authenticate(new CredentialsDto($signUp->email, $signUp->password)));
 	}
