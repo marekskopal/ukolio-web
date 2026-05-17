@@ -28,9 +28,9 @@ export class WorkflowEditorComponent implements OnInit {
 
     protected readonly board = signal<Board | null>(null);
     protected readonly statuses = computed<Status[]>(() => {
-        const b = this.board();
-        if (!b) return [];
-        return [...b.statuses].sort((a, b) => a.position - b.position);
+        const currentBoard = this.board();
+        if (!currentBoard) return [];
+        return [...currentBoard.statuses].sort((a, b) => a.position - b.position);
     });
 
     public async ngOnInit(): Promise<void> {

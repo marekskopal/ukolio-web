@@ -1,5 +1,6 @@
 import {computed, inject, Injectable} from '@angular/core';
 import {WorkspaceMember, WorkspaceRole} from '@app/models/workspace';
+
 import {CurrentUserService} from './current-user.service';
 
 @Injectable({providedIn: 'root'})

@@ -6,8 +6,8 @@ import {Task, TaskPriority} from '@app/models/task';
 import {AlertService} from '@app/services/alert.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';
-import {MarkdownComponent} from 'ngx-markdown';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
+import {MarkdownComponent} from 'ngx-markdown';
 
 interface CustomControlDescriptor {
     controlName: string;

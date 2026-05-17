@@ -14,7 +14,7 @@ export class TaskCardComponent {
     public readonly task = input.required<Task>();
 
     protected stripMd(s: string): string {
-        return s.replace(/[#*_`~>\-]/g, '').replace(/\s+/g, ' ').trim();
+        return s.replace(/[#*_`~>-]/g, '').replace(/\s+/g, ' ').trim();
     }
 
     protected isOverdue(dueDate: string): boolean {

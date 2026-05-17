@@ -1,12 +1,12 @@
 import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
+import {TaskCardComponent} from '@app/board/task-card.component';
+import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {Board} from '@app/models/board';
 import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
 import {Task} from '@app/models/task';
-import {TaskCardComponent} from '@app/board/task-card.component';
-import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {BoardService} from '@app/services/board.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';

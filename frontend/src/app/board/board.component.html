@@ -32,7 +32,7 @@
                      (cdkDropListDropped)="onDrop($event, col.status)"
                      class="column-tasks">
                     @for (task of col.tasks; track task.id) {
-                        <div cdkDrag (click)="openEdit(task)">
+                        <div cdkDrag role="button" tabindex="0" (click)="openEdit(task)" (keydown.enter)="openEdit(task)" (keydown.space)="openEdit(task)">
                             <uk-task-card [task]="task" />
                         </div>
                     }

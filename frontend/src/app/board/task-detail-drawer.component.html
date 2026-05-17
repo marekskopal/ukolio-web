@@ -1,4 +1,4 @@
-<div class="drawer-backdrop" (click)="onCancel()"></div>
+<div class="drawer-backdrop" role="button" tabindex="0" [attr.aria-label]="'app.board.drawer.close' | translate" (click)="onCancel()"></div>
 <aside class="drawer">
     <header class="drawer-header">
         <h2>{{ (task() ? 'app.board.drawer.editTask' : 'app.board.drawer.newTask') | translate }}</h2>
@@ -7,24 +7,24 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="drawer-body">
         <div class="field">
-            <label class="field-label">{{ 'app.common.name' | translate }}</label>
-            <input type="text" formControlName="name" class="input" />
+            <label for="task-name" class="field-label">{{ 'app.common.name' | translate }}</label>
+            <input id="task-name" type="text" formControlName="name" class="input" />
         </div>
 
         <div class="field">
             <div class="field-label-row">
-                <label class="field-label">{{ 'app.common.description' | translate }}</label>
+                <label for="task-description" class="field-label">{{ 'app.common.description' | translate }}</label>
                 <div class="tab-group">
                     <button type="button" class="tab-button" [class.is-active]="tab() === 'edit'" (click)="tab.set('edit')">{{ 'app.board.drawer.edit' | translate }}</button>
                     <button type="button" class="tab-button" [class.is-active]="tab() === 'preview'" (click)="tab.set('preview')">{{ 'app.board.drawer.preview' | translate }}</button>
                 </div>
             </div>
             @if (tab() === 'edit') {
-                <textarea formControlName="description" rows="8" [placeholder]="'app.board.drawer.descriptionPlaceholder' | translate" class="textarea md-editor"></textarea>
+                <textarea id="task-description" formControlName="description" rows="8" [placeholder]="'app.board.drawer.descriptionPlaceholder' | translate" class="textarea md-editor"></textarea>
             } @else {
                 <div class="md-preview">
                     @if (description()) {
-                        <markdown [data]="description()"></markdown>
+                        <markdown [data]="description()" />
                     } @else {
                         <p class="text-subtle">{{ 'app.board.drawer.nothingToPreview' | translate }}</p>
                     }
@@ -34,16 +34,16 @@
 
         <div class="field-row">
             <div class="field">
-                <label class="field-label">{{ 'app.board.drawer.status' | translate }}</label>
-                <select formControlName="statusId" class="select">
+                <label for="task-status" class="field-label">{{ 'app.board.drawer.status' | translate }}</label>
+                <select id="task-status" formControlName="statusId" class="select">
                     @for (s of statuses(); track s.id) {
                         <option [value]="s.id">{{ s.name }}</option>
                     }
                 </select>
             </div>
             <div class="field">
-                <label class="field-label">{{ 'app.common.priority' | translate }}</label>
-                <select formControlName="priority" class="select">
+                <label for="task-priority" class="field-label">{{ 'app.common.priority' | translate }}</label>
+                <select id="task-priority" formControlName="priority" class="select">
                     <option value="Low">{{ 'app.priority.Low' | translate }}</option>
                     <option value="Medium">{{ 'app.priority.Medium' | translate }}</option>
                     <option value="High">{{ 'app.priority.High' | translate }}</option>
@@ -52,15 +52,15 @@
         </div>
 
         <div class="field">
-            <label class="field-label">{{ 'app.board.drawer.dueDate' | translate }}</label>
-            <input type="date" formControlName="dueDate" class="input input--narrow" />
+            <label for="task-due-date" class="field-label">{{ 'app.board.drawer.dueDate' | translate }}</label>
+            <input id="task-due-date" type="date" formControlName="dueDate" class="input input--narrow" />
         </div>
 
         @if (customControls().length > 0) {
             <h3 class="custom-fields-heading">{{ 'app.taskFields.heading' | translate }}</h3>
             @for (desc of customControls(); track desc.controlName) {
                 <div class="field">
-                    <label class="field-label">
+                    <label [attr.for]="desc.controlName" class="field-label">
                         {{ desc.pf.field.name }}
                         @if (desc.pf.field.required) {
                             <span class="required-mark">*</span>
@@ -68,13 +68,13 @@
                     </label>
                     @switch (desc.pf.field.type) {
                         @case ('Text') {
-                            <input type="text" [formControlName]="desc.controlName" class="input" />
+                            <input [id]="desc.controlName" type="text" [formControlName]="desc.controlName" class="input" />
                         }
                         @case ('Textarea') {
-                            <textarea [formControlName]="desc.controlName" rows="3" class="textarea"></textarea>
+                            <textarea [id]="desc.controlName" [formControlName]="desc.controlName" rows="3" class="textarea"></textarea>
                         }
                         @case ('Select') {
-                            <select [formControlName]="desc.controlName" class="select">
+                            <select [id]="desc.controlName" [formControlName]="desc.controlName" class="select">
                                 <option value=""></option>
                                 @for (opt of desc.options; track opt) {
                                     <option [value]="opt">{{ opt }}</option>
@@ -82,7 +82,7 @@
                             </select>
                         }
                         @case ('Version') {
-                            <select [formControlName]="desc.controlName" class="select">
+                            <select [id]="desc.controlName" [formControlName]="desc.controlName" class="select">
                                 <option value=""></option>
                                 @for (opt of desc.options; track opt) {
                                     <option [value]="opt">{{ opt }}</option>
