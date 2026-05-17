@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Ukolio\Model\Entity;
 
 use MarekSkopal\ORM\Attribute\Column;
+use MarekSkopal\ORM\Attribute\ColumnEnum;
 use MarekSkopal\ORM\Attribute\Entity;
 use MarekSkopal\ORM\Enum\Type;
+use Ukolio\Model\Entity\Enum\LocaleEnum;
 use Ukolio\Model\Repository\UserRepository;
 
 #[Entity(repositoryClass: UserRepository::class)]
@@ -19,6 +21,8 @@ class User extends AEntity
 		public string $password,
 		#[Column(type: Type::String)]
 		public string $name,
+		#[ColumnEnum(enum: LocaleEnum::class, default: LocaleEnum::En)]
+		public LocaleEnum $locale = LocaleEnum::En,
 		#[Column(type: Type::Int, nullable: true)]
 		public ?int $currentWorkspaceId = null,
 	) {

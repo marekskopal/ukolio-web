@@ -1,0 +1,15 @@
+{
+    "email": {
+        "subject": {
+            "invitation": "You've been invited to {workspace} on Ukolio"
+        },
+        "invitation": {
+            "title": "You've been invited to Ukolio",
+            "intro": "{inviter} has invited you to join the workspace <strong>{workspace}</strong>.",
+            "action": "Click the button below to accept the invitation. If you don't have an account yet, you'll be asked to sign up first using this email address.",
+            "button": "Accept invitation",
+            "fallback": "Or copy this link into your browser:",
+            "expires": "This invitation expires in 7 days."
+        }
+    }
+}

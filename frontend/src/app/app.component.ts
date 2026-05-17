@@ -1,5 +1,8 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
+import {AuthenticationService} from '@app/services/authentication.service';
+import {CurrentUserService} from '@app/services/current-user.service';
+import {LanguageService} from '@app/services/language.service';
 import {AlertComponent} from '@app/shared/components/alert/alert.component';
 
 @Component({
@@ -9,4 +12,24 @@ import {AlertComponent} from '@app/shared/components/alert/alert.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './app.component.html',
 })
-export class AppComponent {}
+export class AppComponent {
+    private readonly languageService = inject(LanguageService);
+    private readonly authenticationService = inject(AuthenticationService);
+    private readonly currentUserService = inject(CurrentUserService);
+
+    public constructor() {
+        this.languageService.init();
+
+        if (this.authenticationService.isLoggedIn()) {
+            this.currentUserService.load()
+                .then((user) => {
+                    if (this.languageService.isSupported(user.locale)) {
+                        this.languageService.use(user.locale, {persist: true, sync: false});
+                    }
+                })
+                .catch(() => {
+                    // Interceptor handles 401 -> refresh / logout
+                });
+        }
+    }
+}

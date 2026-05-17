@@ -25,9 +25,9 @@ export class AuthenticationService {
         return auth;
     }
 
-    public async signUp(email: string, password: string, name: string): Promise<Authentication> {
+    public async signUp(email: string, password: string, name: string, locale?: string): Promise<Authentication> {
         const auth = await firstValueFrom(
-            this.http.post<Authentication>(`${environment.apiUrl}/authentication/sign-up`, {email, password, name}),
+            this.http.post<Authentication>(`${environment.apiUrl}/authentication/sign-up`, {email, password, name, locale}),
         );
         this.setAuthentication(auth);
         return auth;

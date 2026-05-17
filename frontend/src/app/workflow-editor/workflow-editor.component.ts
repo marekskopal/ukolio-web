@@ -7,13 +7,14 @@ import {Status, StatusType} from '@app/models/status';
 import {AlertService} from '@app/services/alert.service';
 import {BoardService} from '@app/services/board.service';
 import {StatusService} from '@app/services/status.service';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 const DEFAULT_COLORS = ['#94a3b8', '#60a5fa', '#fbbf24', '#f87171', '#a78bfa', '#4ade80', '#34d399'];
 
 @Component({
     selector: 'uk-workflow-editor',
     standalone: true,
-    imports: [CdkDropList, CdkDrag, FormsModule, RouterLink],
+    imports: [CdkDropList, CdkDrag, FormsModule, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './workflow-editor.component.html',
     styleUrl: './workflow-editor.component.scss',
@@ -23,6 +24,7 @@ export class WorkflowEditorComponent implements OnInit {
     private readonly boardService = inject(BoardService);
     private readonly statusService = inject(StatusService);
     private readonly alertService = inject(AlertService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly board = signal<Board | null>(null);
     protected readonly statuses = computed<Status[]>(() => {
@@ -71,7 +73,8 @@ export class WorkflowEditorComponent implements OnInit {
     protected async addStatus(): Promise<void> {
         const b = this.board();
         if (!b) return;
-        const name = prompt('Status name?', 'New');
+        const promptText = await this.translate.instant('app.workflow.namePrompt') as string;
+        const name = prompt(promptText, await this.translate.instant('app.workflow.newStatusDefault') as string);
         if (!name) return;
         const color = DEFAULT_COLORS[b.statuses.length % DEFAULT_COLORS.length];
         const type: StatusType = 'Normal';
@@ -79,20 +82,21 @@ export class WorkflowEditorComponent implements OnInit {
         try {
             const created = await this.statusService.createStatus(b.workflow.id, {name, color, type});
             this.board.update((current) => current ? {...current, statuses: [...current.statuses, created]} : current);
-            this.alertService.success('Status added.');
+            this.alertService.success(await this.translate.instant('app.workflow.statusAdded') as string);
         } catch {
             // error interceptor
         }
     }
 
     protected async onDelete(status: Status): Promise<void> {
-        if (!confirm(`Delete status "${status.name}"? Tasks in this status will be orphaned.`)) {
+        const confirmMessage = await this.translate.instant('app.workflow.deleteStatusConfirm', {name: status.name}) as string;
+        if (!confirm(confirmMessage)) {
             return;
         }
         try {
             await this.statusService.deleteStatus(status.id);
             this.board.update((current) => current ? {...current, statuses: current.statuses.filter((s) => s.id !== status.id)} : current);
-            this.alertService.success('Status deleted.');
+            this.alertService.success(await this.translate.instant('app.workflow.statusDeleted') as string);
         } catch {
             // error interceptor
         }

@@ -1,0 +1,185 @@
+{
+    "app": {
+        "brand": "Ukolio",
+        "actions": {
+            "save": "Uložit",
+            "cancel": "Zrušit",
+            "delete": "Smazat",
+            "edit": "Upravit",
+            "create": "Vytvořit",
+            "back": "Zpět",
+            "loading": "Načítání…",
+            "joining": "Připojuji…",
+            "send": "Odeslat",
+            "confirm": "Potvrdit",
+            "remove": "Odebrat",
+            "rename": "Přejmenovat",
+            "continue": "Pokračovat",
+            "goHome": "Domů"
+        },
+        "priority": {
+            "Low": "Nízká",
+            "Medium": "Střední",
+            "High": "Vysoká"
+        },
+        "common": {
+            "noWorkspace": "Žádný pracovní prostor",
+            "due": "Termín",
+            "priority": "Priorita",
+            "description": "Popis",
+            "name": "Název",
+            "email": "E-mail",
+            "password": "Heslo",
+            "language": "Jazyk",
+            "empty": "Zatím tu nic není.",
+            "required": "Povinné"
+        },
+        "nav": {
+            "projects": "Projekty",
+            "signOut": "Odhlásit se",
+            "newWorkspace": "+ Nový pracovní prostor",
+            "manageWorkspaces": "Spravovat pracovní prostory"
+        },
+        "auth": {
+            "login": {
+                "title": "Přihlášení",
+                "subtitle": "Vítejte zpět v Ukolio.",
+                "submit": "Přihlásit se",
+                "submitting": "Přihlašuji…",
+                "noAccount": "Nemáte účet?",
+                "signUp": "Registrovat se"
+            },
+            "signUp": {
+                "title": "Vytvořit účet",
+                "subtitle": "Začněte spravovat své projekty.",
+                "submit": "Registrovat se",
+                "submitting": "Vytvářím účet…",
+                "hasAccount": "Už máte účet?",
+                "logIn": "Přihlásit se"
+            },
+            "errors": {
+                "invalidCredentials": "Neplatný e-mail nebo heslo.",
+                "passwordPolicy": "Heslo musí mít alespoň 8 znaků a obsahovat velké písmeno, malé písmeno a číslici."
+            }
+        },
+        "projects": {
+            "title": "Projekty",
+            "new": "Nový projekt",
+            "empty": "Zatím žádné projekty.",
+            "openBoard": "Otevřít tabuli",
+            "workflow": "Pracovní postup",
+            "history": "Historie",
+            "deleteConfirm": "Smazat projekt „{name}\"? Odstraní se i všechny jeho úkoly a historie.",
+            "deleted": "Projekt smazán.",
+            "created": "Projekt vytvořen.",
+            "updated": "Projekt aktualizován.",
+            "edit": "Upravit projekt",
+            "namePlaceholder": "Název projektu",
+            "descriptionPlaceholder": "Volitelný popis"
+        },
+        "board": {
+            "addTask": "Přidat úkol",
+            "noTasks": "Žádné úkoly v tomto sloupci.",
+            "taskCreated": "Úkol vytvořen.",
+            "taskUpdated": "Úkol upraven.",
+            "taskDeleted": "Úkol smazán.",
+            "deleteTaskConfirm": "Smazat úkol „{name}\"?",
+            "drawer": {
+                "newTask": "Nový úkol",
+                "editTask": "Upravit úkol",
+                "close": "Zavřít",
+                "preview": "Náhled",
+                "edit": "Editor",
+                "descriptionPlaceholder": "Podporuje Markdown…",
+                "nothingToPreview": "Není co zobrazit.",
+                "dueDate": "Termín",
+                "status": "Stav"
+            }
+        },
+        "workflow": {
+            "title": "Pracovní postup",
+            "addStatus": "+ Přidat stav",
+            "deleteStatusConfirm": "Smazat stav „{name}\"? Úkoly v tomto stavu zůstanou bez stavu.",
+            "lastStatusError": "Nelze smazat poslední stav.",
+            "namePlaceholder": "Název stavu",
+            "namePrompt": "Název stavu?",
+            "newStatusDefault": "Nový",
+            "statusAdded": "Stav přidán.",
+            "statusDeleted": "Stav smazán.",
+            "backToBoard": "← Zpět na tabuli",
+            "hint": "Tip: stav přesunete tažením rukojetí. Každý postup by měl mít jeden Začátek a alespoň jedno Dokončení.",
+            "dragHandle": "Přetáhněte pro změnu pořadí",
+            "type": {
+                "Start": "Začátek",
+                "Normal": "Průběh",
+                "Finish": "Dokončení"
+            }
+        },
+        "events": {
+            "title": "Historie",
+            "empty": "Zatím žádná aktivita.",
+            "types": {
+                "ProjectCreated": "vytvořil(a) projekt",
+                "ProjectUpdated": "upravil(a) projekt",
+                "ProjectDeleted": "smazal(a) projekt",
+                "WorkflowUpdated": "upravil(a) pracovní postup",
+                "StatusCreated": "přidal(a) stav „{name}\"",
+                "StatusUpdated": "upravil(a) stav",
+                "StatusDeleted": "smazal(a) stav",
+                "StatusMoved": "změnil(a) pořadí stavů",
+                "TaskCreated": "vytvořil(a) úkol „{name}\"",
+                "TaskUpdated": "upravil(a) úkol „{name}\"",
+                "TaskDeleted": "smazal(a) úkol „{name}\"",
+                "TaskMoved": "přesunul(a) „{name}\" z {from} → {to}"
+            },
+            "timeAgo": {
+                "seconds": "před {n}s",
+                "minutes": "před {n}m",
+                "hours": "před {n}h"
+            }
+        },
+        "workspaces": {
+            "title": "Pracovní prostory",
+            "createPrompt": "Název nového pracovního prostoru:",
+            "renamePrompt": "Název pracovního prostoru:",
+            "created": "Pracovní prostor „{name}\" byl vytvořen.",
+            "renamed": "Pracovní prostor přejmenován.",
+            "deleteConfirm": "Smazat pracovní prostor „{name}\"? Tato akce je nevratná.",
+            "deleted": "Pracovní prostor smazán.",
+            "current": "Aktivní",
+            "members": "Členové",
+            "noMembers": "Žádní členové.",
+            "inviteHeading": "Pozvat člena",
+            "invitePlaceholder": "jmeno@example.com",
+            "sendInvitation": "Odeslat pozvánku",
+            "invitationSent": "Pozvánka odeslána na {email}.",
+            "pendingInvitations": "Čekající pozvánky",
+            "cancelInvitationConfirm": "Zrušit pozvánku pro {email}?",
+            "removeMemberConfirm": "Odebrat {name} z „{workspace}\"?",
+            "memberRemoved": "Člen odebrán.",
+            "selectWorkspace": "Vyberte pracovní prostor.",
+            "accepted": "Přijato",
+            "role": {
+                "Owner": "Vlastník",
+                "Member": "Člen"
+            }
+        },
+        "invitation": {
+            "heading": "Pozvánka do pracovního prostoru",
+            "alreadyAccepted": "Tato pozvánka už byla přijata.",
+            "invitedAs": "{inviter} vás pozval(a) do {workspace} jako {role}.",
+            "sentTo": "Pozvánka je zaslána na {email}.",
+            "accept": "Přijmout pozvánku",
+            "loginPrompt": "Přihlaste se nebo si vytvořte účet s touto e-mailovou adresou.",
+            "missingToken": "Chybí token pozvánky.",
+            "notFound": "Pozvánka nebyla nalezena nebo už byla použita.",
+            "joined": "Připojeno k „{workspace}\"."
+        },
+        "settings": {
+            "language": "Jazyk",
+            "languageEn": "English",
+            "languageCs": "Čeština",
+            "languageUpdated": "Jazyk byl změněn."
+        }
+    }
+}

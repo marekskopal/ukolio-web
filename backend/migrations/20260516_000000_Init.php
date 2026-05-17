@@ -16,6 +16,7 @@ final class InitMigration extends Migration
 			->addColumn('email', Type::String)
 			->addColumn('password', Type::String)
 			->addColumn('name', Type::String)
+			->addColumn('locale', Type::Enum, enum: ['en', 'cs'], default: 'en')
 			->addColumn('current_workspace_id', Type::Int, size: 11, nullable: true)
 			->addColumn('created_at', Type::Timestamp)
 			->addColumn('updated_at', Type::Timestamp)

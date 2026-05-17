@@ -19,6 +19,7 @@ COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 COPY ./bin /app/bin
 COPY ./migrations /app/migrations
 COPY ./src /app/src
+COPY ./translations /app/translations
 COPY ./Caddyfile /etc/frankenphp/Caddyfile
 COPY ./composer.json ./composer.lock* /app/
 

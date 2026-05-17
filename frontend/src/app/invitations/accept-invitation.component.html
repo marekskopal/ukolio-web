@@ -1,32 +1,33 @@
 <section class="accept">
     <div class="accept-card">
-        <h1>Workspace invitation</h1>
+        <h1>{{ 'app.invitation.heading' | translate }}</h1>
 
         @if (loading()) {
-            <p class="muted">Loading…</p>
+            <p class="muted">{{ 'app.actions.loading' | translate }}</p>
         } @else if (error() !== null) {
             <p class="error">{{ error() }}</p>
-            <a routerLink="/" class="btn">Go home</a>
+            <a routerLink="/" class="btn">{{ 'app.actions.goHome' | translate }}</a>
         } @else if (invitation(); as inv) {
             @if (inv.acceptedAt !== null) {
-                <p>This invitation has already been accepted.</p>
-                <a routerLink="/" class="btn">Continue</a>
+                <p>{{ 'app.invitation.alreadyAccepted' | translate }}</p>
+                <a routerLink="/" class="btn">{{ 'app.actions.continue' | translate }}</a>
             } @else {
-                <p>
-                    <strong>{{ inv.inviterName }}</strong> invited you to join
-                    <strong>{{ inv.workspaceName }}</strong> as {{ inv.role }}.
-                </p>
-                <p class="muted">Invitation is sent to <strong>{{ inv.email }}</strong>.</p>
+                <p [innerHTML]="'app.invitation.invitedAs' | translate:{
+                    inviter: inv.inviterName,
+                    workspace: inv.workspaceName,
+                    role: ('app.workspaces.role.' + inv.role) | translate
+                }"></p>
+                <p class="muted">{{ 'app.invitation.sentTo' | translate:{email: inv.email} }}</p>
 
                 @if (isLoggedIn()) {
                     <button type="button" class="btn btn--primary" [disabled]="accepting()" (click)="accept()">
-                        {{ accepting() ? 'Joining…' : 'Accept invitation' }}
+                        {{ (accepting() ? 'app.actions.joining' : 'app.invitation.accept') | translate }}
                     </button>
                 } @else {
-                    <p>Sign in or create an account with this email to accept.</p>
+                    <p>{{ 'app.invitation.loginPrompt' | translate }}</p>
                     <div class="actions">
-                        <button type="button" class="btn btn--primary" (click)="goToSignUp()">Sign up</button>
-                        <button type="button" class="btn" (click)="goToLogin()">Log in</button>
+                        <button type="button" class="btn btn--primary" (click)="goToSignUp()">{{ 'app.auth.signUp.submit' | translate }}</button>
+                        <button type="button" class="btn" (click)="goToLogin()">{{ 'app.auth.login.submit' | translate }}</button>
                     </div>
                 }
             }

@@ -5,11 +5,12 @@ import {Invitation, Workspace, WorkspaceMember} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-workspaces',
     standalone: true,
-    imports: [FormsModule],
+    imports: [FormsModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './workspaces.component.html',
     styleUrl: './workspaces.component.scss',
@@ -18,6 +19,7 @@ export class WorkspacesComponent implements OnInit {
     private readonly workspaceService = inject(WorkspaceService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly loading = signal(true);
     protected readonly workspaces = this.workspaceService.workspaces;
@@ -61,14 +63,15 @@ export class WorkspacesComponent implements OnInit {
         if (ws === null) {
             return;
         }
-        const name = prompt('Workspace name:', ws.name);
+        const promptText = await this.translate.instant('app.workspaces.renamePrompt') as string;
+        const name = prompt(promptText, ws.name);
         if (name === null || name.trim() === '' || name.trim() === ws.name) {
             return;
         }
         try {
             const updated = await this.workspaceService.update(ws.id, name.trim());
             this.selected.set(updated);
-            this.alertService.success('Workspace renamed.');
+            this.alertService.success(await this.translate.instant('app.workspaces.renamed') as string);
         } catch {
             // error interceptor
         }
@@ -84,14 +87,15 @@ export class WorkspacesComponent implements OnInit {
             const invitation = await this.workspaceService.createInvitation(ws.id, email);
             this.invitations.update((all) => [invitation, ...all]);
             this.inviteEmail.set('');
-            this.alertService.success(`Invitation sent to ${email}.`);
+            this.alertService.success(await this.translate.instant('app.workspaces.invitationSent', {email}) as string);
         } catch {
             // error interceptor
         }
     }
 
     protected async cancelInvitation(invitation: Invitation): Promise<void> {
-        if (!confirm(`Cancel invitation to ${invitation.email}?`)) {
+        const confirmMessage = await this.translate.instant('app.workspaces.cancelInvitationConfirm', {email: invitation.email}) as string;
+        if (!confirm(confirmMessage)) {
             return;
         }
         try {
@@ -107,13 +111,17 @@ export class WorkspacesComponent implements OnInit {
         if (ws === null) {
             return;
         }
-        if (!confirm(`Remove ${member.name} from "${ws.name}"?`)) {
+        const confirmMessage = await this.translate.instant('app.workspaces.removeMemberConfirm', {
+            name: member.name,
+            workspace: ws.name,
+        }) as string;
+        if (!confirm(confirmMessage)) {
             return;
         }
         try {
             await this.workspaceService.removeMember(ws.id, member.userId);
             this.members.update((all) => all.filter((m) => m.userId !== member.userId));
-            this.alertService.success('Member removed.');
+            this.alertService.success(await this.translate.instant('app.workspaces.memberRemoved') as string);
         } catch {
             // error interceptor
         }
@@ -124,12 +132,13 @@ export class WorkspacesComponent implements OnInit {
         if (ws === null) {
             return;
         }
-        if (!confirm(`Delete workspace "${ws.name}"? This is irreversible.`)) {
+        const confirmMessage = await this.translate.instant('app.workspaces.deleteConfirm', {name: ws.name}) as string;
+        if (!confirm(confirmMessage)) {
             return;
         }
         try {
             await this.workspaceService.delete(ws.id);
-            this.alertService.success('Workspace deleted.');
+            this.alertService.success(await this.translate.instant('app.workspaces.deleted') as string);
             this.selected.set(null);
             const next = this.workspaces()[0];
             if (next !== undefined) {

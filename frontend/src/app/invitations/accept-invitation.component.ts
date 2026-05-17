@@ -5,11 +5,12 @@ import {AlertService} from '@app/services/alert.service';
 import {AuthenticationService} from '@app/services/authentication.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-accept-invitation',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './accept-invitation.component.html',
     styleUrl: './accept-invitation.component.scss',
@@ -21,6 +22,7 @@ export class AcceptInvitationComponent implements OnInit {
     private readonly auth = inject(AuthenticationService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly loading = signal(true);
     protected readonly accepting = signal(false);
@@ -33,7 +35,7 @@ export class AcceptInvitationComponent implements OnInit {
         const token = this.route.snapshot.queryParamMap.get('token');
         this.token.set(token);
         if (token === null || token === '') {
-            this.error.set('Missing invitation token.');
+            this.error.set(await this.translate.instant('app.invitation.missingToken') as string);
             this.loading.set(false);
             return;
         }
@@ -41,7 +43,7 @@ export class AcceptInvitationComponent implements OnInit {
         try {
             this.invitation.set(await this.workspaceService.lookupInvitation(token));
         } catch {
-            this.error.set('Invitation not found or already used.');
+            this.error.set(await this.translate.instant('app.invitation.notFound') as string);
         } finally {
             this.loading.set(false);
         }
@@ -55,13 +57,15 @@ export class AcceptInvitationComponent implements OnInit {
         this.accepting.set(true);
         try {
             const invitation = await this.workspaceService.acceptInvitation(token);
-            this.alertService.success(`Joined "${invitation.workspaceName}".`);
+            this.alertService.success(
+                await this.translate.instant('app.invitation.joined', {workspace: invitation.workspaceName}) as string,
+            );
             await this.currentUserService.load();
             await this.workspaceService.loadAll();
             this.workspaceService.currentWorkspaceId.set(invitation.workspaceId);
             await this.router.navigate(['/projects']);
         } catch (e: unknown) {
-            this.error.set(e instanceof Error ? e.message : 'Could not accept invitation.');
+            this.error.set(e instanceof Error ? e.message : await this.translate.instant('app.invitation.notFound') as string);
         } finally {
             this.accepting.set(false);
         }

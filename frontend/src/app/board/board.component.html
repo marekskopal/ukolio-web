@@ -1,5 +1,5 @@
 @if (loading()) {
-    <p class="text-muted">Loading board…</p>
+    <p class="text-muted">{{ 'app.actions.loading' | translate }}</p>
 } @else if (board(); as board) {
     <div class="board-header">
         <div>
@@ -9,9 +9,9 @@
             }
         </div>
         <nav class="board-nav">
-            <a [routerLink]="['/projects', board.project.id, 'workflow']" class="muted-link">Workflow</a>
+            <a [routerLink]="['/projects', board.project.id, 'workflow']" class="muted-link">{{ 'app.projects.workflow' | translate }}</a>
             <span class="separator">·</span>
-            <a [routerLink]="['/projects', board.project.id, 'events']" class="muted-link">Events</a>
+            <a [routerLink]="['/projects', board.project.id, 'events']" class="muted-link">{{ 'app.projects.history' | translate }}</a>
         </nav>
     </div>
 
@@ -24,7 +24,7 @@
                         <h3>{{ col.status.name }}</h3>
                         <span class="column-count">{{ col.tasks.length }}</span>
                     </div>
-                    <button type="button" class="column-add" (click)="openCreate(col.status)" aria-label="Add task">+</button>
+                    <button type="button" class="column-add" (click)="openCreate(col.status)" [attr.aria-label]="'app.board.addTask' | translate">+</button>
                 </header>
 
                 <div cdkDropList

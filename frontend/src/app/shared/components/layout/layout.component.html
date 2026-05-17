@@ -3,11 +3,11 @@
         <div class="topbar-inner">
             <a routerLink="/projects" class="brand">
                 <span class="brand-mark"></span>
-                Ukolio
+                {{ 'app.brand' | translate }}
             </a>
             <div class="workspace-switcher">
                 <button type="button" class="workspace-current" (click)="toggleSwitcher()">
-                    <span class="workspace-label">{{ currentWorkspace()?.name ?? 'No workspace' }}</span>
+                    <span class="workspace-label">{{ currentWorkspace()?.name ?? ('app.common.noWorkspace' | translate) }}</span>
                     <span class="workspace-caret">▾</span>
                 </button>
                 @if (switcherOpen()) {
@@ -24,22 +24,43 @@
                         }
                         <div class="workspace-menu-divider"></div>
                         <button type="button" class="workspace-item" (click)="createWorkspace()">
-                            + New workspace
+                            {{ 'app.nav.newWorkspace' | translate }}
                         </button>
                         <a class="workspace-item" routerLink="/workspaces" (click)="toggleSwitcher()">
-                            Manage workspaces
+                            {{ 'app.nav.manageWorkspaces' | translate }}
                         </a>
                     </div>
                 }
             </div>
             <nav class="nav">
                 <a routerLink="/projects" routerLinkActive="nav-link--active" [routerLinkActiveOptions]="{exact: false}" class="nav-link">
-                    Projects
+                    {{ 'app.nav.projects' | translate }}
                 </a>
+
+                <div class="lang-switcher">
+                    <button type="button" class="nav-link" (click)="toggleLangMenu()">
+                        {{ currentLang().toUpperCase() }}
+                    </button>
+                    @if (langMenuOpen()) {
+                        <div class="lang-menu">
+                            @for (lang of supportedLangs; track lang) {
+                                <button
+                                    type="button"
+                                    class="lang-item"
+                                    [class.lang-item--active]="lang === currentLang()"
+                                    (click)="setLanguage(lang)"
+                                >
+                                    {{ ('app.settings.language' + (lang === 'en' ? 'En' : 'Cs')) | translate }}
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+
                 @if (user(); as u) {
                     <span class="user-email">{{ u.email }}</span>
                 }
-                <button type="button" class="nav-link" (click)="logout()">Sign out</button>
+                <button type="button" class="nav-link" (click)="logout()">{{ 'app.nav.signOut' | translate }}</button>
             </nav>
         </div>
     </header>

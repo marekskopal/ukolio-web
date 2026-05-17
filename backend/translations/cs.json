@@ -1,0 +1,15 @@
+{
+    "email": {
+        "subject": {
+            "invitation": "Pozvánka do pracovního prostoru {workspace} v Ukolio"
+        },
+        "invitation": {
+            "title": "Pozvánka do Ukolio",
+            "intro": "{inviter} vás pozval(a) do pracovního prostoru <strong>{workspace}</strong>.",
+            "action": "Pozvánku přijmete kliknutím na tlačítko níže. Pokud ještě nemáte účet, budete vyzváni k registraci pomocí této e-mailové adresy.",
+            "button": "Přijmout pozvánku",
+            "fallback": "Nebo zkopírujte tento odkaz do prohlížeče:",
+            "expires": "Pozvánka vyprší za 7 dní."
+        }
+    }
+}

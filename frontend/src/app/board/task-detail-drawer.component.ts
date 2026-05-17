@@ -5,11 +5,12 @@ import {Task, TaskPriority} from '@app/models/task';
 import {AlertService} from '@app/services/alert.service';
 import {TaskService} from '@app/services/task.service';
 import {MarkdownComponent} from 'ngx-markdown';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-task-detail-drawer',
     standalone: true,
-    imports: [ReactiveFormsModule, MarkdownComponent],
+    imports: [ReactiveFormsModule, MarkdownComponent, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-detail-drawer.component.html',
     styleUrl: './task-detail-drawer.component.scss',
@@ -27,6 +28,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
     private readonly taskService = inject(TaskService);
     private readonly alertService = inject(AlertService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly saving = signal(false);
     protected readonly tab = signal<'edit' | 'preview'>('edit');
@@ -74,7 +76,9 @@ export class TaskDetailDrawerComponent implements OnInit {
             const saved = existing
                 ? await this.taskService.updateTask(existing.id, payload)
                 : await this.taskService.createTask(this.projectId(), payload);
-            this.alertService.success(existing ? 'Task updated.' : 'Task created.');
+            this.alertService.success(
+                await this.translate.instant(existing ? 'app.board.taskUpdated' : 'app.board.taskCreated') as string,
+            );
             this.saved.emit(saved);
         } catch {
             // error interceptor
@@ -88,12 +92,13 @@ export class TaskDetailDrawerComponent implements OnInit {
         if (!existing) {
             return;
         }
-        if (!confirm(`Delete task "${existing.name}"?`)) {
+        const confirmMessage = await this.translate.instant('app.board.deleteTaskConfirm', {name: existing.name}) as string;
+        if (!confirm(confirmMessage)) {
             return;
         }
         try {
             await this.taskService.deleteTask(existing.id);
-            this.alertService.success('Task deleted.');
+            this.alertService.success(await this.translate.instant('app.board.taskDeleted') as string);
             this.deleted.emit(existing.id);
         } catch {
             // error interceptor

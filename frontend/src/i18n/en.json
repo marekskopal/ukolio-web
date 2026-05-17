@@ -1,0 +1,185 @@
+{
+    "app": {
+        "brand": "Ukolio",
+        "actions": {
+            "save": "Save",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "edit": "Edit",
+            "create": "Create",
+            "back": "Back",
+            "loading": "Loading…",
+            "joining": "Joining…",
+            "send": "Send",
+            "confirm": "Confirm",
+            "remove": "Remove",
+            "rename": "Rename",
+            "continue": "Continue",
+            "goHome": "Go home"
+        },
+        "priority": {
+            "Low": "Low",
+            "Medium": "Medium",
+            "High": "High"
+        },
+        "common": {
+            "noWorkspace": "No workspace",
+            "due": "Due",
+            "priority": "Priority",
+            "description": "Description",
+            "name": "Name",
+            "email": "Email",
+            "password": "Password",
+            "language": "Language",
+            "empty": "Nothing here yet.",
+            "required": "Required"
+        },
+        "nav": {
+            "projects": "Projects",
+            "signOut": "Sign out",
+            "newWorkspace": "+ New workspace",
+            "manageWorkspaces": "Manage workspaces"
+        },
+        "auth": {
+            "login": {
+                "title": "Sign in",
+                "subtitle": "Welcome back to Ukolio.",
+                "submit": "Sign in",
+                "submitting": "Signing in…",
+                "noAccount": "Don't have an account?",
+                "signUp": "Sign up"
+            },
+            "signUp": {
+                "title": "Create your account",
+                "subtitle": "Start managing your projects.",
+                "submit": "Sign up",
+                "submitting": "Creating account…",
+                "hasAccount": "Already have an account?",
+                "logIn": "Log in"
+            },
+            "errors": {
+                "invalidCredentials": "Email or password is invalid.",
+                "passwordPolicy": "Password must be at least 8 characters and contain uppercase, lowercase, and a digit."
+            }
+        },
+        "projects": {
+            "title": "Projects",
+            "new": "New project",
+            "empty": "No projects yet.",
+            "openBoard": "Open board",
+            "workflow": "Workflow",
+            "history": "History",
+            "deleteConfirm": "Delete project \"{name}\"? This also removes all its tasks and history.",
+            "deleted": "Project deleted.",
+            "created": "Project created.",
+            "updated": "Project updated.",
+            "edit": "Edit project",
+            "namePlaceholder": "Project name",
+            "descriptionPlaceholder": "Optional description"
+        },
+        "board": {
+            "addTask": "Add task",
+            "noTasks": "No tasks in this column.",
+            "taskCreated": "Task created.",
+            "taskUpdated": "Task updated.",
+            "taskDeleted": "Task deleted.",
+            "deleteTaskConfirm": "Delete task \"{name}\"?",
+            "drawer": {
+                "newTask": "New task",
+                "editTask": "Edit task",
+                "close": "Close",
+                "preview": "Preview",
+                "edit": "Edit",
+                "descriptionPlaceholder": "Markdown supported…",
+                "nothingToPreview": "Nothing to preview.",
+                "dueDate": "Due date",
+                "status": "Status"
+            }
+        },
+        "workflow": {
+            "title": "Workflow",
+            "addStatus": "+ Add status",
+            "deleteStatusConfirm": "Delete status \"{name}\"? Tasks in this status will be orphaned.",
+            "lastStatusError": "Cannot delete the last status of a workflow.",
+            "namePlaceholder": "Status name",
+            "namePrompt": "Status name?",
+            "newStatusDefault": "New",
+            "statusAdded": "Status added.",
+            "statusDeleted": "Status deleted.",
+            "backToBoard": "← Back to board",
+            "hint": "Tip: drag the handle to reorder. Each workflow should have one Start and at least one Finish status.",
+            "dragHandle": "Drag to reorder",
+            "type": {
+                "Start": "Start",
+                "Normal": "Normal",
+                "Finish": "Finish"
+            }
+        },
+        "events": {
+            "title": "History",
+            "empty": "No activity yet.",
+            "types": {
+                "ProjectCreated": "created the project",
+                "ProjectUpdated": "updated the project",
+                "ProjectDeleted": "deleted the project",
+                "WorkflowUpdated": "updated the workflow",
+                "StatusCreated": "added status \"{name}\"",
+                "StatusUpdated": "updated a status",
+                "StatusDeleted": "deleted a status",
+                "StatusMoved": "reordered statuses",
+                "TaskCreated": "created task \"{name}\"",
+                "TaskUpdated": "updated task \"{name}\"",
+                "TaskDeleted": "deleted task \"{name}\"",
+                "TaskMoved": "moved \"{name}\" from {from} → {to}"
+            },
+            "timeAgo": {
+                "seconds": "{n}s ago",
+                "minutes": "{n}m ago",
+                "hours": "{n}h ago"
+            }
+        },
+        "workspaces": {
+            "title": "Workspaces",
+            "createPrompt": "New workspace name:",
+            "renamePrompt": "Workspace name:",
+            "created": "Workspace \"{name}\" created.",
+            "renamed": "Workspace renamed.",
+            "deleteConfirm": "Delete workspace \"{name}\"? This is irreversible.",
+            "deleted": "Workspace deleted.",
+            "current": "Current",
+            "members": "Members",
+            "noMembers": "No members.",
+            "inviteHeading": "Invite a member",
+            "invitePlaceholder": "name@example.com",
+            "sendInvitation": "Send invitation",
+            "invitationSent": "Invitation sent to {email}.",
+            "pendingInvitations": "Pending invitations",
+            "cancelInvitationConfirm": "Cancel invitation to {email}?",
+            "removeMemberConfirm": "Remove {name} from \"{workspace}\"?",
+            "memberRemoved": "Member removed.",
+            "selectWorkspace": "Select a workspace.",
+            "accepted": "Accepted",
+            "role": {
+                "Owner": "Owner",
+                "Member": "Member"
+            }
+        },
+        "invitation": {
+            "heading": "Workspace invitation",
+            "alreadyAccepted": "This invitation has already been accepted.",
+            "invitedAs": "{inviter} invited you to join {workspace} as {role}.",
+            "sentTo": "Invitation is sent to {email}.",
+            "accept": "Accept invitation",
+            "loginPrompt": "Sign in or create an account with this email to accept.",
+            "missingToken": "Missing invitation token.",
+            "notFound": "Invitation not found or already used.",
+            "joined": "Joined \"{workspace}\"."
+        },
+        "settings": {
+            "language": "Language",
+            "languageEn": "English",
+            "languageCs": "Čeština",
+            "languageUpdated": "Language updated."
+        }
+    }
+}

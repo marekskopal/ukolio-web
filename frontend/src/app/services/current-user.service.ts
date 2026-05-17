@@ -15,6 +15,12 @@ export class CurrentUserService {
         return user;
     }
 
+    public async update(changes: {name?: string; locale?: string}): Promise<User> {
+        const user = await firstValueFrom(this.http.patch<User>(`${environment.apiUrl}/current-user`, changes));
+        this.currentUser.set(user);
+        return user;
+    }
+
     public clear(): void {
         this.currentUser.set(null);
     }

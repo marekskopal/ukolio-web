@@ -1,17 +1,16 @@
 <div class="page-header">
     <div>
-        <h1 class="page-title">Projects</h1>
-        <p class="page-subtitle">All your projects in one place.</p>
+        <h1 class="page-title">{{ 'app.projects.title' | translate }}</h1>
     </div>
-    <a routerLink="/projects/new" class="btn btn-primary">New project</a>
+    <a routerLink="/projects/new" class="btn btn-primary">{{ 'app.projects.new' | translate }}</a>
 </div>
 
 @if (loading()) {
-    <p class="text-muted">Loading…</p>
+    <p class="text-muted">{{ 'app.actions.loading' | translate }}</p>
 } @else if (projects().length === 0) {
     <div class="empty-state">
-        <p>No projects yet.</p>
-        <a routerLink="/projects/new" class="btn-link">Create your first project →</a>
+        <p>{{ 'app.projects.empty' | translate }}</p>
+        <a routerLink="/projects/new" class="btn-link">{{ 'app.projects.new' | translate }} →</a>
     </div>
 } @else {
     <ul class="project-grid">
@@ -20,18 +19,18 @@
                 <div class="project-card-head">
                     <a [routerLink]="['/projects', project.id, 'board']" class="project-name">{{ project.name }}</a>
                     <div class="project-actions">
-                        <a [routerLink]="['/projects', project.id, 'edit']" class="muted-link">Edit</a>
+                        <a [routerLink]="['/projects', project.id, 'edit']" class="muted-link">{{ 'app.actions.edit' | translate }}</a>
                         <span class="separator">·</span>
-                        <button type="button" class="btn-danger-link project-delete" (click)="onDelete(project)">Delete</button>
+                        <button type="button" class="btn-danger-link project-delete" (click)="onDelete(project)">{{ 'app.actions.delete' | translate }}</button>
                     </div>
                 </div>
                 @if (project.description) {
                     <p class="project-description">{{ project.description }}</p>
                 }
                 <div class="project-links">
-                    <a [routerLink]="['/projects', project.id, 'board']" class="btn-link">Board</a>
-                    <a [routerLink]="['/projects', project.id, 'workflow']" class="muted-link">Workflow</a>
-                    <a [routerLink]="['/projects', project.id, 'events']" class="muted-link">Events</a>
+                    <a [routerLink]="['/projects', project.id, 'board']" class="btn-link">{{ 'app.projects.openBoard' | translate }}</a>
+                    <a [routerLink]="['/projects', project.id, 'workflow']" class="muted-link">{{ 'app.projects.workflow' | translate }}</a>
+                    <a [routerLink]="['/projects', project.id, 'events']" class="muted-link">{{ 'app.projects.history' | translate }}</a>
                 </div>
             </li>
         }

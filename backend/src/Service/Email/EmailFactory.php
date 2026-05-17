@@ -6,7 +6,9 @@ namespace Ukolio\Service\Email;
 
 use Symfony\Component\Mime\Email;
 use Ukolio\Email\InvitationEmail;
+use Ukolio\Model\Entity\Enum\LocaleEnum;
 use Ukolio\Model\Entity\Invitation;
+use Ukolio\Service\Translator\TranslatorServiceInterface;
 
 final readonly class EmailFactory
 {
@@ -14,7 +16,7 @@ final readonly class EmailFactory
 
 	private string $appUrl;
 
-	public function __construct()
+	public function __construct(private TranslatorServiceInterface $translator)
 	{
 		$from = (string) getenv('EMAIL_FROM');
 		$this->from = $from !== '' ? $from : 'no-reply@ukolio.local';
@@ -23,20 +25,26 @@ final readonly class EmailFactory
 		$this->appUrl = $appUrl !== '' ? $appUrl : 'http://localhost';
 	}
 
-	public function createInvitationEmail(Invitation $invitation, string $token): Email
+	public function createInvitationEmail(Invitation $invitation, string $token, LocaleEnum $locale): Email
 	{
 		$acceptUrl = $this->appUrl . '/invitations/accept?token=' . urlencode($token);
+
+		$subject = strtr(
+			$this->translator->translate('email.subject.invitation', $locale),
+			['{workspace}' => $invitation->workspace->name],
+		);
 
 		$html = InvitationEmail::getHtml(
 			inviterName: $invitation->inviter->name,
 			workspaceName: $invitation->workspace->name,
 			acceptUrl: $acceptUrl,
+			t: $this->translator->section('email.invitation', $locale),
 		);
 
 		return new Email()
 			->from($this->from)
 			->to($invitation->email)
-			->subject('You\'ve been invited to ' . $invitation->workspace->name . ' on Ukolio')
+			->subject($subject)
 			->html($html);
 	}
 }

@@ -24,6 +24,7 @@ final readonly class InvitationProvider implements InvitationProviderInterface
 	public function __construct(
 		private InvitationRepository $invitationRepository,
 		private WorkspaceProviderInterface $workspaceProvider,
+		private UserProviderInterface $userProvider,
 		private EmailFactory $emailFactory,
 		private MailerFactory $mailerFactory,
 		private LoggerInterface $logger,
@@ -64,9 +65,15 @@ final readonly class InvitationProvider implements InvitationProviderInterface
 
 		$this->invitationRepository->persist($invitation);
 
+		$locale = $inviter->locale;
+		$recipient = $this->userProvider->getUserByEmail($email);
+		if ($recipient !== null) {
+			$locale = $recipient->locale;
+		}
+
 		try {
 			$mailer = $this->mailerFactory->create();
-			$mailer->send($this->emailFactory->createInvitationEmail($invitation, $token));
+			$mailer->send($this->emailFactory->createInvitationEmail($invitation, $token, $locale));
 		} catch (\Throwable $e) {
 			$this->logger->error('Failed to send invitation email: ' . $e->getMessage());
 		}

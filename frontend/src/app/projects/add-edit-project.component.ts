@@ -3,11 +3,12 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AlertService} from '@app/services/alert.service';
 import {ProjectService} from '@app/services/project.service';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-add-edit-project',
     standalone: true,
-    imports: [ReactiveFormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './add-edit-project.component.html',
     styleUrl: './add-edit-project.component.scss',
@@ -18,6 +19,7 @@ export class AddEditProjectComponent implements OnInit {
     private readonly router = inject(Router);
     private readonly projectService = inject(ProjectService);
     private readonly alertService = inject(AlertService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly saving = signal(false);
     protected readonly id = signal<number | null>(null);
@@ -49,10 +51,10 @@ export class AddEditProjectComponent implements OnInit {
             const id = this.id();
             if (id === null) {
                 await this.projectService.createProject(name, description ?? null);
-                this.alertService.success('Project created.');
+                this.alertService.success(await this.translate.instant('app.projects.created') as string);
             } else {
                 await this.projectService.updateProject(id, name, description ?? null);
-                this.alertService.success('Project updated.');
+                this.alertService.success(await this.translate.instant('app.projects.updated') as string);
             }
             this.router.navigateByUrl('/projects');
         } catch {

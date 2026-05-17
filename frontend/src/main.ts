@@ -3,6 +3,8 @@ import {enableProdMode, provideZonelessChangeDetection} from '@angular/core';
 import {bootstrapApplication} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
 import {provideMarkdown} from 'ngx-markdown';
+import {provideTranslateService} from '@ngx-translate/core';
+import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 import {AppComponent} from '@app/app.component';
 import {appRoutes} from '@app/app-routes';
 import {errorInterceptor} from '@app/core/interceptors/error.interceptor';
@@ -17,6 +19,12 @@ bootstrapApplication(AppComponent, {
     providers: [
         provideRouter(appRoutes),
         provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor])),
+        provideTranslateService({
+            loader: provideTranslateHttpLoader({
+                prefix: environment.i18nPath,
+                suffix: `.json?v=${environment.i18nVersion}`,
+            }),
+        }),
         provideMarkdown(),
         provideZonelessChangeDetection(),
     ],

@@ -1,10 +1,10 @@
 <section class="page">
     <header class="page-header">
-        <h1>Workspaces</h1>
+        <h1>{{ 'app.workspaces.title' | translate }}</h1>
     </header>
 
     @if (loading()) {
-        <p class="muted">Loading…</p>
+        <p class="muted">{{ 'app.actions.loading' | translate }}</p>
     } @else {
         <div class="ws-layout">
             <aside class="ws-list">
@@ -17,7 +17,7 @@
                     >
                         <span class="ws-name">{{ ws.name }}</span>
                         @if (ws.id === user()?.currentWorkspaceId) {
-                            <span class="ws-badge">Current</span>
+                            <span class="ws-badge">{{ 'app.workspaces.current' | translate }}</span>
                         }
                     </button>
                 }
@@ -29,14 +29,14 @@
                         <h2>{{ ws.name }}</h2>
                         @if (isOwner()) {
                             <div class="ws-actions">
-                                <button type="button" class="btn" (click)="rename()">Rename</button>
-                                <button type="button" class="btn btn--danger" (click)="deleteWorkspace()">Delete</button>
+                                <button type="button" class="btn" (click)="rename()">{{ 'app.actions.rename' | translate }}</button>
+                                <button type="button" class="btn btn--danger" (click)="deleteWorkspace()">{{ 'app.actions.delete' | translate }}</button>
                             </div>
                         }
                     </div>
 
                     <section class="ws-section">
-                        <h3>Members</h3>
+                        <h3>{{ 'app.workspaces.members' | translate }}</h3>
                         <ul class="member-list">
                             @for (member of members(); track member.userId) {
                                 <li class="member">
@@ -45,47 +45,47 @@
                                         <span class="member-email">{{ member.email }}</span>
                                     </div>
                                     <div class="member-role">
-                                        <span class="role-chip role-chip--{{ member.role.toLowerCase() }}">{{ member.role }}</span>
+                                        <span class="role-chip role-chip--{{ member.role.toLowerCase() }}">{{ ('app.workspaces.role.' + member.role) | translate }}</span>
                                         @if (isOwner() && member.role !== 'Owner') {
-                                            <button type="button" class="btn btn--ghost" (click)="removeMember(member)">Remove</button>
+                                            <button type="button" class="btn btn--ghost" (click)="removeMember(member)">{{ 'app.actions.remove' | translate }}</button>
                                         }
                                     </div>
                                 </li>
                             } @empty {
-                                <li class="muted">No members.</li>
+                                <li class="muted">{{ 'app.workspaces.noMembers' | translate }}</li>
                             }
                         </ul>
                     </section>
 
                     @if (isOwner()) {
                         <section class="ws-section">
-                            <h3>Invite a member</h3>
+                            <h3>{{ 'app.workspaces.inviteHeading' | translate }}</h3>
                             <form class="invite-form" (submit)="invite(); $event.preventDefault()">
                                 <input
                                     type="email"
                                     required
-                                    placeholder="name@example.com"
+                                    [placeholder]="'app.workspaces.invitePlaceholder' | translate"
                                     class="input"
                                     [value]="inviteEmail()"
                                     (input)="updateInviteEmail($any($event.target).value)"
                                 />
-                                <button type="submit" class="btn btn--primary">Send invitation</button>
+                                <button type="submit" class="btn btn--primary">{{ 'app.workspaces.sendInvitation' | translate }}</button>
                             </form>
 
                             @if (invitations().length > 0) {
-                                <h3>Pending invitations</h3>
+                                <h3>{{ 'app.workspaces.pendingInvitations' | translate }}</h3>
                                 <ul class="invitation-list">
                                     @for (invitation of invitations(); track invitation.id) {
                                         <li class="invitation">
                                             <div>
                                                 <strong>{{ invitation.email }}</strong>
-                                                <span class="muted"> · {{ invitation.role }}</span>
+                                                <span class="muted"> · {{ ('app.workspaces.role.' + invitation.role) | translate }}</span>
                                                 @if (invitation.acceptedAt !== null) {
-                                                    <span class="invitation-accepted"> · Accepted</span>
+                                                    <span class="invitation-accepted"> · {{ 'app.workspaces.accepted' | translate }}</span>
                                                 }
                                             </div>
                                             @if (invitation.acceptedAt === null) {
-                                                <button type="button" class="btn btn--ghost" (click)="cancelInvitation(invitation)">Cancel</button>
+                                                <button type="button" class="btn btn--ghost" (click)="cancelInvitation(invitation)">{{ 'app.actions.cancel' | translate }}</button>
                                             }
                                         </li>
                                     }
@@ -95,7 +95,7 @@
                     }
                 </div>
             } @else {
-                <div class="ws-empty">Select a workspace.</div>
+                <div class="ws-empty">{{ 'app.workspaces.selectWorkspace' | translate }}</div>
             }
         </div>
     }

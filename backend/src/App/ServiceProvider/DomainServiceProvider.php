@@ -13,8 +13,6 @@ use Ukolio\OAuth\AuthorizationService;
 use Ukolio\OAuth\AuthorizationServiceInterface;
 use Ukolio\OAuth\ClientService;
 use Ukolio\OAuth\ClientServiceInterface;
-use Ukolio\Service\Email\EmailFactory;
-use Ukolio\Service\Email\MailerFactory;
 use Ukolio\Service\Provider\EventProvider;
 use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\InvitationProvider;
@@ -33,6 +31,8 @@ use Ukolio\Service\Provider\WorkspaceProvider;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestService;
 use Ukolio\Service\Request\RequestServiceInterface;
+use Ukolio\Service\Translator\TranslatorService;
+use Ukolio\Service\Translator\TranslatorServiceInterface;
 
 final class DomainServiceProvider extends AbstractServiceProvider
 {
@@ -52,8 +52,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			UkolioServer::class,
 			ClientServiceInterface::class,
 			AuthorizationServiceInterface::class,
-			MailerFactory::class,
-			EmailFactory::class,
+			TranslatorServiceInterface::class,
 		], true);
 	}
 
@@ -63,8 +62,9 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(RequestServiceInterface::class, RequestService::class);
 		$c->add(UserProviderInterface::class, UserProvider::class);
 		$c->add(WorkspaceProviderInterface::class, WorkspaceProvider::class);
-		$c->add(MailerFactory::class, MailerFactory::class);
-		$c->add(EmailFactory::class, EmailFactory::class);
+		$c->add(TranslatorServiceInterface::class, static fn (): TranslatorService => new TranslatorService(
+			translationsDir: __DIR__ . '/../../../translations',
+		));
 		$c->add(InvitationProviderInterface::class, InvitationProvider::class);
 		$c->add(EventProviderInterface::class, EventProvider::class);
 		$c->add(StatusProviderInterface::class, StatusProvider::class);

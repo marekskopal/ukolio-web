@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ukolio\Dto\CredentialsDto;
 use Ukolio\Dto\RefreshTokenDto;
 use Ukolio\Dto\SignUpDto;
+use Ukolio\Model\Entity\Enum\LocaleEnum;
 use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
@@ -60,7 +61,8 @@ final readonly class AuthenticationController
 			return new ConflictResponse('User with email "' . $signUp->email . '" already exists.');
 		}
 
-		$user = $this->userProvider->createUser($signUp->email, $signUp->password, $signUp->name);
+		$locale = $signUp->locale !== null ? LocaleEnum::tryFrom($signUp->locale) ?? LocaleEnum::En : LocaleEnum::En;
+		$user = $this->userProvider->createUser($signUp->email, $signUp->password, $signUp->name, $locale);
 
 		$this->workspaceProvider->createWorkspace($user, $signUp->name . "'s Workspace");
 

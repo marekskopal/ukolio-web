@@ -8,6 +8,7 @@ import {TaskCardComponent} from '@app/board/task-card.component';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {BoardService} from '@app/services/board.service';
 import {TaskService} from '@app/services/task.service';
+import {TranslatePipe} from '@ngx-translate/core';
 
 interface Column {
     status: Status;
@@ -17,7 +18,7 @@ interface Column {
 @Component({
     selector: 'uk-board',
     standalone: true,
-    imports: [CdkDropListGroup, CdkDropList, CdkDrag, RouterLink, TaskCardComponent, TaskDetailDrawerComponent],
+    imports: [CdkDropListGroup, CdkDropList, CdkDrag, RouterLink, TaskCardComponent, TaskDetailDrawerComponent, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './board.component.html',
     styleUrl: './board.component.scss',

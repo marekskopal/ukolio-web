@@ -22,6 +22,11 @@ Minimalistic Kanban task manager. Multi-user JWT auth. Architecture clones FinGa
 
 On sign-up a personal `Workspace` is auto-created and the user becomes its owner. New `Project` auto-seeds workflow `To Do → In Progress → Done`. Inviting a member sends an email via Symfony Mailer (SMTP env: `SMTP_HOST/PORT/USER/PASSWORD`, `EMAIL_FROM`); `mailpit` is wired in `docker-compose.yml` for local capture.
 
+## i18n
+
+- Backend: `Ukolio\Service\Translator\TranslatorService` mirrors fingather's pattern; loads `backend/translations/{en,cs}.json`. `EmailFactory` renders subject + section per `User.locale`; invitee's locale falls back to the inviter when they don't yet have an account.
+- Frontend: `@ngx-translate/core` + `@ngx-translate/http-loader`. JSONs live in `frontend/src/i18n/{en,cs}.json`, served from `/i18n/` via `angular.json` assets. `LanguageService` initialises from `?lang=`, then localStorage, then `navigator.language`. `PATCH /api/current-user` syncs the user's choice to the backend so emails arrive in the right language. The topbar has a language switcher.
+
 ## Docker
 
 ```bash
