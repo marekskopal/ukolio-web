@@ -119,7 +119,7 @@
             }
         },
         "pagination": {
-            "showing": "Zobrazeno {from}–{to} z {total}",
+            "showing": "Zobrazeno {{from}}–{{to}} z {{total}}",
             "none": "Nic k zobrazení",
             "prev": "Předchozí stránka",
             "next": "Další stránka",
@@ -171,7 +171,7 @@
             "openBoard": "Otevřít tabuli",
             "workflow": "Pracovní postup",
             "history": "Historie",
-            "deleteConfirm": "Smazat projekt „{name}\"? Odstraní se i všechny jeho úkoly a historie.",
+            "deleteConfirm": "Smazat projekt „{{name}}\"? Odstraní se i všechny jeho úkoly a historie.",
             "deleted": "Projekt smazán.",
             "created": "Projekt vytvořen.",
             "updated": "Projekt aktualizován.",
@@ -191,7 +191,7 @@
             "taskCreated": "Úkol vytvořen.",
             "taskUpdated": "Úkol upraven.",
             "taskDeleted": "Úkol smazán.",
-            "deleteTaskConfirm": "Smazat úkol „{name}\"?",
+            "deleteTaskConfirm": "Smazat úkol „{{name}}\"?",
             "drawer": {
                 "newTask": "Nový úkol",
                 "editTask": "Upravit úkol",
@@ -210,7 +210,7 @@
         "workflow": {
             "title": "Pracovní postup",
             "addStatus": "+ Přidat stav",
-            "deleteStatusConfirm": "Smazat stav „{name}\"? Úkoly v tomto stavu zůstanou bez stavu.",
+            "deleteStatusConfirm": "Smazat stav „{{name}}\"? Úkoly v tomto stavu zůstanou bez stavu.",
             "lastStatusError": "Nelze smazat poslední stav.",
             "namePlaceholder": "Název stavu",
             "namePrompt": "Název stavu?",
@@ -234,32 +234,32 @@
                 "ProjectUpdated": "upravil(a) projekt",
                 "ProjectDeleted": "smazal(a) projekt",
                 "WorkflowUpdated": "upravil(a) pracovní postup",
-                "StatusCreated": "přidal(a) stav „{name}\"",
+                "StatusCreated": "přidal(a) stav „{{name}}\"",
                 "StatusUpdated": "upravil(a) stav",
                 "StatusDeleted": "smazal(a) stav",
                 "StatusMoved": "změnil(a) pořadí stavů",
-                "TaskCreated": "vytvořil(a) úkol „{name}\"",
-                "TaskUpdated": "upravil(a) úkol „{name}\"",
-                "TaskDeleted": "smazal(a) úkol „{name}\"",
-                "TaskMoved": "přesunul(a) „{name}\" z {from} → {to}",
-                "FieldCreated": "přidal(a) vlastní pole „{name}\"",
-                "FieldUpdated": "upravil(a) vlastní pole „{name}\"",
-                "FieldDeleted": "smazal(a) vlastní pole „{name}\"",
+                "TaskCreated": "vytvořil(a) úkol „{{name}}\"",
+                "TaskUpdated": "upravil(a) úkol „{{name}}\"",
+                "TaskDeleted": "smazal(a) úkol „{{name}}\"",
+                "TaskMoved": "přesunul(a) „{{name}}\" z {{from}} → {{to}}",
+                "FieldCreated": "přidal(a) vlastní pole „{{name}}\"",
+                "FieldUpdated": "upravil(a) vlastní pole „{{name}}\"",
+                "FieldDeleted": "smazal(a) vlastní pole „{{name}}\"",
                 "ProjectFieldsUpdated": "upravil(a) vlastní pole projektu"
             },
             "timeAgo": {
-                "seconds": "před {n}s",
-                "minutes": "před {n}m",
-                "hours": "před {n}h"
+                "seconds": "před {{n}}s",
+                "minutes": "před {{n}}m",
+                "hours": "před {{n}}h"
             }
         },
         "workspaces": {
             "title": "Pracovní prostory",
             "createPrompt": "Název nového pracovního prostoru:",
             "renamePrompt": "Název pracovního prostoru:",
-            "created": "Pracovní prostor „{name}\" byl vytvořen.",
+            "created": "Pracovní prostor „{{name}}\" byl vytvořen.",
             "renamed": "Pracovní prostor přejmenován.",
-            "deleteConfirm": "Smazat pracovní prostor „{name}\"? Tato akce je nevratná.",
+            "deleteConfirm": "Smazat pracovní prostor „{{name}}\"? Tato akce je nevratná.",
             "deleted": "Pracovní prostor smazán.",
             "current": "Aktivní",
             "members": "Členové",
@@ -267,15 +267,15 @@
             "inviteHeading": "Pozvat člena",
             "invitePlaceholder": "jmeno@example.com",
             "sendInvitation": "Odeslat pozvánku",
-            "invitationSent": "Pozvánka odeslána na {email}.",
+            "invitationSent": "Pozvánka odeslána na {{email}}.",
             "pendingInvitations": "Čekající pozvánky",
-            "cancelInvitationConfirm": "Zrušit pozvánku pro {email}?",
-            "removeMemberConfirm": "Odebrat {name} z „{workspace}\"?",
+            "cancelInvitationConfirm": "Zrušit pozvánku pro {{email}}?",
+            "removeMemberConfirm": "Odebrat {{name}} z „{{workspace}}\"?",
             "memberRemoved": "Člen odebrán.",
             "selectWorkspace": "Vyberte pracovní prostor.",
             "accepted": "Přijato",
             "transferOwnership": "Předat vlastnictví",
-            "transferOwnershipConfirm": "Předat vlastnictví „{workspace}\" uživateli {name}? Z vás se stane Admin.",
+            "transferOwnershipConfirm": "Předat vlastnictví „{{workspace}}\" uživateli {{name}}? Z vás se stane Admin.",
             "ownershipTransferred": "Vlastnictví předáno.",
             "roleChanged": "Role aktualizována.",
             "mcp": {
@@ -305,7 +305,7 @@
                 "promote": "Povýšit na admina",
                 "demote": "Snížit na uživatele",
                 "roleUpdated": "Systémová role aktualizována.",
-                "deleteConfirm": "Smazat uživatele {email}? Tato akce je nevratná.",
+                "deleteConfirm": "Smazat uživatele {{email}}? Tato akce je nevratná.",
                 "deleted": "Uživatel smazán.",
                 "cannotDeleteSelf": "Nemůžete zde smazat vlastní účet.",
                 "empty": "Žádní uživatelé.",
@@ -321,24 +321,24 @@
                 "searchPlaceholder": "Hledat podle názvu nebo vlastníka",
                 "renamePrompt": "Nový název pracovního prostoru:",
                 "renamed": "Pracovní prostor přejmenován.",
-                "deleteConfirm": "Smazat pracovní prostor „{name}\"? Všechny projekty a úkoly budou ztraceny.",
+                "deleteConfirm": "Smazat pracovní prostor „{{name}}\"? Všechny projekty a úkoly budou ztraceny.",
                 "deleted": "Pracovní prostor smazán.",
-                "transferOwnershipConfirm": "Učinit uživatele {name} vlastníkem „{workspace}\"?",
+                "transferOwnershipConfirm": "Učinit uživatele {{name}} vlastníkem „{{workspace}}\"?",
                 "ownershipTransferred": "Vlastnictví předáno.",
-                "removeMemberConfirm": "Odebrat {name} z „{workspace}\"?",
+                "removeMemberConfirm": "Odebrat {{name}} z „{{workspace}}\"?",
                 "empty": "Žádné pracovní prostory."
             }
         },
         "invitation": {
             "heading": "Pozvánka do pracovního prostoru",
             "alreadyAccepted": "Tato pozvánka už byla přijata.",
-            "invitedAs": "{inviter} vás pozval(a) do {workspace} jako {role}.",
-            "sentTo": "Pozvánka je zaslána na {email}.",
+            "invitedAs": "{{inviter}} vás pozval(a) do {{workspace}} jako {{role}}.",
+            "sentTo": "Pozvánka je zaslána na {{email}}.",
             "accept": "Přijmout pozvánku",
             "loginPrompt": "Přihlaste se nebo si vytvořte účet s touto e-mailovou adresou.",
             "missingToken": "Chybí token pozvánky.",
             "notFound": "Pozvánka nebyla nalezena nebo už byla použita.",
-            "joined": "Připojeno k „{workspace}\"."
+            "joined": "Připojeno k „{{workspace}}\"."
         },
         "settings": {
             "language": "Jazyk",
@@ -370,10 +370,10 @@
             "fieldCreated": "Pole vytvořeno.",
             "fieldUpdated": "Pole upraveno.",
             "fieldDeleted": "Pole smazáno.",
-            "deleteConfirm": "Smazat pole „{name}\"? Bude odebráno ze všech projektů a všechny hodnoty v úkolech budou vymazány.",
+            "deleteConfirm": "Smazat pole „{{name}}\"? Bude odebráno ze všech projektů a všechny hodnoty v úkolech budou vymazány.",
             "empty": "Zatím žádná vlastní pole.",
             "noPermission": "Pouze Vlastník a Admin mohou spravovat pole pracovního prostoru.",
-            "invalidSemver": "„{value}\" není platná semver hodnota.",
+            "invalidSemver": "„{{value}}\" není platná semver hodnota.",
             "optionsRequired": "Pole typu Výběr a Verze potřebují alespoň jednu možnost."
         },
         "projectFields": {
@@ -394,7 +394,7 @@
         },
         "taskFields": {
             "heading": "Vlastní pole",
-            "fieldRequired": "{name} je povinné."
+            "fieldRequired": "{{name}} je povinné."
         }
     }
 }

@@ -119,7 +119,7 @@
             }
         },
         "pagination": {
-            "showing": "Showing {from}–{to} of {total}",
+            "showing": "Showing {{from}}–{{to}} of {{total}}",
             "none": "Nothing to show",
             "prev": "Previous page",
             "next": "Next page",
@@ -171,7 +171,7 @@
             "openBoard": "Open board",
             "workflow": "Workflow",
             "history": "History",
-            "deleteConfirm": "Delete project \"{name}\"? This also removes all its tasks and history.",
+            "deleteConfirm": "Delete project \"{{name}}\"? This also removes all its tasks and history.",
             "deleted": "Project deleted.",
             "created": "Project created.",
             "updated": "Project updated.",
@@ -191,7 +191,7 @@
             "taskCreated": "Task created.",
             "taskUpdated": "Task updated.",
             "taskDeleted": "Task deleted.",
-            "deleteTaskConfirm": "Delete task \"{name}\"?",
+            "deleteTaskConfirm": "Delete task \"{{name}}\"?",
             "drawer": {
                 "newTask": "New task",
                 "editTask": "Edit task",
@@ -210,7 +210,7 @@
         "workflow": {
             "title": "Workflow",
             "addStatus": "+ Add status",
-            "deleteStatusConfirm": "Delete status \"{name}\"? Tasks in this status will be orphaned.",
+            "deleteStatusConfirm": "Delete status \"{{name}}\"? Tasks in this status will be orphaned.",
             "lastStatusError": "Cannot delete the last status of a workflow.",
             "namePlaceholder": "Status name",
             "namePrompt": "Status name?",
@@ -234,32 +234,32 @@
                 "ProjectUpdated": "updated the project",
                 "ProjectDeleted": "deleted the project",
                 "WorkflowUpdated": "updated the workflow",
-                "StatusCreated": "added status \"{name}\"",
+                "StatusCreated": "added status \"{{name}}\"",
                 "StatusUpdated": "updated a status",
                 "StatusDeleted": "deleted a status",
                 "StatusMoved": "reordered statuses",
-                "TaskCreated": "created task \"{name}\"",
-                "TaskUpdated": "updated task \"{name}\"",
-                "TaskDeleted": "deleted task \"{name}\"",
-                "TaskMoved": "moved \"{name}\" from {from} → {to}",
-                "FieldCreated": "added custom field \"{name}\"",
-                "FieldUpdated": "updated custom field \"{name}\"",
-                "FieldDeleted": "deleted custom field \"{name}\"",
+                "TaskCreated": "created task \"{{name}}\"",
+                "TaskUpdated": "updated task \"{{name}}\"",
+                "TaskDeleted": "deleted task \"{{name}}\"",
+                "TaskMoved": "moved \"{{name}}\" from {{from}} → {{to}}",
+                "FieldCreated": "added custom field \"{{name}}\"",
+                "FieldUpdated": "updated custom field \"{{name}}\"",
+                "FieldDeleted": "deleted custom field \"{{name}}\"",
                 "ProjectFieldsUpdated": "updated project custom fields"
             },
             "timeAgo": {
-                "seconds": "{n}s ago",
-                "minutes": "{n}m ago",
-                "hours": "{n}h ago"
+                "seconds": "{{n}}s ago",
+                "minutes": "{{n}}m ago",
+                "hours": "{{n}}h ago"
             }
         },
         "workspaces": {
             "title": "Workspaces",
             "createPrompt": "New workspace name:",
             "renamePrompt": "Workspace name:",
-            "created": "Workspace \"{name}\" created.",
+            "created": "Workspace \"{{name}}\" created.",
             "renamed": "Workspace renamed.",
-            "deleteConfirm": "Delete workspace \"{name}\"? This is irreversible.",
+            "deleteConfirm": "Delete workspace \"{{name}}\"? This is irreversible.",
             "deleted": "Workspace deleted.",
             "current": "Current",
             "members": "Members",
@@ -267,15 +267,15 @@
             "inviteHeading": "Invite a member",
             "invitePlaceholder": "name@example.com",
             "sendInvitation": "Send invitation",
-            "invitationSent": "Invitation sent to {email}.",
+            "invitationSent": "Invitation sent to {{email}}.",
             "pendingInvitations": "Pending invitations",
-            "cancelInvitationConfirm": "Cancel invitation to {email}?",
-            "removeMemberConfirm": "Remove {name} from \"{workspace}\"?",
+            "cancelInvitationConfirm": "Cancel invitation to {{email}}?",
+            "removeMemberConfirm": "Remove {{name}} from \"{{workspace}}\"?",
             "memberRemoved": "Member removed.",
             "selectWorkspace": "Select a workspace.",
             "accepted": "Accepted",
             "transferOwnership": "Transfer ownership",
-            "transferOwnershipConfirm": "Transfer ownership of \"{workspace}\" to {name}? You will become an Admin.",
+            "transferOwnershipConfirm": "Transfer ownership of \"{{workspace}}\" to {{name}}? You will become an Admin.",
             "ownershipTransferred": "Ownership transferred.",
             "roleChanged": "Role updated.",
             "mcp": {
@@ -305,7 +305,7 @@
                 "promote": "Promote to admin",
                 "demote": "Demote to user",
                 "roleUpdated": "System role updated.",
-                "deleteConfirm": "Delete user {email}? This is irreversible.",
+                "deleteConfirm": "Delete user {{email}}? This is irreversible.",
                 "deleted": "User deleted.",
                 "cannotDeleteSelf": "You cannot delete your own account here.",
                 "empty": "No users.",
@@ -321,24 +321,24 @@
                 "searchPlaceholder": "Search by name or owner",
                 "renamePrompt": "New workspace name:",
                 "renamed": "Workspace renamed.",
-                "deleteConfirm": "Delete workspace \"{name}\"? All projects and tasks will be lost.",
+                "deleteConfirm": "Delete workspace \"{{name}}\"? All projects and tasks will be lost.",
                 "deleted": "Workspace deleted.",
-                "transferOwnershipConfirm": "Make {name} the owner of \"{workspace}\"?",
+                "transferOwnershipConfirm": "Make {{name}} the owner of \"{{workspace}}\"?",
                 "ownershipTransferred": "Ownership transferred.",
-                "removeMemberConfirm": "Remove {name} from \"{workspace}\"?",
+                "removeMemberConfirm": "Remove {{name}} from \"{{workspace}}\"?",
                 "empty": "No workspaces."
             }
         },
         "invitation": {
             "heading": "Workspace invitation",
             "alreadyAccepted": "This invitation has already been accepted.",
-            "invitedAs": "{inviter} invited you to join {workspace} as {role}.",
-            "sentTo": "Invitation is sent to {email}.",
+            "invitedAs": "{{inviter}} invited you to join {{workspace}} as {{role}}.",
+            "sentTo": "Invitation is sent to {{email}}.",
             "accept": "Accept invitation",
             "loginPrompt": "Sign in or create an account with this email to accept.",
             "missingToken": "Missing invitation token.",
             "notFound": "Invitation not found or already used.",
-            "joined": "Joined \"{workspace}\"."
+            "joined": "Joined \"{{workspace}}\"."
         },
         "settings": {
             "language": "Language",
@@ -370,10 +370,10 @@
             "fieldCreated": "Field created.",
             "fieldUpdated": "Field updated.",
             "fieldDeleted": "Field deleted.",
-            "deleteConfirm": "Delete field \"{name}\"? It will be removed from every project and all its task values will be cleared.",
+            "deleteConfirm": "Delete field \"{{name}}\"? It will be removed from every project and all its task values will be cleared.",
             "empty": "No custom fields yet.",
             "noPermission": "Only Owners and Admins can manage workspace fields.",
-            "invalidSemver": "\"{value}\" is not a valid semver string.",
+            "invalidSemver": "\"{{value}}\" is not a valid semver string.",
             "optionsRequired": "Select and Version fields need at least one option."
         },
         "projectFields": {
@@ -394,7 +394,7 @@
         },
         "taskFields": {
             "heading": "Custom fields",
-            "fieldRequired": "{name} is required."
+            "fieldRequired": "{{name}} is required."
         }
     }
 }
