@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ukolio · Design System</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #ebebed; font-family: 'Inter', sans-serif; }
+  #root { height: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="foundations.jsx"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+function App() {
+  return (
+    <DesignCanvas
+      title="Ukolio · Design System"
+      subtitle="Light · dense · MCP-native. Inter, 15px base, indigo accent."
+    >
+      <DCSection id="foundations" title="01 · Foundations">
+        <DCArtboard id="brand"    label="Brand"                       width={520} height={520}><BrandBoard/></DCArtboard>
+        <DCArtboard id="color"    label="Color palette"               width={780} height={680}><ColorBoard/></DCArtboard>
+        <DCArtboard id="type"     label="Typography · Inter"          width={680} height={680}><TypeBoard/></DCArtboard>
+        <DCArtboard id="metrics"  label="Spacing · Radius · Shadow"   width={520} height={680}><MetricsBoard/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="components" title="02 · Components">
+        <DCArtboard id="buttons"  label="Buttons"                     width={780} height={520}><ButtonsBoard/></DCArtboard>
+        <DCArtboard id="forms"    label="Form fields"                 width={780} height={620}><FormsBoard/></DCArtboard>
+        <DCArtboard id="badges"   label="Badges · Alerts · Toast"     width={620} height={780}><BadgesBoard/></DCArtboard>
+        <DCArtboard id="lists"    label="Lists · Rows · Tables"       width={900} height={780}><ListsBoard/></DCArtboard>
+        <DCArtboard id="tasks"    label="Task cards"                  width={900} height={520}><TaskCardsBoard/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="screens" title="03 · Application">
+        <DCArtboard id="login"    label="Login"                       width={1080} height={680}><LoginScreen/></DCArtboard>
+        <DCArtboard id="projects" label="Projects list"               width={1280} height={760}><ProjectsScreen/></DCArtboard>
+        <DCArtboard id="kanban"   label="Kanban board"                width={1280} height={760}><KanbanScreen/></DCArtboard>
+        <DCArtboard id="drawer"   label="Task detail · drawer"        width={1280} height={760}><DrawerScreen/></DCArtboard>
+        <DCArtboard id="grid"     label="Workspace tasks grid"        width={1280} height={760}><TasksGridScreen/></DCArtboard>
+        <DCArtboard id="events"   label="Agent activity log"          width={1280} height={760}><EventsScreen/></DCArtboard>
+        <DCArtboard id="workspace" label="Workspace management"       width={1280} height={760}><WorkspaceScreen/></DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

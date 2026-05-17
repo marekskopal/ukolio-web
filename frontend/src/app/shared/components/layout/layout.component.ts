@@ -37,8 +37,22 @@ export class LayoutComponent implements OnInit {
         const id = this.currentWorkspaceId();
         return this.workspaces().find((w) => w.id === id) ?? null;
     });
+    protected readonly workspaceInitial = computed<string>(() => {
+        const name = this.currentWorkspace()?.name?.trim() ?? '';
+        return name.length > 0 ? name.charAt(0).toUpperCase() : '·';
+    });
+    protected readonly userInitials = computed<string>(() => {
+        const u = this.user();
+        if (!u) {
+            return '·';
+        }
+        const source = (u.name?.trim() ?? '') || u.email;
+        const parts = source.split(/[\s@.]+/).filter((p) => p.length > 0);
+        const letters = parts.slice(0, 2).map((p) => p.charAt(0).toUpperCase()).join('');
+        return letters.length > 0 ? letters : '·';
+    });
     protected readonly switcherOpen = signal(false);
-    protected readonly langMenuOpen = signal(false);
+    protected readonly userMenuOpen = signal(false);
     protected readonly currentLang = this.languageService.currentLang;
     protected readonly supportedLangs = this.languageService.supportedLangs;
 
@@ -56,14 +70,20 @@ export class LayoutComponent implements OnInit {
 
     protected toggleSwitcher(): void {
         this.switcherOpen.update((v) => !v);
+        if (this.switcherOpen()) {
+            this.userMenuOpen.set(false);
+        }
     }
 
-    protected toggleLangMenu(): void {
-        this.langMenuOpen.update((v) => !v);
+    protected toggleUserMenu(): void {
+        this.userMenuOpen.update((v) => !v);
+        if (this.userMenuOpen()) {
+            this.switcherOpen.set(false);
+        }
     }
 
     protected async setLanguage(lang: Locale): Promise<void> {
-        this.langMenuOpen.set(false);
+        this.userMenuOpen.set(false);
         this.languageService.use(lang, {persist: true, sync: true});
     }
 
@@ -95,7 +115,12 @@ export class LayoutComponent implements OnInit {
         }
     }
 
+    protected openCommandPalette(): void {
+        // Placeholder — wired up later in the agent command palette work.
+    }
+
     protected logout(): void {
+        this.userMenuOpen.set(false);
         this.currentUserService.clear();
         this.workspaceService.clear();
         this.auth.logout();

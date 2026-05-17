@@ -27,6 +27,7 @@
         "common": {
             "noWorkspace": "No workspace",
             "due": "Due",
+            "overdue": "Overdue",
             "priority": "Priority",
             "description": "Description",
             "name": "Name",
@@ -37,12 +38,38 @@
             "required": "Required"
         },
         "nav": {
+            "primary": "Primary",
             "projects": "Projects",
             "tasks": "Tasks",
+            "agents": "Agents",
+            "workspaces": "Workspaces",
             "admin": "Admin",
             "signOut": "Sign out",
             "newWorkspace": "+ New workspace",
-            "manageWorkspaces": "Manage workspaces"
+            "manageWorkspaces": "Manage workspaces",
+            "search": "Search or jump to…",
+            "aiPalette": "Open agent command palette",
+            "openUserMenu": "Open user menu"
+        },
+        "agents": {
+            "title": "Agent activity",
+            "subtitle": "Live audit log — workspace-wide.",
+            "show": "Show:",
+            "empty": "No agent activity yet. Connect an MCP client and your agents' actions will appear here.",
+            "placeholder": "Pending data",
+            "kpi": {
+                "events": "Events · 24h",
+                "activeAgents": "Active agents",
+                "tasksCreated": "Tasks created",
+                "tasksClosed": "Tasks closed"
+            },
+            "chips": {
+                "all": "All",
+                "humans": "Humans",
+                "agents": "Agents",
+                "comments": "Comments",
+                "statusChanges": "Status changes"
+            }
         },
         "tasks": {
             "title": "Tasks",
@@ -67,12 +94,16 @@
             "perPage": "Per page"
         },
         "auth": {
+            "asideOverline": "MCP-native",
+            "asideHeadline": "Your kanban, run by agents.",
+            "asideBody": "Ukolio is a multi-tenant task manager built for AI agents as the primary actor. Connect any MCP client and let it plan, create, and close tasks alongside the team.",
+            "asideSnippetLabel": "MCP endpoint",
             "login": {
                 "title": "Sign in",
-                "subtitle": "Welcome back to Ukolio.",
+                "subtitle": "to your workspace",
                 "submit": "Sign in",
                 "submitting": "Signing in…",
-                "noAccount": "Don't have an account?",
+                "noAccount": "New here?",
                 "signUp": "Sign up"
             },
             "signUp": {
@@ -104,7 +135,13 @@
             "descriptionPlaceholder": "Optional description"
         },
         "board": {
-            "addTask": "Add task",
+            "addTask": "+ Add task",
+            "newTask": "New task",
+            "viewBoard": "Board",
+            "viewWorkflow": "Workflow",
+            "viewEvents": "Events",
+            "breadcrumb": "Projects",
+            "filter": "Filter",
             "noTasks": "No tasks in this column.",
             "taskCreated": "Task created.",
             "taskUpdated": "Task updated.",
@@ -116,10 +153,13 @@
                 "close": "Close",
                 "preview": "Preview",
                 "edit": "Edit",
+                "saveChanges": "Save changes",
+                "titlePlaceholder": "Task title",
                 "descriptionPlaceholder": "Markdown supported…",
                 "nothingToPreview": "Nothing to preview.",
                 "dueDate": "Due date",
-                "status": "Status"
+                "status": "Status",
+                "details": "Details"
             }
         },
         "workflow": {

@@ -7,8 +7,8 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: $space-3;
-    padding: $space-3 0;
-    font-size: $font-size-sm;
+    padding: $space-4 0;
+    font-size: $font-size-12;
     color: $color-text-muted;
 }
 
@@ -25,16 +25,18 @@
 }
 
 .page-btn {
-    min-width: 32px;
-    height: 32px;
-    padding: 0 $space-2;
-    border: 1px solid $color-border;
-    border-radius: $radius-md;
+    min-width: $h-sm;
+    height: $h-sm;
+    padding: 0 $space-3;
+    border: 1px solid $color-border-strong;
+    border-radius: $radius-sm;
     background: $color-surface;
     color: $color-text;
-    font-size: $font-size-sm;
+    font: inherit;
+    font-size: $font-size-12;
     line-height: 1;
-    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    cursor: pointer;
+    transition: background 80ms ease, border-color 80ms ease, color 80ms ease;
     @include focus-ring;
 
     &:hover:not(:disabled):not(.page-btn--active) {
@@ -49,7 +51,7 @@
     &--active {
         background: $color-accent;
         border-color: $color-accent;
-        color: $color-text-inverse;
+        color: $color-accent-fg;
         cursor: default;
     }
 }
@@ -75,7 +77,7 @@
 
 .pagination-size .select {
     width: auto;
-    padding: $space-1 $space-6 $space-1 $space-2;
-    height: 32px;
-    font-size: $font-size-sm;
+    height: $h-sm;
+    padding: 0 $space-7 0 $space-3;
+    font-size: $font-size-12;
 }

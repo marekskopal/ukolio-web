@@ -9,69 +9,38 @@
 .accept-card {
     max-width: 480px;
     width: 100%;
-    padding: $space-8;
+    padding: $space-9;
     border: 1px solid $color-border;
-    border-radius: $radius-lg;
+    border-radius: $radius-md;
     background: $color-surface;
     display: flex;
     flex-direction: column;
-    gap: $space-4;
+    gap: $space-5;
 }
 
 .accept-card h1 {
     margin: 0;
-    font-size: $font-size-xl;
+    font-size: $font-size-24;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: $tracking-tight;
 }
 
 .muted {
     color: $color-text-subtle;
     margin: 0;
+    font-size: $font-size-13;
 }
 
 .error {
-    color: $color-error;
-    background: $color-error-bg;
-    border: 1px solid $color-error-border;
-    padding: $space-3;
+    color: $color-danger;
+    background: $color-danger-soft;
+    border: 1px solid $color-danger-border;
+    padding: $space-4 $space-5;
     border-radius: $radius-sm;
+    font-size: $font-size-13;
 }
 
 .actions {
     display: flex;
-    gap: $space-2;
-}
-
-.btn {
-    padding: $space-2 $space-4;
-    border: 1px solid $color-border;
-    border-radius: $radius-sm;
-    background: $color-surface;
-    color: $color-text;
-    cursor: pointer;
-    font-size: $font-size-sm;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-
-    &:hover {
-        background: $color-bg;
-    }
-
-    &--primary {
-        background: $color-accent;
-        color: $color-text-inverse;
-        border-color: $color-accent;
-
-        &:hover {
-            background: $color-accent-hover;
-            border-color: $color-accent-hover;
-        }
-    }
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+    gap: $space-3;
 }

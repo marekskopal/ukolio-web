@@ -1,0 +1,84 @@
+@use 'variables' as *;
+
+.agents-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: $space-5;
+    margin-bottom: $space-6;
+}
+
+.agents-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $space-4;
+    margin-bottom: $space-5;
+}
+
+.kpi {
+    padding: $space-5 $space-5 $space-4;
+}
+
+.kpi-label {
+    margin-bottom: $space-2;
+}
+
+.kpi-value {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: $color-text;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi-sub {
+    margin-top: 2px;
+    font-size: $font-size-11;
+    color: $color-text-subtle;
+}
+
+.agents-filters {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    margin-bottom: $space-3;
+
+    .uk-caption {
+        margin-right: $space-1;
+    }
+}
+
+.agents-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 $space-4;
+    border: 0;
+    border-radius: $radius-pill;
+    background: $color-surface-muted;
+    color: $color-text-muted;
+    font: inherit;
+    font-size: $font-size-12;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 80ms ease, color 80ms ease;
+
+    &:hover { color: $color-text; }
+
+    &--active {
+        background: $color-text;
+        color: $color-text-inverse;
+    }
+}
+
+.agents-empty {
+    padding: $space-9 $space-6;
+    text-align: center;
+    color: $color-text-muted;
+}
+
+@media (max-width: 1024px) {
+    .agents-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

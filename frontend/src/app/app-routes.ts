@@ -30,6 +30,10 @@ export const appRoutes: Routes = [
                 loadComponent: () => import('@app/tasks/tasks-grid.component').then((m) => m.TasksGridComponent),
             },
             {
+                path: 'agents',
+                loadComponent: () => import('@app/agents/agents.component').then((m) => m.AgentsComponent),
+            },
+            {
                 path: 'projects/new',
                 loadComponent: () => import('@app/projects/add-edit-project.component').then((m) => m.AddEditProjectComponent),
             },

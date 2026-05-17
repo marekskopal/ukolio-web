@@ -3,30 +3,37 @@
 
 .page-header {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    gap: $space-4;
-    margin-bottom: $space-4;
+    gap: $space-5;
+    margin-bottom: $space-6;
 }
 
+// ─── Filter bar ─────────────────────────────────────────────
 .filters {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: $space-3;
-    margin-bottom: $space-4;
+    margin-bottom: $space-5;
+    padding-bottom: $space-5;
+    border-bottom: 1px solid $color-border;
 }
 
 .filter-search {
     flex: 1 1 240px;
     max-width: 360px;
+    height: $h-sm;
+    font-size: $font-size-12;
 }
 
+// "+Status" affordance — ghost button with dashed border.
 .filter-statuses {
     position: relative;
 
     &[open] .filter-summary {
         border-color: $color-border-focus;
+        box-shadow: $ring;
     }
 }
 
@@ -36,22 +43,21 @@
     display: inline-flex;
     align-items: center;
     gap: $space-2;
-    padding: $space-2 $space-3;
-    border: 1px solid $color-border-strong;
-    border-radius: $radius-md;
+    height: $h-sm;
+    padding: 0 $space-3;
+    border: 1px dashed $color-border-strong;
+    border-radius: $radius-sm;
     background: $color-surface;
-    font-size: $font-size-sm;
-    color: $color-text;
+    color: $color-text-muted;
+    font-size: $font-size-12;
     user-select: none;
+    transition: border-color 80ms ease, color 80ms ease;
 
-    &::-webkit-details-marker {
-        display: none;
-    }
+    &::-webkit-details-marker { display: none; }
 
-    &::after {
-        content: '▾';
-        color: $color-text-subtle;
-        margin-left: $space-1;
+    &:hover {
+        border-color: $color-text-subtle;
+        color: $color-text;
     }
 }
 
@@ -59,13 +65,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: $radius-pill;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 5px;
+    border-radius: $radius-xs;
     background: $color-accent;
-    color: $color-text-inverse;
-    font-size: $font-size-xs;
+    color: $color-accent-fg;
+    font-size: $font-size-10;
+    font-weight: 600;
 }
 
 .filter-popover {
@@ -75,7 +82,7 @@
     min-width: 260px;
     max-height: 360px;
     overflow-y: auto;
-    padding: $space-2;
+    padding: $space-1;
     border: 1px solid $color-border;
     border-radius: $radius-md;
     background: $color-surface;
@@ -84,8 +91,8 @@
 }
 
 .filter-empty {
-    padding: $space-2;
-    font-size: $font-size-sm;
+    padding: $space-2 $space-3;
+    font-size: $font-size-12;
 }
 
 .filter-group {
@@ -98,10 +105,10 @@
 
 .filter-group-label {
     padding: $space-1 $space-2;
-    font-size: $font-size-xs;
+    font-size: $font-size-11;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     color: $color-text-subtle;
 }
 
@@ -110,77 +117,72 @@
     align-items: center;
     gap: $space-2;
     padding: $space-1 $space-2;
-    border-radius: $radius-sm;
-    font-size: $font-size-sm;
+    border-radius: $radius-xs;
+    font-size: $font-size-13;
     cursor: pointer;
 
-    &:hover {
-        background: $color-surface-muted;
-    }
+    &:hover { background: $color-surface-muted; }
 }
 
 .filter-option-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
-.filter-option-name {
-    @include truncate;
-}
+.filter-option-name { @include truncate; }
 
 .filter-toggle {
     display: inline-flex;
     align-items: center;
     gap: $space-2;
-    font-size: $font-size-sm;
+    font-size: $font-size-12;
     color: $color-text;
     cursor: pointer;
 }
 
 .filter-clear {
-    font-size: $font-size-sm;
+    font-size: $font-size-12;
 }
 
+// ─── Table ──────────────────────────────────────────────────
 .table-wrapper {
     border: 1px solid $color-border;
-    border-radius: $radius-lg;
+    border-radius: $radius-md;
     background: $color-surface;
     overflow: hidden;
 }
 
 .task-table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: $font-size-sm;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: $font-size-13;
 
     th, td {
-        padding: $space-3 $space-4;
+        padding: $space-3 $space-5;
         text-align: left;
         border-bottom: 1px solid $color-border;
     }
 
-    tbody tr:last-child td {
-        border-bottom: 0;
-    }
+    tbody tr:last-child td { border-bottom: 0; }
 
     th {
-        font-weight: 600;
-        color: $color-text-muted;
-        font-size: $font-size-xs;
+        font-weight: 500;
+        color: $color-text-subtle;
+        font-size: $font-size-11;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         background: $color-surface-muted;
+        white-space: nowrap;
     }
 
     .sortable {
         cursor: pointer;
         user-select: none;
 
-        &:hover {
-            color: $color-text;
-        }
+        &:hover { color: $color-text; }
     }
 
     .sort-arrow {
@@ -190,22 +192,15 @@
         color: $color-accent;
     }
 
-    .th-created {
-        width: 140px;
-    }
-
-    .th-status {
-        width: 200px;
-    }
+    .th-created { width: 140px; }
+    .th-status  { width: 200px; }
 }
 
 .task-row {
     cursor: pointer;
     transition: background-color 80ms ease;
 
-    &:hover {
-        background: $color-surface-hover;
-    }
+    &:hover td { background: $color-surface-muted; }
 
     &:focus-visible {
         outline: 2px solid $color-accent;
@@ -216,6 +211,7 @@
 .td-created {
     color: $color-text-muted;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
 
 .td-name {
@@ -231,16 +227,23 @@
 
 .task-project {
     color: $color-text-subtle;
-    font-size: $font-size-xs;
+    font-size: $font-size-11;
 }
 
+// Workflow status = dot + label (no chip background).
 .status-pill {
     display: inline-flex;
     align-items: center;
-    padding: 2px $space-2;
-    border-radius: $radius-pill;
-    font-size: $font-size-xs;
-    color: $color-text-inverse;
-    font-weight: 500;
+    gap: $space-2;
+    font-size: $font-size-12;
+    color: $color-text;
     white-space: nowrap;
+}
+
+.status-pill-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }

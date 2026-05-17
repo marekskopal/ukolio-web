@@ -1,43 +1,164 @@
 @use 'variables' as *;
 
-.auth-page {
+// ─── Split layout ───────────────────────────────────────────
+.auth-split {
     min-height: 100vh;
+    display: flex;
+    background: $color-bg;
+}
+
+.auth-form-side {
+    flex: 0 0 56%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: $space-4;
+    padding: $space-9;
 }
 
-.auth-page-card {
+.auth-form-inner {
     width: 100%;
-    max-width: 380px;
+    max-width: 320px;
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    margin-bottom: $space-9;
+}
+
+.auth-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: $color-text;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.04em;
+}
+
+.auth-brand-wordmark {
+    font-size: $font-size-18;
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
 
 .auth-title {
-    font-size: $font-size-xl;
-    margin-bottom: $space-1;
+    margin: 0 0 $space-1;
 }
 
 .auth-subtitle {
-    margin: 0 0 $space-6;
+    margin: 0 0 $space-7;
     color: $color-text-muted;
-    font-size: $font-size-base;
 }
 
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: $space-4;
+    gap: $space-5;
 }
+
+.auth-form .field { margin-bottom: 0; }
 
 .auth-submit {
     width: 100%;
-    margin-top: $space-2;
+    margin-top: $space-1;
 }
 
 .auth-footer {
-    margin-top: $space-6;
+    margin-top: $space-7;
     text-align: center;
     color: $color-text-muted;
-    font-size: $font-size-sm;
+    font-size: $font-size-12;
+}
+
+// ─── Dark aside ─────────────────────────────────────────────
+.auth-aside {
+    flex: 1;
+    background: #18181b;
+    color: #f4f4f5;
+    padding: $space-10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $space-9;
+    min-width: 0;
+}
+
+.auth-aside-overline {
+    display: inline-block;
+    padding: 0 $space-2;
+    border-radius: $radius-xs;
+    background: rgba(255, 255, 255, 0.06);
+    color: #d4c5f3;
+    font-size: $font-size-11;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    align-self: flex-start;
+    margin-bottom: $space-6;
+    line-height: 22px;
+    height: 22px;
+}
+
+.auth-aside-headline {
+    margin: 0 0 $space-5;
+    font-size: $font-size-40;
+    font-weight: 600;
+    letter-spacing: $tracking-tighter;
+    line-height: 1.1;
+    color: #fafafa;
+}
+
+.auth-aside-body {
+    margin: 0;
+    font-size: $font-size-14;
+    line-height: 1.6;
+    color: #b4b4ba;
+    max-width: 420px;
+}
+
+.auth-aside-snippet {
+    background: #23232a;
+    border: 1px solid #2e2e36;
+    border-radius: $radius-md;
+    padding: $space-5;
+    max-width: 480px;
+}
+
+.auth-aside-snippet-label {
+    font-size: $font-size-11;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a8a92;
+    margin-bottom: $space-3;
+}
+
+.auth-aside-snippet-code {
+    margin: 0;
+    font-family: $font-mono;
+    font-size: $font-size-12;
+    color: #f4f4f5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    letter-spacing: 0.01em;
+}
+
+.auth-aside-snippet-method {
+    color: $color-ai-border;
+    margin-right: $space-2;
+    font-weight: 600;
+}
+
+// Responsive: collapse aside on narrow screens (< 1024 px).
+@media (max-width: 1024px) {
+    .auth-split { flex-direction: column; }
+    .auth-form-side { flex: 1 1 auto; padding: $space-7; }
+    .auth-aside { padding: $space-7; }
+    .auth-aside-headline { font-size: $font-size-30; }
 }

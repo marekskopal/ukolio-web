@@ -6,11 +6,11 @@
             <p class="muted">{{ 'app.actions.loading' | translate }}</p>
         } @else if (error() !== null) {
             <p class="error">{{ error() }}</p>
-            <a routerLink="/" class="btn">{{ 'app.actions.goHome' | translate }}</a>
+            <a routerLink="/" class="btn btn-secondary">{{ 'app.actions.goHome' | translate }}</a>
         } @else if (invitation(); as inv) {
             @if (inv.acceptedAt !== null) {
                 <p>{{ 'app.invitation.alreadyAccepted' | translate }}</p>
-                <a routerLink="/" class="btn">{{ 'app.actions.continue' | translate }}</a>
+                <a routerLink="/" class="btn btn-secondary">{{ 'app.actions.continue' | translate }}</a>
             } @else {
                 <p [innerHTML]="'app.invitation.invitedAs' | translate:{
                     inviter: inv.inviterName,
@@ -20,14 +20,14 @@
                 <p class="muted">{{ 'app.invitation.sentTo' | translate:{email: inv.email} }}</p>
 
                 @if (isLoggedIn()) {
-                    <button type="button" class="btn btn--primary" [disabled]="accepting()" (click)="accept()">
+                    <button type="button" class="btn btn-primary" [disabled]="accepting()" (click)="accept()">
                         {{ (accepting() ? 'app.actions.joining' : 'app.invitation.accept') | translate }}
                     </button>
                 } @else {
                     <p>{{ 'app.invitation.loginPrompt' | translate }}</p>
                     <div class="actions">
-                        <button type="button" class="btn btn--primary" (click)="goToSignUp()">{{ 'app.auth.signUp.submit' | translate }}</button>
-                        <button type="button" class="btn" (click)="goToLogin()">{{ 'app.auth.login.submit' | translate }}</button>
+                        <button type="button" class="btn btn-primary" (click)="goToSignUp()">{{ 'app.auth.signUp.submit' | translate }}</button>
+                        <button type="button" class="btn btn-secondary" (click)="goToLogin()">{{ 'app.auth.login.submit' | translate }}</button>
                     </div>
                 }
             }

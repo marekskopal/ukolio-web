@@ -27,6 +27,7 @@
         "common": {
             "noWorkspace": "Žádný pracovní prostor",
             "due": "Termín",
+            "overdue": "Po termínu",
             "priority": "Priorita",
             "description": "Popis",
             "name": "Název",
@@ -37,12 +38,38 @@
             "required": "Povinné"
         },
         "nav": {
+            "primary": "Hlavní",
             "projects": "Projekty",
             "tasks": "Úkoly",
+            "agents": "Agenti",
+            "workspaces": "Pracovní prostory",
             "admin": "Správa",
             "signOut": "Odhlásit se",
             "newWorkspace": "+ Nový pracovní prostor",
-            "manageWorkspaces": "Spravovat pracovní prostory"
+            "manageWorkspaces": "Spravovat pracovní prostory",
+            "search": "Hledat nebo přejít…",
+            "aiPalette": "Otevřít paletu příkazů agenta",
+            "openUserMenu": "Otevřít uživatelské menu"
+        },
+        "agents": {
+            "title": "Aktivita agentů",
+            "subtitle": "Živý audit log napříč pracovním prostorem.",
+            "show": "Zobrazit:",
+            "empty": "Zatím žádná aktivita agentů. Připojte MCP klienta a akce vašich agentů se zobrazí zde.",
+            "placeholder": "Bez dat",
+            "kpi": {
+                "events": "Události · 24 h",
+                "activeAgents": "Aktivní agenti",
+                "tasksCreated": "Vytvořené úkoly",
+                "tasksClosed": "Uzavřené úkoly"
+            },
+            "chips": {
+                "all": "Vše",
+                "humans": "Lidé",
+                "agents": "Agenti",
+                "comments": "Komentáře",
+                "statusChanges": "Změny stavu"
+            }
         },
         "tasks": {
             "title": "Úkoly",
@@ -67,9 +94,13 @@
             "perPage": "Na stránku"
         },
         "auth": {
+            "asideOverline": "MCP-native",
+            "asideHeadline": "Vaše kanban nástěnka, kterou řídí agenti.",
+            "asideBody": "Ukolio je multi-tenantní task manager postavený tak, aby AI agenti byli hlavními aktéry. Připojte jakéhokoliv MCP klienta a nechte ho úkoly plánovat, vytvářet i uzavírat společně s týmem.",
+            "asideSnippetLabel": "MCP endpoint",
             "login": {
                 "title": "Přihlášení",
-                "subtitle": "Vítejte zpět v Ukolio.",
+                "subtitle": "k vašemu pracovnímu prostoru",
                 "submit": "Přihlásit se",
                 "submitting": "Přihlašuji…",
                 "noAccount": "Nemáte účet?",
@@ -104,7 +135,13 @@
             "descriptionPlaceholder": "Volitelný popis"
         },
         "board": {
-            "addTask": "Přidat úkol",
+            "addTask": "+ Přidat úkol",
+            "newTask": "Nový úkol",
+            "viewBoard": "Nástěnka",
+            "viewWorkflow": "Workflow",
+            "viewEvents": "Události",
+            "breadcrumb": "Projekty",
+            "filter": "Filtr",
             "noTasks": "Žádné úkoly v tomto sloupci.",
             "taskCreated": "Úkol vytvořen.",
             "taskUpdated": "Úkol upraven.",
@@ -116,10 +153,13 @@
                 "close": "Zavřít",
                 "preview": "Náhled",
                 "edit": "Editor",
+                "saveChanges": "Uložit změny",
+                "titlePlaceholder": "Název úkolu",
                 "descriptionPlaceholder": "Podporuje Markdown…",
                 "nothingToPreview": "Není co zobrazit.",
                 "dueDate": "Termín",
-                "status": "Stav"
+                "status": "Stav",
+                "details": "Detaily"
             }
         },
         "workflow": {

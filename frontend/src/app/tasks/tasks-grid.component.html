@@ -92,7 +92,10 @@
                             <span class="task-project">{{ task.projectName }}</span>
                         </td>
                         <td class="td-status">
-                            <span class="status-pill" [style.background]="task.status.color">{{ task.status.name }}</span>
+                            <span class="status-pill">
+                                <span class="status-pill-dot" [style.background]="task.status.color"></span>
+                                {{ task.status.name }}
+                            </span>
                         </td>
                     </tr>
                 }

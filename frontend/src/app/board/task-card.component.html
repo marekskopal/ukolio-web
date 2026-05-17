@@ -1,14 +1,25 @@
 <div class="task-card">
     <div class="task-card-head">
-        <p class="task-card-name">{{ task().name }}</p>
-        <span class="priority-chip" [class]="'priority-chip--' + task().priority.toLowerCase()">{{ ('app.priority.' + task().priority) | translate }}</span>
+        <span class="task-card-id uk-mono">T-{{ task().id }}</span>
+        <span class="priority-chip" [class]="'priority-chip--' + task().priority.toLowerCase()">
+            {{ ('app.priority.' + task().priority) | translate }}
+        </span>
     </div>
+    <p class="task-card-title">{{ task().name }}</p>
     @if (task().description) {
         <p class="task-card-desc">{{ stripMd(task().description!) }}</p>
     }
     @if (task().dueDate) {
-        <div class="task-card-meta" [class.is-overdue]="isOverdue(task().dueDate!)">
-            {{ 'app.common.due' | translate }} {{ formatDate(task().dueDate!) }}
+        <div class="task-card-meta" [class.task-card-meta--overdue]="isOverdue(task().dueDate!)">
+            <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+                <rect x="2" y="3.5" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4" />
+                <path d="M2 6.5h12M5.5 2v3M10.5 2v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+            </svg>
+            <span>{{ formatDate(task().dueDate!) }}</span>
+            @if (isOverdue(task().dueDate!)) {
+                <span class="task-card-meta-divider" aria-hidden="true">·</span>
+                <span>{{ 'app.common.overdue' | translate }}</span>
+            }
         </div>
     }
 </div>

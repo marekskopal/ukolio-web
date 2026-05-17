@@ -42,14 +42,14 @@
                         <td>{{ u.workspaceCount }}</td>
                         <td>{{ u.ownedWorkspaceCount }}</td>
                         <td class="admin-table-actions">
-                            <button type="button" class="btn btn--ghost" (click)="toggleSystemRole(u)">
+                            <button type="button" class="btn btn-ghost" (click)="toggleSystemRole(u)">
                                 @if (u.systemRole === 'SystemAdmin') {
                                     {{ 'app.admin.users.demote' | translate }}
                                 } @else {
                                     {{ 'app.admin.users.promote' | translate }}
                                 }
                             </button>
-                            <button type="button" class="btn btn--ghost btn--danger" (click)="deleteUser(u)">{{ 'app.actions.delete' | translate }}</button>
+                            <button type="button" class="btn btn-danger-ghost" (click)="deleteUser(u)">{{ 'app.actions.delete' | translate }}</button>
                         </td>
                     </tr>
                 } @empty {

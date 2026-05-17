@@ -6,184 +6,257 @@
     flex-direction: column;
 }
 
+// ─── Topbar ───────────────────────────────────────────────
 .topbar {
-    background: $color-surface;
-    border-bottom: 1px solid $color-border;
-}
-
-.topbar-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 14px;
     height: $header-height;
     padding: 0 $space-6;
-    max-width: $layout-max;
-    margin: 0 auto;
+    background: $color-surface;
+    border-bottom: 1px solid $color-border;
 }
 
 .brand {
     display: inline-flex;
     align-items: center;
-    gap: $space-2;
-    font-size: $font-size-base;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    gap: $space-3;
     color: $color-text;
-
-    &-mark {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        background: $color-accent;
-        border-radius: $radius-sm;
-    }
-}
-
-.workspace-switcher {
-    position: relative;
-    margin-left: $space-4;
-}
-
-.workspace-current {
-    display: inline-flex;
-    align-items: center;
-    gap: $space-2;
-    padding: $space-1 $space-3;
-    background: transparent;
-    border: 1px solid $color-border;
-    border-radius: $radius-md;
-    color: $color-text;
-    font-size: $font-size-sm;
-    cursor: pointer;
-
-    &:hover {
-        background: $color-surface;
-    }
-}
-
-.workspace-caret {
-    color: $color-text-muted;
-    font-size: 10px;
-}
-
-.workspace-menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    min-width: 240px;
-    background: $color-surface;
-    border: 1px solid $color-border;
-    border-radius: $radius-md;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    padding: $space-1;
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-}
-
-.workspace-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: $space-2 $space-3;
-    border-radius: $radius-sm;
-    background: transparent;
-    color: $color-text;
-    cursor: pointer;
-    font-size: $font-size-sm;
     text-decoration: none;
 
+    &:hover { text-decoration: none; }
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: $color-text;
+    color: #fff;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+.brand-wordmark {
+    font-size: $font-size-14;
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    color: $color-text;
+}
+
+.topbar-divider {
+    width: 1px;
+    height: 18px;
+    background: $color-border;
+    margin: 0 $space-1;
+}
+
+.topbar-spacer {
+    flex: 1;
+}
+
+// ─── Workspace switcher ───────────────────────────────────
+.workspace-switcher {
+    position: relative;
+}
+
+.workspace-chip {
+    padding: 0 $space-3;
+    gap: 5px;
+
+    .workspace-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        background: $color-accent;
+        color: $color-accent-fg;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .workspace-name {
+        color: $color-text;
+        font-weight: 500;
+    }
+
+    .icon-down {
+        color: $color-text-subtle;
+        flex-shrink: 0;
+    }
+}
+
+// ─── Nav links ────────────────────────────────────────────
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: $space-3;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: $space-2 $space-4;
+    border-radius: $radius-sm;
+    background: transparent;
+    color: $color-text-muted;
+    font-size: $font-size-13;
+    text-decoration: none;
+    transition: background 80ms ease, color 80ms ease;
+
     &:hover {
-        background: $color-bg;
+        background: $color-surface-muted;
+        color: $color-text;
+        text-decoration: none;
     }
 
     &--active {
-        background: $color-bg;
+        background: $color-surface-muted;
+        color: $color-text;
         font-weight: 500;
     }
 }
 
-.workspace-menu-divider {
+// ─── Search field (button styled as input) ─────────────────
+.topbar-search {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    height: $h-sm;
+    min-width: 220px;
+    padding: 0 $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: $color-bg;
+    color: $color-text-subtle;
+    font: inherit;
+    font-size: $font-size-12;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 80ms ease, box-shadow 80ms ease;
+
+    &:hover {
+        border-color: $color-border-strong;
+    }
+
+    &:focus-visible {
+        outline: none;
+        border-color: $color-border-focus;
+        box-shadow: $ring;
+    }
+
+    .topbar-search-placeholder {
+        flex: 1;
+    }
+}
+
+// ─── User avatar trigger ──────────────────────────────────
+.user-menu {
+    position: relative;
+}
+
+.user-menu-trigger {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+    cursor: pointer;
+    background: $color-warn-soft;
+    color: $color-warn;
+    border: 1px solid $color-surface;
+    transition: box-shadow 80ms ease;
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: $ring;
+    }
+}
+
+// ─── Dropdown menus ───────────────────────────────────────
+.menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    min-width: 220px;
+    padding: $space-1;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    box-shadow: $shadow-md;
+    z-index: $z-overlay;
+    display: flex;
+    flex-direction: column;
+
+    &--left  { left: 0; }
+    &--right { right: 0; }
+}
+
+.menu-header {
+    padding: $space-2 $space-3 $space-3;
+
+    &-name {
+        font-size: $font-size-13;
+        font-weight: 500;
+        color: $color-text;
+    }
+
+    &-email {
+        margin-top: 1px;
+        font-size: $font-size-11;
+        color: $color-text-subtle;
+    }
+}
+
+.menu-section-title {
+    padding: $space-2 $space-3 $space-1;
+    font-size: $font-size-11;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $color-text-subtle;
+}
+
+.menu-item {
+    display: block;
+    width: 100%;
+    padding: $space-2 $space-3;
+    border-radius: $radius-xs;
+    background: transparent;
+    color: $color-text;
+    font-size: $font-size-13;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 80ms ease;
+
+    &:hover {
+        background: $color-surface-muted;
+        text-decoration: none;
+    }
+
+    &--active {
+        background: $color-surface-muted;
+        font-weight: 500;
+    }
+}
+
+.menu-divider {
     height: 1px;
     margin: $space-1 0;
     background: $color-border;
 }
 
-.nav {
-    display: flex;
-    align-items: center;
-    gap: $space-2;
-    font-size: $font-size-sm;
-    margin-left: auto;
-}
-
-.nav-link {
-    padding: $space-1 $space-3;
-    color: $color-text-muted;
-    border-radius: $radius-md;
-    background: transparent;
-    cursor: pointer;
-
-    &:hover {
-        color: $color-text;
-    }
-
-    &--active {
-        color: $color-text;
-        font-weight: 500;
-    }
-}
-
-.user-email {
-    color: $color-text-subtle;
-    font-size: $font-size-xs;
-    margin: 0 $space-2;
-}
-
-.lang-switcher {
-    position: relative;
-}
-
-.lang-menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    min-width: 140px;
-    background: $color-surface;
-    border: 1px solid $color-border;
-    border-radius: $radius-md;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    padding: $space-1;
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-}
-
-.lang-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: $space-2 $space-3;
-    border-radius: $radius-sm;
-    background: transparent;
-    color: $color-text;
-    cursor: pointer;
-    font-size: $font-size-sm;
-
-    &:hover {
-        background: $color-bg;
-    }
-
-    &--active {
-        background: $color-bg;
-        font-weight: 500;
-    }
-}
-
+// ─── Content area ─────────────────────────────────────────
 .content {
     flex: 1;
-    max-width: $layout-max;
     width: 100%;
-    margin: 0 auto;
     padding: $space-8 $space-6;
 }

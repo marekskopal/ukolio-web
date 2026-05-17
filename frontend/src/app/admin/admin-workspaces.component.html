@@ -39,9 +39,9 @@
                         </td>
                         <td>{{ w.memberCount }}</td>
                         <td class="admin-table-actions">
-                            <button type="button" class="btn btn--ghost" (click)="openDetail(w)">{{ 'app.actions.view' | translate }}</button>
-                            <button type="button" class="btn btn--ghost" (click)="renameWorkspace(w)">{{ 'app.actions.rename' | translate }}</button>
-                            <button type="button" class="btn btn--ghost btn--danger" (click)="deleteWorkspace(w)">{{ 'app.actions.delete' | translate }}</button>
+                            <button type="button" class="btn btn-ghost" (click)="openDetail(w)">{{ 'app.actions.view' | translate }}</button>
+                            <button type="button" class="btn btn-ghost" (click)="renameWorkspace(w)">{{ 'app.actions.rename' | translate }}</button>
+                            <button type="button" class="btn btn-danger-ghost" (click)="deleteWorkspace(w)">{{ 'app.actions.delete' | translate }}</button>
                         </td>
                     </tr>
                 } @empty {
@@ -55,7 +55,7 @@
         <aside class="admin-detail">
             <div class="admin-detail-header">
                 <h2>{{ d.workspace.name }}</h2>
-                <button type="button" class="btn btn--ghost" (click)="closeDetail()">{{ 'app.actions.close' | translate }}</button>
+                <button type="button" class="btn btn-ghost" (click)="closeDetail()">{{ 'app.actions.close' | translate }}</button>
             </div>
             <p class="muted">
                 {{ 'app.admin.workspaces.ownerLabel' | translate }}: {{ d.workspace.ownerName }} ({{ d.workspace.ownerEmail }})
@@ -70,8 +70,8 @@
                         <div class="member-role">
                             <span class="role-chip role-chip--{{ m.role.toLowerCase() }}">{{ ('app.workspaces.role.' + m.role) | translate }}</span>
                             @if (m.role !== 'Owner') {
-                                <button type="button" class="btn btn--ghost" (click)="transferOwnership(m)">{{ 'app.workspaces.transferOwnership' | translate }}</button>
-                                <button type="button" class="btn btn--ghost" (click)="removeMember(m)">{{ 'app.actions.remove' | translate }}</button>
+                                <button type="button" class="btn btn-ghost" (click)="transferOwnership(m)">{{ 'app.workspaces.transferOwnership' | translate }}</button>
+                                <button type="button" class="btn btn-ghost" (click)="removeMember(m)">{{ 'app.actions.remove' | translate }}</button>
                             }
                         </div>
                     </li>

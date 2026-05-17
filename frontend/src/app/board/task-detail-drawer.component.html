@@ -1,80 +1,79 @@
-<div class="drawer-backdrop" role="button" tabindex="0" [attr.aria-label]="'app.board.drawer.close' | translate" (click)="onCancel()"></div>
-<aside class="drawer">
+<div
+    class="drawer-backdrop"
+    role="button"
+    tabindex="0"
+    [attr.aria-label]="'app.board.drawer.close' | translate"
+    (click)="onCancel()"
+    (keydown.escape)="onCancel()"
+></div>
+<aside class="drawer" [formGroup]="form">
     <header class="drawer-header">
-        <h2>{{ (task() ? 'app.board.drawer.editTask' : 'app.board.drawer.newTask') | translate }}</h2>
-        <button type="button" class="drawer-close" (click)="onCancel()">{{ 'app.board.drawer.close' | translate }}</button>
+        @if (task(); as t) {
+            <span class="drawer-id uk-mono">T-{{ t.id }}</span>
+            <span class="drawer-divider" aria-hidden="true"></span>
+        } @else {
+            <span class="drawer-id uk-mono">{{ 'app.board.drawer.newTask' | translate }}</span>
+            <span class="drawer-divider" aria-hidden="true"></span>
+        }
+        <label class="drawer-status">
+            <span class="drawer-status-dot" [style.background]="currentStatusColor()"></span>
+            <select formControlName="statusId" class="drawer-status-select" [attr.aria-label]="'app.board.drawer.status' | translate">
+                @for (s of statuses(); track s.id) {
+                    <option [value]="s.id">{{ s.name }}</option>
+                }
+            </select>
+        </label>
+        <span class="drawer-spacer"></span>
+        <button
+            type="button"
+            class="btn btn-ghost btn-icon btn-sm"
+            (click)="onCancel()"
+            [attr.aria-label]="'app.board.drawer.close' | translate"
+        >
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+        </button>
     </header>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="drawer-body">
-        <div class="field">
-            <label for="task-name" class="field-label">{{ 'app.common.name' | translate }}</label>
-            <input id="task-name" type="text" formControlName="name" class="input" />
-        </div>
+    <form class="drawer-body" (ngSubmit)="onSubmit()">
+        <input
+            id="task-name"
+            type="text"
+            formControlName="name"
+            class="drawer-title-input"
+            [placeholder]="'app.board.drawer.titlePlaceholder' | translate"
+        />
 
-        <div class="field">
-            <div class="field-label-row">
-                <label for="task-description" class="field-label">{{ 'app.common.description' | translate }}</label>
-                <div class="tab-group">
-                    <button type="button" class="tab-button" [class.is-active]="tab() === 'edit'" (click)="tab.set('edit')">{{ 'app.board.drawer.edit' | translate }}</button>
-                    <button type="button" class="tab-button" [class.is-active]="tab() === 'preview'" (click)="tab.set('preview')">{{ 'app.board.drawer.preview' | translate }}</button>
-                </div>
-            </div>
-            @if (tab() === 'edit') {
-                <textarea id="task-description" formControlName="description" rows="8" [placeholder]="'app.board.drawer.descriptionPlaceholder' | translate" class="textarea md-editor"></textarea>
-            } @else {
-                <div class="md-preview">
-                    @if (description()) {
-                        <markdown [data]="description()" />
-                    } @else {
-                        <p class="text-subtle">{{ 'app.board.drawer.nothingToPreview' | translate }}</p>
-                    }
-                </div>
-            }
-        </div>
-
-        <div class="field-row">
-            <div class="field">
-                <label for="task-status" class="field-label">{{ 'app.board.drawer.status' | translate }}</label>
-                <select id="task-status" formControlName="statusId" class="select">
-                    @for (s of statuses(); track s.id) {
-                        <option [value]="s.id">{{ s.name }}</option>
-                    }
-                </select>
-            </div>
-            <div class="field">
-                <label for="task-priority" class="field-label">{{ 'app.common.priority' | translate }}</label>
-                <select id="task-priority" formControlName="priority" class="select">
+        <section class="drawer-section">
+            <div class="uk-overline">{{ 'app.board.drawer.details' | translate }}</div>
+            <div class="meta-grid">
+                <div class="meta-label">{{ 'app.common.priority' | translate }}</div>
+                <select formControlName="priority" class="select meta-control">
                     <option value="Low">{{ 'app.priority.Low' | translate }}</option>
                     <option value="Medium">{{ 'app.priority.Medium' | translate }}</option>
                     <option value="High">{{ 'app.priority.High' | translate }}</option>
                 </select>
-            </div>
-        </div>
 
-        <div class="field">
-            <label for="task-due-date" class="field-label">{{ 'app.board.drawer.dueDate' | translate }}</label>
-            <input id="task-due-date" type="date" formControlName="dueDate" class="input input--narrow" />
-        </div>
+                <div class="meta-label">{{ 'app.board.drawer.dueDate' | translate }}</div>
+                <input type="date" formControlName="dueDate" class="input meta-control" />
 
-        @if (customControls().length > 0) {
-            <h3 class="custom-fields-heading">{{ 'app.taskFields.heading' | translate }}</h3>
-            @for (desc of customControls(); track desc.controlName) {
-                <div class="field">
-                    <label [attr.for]="desc.controlName" class="field-label">
+                @for (desc of customControls(); track desc.controlName) {
+                    <div class="meta-label">
                         {{ desc.pf.field.name }}
                         @if (desc.pf.field.required) {
-                            <span class="required-mark">*</span>
+                            <span class="required-mark" aria-hidden="true">*</span>
                         }
-                    </label>
+                    </div>
                     @switch (desc.pf.field.type) {
                         @case ('Text') {
-                            <input [id]="desc.controlName" type="text" [formControlName]="desc.controlName" class="input" />
+                            <input [id]="desc.controlName" type="text" [formControlName]="desc.controlName" class="input meta-control" />
                         }
                         @case ('Textarea') {
-                            <textarea [id]="desc.controlName" [formControlName]="desc.controlName" rows="3" class="textarea"></textarea>
+                            <textarea [id]="desc.controlName" [formControlName]="desc.controlName" rows="3" class="textarea meta-control"></textarea>
                         }
                         @case ('Select') {
-                            <select [id]="desc.controlName" [formControlName]="desc.controlName" class="select">
+                            <select [id]="desc.controlName" [formControlName]="desc.controlName" class="select meta-control">
                                 <option value=""></option>
                                 @for (opt of desc.options; track opt) {
                                     <option [value]="opt">{{ opt }}</option>
@@ -82,7 +81,7 @@
                             </select>
                         }
                         @case ('Version') {
-                            <select [id]="desc.controlName" [formControlName]="desc.controlName" class="select">
+                            <select [id]="desc.controlName" [formControlName]="desc.controlName" class="select meta-control">
                                 <option value=""></option>
                                 @for (opt of desc.options; track opt) {
                                     <option [value]="opt">{{ opt }}</option>
@@ -90,21 +89,61 @@
                             </select>
                         }
                     }
+                }
+            </div>
+        </section>
+
+        <section class="drawer-section">
+            <div class="drawer-section-head">
+                <span class="uk-overline">{{ 'app.common.description' | translate }}</span>
+                <div class="tab-group">
+                    <button type="button" class="tab-button" [class.tab-button--active]="tab() === 'edit'" (click)="tab.set('edit')">
+                        {{ 'app.board.drawer.edit' | translate }}
+                    </button>
+                    <button
+                        type="button"
+                        class="tab-button"
+                        [class.tab-button--active]="tab() === 'preview'"
+                        (click)="tab.set('preview')"
+                    >
+                        {{ 'app.board.drawer.preview' | translate }}
+                    </button>
                 </div>
-            }
-        }
+            </div>
+            <div class="description-panel">
+                @if (tab() === 'edit') {
+                    <textarea
+                        id="task-description"
+                        formControlName="description"
+                        rows="8"
+                        class="textarea description-editor"
+                        [placeholder]="'app.board.drawer.descriptionPlaceholder' | translate"
+                    ></textarea>
+                } @else {
+                    <div class="description-preview">
+                        @if (description()) {
+                            <markdown [data]="description()" />
+                        } @else {
+                            <p class="text-subtle">{{ 'app.board.drawer.nothingToPreview' | translate }}</p>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
     </form>
 
     <footer class="drawer-footer">
         @if (task()) {
-            <button type="button" class="btn-danger-link" (click)="onDelete()">{{ 'app.actions.delete' | translate }}</button>
+            <button type="button" class="btn btn-danger-ghost btn-sm" (click)="onDelete()">
+                {{ 'app.actions.delete' | translate }}
+            </button>
         } @else {
             <span></span>
         }
         <div class="drawer-footer-actions">
-            <button type="button" class="muted-link" (click)="onCancel()">{{ 'app.actions.cancel' | translate }}</button>
-            <button type="button" class="btn btn-primary" [disabled]="form.invalid || saving()" (click)="onSubmit()">
-                {{ (saving() ? 'app.actions.loading' : 'app.actions.save') | translate }}
+            <button type="button" class="btn btn-ghost btn-sm" (click)="onCancel()">{{ 'app.actions.cancel' | translate }}</button>
+            <button type="button" class="btn btn-primary btn-sm" [disabled]="form.invalid || saving()" (click)="onSubmit()">
+                {{ (saving() ? 'app.actions.loading' : 'app.board.drawer.saveChanges') | translate }}
             </button>
         </div>
     </footer>

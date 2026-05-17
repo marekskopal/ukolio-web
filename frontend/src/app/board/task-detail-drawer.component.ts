@@ -53,6 +53,14 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected readonly description = computed(() => this.form.controls.description.value ?? '');
 
+    private readonly statusId = signal<number>(0);
+
+    protected readonly currentStatusColor = computed<string>(() => {
+        const id = this.statusId();
+        const match = this.statuses().find((s) => s.id === id);
+        return match?.color ?? '#94a3a8';
+    });
+
     protected readonly customControls = computed<CustomControlDescriptor[]>(() => {
         const sorted = [...this.projectFields()].sort((a, b) => a.position - b.position);
         return sorted.map((pf) => ({
@@ -74,10 +82,16 @@ export class TaskDetailDrawerComponent implements OnInit {
                 priority: existing.priority,
                 dueDate: existing.dueDate ?? '',
             });
+            this.statusId.set(existing.statusId);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             this.form.patchValue({statusId: fallbackStatusId});
+            this.statusId.set(fallbackStatusId);
         }
+
+        this.form.controls.statusId.valueChanges.subscribe((value) => {
+            this.statusId.set(Number(value));
+        });
 
         const existingValues = new Map(existing?.fieldValues.map((fv) => [fv.fieldId, fv.value ?? '']) ?? []);
         const dynamic = this.form as unknown as FormGroup;

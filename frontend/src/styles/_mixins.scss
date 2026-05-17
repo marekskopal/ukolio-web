@@ -1,34 +1,43 @@
 @use 'variables' as *;
 
+// 3 px indigo ring; never an outline.
 @mixin focus-ring {
-    outline: 2px solid transparent;
-    outline-offset: 2px;
+    outline: none;
 
     &:focus-visible {
-        outline-color: $color-accent;
+        box-shadow: $ring;
     }
 }
 
+// Shared baseline for .input / .textarea / .select.
 @mixin field-base {
+    appearance: none;
+    -webkit-appearance: none;
     display: block;
     width: 100%;
-    padding: $space-2 $space-3;
+    height: $h-md;
+    padding: 0 $space-4;
     border: 1px solid $color-border-strong;
-    border-radius: $radius-md;
+    border-radius: $radius-sm;
     background: $color-surface;
-    font-size: $font-size-base;
     color: $color-text;
-    line-height: 1.4;
-    transition: border-color 120ms ease, box-shadow 120ms ease;
+    font-family: inherit;
+    font-size: $font-size-13;
+    line-height: 1;
+    transition: border-color 80ms ease, box-shadow 80ms ease;
+
+    &::placeholder {
+        color: $color-text-faint;
+    }
+
+    &:hover {
+        border-color: $color-border-hover;
+    }
 
     &:focus {
         outline: none;
         border-color: $color-border-focus;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
-    }
-
-    &::placeholder {
-        color: $color-text-subtle;
+        box-shadow: $ring;
     }
 
     &:disabled {

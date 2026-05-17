@@ -29,8 +29,8 @@
                         <h2>{{ ws.name }}</h2>
                         @if (canManageWorkspace()) {
                             <div class="ws-actions">
-                                <button type="button" class="btn" (click)="rename()">{{ 'app.actions.rename' | translate }}</button>
-                                <button type="button" class="btn btn--danger" (click)="deleteWorkspace()">{{ 'app.actions.delete' | translate }}</button>
+                                <button type="button" class="btn btn-secondary" (click)="rename()">{{ 'app.actions.rename' | translate }}</button>
+                                <button type="button" class="btn btn-danger" (click)="deleteWorkspace()">{{ 'app.actions.delete' | translate }}</button>
                             </div>
                         }
                     </div>
@@ -58,10 +58,10 @@
                                             <span class="role-chip role-chip--{{ member.role.toLowerCase() }}">{{ ('app.workspaces.role.' + member.role) | translate }}</span>
                                         }
                                         @if (canTransferOwnership() && member.role !== 'Owner') {
-                                            <button type="button" class="btn btn--ghost" (click)="transferOwnership(member)">{{ 'app.workspaces.transferOwnership' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="transferOwnership(member)">{{ 'app.workspaces.transferOwnership' | translate }}</button>
                                         }
                                         @if (canRemoveMember(member)) {
-                                            <button type="button" class="btn btn--ghost" (click)="removeMember(member)">{{ 'app.actions.remove' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="removeMember(member)">{{ 'app.actions.remove' | translate }}</button>
                                         }
                                     </div>
                                 </li>
@@ -76,7 +76,7 @@
                             <div class="ws-section-header">
                                 <h3>{{ 'app.fields.title' | translate }}</h3>
                                 @if (fieldEditor() === null) {
-                                    <button type="button" class="btn btn--primary" (click)="openCreateField()">{{ 'app.fields.addField' | translate }}</button>
+                                    <button type="button" class="btn btn-primary" (click)="openCreateField()">{{ 'app.fields.addField' | translate }}</button>
                                 }
                             </div>
                             <p class="muted">{{ 'app.fields.description' | translate }}</p>
@@ -140,15 +140,15 @@
                                                         [value]="opt"
                                                         (input)="updateOption($index, $any($event.target).value)"
                                                     />
-                                                    <button type="button" class="btn btn--ghost" (click)="removeOption($index)">{{ 'app.fields.removeOption' | translate }}</button>
+                                                    <button type="button" class="btn btn-ghost" (click)="removeOption($index)">{{ 'app.fields.removeOption' | translate }}</button>
                                                 </div>
                                             }
-                                            <button type="button" class="btn btn--ghost" (click)="addOption()">{{ 'app.fields.addOption' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="addOption()">{{ 'app.fields.addOption' | translate }}</button>
                                         </div>
                                     }
                                     <div class="field-actions">
-                                        <button type="submit" class="btn btn--primary" [disabled]="fieldSaving()">{{ 'app.actions.save' | translate }}</button>
-                                        <button type="button" class="btn" (click)="closeFieldEditor()">{{ 'app.actions.cancel' | translate }}</button>
+                                        <button type="submit" class="btn btn-primary" [disabled]="fieldSaving()">{{ 'app.actions.save' | translate }}</button>
+                                        <button type="button" class="btn btn-secondary" (click)="closeFieldEditor()">{{ 'app.actions.cancel' | translate }}</button>
                                     </div>
                                 </form>
                             }
@@ -167,8 +167,8 @@
                                             }
                                         </div>
                                         <div class="field-actions-inline">
-                                            <button type="button" class="btn btn--ghost" (click)="openEditField(field)">{{ 'app.actions.edit' | translate }}</button>
-                                            <button type="button" class="btn btn--ghost" (click)="deleteField(field)">{{ 'app.actions.delete' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="openEditField(field)">{{ 'app.actions.edit' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="deleteField(field)">{{ 'app.actions.delete' | translate }}</button>
                                         </div>
                                     </li>
                                 } @empty {
@@ -201,7 +201,7 @@
                                         }
                                     </select>
                                 }
-                                <button type="submit" class="btn btn--primary">{{ 'app.workspaces.sendInvitation' | translate }}</button>
+                                <button type="submit" class="btn btn-primary">{{ 'app.workspaces.sendInvitation' | translate }}</button>
                             </form>
 
                             @if (invitations().length > 0) {
@@ -217,7 +217,7 @@
                                                 }
                                             </div>
                                             @if (invitation.acceptedAt === null) {
-                                                <button type="button" class="btn btn--ghost" (click)="cancelInvitation(invitation)">{{ 'app.actions.cancel' | translate }}</button>
+                                                <button type="button" class="btn btn-ghost" (click)="cancelInvitation(invitation)">{{ 'app.actions.cancel' | translate }}</button>
                                             }
                                         </li>
                                     }

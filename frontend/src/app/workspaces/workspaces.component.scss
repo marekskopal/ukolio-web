@@ -3,14 +3,14 @@
 .page {
     display: flex;
     flex-direction: column;
-    gap: $space-6;
+    gap: $space-7;
 }
 
 .page-header h1 {
     margin: 0;
-    font-size: $font-size-xl;
+    font-size: $font-size-24;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: $tracking-tight;
 }
 
 .muted {
@@ -28,7 +28,7 @@
     display: flex;
     flex-direction: column;
     gap: $space-1;
-    padding: $space-2;
+    padding: $space-1;
     border: 1px solid $color-border;
     border-radius: $radius-md;
     background: $color-surface;
@@ -39,36 +39,41 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: $space-2 $space-3;
-    border-radius: $radius-sm;
-    cursor: pointer;
+    padding: $space-3 $space-4;
+    border: 0;
+    border-radius: $radius-xs;
     background: transparent;
     color: $color-text;
+    font-size: $font-size-13;
     text-align: left;
+    cursor: pointer;
+    transition: background 80ms ease, color 80ms ease;
 
-    &:hover {
-        background: $color-bg;
-    }
+    &:hover { background: $color-surface-muted; }
 
     &--active {
         background: $color-accent-soft;
-        color: $color-accent-hover;
+        color: $color-accent;
+        font-weight: 500;
     }
 }
 
 .ws-badge {
-    font-size: $font-size-xs;
+    font-size: $font-size-11;
     color: $color-text-muted;
     border: 1px solid $color-border;
-    border-radius: $radius-pill;
+    border-radius: $radius-xs;
     padding: 0 $space-2;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .ws-detail {
     display: flex;
     flex-direction: column;
-    gap: $space-6;
-    padding: $space-6;
+    gap: $space-7;
+    padding: $space-7;
     border: 1px solid $color-border;
     border-radius: $radius-md;
     background: $color-surface;
@@ -82,22 +87,26 @@
 
 .ws-toolbar h2 {
     margin: 0;
-    font-size: $font-size-lg;
+    font-size: $font-size-18;
+    font-weight: 600;
+    letter-spacing: $tracking-tight;
 }
 
 .ws-actions {
     display: flex;
-    gap: $space-2;
+    gap: $space-3;
 }
 
 .ws-section h3 {
-    margin: 0 0 $space-3;
-    font-size: $font-size-md;
+    margin: 0 0 $space-4;
+    font-size: $font-size-15;
+    font-weight: 600;
 }
 
 .ws-empty {
-    padding: $space-6;
+    padding: $space-7;
     color: $color-text-subtle;
+    font-size: $font-size-13;
 }
 
 .member-list,
@@ -115,9 +124,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: $space-2 $space-3;
+    padding: $space-3 $space-4;
     border: 1px solid $color-border;
     border-radius: $radius-sm;
+    background: $color-surface;
+    font-size: $font-size-13;
 }
 
 .member-email {
@@ -128,131 +139,82 @@
 .member-role {
     display: flex;
     align-items: center;
-    gap: $space-2;
+    gap: $space-3;
 }
 
 .role-chip {
-    font-size: $font-size-xs;
-    padding: 2px $space-2;
-    border-radius: $radius-pill;
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 $space-2;
+    border-radius: $radius-xs;
     background: $color-surface-muted;
     color: $color-text-muted;
+    font-size: $font-size-11;
+    font-weight: 500;
 
     &--owner {
         background: $color-accent-soft;
-        color: $color-accent-hover;
+        color: $color-accent;
     }
 }
 
 .invitation-accepted {
     color: $color-success;
-    font-size: $font-size-sm;
+    font-size: $font-size-12;
 }
 
 .invite-form {
     display: flex;
-    gap: $space-2;
-    margin-bottom: $space-4;
+    gap: $space-3;
+    margin-bottom: $space-5;
 }
 
-.input {
-    flex: 1;
-    padding: $space-2 $space-3;
-    border: 1px solid $color-border;
-    border-radius: $radius-sm;
-    font-size: $font-size-sm;
-    background: $color-surface;
-}
-
-.btn {
-    padding: $space-2 $space-4;
-    border: 1px solid $color-border;
-    border-radius: $radius-sm;
-    background: $color-surface;
-    color: $color-text;
-    cursor: pointer;
-    font-size: $font-size-sm;
-
-    &:hover {
-        background: $color-bg;
-    }
-
-    &--primary {
-        background: $color-accent;
-        color: $color-text-inverse;
-        border-color: $color-accent;
-
-        &:hover {
-            background: $color-accent-hover;
-            border-color: $color-accent-hover;
-        }
-    }
-
-    &--danger {
-        color: $color-error;
-        border-color: $color-error-border;
-
-        &:hover {
-            background: $color-error-bg;
-        }
-    }
-
-    &--ghost {
-        background: transparent;
-        border-color: transparent;
-        color: $color-text-muted;
-
-        &:hover {
-            background: $color-bg;
-            color: $color-text;
-        }
-    }
-}
+.invite-form .input { flex: 1; }
 
 .ws-section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: $space-3;
+    margin-bottom: $space-4;
 
     h3 {
         margin: 0;
-        font-size: $font-size-md;
+        font-size: $font-size-15;
+        font-weight: 600;
     }
 }
 
 .field-editor {
     display: flex;
     flex-direction: column;
-    gap: $space-3;
-    padding: $space-4;
+    gap: $space-4;
+    padding: $space-5;
     border: 1px solid $color-border;
-    border-radius: $radius-sm;
-    background: $color-bg;
-    margin-bottom: $space-4;
+    border-radius: $radius-md;
+    background: $color-surface-muted;
+    margin-bottom: $space-5;
 }
 
 .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: $space-3;
+    gap: $space-4;
 }
 
 .field-label {
     display: flex;
     flex-direction: column;
     gap: $space-1;
-    font-size: $font-size-sm;
+    font-size: $font-size-12;
     color: $color-text-muted;
 
-    span {
-        font-weight: 500;
-    }
+    span { font-weight: 500; }
 }
 
 .field-label-text {
-    font-size: $font-size-sm;
-    color: $color-text-muted;
+    font-size: $font-size-12;
+    color: $color-text;
     font-weight: 500;
 }
 
@@ -261,7 +223,7 @@
     align-items: center;
     gap: $space-2;
     align-self: end;
-    padding-bottom: $space-2;
+    padding-bottom: $space-3;
 }
 
 .field-options {
@@ -278,7 +240,7 @@
 
 .field-actions {
     display: flex;
-    gap: $space-2;
+    gap: $space-3;
     justify-content: flex-end;
 }
 
@@ -295,10 +257,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: $space-2 $space-3;
+    padding: $space-3 $space-4;
     border: 1px solid $color-border;
     border-radius: $radius-sm;
-    gap: $space-3;
+    background: $color-surface;
+    gap: $space-4;
+    font-size: $font-size-13;
 }
 
 .field-meta {
@@ -310,15 +274,19 @@
 }
 
 .field-chip {
-    font-size: $font-size-xs;
-    padding: 2px $space-2;
-    border-radius: $radius-pill;
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 $space-2;
+    border-radius: $radius-xs;
     background: $color-surface-muted;
     color: $color-text-muted;
+    font-size: $font-size-11;
+    font-weight: 500;
 
     &--required {
-        background: $color-error-bg;
-        color: $color-error;
+        background: $color-danger-soft;
+        color: $color-danger;
     }
 }
 
