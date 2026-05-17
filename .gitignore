@@ -17,3 +17,5 @@ frontend/.angular/
 frontend/coverage/
 
 log/
+
+docker-compose.override.yml
