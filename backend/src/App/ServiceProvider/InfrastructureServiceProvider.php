@@ -8,7 +8,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
-use Ukolio\Service\Logger\StderrLogger;
+use Ukolio\Service\Logger\Logger;
 
 final class InfrastructureServiceProvider extends AbstractServiceProvider
 {
@@ -24,7 +24,7 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 	{
 		$container = $this->getContainer();
 
-		$container->add(LoggerInterface::class, fn (): LoggerInterface => new StderrLogger());
+		$container->add(LoggerInterface::class, fn (): LoggerInterface => Logger::initLogger(__DIR__ . '/../../../log'));
 
 		$container->add(
 			ResponseFactoryInterface::class,
