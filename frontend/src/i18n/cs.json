@@ -105,7 +105,7 @@
         },
         "tasks": {
             "title": "Úkoly",
-            "subtitle": "{count} úkolů napříč všemi projekty",
+            "subtitle": "{{count}} úkolů napříč všemi projekty",
             "search": "Hledat podle názvu…",
             "filterStatus": "Stav",
             "onlyActive": "Pouze aktivní",
