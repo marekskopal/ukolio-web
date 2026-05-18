@@ -2,7 +2,6 @@
 
 Minimalistic, multi-tenant Kanban task manager designed to be driven primarily
 by AI agents over MCP, with a lightweight web UI for human overview.
-Architecture mirrors [FinGather](https://github.com/marekskopal/fingather).
 
 ## Stack
 
@@ -90,8 +89,7 @@ language. Frontend uses `@ngx-translate/core`; backend renders emails via
 Exposed at `POST/GET/DELETE /api/mcp` over Streamable HTTP (using `mcp/sdk`).
 Sessions persist to `MCP_SESSION_DIR` (defaults to `<tmp>/ukolio-mcp-sessions`).
 
-**Auth: OAuth 2.1 + PKCE** (mirrors fingather/backend/src/OAuth/). Discovery
-endpoints:
+**Auth: OAuth 2.1 + PKCE.** Discovery endpoints:
 
 - `GET /.well-known/oauth-authorization-server/api/mcp`
 - `GET /.well-known/oauth-protected-resource/api/mcp`

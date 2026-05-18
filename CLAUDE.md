@@ -1,8 +1,7 @@
 # Ukolio
 
 Minimalistic, multi-tenant Kanban task manager. Designed for AI agents (MCP)
-as the primary actor; the web UI is for human overview. Architecture clones
-FinGather (`/Users/marek/web/www/fingather/`).
+as the primary actor; the web UI is for human overview.
 
 ## Services
 
@@ -65,7 +64,7 @@ All routes live in `Ukolio\Route\Routes` (single enum). Highlights:
 - `GET/POST/PUT/DELETE /api/projects[/{id}]`, plus `/board`, `/events`, `/workflow`, `/tasks`, `/fields`.
 - `GET /api/workflows` — workspace-wide list of workflows with nested statuses + `projectName` (used by the Tasks grid's status filter).
 - `GET/POST/PUT/DELETE /api/workflows/{id}/statuses`, `/api/statuses/{id}`, `/api/statuses/{id}/move`.
-- `GET /api/tasks` — workspace-wide paginated list. Query params: `limit` (default 50, max 200), `offset`, `orderBy` (`created_at|name|status_id`), `orderDirection` (`ASC|DESC`), `search`, `statusIds` (pipe-delimited), `onlyActive` (status type ≠ Finish). Response mirrors fingather's `TransactionListDto` shape: `{ tasks: TaskListItemDto[], count: int }`.
+- `GET /api/tasks` — workspace-wide paginated list. Query params: `limit` (default 50, max 200), `offset`, `orderBy` (`created_at|name|status_id`), `orderDirection` (`ASC|DESC`), `search`, `statusIds` (pipe-delimited), `onlyActive` (status type ≠ Finish). Response shape: `{ tasks: TaskListItemDto[], count: int }`.
 - `GET/PUT/DELETE /api/tasks/{id}`, `PUT /api/tasks/{id}/move`, `POST /api/projects/{id}/tasks`.
 - Admin: `GET/PUT/DELETE /api/admin/users[/{id}]`, `GET/PUT/DELETE /api/admin/workspaces[/{id}]`, plus `/members`, `/transfer-ownership`.
 - MCP: `POST/GET/DELETE /api/mcp`, OAuth discovery + flow endpoints (see below).
@@ -91,8 +90,8 @@ Shared components live under `frontend/src/app/shared/components/`
 
 ### Tasks grid (`/tasks`)
 
-Workspace-scoped paginated table that mirrors fingather's Transactions view.
-State is held as signals in `TasksGridComponent` — no URL or localStorage
+Workspace-scoped paginated table. State is held as signals in
+`TasksGridComponent` — no URL or localStorage
 persistence (yet). Filter / sort / page-size changes reset to page 1. Row
 click opens the existing `TaskDetailDrawerComponent` in place — the drawer is
 already cleanly parameterized (`task`, `statuses`, `projectId`,
@@ -103,7 +102,7 @@ without refactor. Reusable `PaginationComponent` lives in
 
 ## i18n
 
-- Backend: `Ukolio\Service\Translator\TranslatorService` mirrors fingather's pattern; loads `backend/translations/{en,cs}.json`. `EmailFactory` renders subject + section per `User.locale`; invitee's locale falls back to the inviter when they don't yet have an account.
+- Backend: `Ukolio\Service\Translator\TranslatorService` loads `backend/translations/{en,cs}.json`. `EmailFactory` renders subject + section per `User.locale`; invitee's locale falls back to the inviter when they don't yet have an account.
 - Frontend: `@ngx-translate/core` + `@ngx-translate/http-loader`. JSONs live in `frontend/src/i18n/{en,cs}.json`, served from `/i18n/` via `angular.json` assets. `LanguageService` initialises from `?lang=`, then localStorage, then `navigator.language`. `PATCH /api/current-user` syncs the user's choice to the backend so emails arrive in the right language. The topbar has a language switcher.
 
 ## Docker
@@ -117,11 +116,10 @@ make migrate                              # Apply migrations
 ## MCP server
 
 Exposed at `POST/GET/DELETE /api/mcp` (Streamable HTTP transport, `mcp/sdk`).
-Mirrors `fingather/backend/src/Mcp/`. Sessions persisted to
-`MCP_SESSION_DIR` (defaults to `<tmp>/ukolio-mcp-sessions`).
+Sessions persisted to `MCP_SESSION_DIR` (defaults to
+`<tmp>/ukolio-mcp-sessions`).
 
-Auth is **OAuth 2.1 with PKCE** (mirrors `fingather/backend/src/OAuth/`).
-Discovery endpoints:
+Auth is **OAuth 2.1 with PKCE**. Discovery endpoints:
 
 - `GET /.well-known/oauth-authorization-server/api/mcp` — issuer/authz/token/registration URLs
 - `GET /.well-known/oauth-protected-resource/api/mcp` — resource metadata
@@ -156,8 +154,8 @@ make test-frontend  # Vitest (no specs yet at time of writing)
 
 Backend uses PHPStan at `max` level (with `bleedingEdge.neon` +
 strict/deprecation/phpunit/shipmonk rules + cognitive-complexity +
-unused-public) and PHPCS with the slevomat ruleset (ported from fingather;
-tabs, single-line method signatures ≤140 chars). Custom PHPStan extension
+unused-public) and PHPCS with the slevomat ruleset (tabs, single-line method
+signatures ≤140 chars). Custom PHPStan extension
 `Ukolio\PhpStan\OrmReadWritePropertiesExtension` marks
 `Column`/`ManyToOne`/`ColumnEnum`-attributed properties as ORM-managed
 (always read, always written, always initialized).
