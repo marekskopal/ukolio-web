@@ -43,6 +43,9 @@ final readonly class ApplicationFactory
 			'S3_BUCKET',
 			'S3_ACCESS_KEY',
 			'S3_SECRET_KEY',
+			'REDIS_HOST',
+			'REDIS_PORT',
+			'REDIS_PASSWORD',
 		];
 
 		$missing = [];

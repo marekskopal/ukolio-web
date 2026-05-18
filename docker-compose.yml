@@ -49,9 +49,14 @@ services:
             S3_SECRET_KEY: ${S3_SECRET_KEY}
             S3_USE_PATH_STYLE: ${S3_USE_PATH_STYLE}
             TASK_FILE_MAX_SIZE_MB: ${TASK_FILE_MAX_SIZE_MB}
+            REDIS_HOST: ${REDIS_HOST}
+            REDIS_PORT: ${REDIS_PORT}
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+            MCP_SESSION_TTL: ${MCP_SESSION_TTL}
         depends_on:
             - db
             - minio
+            - redis
         restart: unless-stopped
         networks:
             - backend
@@ -104,6 +109,17 @@ services:
         volumes:
             - ukolio_minio:/data
 
+    redis:
+        image: redis:8.6.3-alpine
+        restart: unless-stopped
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+        command: redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+        networks:
+            - backend
+        volumes:
+            - ukolio_redis:/data
+
 networks:
     frontend:
         name: ukolio_frontend
@@ -115,3 +131,5 @@ volumes:
         name: ukolio_data
     ukolio_minio:
         name: ukolio_minio
+    ukolio_redis:
+        name: ukolio_redis

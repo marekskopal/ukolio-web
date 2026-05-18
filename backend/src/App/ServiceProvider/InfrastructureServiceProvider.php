@@ -7,6 +7,8 @@ namespace Ukolio\App\ServiceProvider;
 use AsyncAws\S3\S3Client;
 use Http\Discovery\Psr17FactoryDiscovery;
 use League\Container\ServiceProvider\AbstractServiceProvider;
+use Predis\Client;
+use Predis\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Ukolio\Service\Logger\Logger;
@@ -24,6 +26,7 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			S3Config::class,
 			S3Client::class,
 			FileStorageInterface::class,
+			ClientInterface::class,
 		], true);
 	}
 
@@ -64,5 +67,14 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			assert($logger instanceof LoggerInterface);
 			return new S3FileStorage($client, $config, $logger);
 		});
+
+		$container->add(
+			ClientInterface::class,
+			static fn (): ClientInterface => new Client('tcp://' . getenv('REDIS_HOST') . ':' . getenv('REDIS_PORT'), [
+				'parameters' => [
+					'password' => (string) getenv('REDIS_PASSWORD'),
+				],
+			]),
+		);
 	}
 }

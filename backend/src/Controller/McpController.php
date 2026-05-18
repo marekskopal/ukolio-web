@@ -7,13 +7,14 @@ namespace Ukolio\Controller;
 use MarekSkopal\Router\Attribute\RouteDelete;
 use MarekSkopal\Router\Attribute\RouteGet;
 use MarekSkopal\Router\Attribute\RoutePost;
-use Mcp\Server\Session\FileSessionStore;
 use Mcp\Server\Transport\StreamableHttpTransport;
+use Predis\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Mcp\Server\UkolioServer;
+use Ukolio\Mcp\Session\RedisSessionStore;
 use Ukolio\OAuth\AuthorizationServiceInterface;
 use Ukolio\OAuth\ClientServiceInterface;
 use Ukolio\Response\ErrorResponse;
@@ -28,6 +29,7 @@ final readonly class McpController
 		private McpUserContextInterface $userContext,
 		private ActorContextInterface $actorContext,
 		private UkolioServer $server,
+		private ClientInterface $redis,
 	) {
 	}
 
@@ -71,7 +73,7 @@ final readonly class McpController
 		}
 		$this->actorContext->setAgent($authorization->clientId, $clientName);
 
-		$sessionStore = new FileSessionStore($this->sessionDirectory());
+		$sessionStore = new RedisSessionStore($this->redis, $this->sessionTtl());
 		$mcpServer = $this->server->build($sessionStore);
 		$transport = new StreamableHttpTransport($request);
 
@@ -110,13 +112,10 @@ final readonly class McpController
 		]);
 	}
 
-	private function sessionDirectory(): string
+	private function sessionTtl(): int
 	{
-		$dir = (string) getenv('MCP_SESSION_DIR');
-		if ($dir === '') {
-			$dir = sys_get_temp_dir() . '/ukolio-mcp-sessions';
-		}
+		$ttl = (int) getenv('MCP_SESSION_TTL');
 
-		return $dir;
+		return $ttl > 0 ? $ttl : 86400;
 	}
 }
