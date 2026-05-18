@@ -6,7 +6,6 @@ namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
 use Iterator;
-use ReflectionProperty;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
@@ -161,8 +160,7 @@ final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 		$newOwnerMembership->updatedAt = $now;
 		$this->workspaceUserRepository->persist($newOwnerMembership);
 
-		$reflection = new ReflectionProperty($workspace, 'owner');
-		$reflection->setValue($workspace, $newOwnerMembership->user);
+		$workspace->owner = $newOwnerMembership->user;
 		$workspace->updatedAt = $now;
 		$this->workspaceRepository->persist($workspace);
 

@@ -15,7 +15,7 @@ class Workspace extends AEntity
 {
 	public function __construct(
 		#[ManyToOne(entityClass: User::class)]
-		public readonly User $owner,
+		public User $owner,
 		#[Column(type: Type::String)]
 		public string $name,
 	) {

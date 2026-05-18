@@ -70,6 +70,38 @@ final class WorkspaceControllerTest extends IntegrationTestCase
 		self::assertSame('New', $this->jsonBody($ok)['name']);
 	}
 
+	public function testTransferOwnership(): void
+	{
+		$owner = Fixture::createUser(email: 'a@example.com');
+		$other = Fixture::createUser(email: 'b@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		Fixture::addMember($workspace, $other, WorkspaceRoleEnum::Admin);
+
+		$response = $this->request(
+			'POST',
+			'/api/workspaces/' . $workspace->id . '/transfer-ownership',
+			body: ['userId' => $other->id],
+			authenticatedAs: $owner,
+		);
+		self::assertSame(200, $response->getStatusCode());
+
+		// Members listing now shows other as Owner, original owner as Admin
+		$members = $this->request(
+			'GET',
+			'/api/workspaces/' . $workspace->id . '/members',
+			authenticatedAs: $other,
+		);
+		self::assertSame(200, $members->getStatusCode());
+		$byEmail = [];
+		foreach ($this->jsonList($members) as $member) {
+			assert(is_string($member['email']));
+			assert(is_string($member['role']));
+			$byEmail[$member['email']] = $member['role'];
+		}
+		self::assertSame('Owner', $byEmail['b@example.com']);
+		self::assertSame('Admin', $byEmail['a@example.com']);
+	}
+
 	public function testTransferOwnershipRejectsNonOwner(): void
 	{
 		$owner = Fixture::createUser(email: 'a@example.com');
