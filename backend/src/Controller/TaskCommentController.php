@@ -1,0 +1,109 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ukolio\Controller;
+
+use Laminas\Diactoros\Response\JsonResponse;
+use MarekSkopal\Router\Attribute\RouteDelete;
+use MarekSkopal\Router\Attribute\RouteGet;
+use MarekSkopal\Router\Attribute\RoutePost;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
+use Ukolio\Dto\TaskCommentCreateDto;
+use Ukolio\Dto\TaskCommentDto;
+use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Entity\TaskComment;
+use Ukolio\Model\Entity\User;
+use Ukolio\Response\ErrorResponse;
+use Ukolio\Response\NotAuthorizedResponse;
+use Ukolio\Response\NotFoundResponse;
+use Ukolio\Response\OkResponse;
+use Ukolio\Route\Routes;
+use Ukolio\Service\Auth\PermissionCheckerInterface;
+use Ukolio\Service\Provider\TaskCodeResolverInterface;
+use Ukolio\Service\Provider\TaskCommentProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use Ukolio\Service\Request\RequestServiceInterface;
+
+final readonly class TaskCommentController
+{
+	public function __construct(
+		private TaskCodeResolverInterface $taskCodeResolver,
+		private TaskCommentProviderInterface $taskCommentProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
+		private PermissionCheckerInterface $permissionChecker,
+		private RequestServiceInterface $requestService,
+	) {
+	}
+
+	#[RouteGet(Routes::TaskComments->value)]
+	public function actionGetComments(ServerRequestInterface $request, string $taskId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$comments = array_map(
+			static fn (TaskComment $c): TaskCommentDto => TaskCommentDto::fromEntity($c),
+			$this->taskCommentProvider->findByTask($task),
+		);
+
+		return new JsonResponse($comments);
+	}
+
+	#[RoutePost(Routes::TaskComments->value)]
+	public function actionPostComment(ServerRequestInterface $request, string $taskId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		try {
+			$dto = $this->requestService->getRequestBodyDto($request, TaskCommentCreateDto::class);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		try {
+			$comment = $this->taskCommentProvider->createComment($user, $task, $dto->body);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		return new JsonResponse(TaskCommentDto::fromEntity($comment), 201);
+	}
+
+	#[RouteDelete(Routes::TaskComment->value)]
+	public function actionDeleteComment(ServerRequestInterface $request, int $commentId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$comment = $this->taskCommentProvider->getComment($commentId);
+		if ($comment === null) {
+			return new NotFoundResponse('Comment not found.');
+		}
+
+		$workspace = $comment->task->project->workspace;
+		if (!$this->workspaceProvider->isMember($user, $workspace)) {
+			return new NotFoundResponse('Comment not found.');
+		}
+
+		if (!$this->permissionChecker->canDeleteTaskComment($user, $workspace, $comment)) {
+			return new NotAuthorizedResponse('You do not have permission to delete this comment.');
+		}
+
+		$this->taskCommentProvider->deleteComment($user, $comment);
+
+		return new OkResponse();
+	}
+
+	private function loadTaskInScope(User $user, string $taskId): ?Task
+	{
+		return $this->taskCodeResolver->resolveForUser($user, $taskId);
+	}
+}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\Service\Auth;
 
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
+use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Entity\WorkspaceUser;
@@ -32,4 +33,6 @@ interface PermissionCheckerInterface
 	public function canManageTags(User $user, Workspace $workspace): bool;
 
 	public function canInviteAs(User $actor, Workspace $workspace, WorkspaceRoleEnum $role): bool;
+
+	public function canDeleteTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool;
 }

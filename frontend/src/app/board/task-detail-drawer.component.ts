@@ -1,3 +1,4 @@
+import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -5,11 +6,14 @@ import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {Task, TaskListItem, TaskPriority} from '@app/models/task';
+import {TaskComment} from '@app/models/task-comment';
 import {TaskFile} from '@app/models/task-file';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
 import {AlertService} from '@app/services/alert.service';
+import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';
+import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
@@ -65,7 +69,7 @@ const FILE_TYPE_FALLBACK: FileTypeChip = {tag: 'FILE', fg: '#52525b', bg: '#f4f4
 @Component({
     selector: 'uk-task-detail-drawer',
     standalone: true,
-    imports: [ReactiveFormsModule, MarkdownComponent, TranslatePipe],
+    imports: [ReactiveFormsModule, MarkdownComponent, TranslatePipe, DatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-detail-drawer.component.html',
     styleUrl: './task-detail-drawer.component.scss',
@@ -87,6 +91,8 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly taskService = inject(TaskService);
     private readonly fieldService = inject(FieldService);
     private readonly taskRelationService = inject(TaskRelationService);
+    private readonly taskCommentService = inject(TaskCommentService);
+    private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
 
@@ -116,6 +122,13 @@ export class TaskDetailDrawerComponent implements OnInit {
     protected readonly addRelationType = signal<TaskRelationType>('Related');
     protected readonly addRelationSaving = signal(false);
     protected readonly relationTypes = RELATION_TYPES;
+
+    protected readonly comments = signal<TaskComment[]>([]);
+    protected readonly commentsLoaded = signal(false);
+    protected readonly commentForm = this.fb.nonNullable.group({
+        body: ['', [Validators.required, Validators.minLength(1)]],
+    });
+    protected readonly postingComment = signal(false);
 
     protected readonly searchControl = new FormControl<string>('', {nonNullable: true});
     protected readonly searchResults = signal<TaskListItem[]>([]);
@@ -203,6 +216,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             this.tab.set('preview');
             void this.loadFiles(existing.id);
             void this.loadRelations(existing.id);
+            void this.loadComments(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             this.form.patchValue({statusId: fallbackStatusId});
@@ -504,6 +518,59 @@ export class TaskDetailDrawerComponent implements OnInit {
             this.outgoingRelations.set([]);
             this.incomingRelations.set([]);
             this.relationsLoaded.set(true);
+        }
+    }
+
+    private async loadComments(taskId: number): Promise<void> {
+        try {
+            const list = await this.taskCommentService.list(taskId);
+            this.comments.set(list);
+        } catch {
+            this.comments.set([]);
+        } finally {
+            this.commentsLoaded.set(true);
+        }
+    }
+
+    protected canDeleteComment(comment: TaskComment): boolean {
+        const user = this.currentUserService.currentUser();
+        if (user === null) {
+            return false;
+        }
+        return user.systemRole === 'SystemAdmin' || comment.authorId === user.id;
+    }
+
+    protected async onAddComment(): Promise<void> {
+        const existing = this.task();
+        if (!existing || this.commentForm.invalid) {
+            return;
+        }
+        const body = this.commentForm.controls.body.value.trim();
+        if (body === '') {
+            return;
+        }
+        this.postingComment.set(true);
+        try {
+            const created = await this.taskCommentService.create(existing.id, {body});
+            this.comments.update((list) => [...list, created]);
+            this.commentForm.reset({body: ''});
+        } catch {
+            // error interceptor
+        } finally {
+            this.postingComment.set(false);
+        }
+    }
+
+    protected async onDeleteComment(comment: TaskComment): Promise<void> {
+        const message = await this.translate.instant('app.taskComments.deleteConfirm') as string;
+        if (!confirm(message)) {
+            return;
+        }
+        try {
+            await this.taskCommentService.delete(comment.id);
+            this.comments.update((list) => list.filter((c) => c.id !== comment.id));
+        } catch {
+            // error interceptor
         }
     }
 

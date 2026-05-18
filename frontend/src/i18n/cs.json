@@ -103,7 +103,9 @@
                 "FieldDeleted": "smazal(a) pole",
                 "ProjectFieldsUpdated": "upravil(a) pole projektu",
                 "TaskFileAdded": "přidal(a) přílohu",
-                "TaskFileDeleted": "odebral(a) přílohu"
+                "TaskFileDeleted": "odebral(a) přílohu",
+                "TaskCommentAdded": "okomentoval(a)",
+                "TaskCommentDeleted": "smazal(a) komentář"
             }
         },
         "tasks": {
@@ -295,13 +297,23 @@
                 "TaskFileAdded": "přidal(a) přílohu „{{filename}}\"",
                 "TaskFileDeleted": "odebral(a) přílohu „{{filename}}\"",
                 "TaskRelationCreated": "propojil(a) s „{{targetTaskName}}\" ({{type}})",
-                "TaskRelationDeleted": "odebral(a) vazbu na „{{targetTaskName}}\" ({{type}})"
+                "TaskRelationDeleted": "odebral(a) vazbu na „{{targetTaskName}}\" ({{type}})",
+                "TaskCommentAdded": "okomentoval(a) úkol",
+                "TaskCommentDeleted": "smazal(a) komentář"
             },
             "timeAgo": {
                 "seconds": "před {{n}}s",
                 "minutes": "před {{n}}m",
                 "hours": "před {{n}}h"
             }
+        },
+        "taskComments": {
+            "section": "Komentáře",
+            "empty": "Zatím žádné komentáře.",
+            "addPlaceholder": "Přidat komentář…",
+            "addButton": "Přidat komentář",
+            "delete": "Smazat",
+            "deleteConfirm": "Smazat tento komentář?"
         },
         "taskRelations": {
             "section": "Vazby",

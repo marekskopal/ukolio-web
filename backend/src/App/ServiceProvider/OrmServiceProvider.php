@@ -21,6 +21,7 @@ use Ukolio\Model\Entity\ProjectField;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\TaskFieldValue;
 use Ukolio\Model\Entity\TaskFile;
 use Ukolio\Model\Entity\TaskRelation;
@@ -40,6 +41,7 @@ use Ukolio\Model\Repository\ProjectFieldRepository;
 use Ukolio\Model\Repository\ProjectRepository;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\TagRepository;
+use Ukolio\Model\Repository\TaskCommentRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskFileRepository;
 use Ukolio\Model\Repository\TaskRelationRepository;
@@ -72,6 +74,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			WorkflowRepository::class,
 			StatusRepository::class,
 			TaskRepository::class,
+			TaskCommentRepository::class,
 			TaskFieldValueRepository::class,
 			TaskFileRepository::class,
 			TaskRelationRepository::class,
@@ -105,6 +108,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, WorkflowRepository::class, Workflow::class);
 		$this->addRepository($container, $orm, StatusRepository::class, Status::class);
 		$this->addRepository($container, $orm, TaskRepository::class, Task::class);
+		$this->addRepository($container, $orm, TaskCommentRepository::class, TaskComment::class);
 		$this->addRepository($container, $orm, TaskFieldValueRepository::class, TaskFieldValue::class);
 		$this->addRepository($container, $orm, TaskFileRepository::class, TaskFile::class);
 		$this->addRepository($container, $orm, TaskRelationRepository::class, TaskRelation::class);

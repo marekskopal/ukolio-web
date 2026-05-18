@@ -43,4 +43,7 @@ enum EventTypeEnum: string
 	case TagUpdated = 'TagUpdated';
 	case TagDeleted = 'TagDeleted';
 	case TaskTagsUpdated = 'TaskTagsUpdated';
+
+	case TaskCommentAdded = 'TaskCommentAdded';
+	case TaskCommentDeleted = 'TaskCommentDeleted';
 }

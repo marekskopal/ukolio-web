@@ -103,7 +103,9 @@
                 "FieldDeleted": "deleted field",
                 "ProjectFieldsUpdated": "updated project fields",
                 "TaskFileAdded": "attached file",
-                "TaskFileDeleted": "removed file"
+                "TaskFileDeleted": "removed file",
+                "TaskCommentAdded": "commented",
+                "TaskCommentDeleted": "deleted a comment"
             }
         },
         "tasks": {
@@ -295,13 +297,23 @@
                 "TaskFileAdded": "attached file \"{{filename}}\"",
                 "TaskFileDeleted": "removed file \"{{filename}}\"",
                 "TaskRelationCreated": "linked to \"{{targetTaskName}}\" ({{type}})",
-                "TaskRelationDeleted": "removed link to \"{{targetTaskName}}\" ({{type}})"
+                "TaskRelationDeleted": "removed link to \"{{targetTaskName}}\" ({{type}})",
+                "TaskCommentAdded": "commented on the task",
+                "TaskCommentDeleted": "deleted a comment"
             },
             "timeAgo": {
                 "seconds": "{{n}}s ago",
                 "minutes": "{{n}}m ago",
                 "hours": "{{n}}h ago"
             }
+        },
+        "taskComments": {
+            "section": "Comments",
+            "empty": "No comments yet.",
+            "addPlaceholder": "Add a comment…",
+            "addButton": "Add comment",
+            "delete": "Delete",
+            "deleteConfirm": "Delete this comment?"
         },
         "taskRelations": {
             "section": "Relations",

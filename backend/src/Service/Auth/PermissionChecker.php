@@ -6,6 +6,7 @@ namespace Ukolio\Service\Auth;
 
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
+use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Entity\WorkspaceUser;
@@ -153,6 +154,24 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 
 		return $membership->role === WorkspaceRoleEnum::Owner
 			|| $membership->role === WorkspaceRoleEnum::Admin;
+	}
+
+	public function canDeleteTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool
+	{
+		if ($this->isSystemAdmin($user)) {
+			return true;
+		}
+
+		$membership = $this->workspaceProvider->findMembership($user, $workspace);
+		if ($membership === null) {
+			return false;
+		}
+
+		if ($membership->role === WorkspaceRoleEnum::Owner || $membership->role === WorkspaceRoleEnum::Admin) {
+			return true;
+		}
+
+		return $comment->author->id === $user->id;
 	}
 
 	public function canInviteAs(User $actor, Workspace $workspace, WorkspaceRoleEnum $role): bool
