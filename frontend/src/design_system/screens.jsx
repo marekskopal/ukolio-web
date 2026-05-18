@@ -262,22 +262,22 @@ function ProjectsScreen() {
 function KanbanScreen() {
   const cols = [
     { name: 'To Do',       color: '#94a3a8', tasks: [
-      { id: 'UKO-316', title: 'Fix kanban drag jitter in Firefox', prio: ['Low','low'],   due: '—', assign: ['EP','#dcefe2','#16794a'], agent: false },
-      { id: 'UKO-323', title: 'Add bulk assign action to tasks grid', prio: ['Medium','med'], due: 'May 28', assign: ['JK','#dbeaff','#1e58b6'], agent: false },
-      { id: 'UKO-325', title: 'Workspace-scoped API tokens for MCP', prio: ['High','high'], due: 'May 30', assign: ['MS','#fbe5d6','#a35c00'], agent: true },
+      { id: 'UKO-316', title: 'Fix kanban drag jitter in Firefox', prio: ['Low','low'],   due: '—', assign: ['EP','#dcefe2','#16794a'], agent: false, tags: [['frontend','#5e6ad2']] },
+      { id: 'UKO-323', title: 'Add bulk assign action to tasks grid', prio: ['Medium','med'], due: 'May 28', assign: ['JK','#dbeaff','#1e58b6'], agent: false, tags: [['frontend','#5e6ad2'],['quick-win','#16794a']] },
+      { id: 'UKO-325', title: 'Workspace-scoped API tokens for MCP', prio: ['High','high'], due: 'May 30', assign: ['MS','#fbe5d6','#a35c00'], agent: true, tags: [['mcp','#6f4ed3'],['security','#7e22ce']], files: 2 },
     ]},
     { name: 'In Progress', color: '#c98a14', tasks: [
-      { id: 'UKO-318', title: 'Migrate sessions to Redis', prio: ['High','high'], due: 'May 22', assign: ['MS','#fbe5d6','#a35c00'], agent: false, desc: 'Preserve TTL semantics, add cache-hit metrics.' },
-      { id: 'UKO-315', title: 'Audit log retention policy', prio: ['Urgent','urgent'], due: 'May 18', assign: ['MS','#fbe5d6','#a35c00'], agent: false, overdue: true },
-      { id: 'UKO-321', title: 'Add metrics for cache hit ratio', prio: ['Medium','med'], due: 'May 23', assign: ['AI','ai','ai'], agent: true },
+      { id: 'UKO-318', title: 'Migrate sessions to Redis', prio: ['High','high'], due: 'May 22', assign: ['MS','#fbe5d6','#a35c00'], agent: false, desc: 'Preserve TTL semantics, add cache-hit metrics.', tags: [['backend','#0f766e'],['mcp','#6f4ed3']], files: 4, blockedBy: 1 },
+      { id: 'UKO-315', title: 'Audit log retention policy', prio: ['Urgent','urgent'], due: 'May 18', assign: ['MS','#fbe5d6','#a35c00'], agent: false, overdue: true, tags: [['security','#7e22ce'],['backend','#0f766e']], blocks: 1 },
+      { id: 'UKO-321', title: 'Add metrics for cache hit ratio', prio: ['Medium','med'], due: 'May 23', assign: ['AI','ai','ai'], agent: true, tags: [['backend','#0f766e']], dependsOn: 1, files: 1 },
     ]},
     { name: 'In Review',   color: '#4a8fd6', tasks: [
-      { id: 'UKO-317', title: 'Document MCP OAuth + PKCE flow', prio: ['Medium','med'], due: 'May 20', assign: ['JK','#dbeaff','#1e58b6'], agent: false },
-      { id: 'UKO-312', title: 'Repository pattern for events', prio: ['Low','low'], due: '—', assign: ['JK','#dbeaff','#1e58b6'], agent: false },
+      { id: 'UKO-317', title: 'Document MCP OAuth + PKCE flow', prio: ['Medium','med'], due: 'May 20', assign: ['JK','#dbeaff','#1e58b6'], agent: false, tags: [['mcp','#6f4ed3'],['docs','#475569']], files: 2 },
+      { id: 'UKO-312', title: 'Repository pattern for events', prio: ['Low','low'], due: '—', assign: ['JK','#dbeaff','#1e58b6'], agent: false, tags: [['backend','#0f766e'],['tech-debt','#475569']] },
     ]},
     { name: 'Done',        color: '#16794a', tasks: [
-      { id: 'UKO-314', title: 'Workspace transfer atomicity', prio: ['Medium','med'], due: 'May 14', assign: ['JK','#dbeaff','#1e58b6'], agent: false, done: true },
-      { id: 'UKO-311', title: 'Ship i18n switcher (EN/CS)', prio: ['Low','low'], due: 'May 12', assign: ['EP','#dcefe2','#16794a'], agent: false, done: true },
+      { id: 'UKO-314', title: 'Workspace transfer atomicity', prio: ['Medium','med'], due: 'May 14', assign: ['JK','#dbeaff','#1e58b6'], agent: false, done: true, tags: [['backend','#0f766e']] },
+      { id: 'UKO-311', title: 'Ship i18n switcher (EN/CS)', prio: ['Low','low'], due: 'May 12', assign: ['EP','#dcefe2','#16794a'], agent: false, done: true, tags: [['frontend','#5e6ad2']] },
     ]},
   ];
 
@@ -347,17 +347,44 @@ function KanbanScreen() {
                   </div>
                   <div className="uk-task-title" style={{ textDecoration: t.done ? 'line-through' : 'none', color: t.done ? '#8a8a92' : undefined }}>{t.title}</div>
                   {t.desc && <div style={{ fontSize: 12, color: '#52525b', lineHeight: 1.45 }}>{t.desc}</div>}
+                  {t.tags && t.tags.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {t.tags.map(([name, c]) => <TagChip key={name} size="xs" color={c} name={name}/>)}
+                    </div>
+                  )}
                   <div className="uk-task-meta">
                     <Icon.Calendar style={t.overdue ? { color: '#b42318' } : undefined}/>
                     <span style={t.overdue ? { color: '#b42318', fontWeight: 500 } : undefined}>
                       {t.due}{t.overdue ? ' · overdue' : ''}
                     </span>
-                    <span className="uk-divider"/>
-                    {t.assign[2] === 'ai' ? (
-                      <span className="uk-avatar uk-avatar--ai" style={{ width: 18, height: 18, fontSize: 9 }}><Icon.Sparkle/></span>
-                    ) : (
-                      <span className="uk-avatar" style={{ width: 18, height: 18, fontSize: 9, background: t.assign[1], color: t.assign[2] }}>{t.assign[0]}</span>
+                    {(t.files || t.blockedBy || t.blocks || t.dependsOn) && <span className="uk-divider"/>}
+                    {t.files > 0 && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }} title={`${t.files} file${t.files > 1 ? 's' : ''}`}>
+                        <FIcon.Paperclip/>{t.files}
+                      </span>
                     )}
+                    {t.dependsOn > 0 && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: '#a35c00' }} title="Depends on other tasks">
+                        <FIcon.Block/>{t.dependsOn}
+                      </span>
+                    )}
+                    {t.blocks > 0 && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: '#b42318' }} title="Blocks other tasks">
+                        <FIcon.Block/>{t.blocks}
+                      </span>
+                    )}
+                    {t.blockedBy > 0 && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: '#52525b' }} title="Has a parent">
+                        <FIcon.Tree/>{t.blockedBy}
+                      </span>
+                    )}
+                    <span style={{ marginLeft: 'auto' }}>
+                      {t.assign[2] === 'ai' ? (
+                        <span className="uk-avatar uk-avatar--ai" style={{ width: 18, height: 18, fontSize: 9 }}><Icon.Sparkle/></span>
+                      ) : (
+                        <span className="uk-avatar" style={{ width: 18, height: 18, fontSize: 9, background: t.assign[1], color: t.assign[2] }}>{t.assign[0]}</span>
+                      )}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -462,6 +489,93 @@ function DrawerScreen() {
             </div>
           </div>
 
+          {/* Tags */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            <span className="uk-overline">Tags</span>
+            <button className="uk-btn uk-btn--ghost uk-btn--sm" style={{ marginLeft: 'auto', padding: '0 6px' }}>
+              <Icon.Plus/>Add tag
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 20 }}>
+            <TagChip color="#0f766e" name="backend" removable/>
+            <TagChip color="#6f4ed3" name="mcp" removable/>
+            <TagChip color="#7e22ce" name="security" removable/>
+          </div>
+
+          {/* Files */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            <span className="uk-overline">Files</span>
+            <span className="uk-badge" style={{ marginLeft: 6 }}>4</span>
+            <label style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '0 8px', height: 22, borderRadius: 4, color: '#52525b', fontSize: 12, cursor: 'pointer' }}>
+              <FIcon.Upload/>Upload
+            </label>
+          </div>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {[
+              { name: 'redis-migration-plan.md',     size: '12.4 KB', who: 'Marek \u00b7 2d',  ext: 'md',  agent: false },
+              { name: 'cache-hit-ratio-grafana.png', size: '418 KB',  who: 'Claude \u00b7 4h', ext: 'png', agent: true },
+              { name: 'session-ttl-benchmark.csv',   size: '8.1 KB',  who: 'Cursor \u00b7 4h', ext: 'csv', agent: true },
+              { name: 'mcp_session_dir.yaml',        size: '1.2 KB',  who: 'Marek \u00b7 6h',  ext: 'yaml',agent: false },
+            ].map(f => (
+              <li key={f.name} style={{
+                display: 'grid', gridTemplateColumns: '28px 1fr auto auto auto', gap: 9, alignItems: 'center',
+                padding: '6px 8px', border: '1px solid #e7e7ea', borderRadius: 5, background: '#fff', fontSize: 12.5
+              }}>
+                <FileTypeIcon ext={f.ext} size={24}/>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 500, color: '#18181b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#8a8a92' }}>
+                    {f.agent && <span className="uk-badge uk-badge--ai" style={{ height: 13, padding: '0 4px', fontSize: 10 }}><Icon.Sparkle/>agent</span>}
+                    <span>{f.who}</span>
+                  </div>
+                </div>
+                <span style={{ fontSize: 11, color: '#8a8a92' }}>{f.size}</span>
+                <button className="uk-btn uk-btn--ghost uk-btn--icon uk-btn--xs" title="Download"><FIcon.Download/></button>
+                <button className="uk-btn uk-btn--ghost uk-btn--icon uk-btn--xs" style={{ color: '#b42318' }} title="Delete"><Icon.X/></button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Related tasks */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            <span className="uk-overline">Related tasks</span>
+            <span className="uk-badge" style={{ marginLeft: 6 }}>5</span>
+            <button className="uk-btn uk-btn--ghost uk-btn--sm" style={{ marginLeft: 'auto', padding: '0 6px' }}>
+              <Icon.Plus/>Add relation
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            {[
+              ['Parent task',   'in',  [['300','Backend rewrite epic',   'Backend rewrite', '#c98a14']]],
+              ['Depends on',    'out', [['305','Add Redis health endpoint',   'Backend rewrite', '#16794a'], ['315','Audit log retention policy','Backend rewrite','#c98a14', true]]],
+              ['Blocks',        'in',  [['321','Add metrics for cache hit ratio',  'Backend rewrite', '#c98a14']]],
+              ['Related',       'out', [['317','Document MCP OAuth + PKCE flow',   'MCP onboarding',  '#4a8fd6']]],
+            ].map(([groupLabel, dir, rows]) => (
+              <div key={groupLabel}>
+                <div style={{ fontSize: 11, color: '#8a8a92', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {groupLabel}
+                  <span style={{ color: '#b4b4ba' }}>{rows.length}</span>
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {rows.map(([id, name, proj, c, overdue]) => (
+                    <li key={id} style={{
+                      display: 'grid', gridTemplateColumns: 'auto 56px 1fr auto auto', alignItems: 'center', gap: 8,
+                      padding: '6px 8px', border: '1px solid #e7e7ea', borderRadius: 5, background: '#fff', cursor: 'pointer', fontSize: 12.5
+                    }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: c }}/>
+                      <span className="uk-mono" style={{ color: '#8a8a92', fontSize: 11 }}>UKO-{id}</span>
+                      <span style={{ color: '#18181b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
+                      {overdue
+                        ? <span className="uk-badge uk-badge--danger" style={{ height: 15, padding: '0 5px', fontSize: 10 }}>overdue</span>
+                        : <span className="uk-caption" style={{ fontSize: 11 }}>{proj}</span>}
+                      <button className="uk-btn uk-btn--ghost uk-btn--icon uk-btn--xs" style={{ color: '#b42318' }}><Icon.X/></button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
           {/* Description */}
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
             <span className="uk-overline">Description</span>
@@ -545,17 +659,17 @@ function DrawerScreen() {
 // ============================================================
 function TasksGridScreen() {
   const rows = [
-    ['UKO-321','Add metrics for cache hit ratio',     'Backend rewrite', ['Doing','#c98a14'],   'Medium', 'AI', 'May 23', false, true],
-    ['UKO-320','Refactor `Workspace::transfer`',      'Backend rewrite', ['Review','#4a8fd6'],  'Medium', 'JK', 'May 21', false, false],
-    ['UKO-318','Migrate sessions to Redis',           'Backend rewrite', ['Doing','#c98a14'],   'High',   'MS', 'May 22', false, false],
-    ['UKO-317','Document MCP OAuth + PKCE flow',      'MCP onboarding',  ['Review','#4a8fd6'],  'Medium', 'JK', 'May 20', false, false],
-    ['UKO-316','Fix kanban drag jitter in Firefox',   'Frontend polish', ['Todo','#94a3a8'],    'Low',    'EP', '—',      false, false],
-    ['UKO-315','Audit log retention policy',          'Backend rewrite', ['Doing','#c98a14'],   'Urgent', 'MS', 'May 18', true,  false],
-    ['UKO-314','Workspace transfer atomicity',        'Backend rewrite', ['Done','#16794a'],    'Medium', 'JK', 'May 14', false, false],
-    ['UKO-313','SSO via Google for invitation flow',  'v1.0 launch',     ['Todo','#94a3a8'],    'Low',    'EP', 'Jun 02', false, false],
-    ['UKO-312','Repository pattern for events',       'Backend rewrite', ['Review','#4a8fd6'],  'Low',    'JK', '—',      false, false],
-    ['UKO-311','Ship i18n switcher (EN/CS)',          'Frontend polish', ['Done','#16794a'],    'Low',    'EP', 'May 12', false, false],
-    ['UKO-310','Set up Mailpit in compose',           'Documentation',   ['Done','#16794a'],    'Low',    'MS', 'May 10', false, false],
+    ['UKO-321','Add metrics for cache hit ratio',     'Backend rewrite', ['Doing','#c98a14'],   'Medium', 'AI', 'May 23', false, true,  [['backend','#0f766e']], 1, 0],
+    ['UKO-320','Refactor `Workspace::transfer`',      'Backend rewrite', ['Review','#4a8fd6'],  'Medium', 'JK', 'May 21', false, false, [['backend','#0f766e'],['tech-debt','#475569']], 0, 0],
+    ['UKO-318','Migrate sessions to Redis',           'Backend rewrite', ['Doing','#c98a14'],   'High',   'MS', 'May 22', false, false, [['backend','#0f766e'],['mcp','#6f4ed3']], 4, 2],
+    ['UKO-317','Document MCP OAuth + PKCE flow',      'MCP onboarding',  ['Review','#4a8fd6'],  'Medium', 'JK', 'May 20', false, false, [['mcp','#6f4ed3'],['docs','#475569']], 2, 1],
+    ['UKO-316','Fix kanban drag jitter in Firefox',   'Frontend polish', ['Todo','#94a3a8'],    'Low',    'EP', '—',      false, false, [['frontend','#5e6ad2']], 0, 0],
+    ['UKO-315','Audit log retention policy',          'Backend rewrite', ['Doing','#c98a14'],   'Urgent', 'MS', 'May 18', true,  false, [['security','#7e22ce'],['backend','#0f766e']], 0, 3],
+    ['UKO-314','Workspace transfer atomicity',        'Backend rewrite', ['Done','#16794a'],    'Medium', 'JK', 'May 14', false, false, [['backend','#0f766e']], 1, 0],
+    ['UKO-313','SSO via Google for invitation flow',  'v1.0 launch',     ['Todo','#94a3a8'],    'Low',    'EP', 'Jun 02', false, false, [['security','#7e22ce']], 0, 0],
+    ['UKO-312','Repository pattern for events',       'Backend rewrite', ['Review','#4a8fd6'],  'Low',    'JK', '—',      false, false, [['backend','#0f766e'],['tech-debt','#475569']], 0, 0],
+    ['UKO-311','Ship i18n switcher (EN/CS)',          'Frontend polish', ['Done','#16794a'],    'Low',    'EP', 'May 12', false, false, [['frontend','#5e6ad2']], 0, 0],
+    ['UKO-310','Set up Mailpit in compose',           'Documentation',   ['Done','#16794a'],    'Low',    'MS', 'May 10', false, false, [], 0, 0],
   ];
 
   const prioStyle = (p) => ({
@@ -609,6 +723,13 @@ function TasksGridScreen() {
             Priority: High, Urgent
             <button style={{ border: 'none', background: 'none', padding: 0, marginLeft: 2, cursor: 'pointer', color: '#8a8a92' }}><Icon.X/></button>
           </span>
+          <span className="uk-badge uk-badge--outline" style={{ height: 22, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <FIcon.Tag style={{ color: '#8a8a92' }}/>
+            Tags:
+            <TagChip size="xs" color="#0f766e" name="backend"/>
+            <TagChip size="xs" color="#6f4ed3" name="mcp"/>
+            <button style={{ border: 'none', background: 'none', padding: 0, marginLeft: 2, cursor: 'pointer', color: '#8a8a92' }}><Icon.X/></button>
+          </span>
           <span className="uk-badge uk-badge--ai" style={{ height: 22 }}>
             <Icon.Sparkle/>Created by agent
             <button style={{ border: 'none', background: 'none', padding: 0, marginLeft: 2, cursor: 'pointer', color: '#6f4ed3' }}><Icon.X/></button>
@@ -629,16 +750,18 @@ function TasksGridScreen() {
                 </th>
                 <th style={{ width: 76 }}>ID</th>
                 <th>Task</th>
+                <th>Tags</th>
                 <th>Project</th>
                 <th>Status</th>
                 <th>Priority</th>
                 <th>Assignee</th>
                 <th>Due</th>
+                <th style={{ width: 60 }}>Files</th>
                 <th style={{ width: 32 }}></th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(([id,name,proj,[status,sc],prio,assign,due,overdue,agent]) => (
+              {rows.map(([id,name,proj,[status,sc],prio,assign,due,overdue,agent,tags,files,relCount]) => (
                 <tr key={id} style={{ cursor: 'pointer' }}>
                   <td>
                     <label className="uk-check" style={{ marginLeft: 4 }}>
@@ -651,7 +774,21 @@ function TasksGridScreen() {
                       {id}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 500, color: '#18181b' }}>{name}</td>
+                  <td style={{ fontWeight: 500, color: '#18181b' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      {name}
+                      {relCount > 0 && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: '#8a8a92', fontSize: 11, fontWeight: 400 }} title={`${relCount} relation${relCount > 1 ? 's' : ''}`}>
+                          <FIcon.Link/>{relCount}
+                        </span>
+                      )}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {tags.map(([n, c]) => <TagChip key={n} size="xs" color={c} name={n}/>)}
+                    </div>
+                  </td>
                   <td style={{ color: '#52525b', fontSize: 12 }}>{proj}</td>
                   <td>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -662,6 +799,11 @@ function TasksGridScreen() {
                   <td><span className="uk-badge" style={prioStyle(prio)}>{prio}</span></td>
                   <td>{avatar(assign)}</td>
                   <td style={{ color: overdue ? '#b42318' : '#52525b', fontSize: 12, fontWeight: overdue ? 500 : 400 }}>{due}</td>
+                  <td style={{ color: '#8a8a92', fontSize: 12 }}>
+                    {files > 0
+                      ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><FIcon.Paperclip/>{files}</span>
+                      : <span style={{ color: '#b4b4ba' }}>—</span>}
+                  </td>
                   <td><button className="uk-btn uk-btn--ghost uk-btn--icon uk-btn--xs"><Icon.More/></button></td>
                 </tr>
               ))}
@@ -818,7 +960,7 @@ function WorkspaceScreen() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #e7e7ea', marginBottom: 20 }}>
-          {['General','Members','MCP & agents','Custom fields','Billing'].map((t,i) => (
+          {['General','Members','MCP & agents','Custom fields','Tags','Billing'].map((t,i) => (
             <button key={t} className="uk-btn uk-btn--ghost uk-btn--sm" style={{
               height: 34, borderRadius: 0,
               borderBottom: i === 1 ? '2px solid #18181b' : '2px solid transparent',

@@ -215,6 +215,7 @@
                     "empty": "No files attached.",
                     "saveFirst": "Save the task first to attach files.",
                     "delete": "Delete",
+                    "download": "Download",
                     "deleteConfirm": "Delete file \"{{name}}\"?",
                     "uploadedBy": "by {{name}}",
                     "uploadedByAgent": "by agent"

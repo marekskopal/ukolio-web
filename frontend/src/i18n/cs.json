@@ -215,6 +215,7 @@
                     "empty": "Žádné přílohy.",
                     "saveFirst": "Pro přidání příloh nejprve uložte úkol.",
                     "delete": "Smazat",
+                    "download": "Stáhnout",
                     "deleteConfirm": "Smazat soubor „{{name}}\"?",
                     "uploadedBy": "od {{name}}",
                     "uploadedByAgent": "od agenta"

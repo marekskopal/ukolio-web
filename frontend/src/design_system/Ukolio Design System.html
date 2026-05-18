@@ -20,6 +20,7 @@
 <script type="text/babel" src="design-canvas.jsx"></script>
 <script type="text/babel" src="foundations.jsx"></script>
 <script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="features.jsx"></script>
 <script type="text/babel" src="screens.jsx"></script>
 
 <script type="text/babel">
@@ -29,7 +30,7 @@ function App() {
   return (
     <DesignCanvas
       title="Ukolio · Design System"
-      subtitle="Light · dense · MCP-native. Inter, 15px base, indigo accent."
+      subtitle="Light · dense · MCP-native. Inter, 15px base, indigo accent. · v2 — adds Tags, Files, Related tasks."
     >
       <DCSection id="foundations" title="01 · Foundations">
         <DCArtboard id="brand"    label="Brand"                       width={520} height={520}><BrandBoard/></DCArtboard>
@@ -46,11 +47,17 @@ function App() {
         <DCArtboard id="tasks"    label="Task cards"                  width={900} height={520}><TaskCardsBoard/></DCArtboard>
       </DCSection>
 
-      <DCSection id="screens" title="03 · Application">
+      <DCSection id="features" title="03 · Features (Tags · Files · Relations)">
+        <DCArtboard id="tags"      label="Tags · chip lib + workspace mgmt + picker"  width={1180} height={780}><TagsBoard/></DCArtboard>
+        <DCArtboard id="files"     label="Files · upload + list + states"             width={1080} height={720}><FilesBoard/></DCArtboard>
+        <DCArtboard id="relations" label="Related tasks · picker + grouped list"      width={1180} height={780}><RelationsBoard/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="screens" title="04 · Application">
         <DCArtboard id="login"    label="Login"                       width={1080} height={680}><LoginScreen/></DCArtboard>
         <DCArtboard id="projects" label="Projects list"               width={1280} height={760}><ProjectsScreen/></DCArtboard>
         <DCArtboard id="kanban"   label="Kanban board"                width={1280} height={760}><KanbanScreen/></DCArtboard>
-        <DCArtboard id="drawer"   label="Task detail · drawer"        width={1280} height={760}><DrawerScreen/></DCArtboard>
+        <DCArtboard id="drawer"   label="Task detail · drawer (with Tags, Files, Relations)"        width={1280} height={1080}><DrawerScreen/></DCArtboard>
         <DCArtboard id="grid"     label="Workspace tasks grid"        width={1280} height={760}><TasksGridScreen/></DCArtboard>
         <DCArtboard id="events"   label="Agent activity log"          width={1280} height={760}><EventsScreen/></DCArtboard>
         <DCArtboard id="workspace" label="Workspace management"       width={1280} height={760}><WorkspaceScreen/></DCArtboard>

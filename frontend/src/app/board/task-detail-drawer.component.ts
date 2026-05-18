@@ -28,7 +28,39 @@ interface RelationGroup {
     items: TaskRelation[];
 }
 
+interface FileTypeChip {
+    tag: string;
+    bg: string;
+    fg: string;
+}
+
 const RELATION_TYPES: TaskRelationType[] = ['Related', 'Duplicates', 'Parent', 'DependsOn'];
+
+const FILE_TYPE_MAP: Record<string, FileTypeChip> = {
+    pdf: {tag: 'PDF', fg: '#b42318', bg: '#fdecea'},
+    doc: {tag: 'DOC', fg: '#1e58b6', bg: '#e6efff'},
+    docx: {tag: 'DOC', fg: '#1e58b6', bg: '#e6efff'},
+    xls: {tag: 'XLS', fg: '#16794a', bg: '#e6f5ee'},
+    xlsx: {tag: 'XLS', fg: '#16794a', bg: '#e6f5ee'},
+    csv: {tag: 'CSV', fg: '#16794a', bg: '#e6f5ee'},
+    png: {tag: 'IMG', fg: '#6f4ed3', bg: '#f0ebfb'},
+    jpg: {tag: 'IMG', fg: '#6f4ed3', bg: '#f0ebfb'},
+    jpeg: {tag: 'IMG', fg: '#6f4ed3', bg: '#f0ebfb'},
+    svg: {tag: 'IMG', fg: '#6f4ed3', bg: '#f0ebfb'},
+    gif: {tag: 'IMG', fg: '#6f4ed3', bg: '#f0ebfb'},
+    md: {tag: 'MD', fg: '#18181b', bg: '#f4f4f5'},
+    txt: {tag: 'TXT', fg: '#52525b', bg: '#f4f4f5'},
+    log: {tag: 'LOG', fg: '#52525b', bg: '#f4f4f5'},
+    json: {tag: 'JSON', fg: '#a35c00', bg: '#fbf2dd'},
+    yaml: {tag: 'YML', fg: '#a35c00', bg: '#fbf2dd'},
+    yml: {tag: 'YML', fg: '#a35c00', bg: '#fbf2dd'},
+    sql: {tag: 'SQL', fg: '#0e7490', bg: '#e0f2fe'},
+    zip: {tag: 'ZIP', fg: '#52525b', bg: '#ebebed'},
+    mp4: {tag: 'MP4', fg: '#be185d', bg: '#fce7f3'},
+    mov: {tag: 'MOV', fg: '#be185d', bg: '#fce7f3'},
+};
+
+const FILE_TYPE_FALLBACK: FileTypeChip = {tag: 'FILE', fg: '#52525b', bg: '#f4f4f5'};
 
 @Component({
     selector: 'uk-task-detail-drawer',
@@ -436,6 +468,19 @@ export class TaskDetailDrawerComponent implements OnInit {
             return (size / 1024).toFixed(1) + ' KB';
         }
         return (size / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    protected fileTypeChip(filename: string): FileTypeChip {
+        const dot = filename.lastIndexOf('.');
+        if (dot === -1 || dot === filename.length - 1) {
+            return FILE_TYPE_FALLBACK;
+        }
+        const ext = filename.slice(dot + 1).toLowerCase();
+        return FILE_TYPE_MAP[ext] ?? FILE_TYPE_FALLBACK;
+    }
+
+    protected totalRelationCount(): number {
+        return this.outgoingRelations().length + this.incomingRelations().length;
     }
 
     private async loadFiles(taskId: number): Promise<void> {
