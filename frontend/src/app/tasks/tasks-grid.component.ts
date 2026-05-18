@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, HostListener, inject, OnInit, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
@@ -65,6 +65,8 @@ export class TasksGridComponent implements OnInit {
 
     protected readonly drawer = signal<DrawerContext | null>(null);
 
+    private readonly statusDetails = viewChild<ElementRef<HTMLDetailsElement>>('statusDetails');
+
     protected readonly offset = computed<number>(() => (this.page() - 1) * this.pageSize());
 
     private readonly queryParams = computed<QueryParams>(() => ({
@@ -119,6 +121,17 @@ export class TasksGridComponent implements OnInit {
             this.count.set(0);
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    @HostListener('document:click', ['$event.target'])
+    protected onDocumentClick(target: EventTarget | null): void {
+        const details = this.statusDetails()?.nativeElement;
+        if (!details?.open || !(target instanceof Node)) {
+            return;
+        }
+        if (!details.contains(target)) {
+            details.open = false;
         }
     }
 

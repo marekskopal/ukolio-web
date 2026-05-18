@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnInit, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {Locale, User} from '@app/models/user';
 import {Workspace} from '@app/models/workspace';
@@ -27,6 +27,7 @@ export class LayoutComponent implements OnInit {
     private readonly translate = inject(TranslateService);
     private readonly alertService = inject(AlertService);
     private readonly router = inject(Router);
+    private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
     protected readonly isSystemAdmin = this.permissionsService.isSystemAdmin;
 
@@ -65,6 +66,25 @@ export class LayoutComponent implements OnInit {
             await this.workspaceService.loadCurrentMembers();
         } catch {
             // Interceptor handles 401 -> refresh / logout
+        }
+    }
+
+    @HostListener('document:click', ['$event.target'])
+    protected onDocumentClick(target: EventTarget | null): void {
+        if (!(target instanceof Node)) {
+            return;
+        }
+        if (this.switcherOpen()) {
+            const el = this.host.nativeElement.querySelector('.workspace-switcher');
+            if (el && !el.contains(target)) {
+                this.switcherOpen.set(false);
+            }
+        }
+        if (this.userMenuOpen()) {
+            const el = this.host.nativeElement.querySelector('.user-menu');
+            if (el && !el.contains(target)) {
+                this.userMenuOpen.set(false);
+            }
         }
     }
 
