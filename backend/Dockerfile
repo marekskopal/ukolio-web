@@ -9,6 +9,7 @@ RUN install-php-extensions \
     pdo_mysql \
     opcache \
     mbstring \
+    pcov \
     sockets \
     zip
 

@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ukolio\Tests\Controller\Admin;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use Ukolio\Controller\Admin\AdminUserController;
+use Ukolio\Model\Entity\Enum\SystemRoleEnum;
+use Ukolio\Tests\Support\Fixture;
+use Ukolio\Tests\Support\IntegrationTestCase;
+
+#[CoversClass(AdminUserController::class)]
+final class AdminUserControllerTest extends IntegrationTestCase
+{
+	public function testNonSysAdminCannotListUsers(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request('GET', '/api/admin/users', authenticatedAs: $user);
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testSysAdminCanListAndDeleteUsers(): void
+	{
+		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);
+		$victim = Fixture::createUser(email: 'victim@example.com');
+
+		$list = $this->request('GET', '/api/admin/users', authenticatedAs: $sysAdmin);
+		self::assertSame(200, $list->getStatusCode());
+		$emails = array_column($this->jsonList($list), 'email');
+		self::assertContains('root@example.com', $emails);
+		self::assertContains('victim@example.com', $emails);
+
+		$delete = $this->request('DELETE', '/api/admin/users/' . $victim->id, authenticatedAs: $sysAdmin);
+		self::assertSame(200, $delete->getStatusCode());
+
+		$listAfter = $this->request('GET', '/api/admin/users', authenticatedAs: $sysAdmin);
+		$emailsAfter = array_column($this->jsonList($listAfter), 'email');
+		self::assertNotContains('victim@example.com', $emailsAfter);
+	}
+
+	public function testSysAdminCannotDeleteThemselves(): void
+	{
+		$sysAdmin = Fixture::createUser(systemRole: SystemRoleEnum::SystemAdmin);
+
+		$response = $this->request('DELETE', '/api/admin/users/' . $sysAdmin->id, authenticatedAs: $sysAdmin);
+		self::assertSame(409, $response->getStatusCode());
+	}
+}

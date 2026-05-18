@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
@@ -9,9 +9,17 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <!--
+        Coverage focuses on the seams called out in UPB-49 acceptance criteria.
+        DTOs, entities, repositories, etc. are not in scope and would dilute the metric.
+    -->
     <source>
         <include>
-            <directory>src</directory>
+            <directory>src/Controller</directory>
+            <directory>src/Mcp</directory>
+            <directory>src/Service</directory>
+            <directory>src/OAuth</directory>
+            <directory>src/Validator</directory>
         </include>
     </source>
 </phpunit>

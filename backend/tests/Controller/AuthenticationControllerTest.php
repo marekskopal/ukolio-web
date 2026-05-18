@@ -1,0 +1,209 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ukolio\Tests\Controller;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use Ukolio\Controller\AuthenticationController;
+use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Repository\WorkspaceRepository;
+use Ukolio\Service\Provider\PasswordResetProviderInterface;
+use Ukolio\Tests\Support\AppHarness;
+use Ukolio\Tests\Support\Fixture;
+use Ukolio\Tests\Support\IntegrationTestCase;
+
+#[CoversClass(AuthenticationController::class)]
+final class AuthenticationControllerTest extends IntegrationTestCase
+{
+	public function testSignUpCreatesUserAndPersonalWorkspaceAndReturnsTokens(): void
+	{
+		$response = $this->request('POST', '/api/authentication/sign-up', [
+			'email' => 'new@example.com',
+			'password' => 'StrongPass1',
+			'name' => 'New Person',
+		]);
+
+		self::assertSame(200, $response->getStatusCode());
+		$body = $this->jsonBody($response);
+		self::assertArrayHasKey('accessToken', $body);
+		self::assertArrayHasKey('refreshToken', $body);
+		self::assertIsInt($body['userId']);
+
+		$workspaceRepo = $this->container->get(WorkspaceRepository::class);
+		assert($workspaceRepo instanceof WorkspaceRepository);
+		$workspaces = iterator_to_array($workspaceRepo->findAll(), false);
+		self::assertCount(1, $workspaces);
+		assert($workspaces[0] instanceof Workspace);
+		self::assertSame("New Person's Workspace", $workspaces[0]->name);
+	}
+
+	public function testSignUpRejectsWeakPassword(): void
+	{
+		$response = $this->request('POST', '/api/authentication/sign-up', [
+			'email' => 'weak@example.com',
+			'password' => 'short',
+			'name' => 'Weak',
+		]);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testSignUpRejectsDuplicateEmail(): void
+	{
+		Fixture::createUser(email: 'dup@example.com', password: 'OldPass1!');
+
+		$response = $this->request('POST', '/api/authentication/sign-up', [
+			'email' => 'dup@example.com',
+			'password' => 'NewPass1!',
+			'name' => 'Dup',
+		]);
+
+		self::assertSame(409, $response->getStatusCode());
+	}
+
+	public function testLoginWithValidCredentialsReturnsTokens(): void
+	{
+		Fixture::createUser(email: 'login@example.com', password: 'Secret123');
+
+		$response = $this->request('POST', '/api/authentication/login', [
+			'email' => 'login@example.com',
+			'password' => 'Secret123',
+		]);
+
+		self::assertSame(200, $response->getStatusCode());
+		$body = $this->jsonBody($response);
+		self::assertArrayHasKey('accessToken', $body);
+		self::assertArrayHasKey('refreshToken', $body);
+	}
+
+	public function testLoginWithInvalidPasswordReturns401(): void
+	{
+		Fixture::createUser(email: 'login@example.com', password: 'Secret123');
+
+		$response = $this->request('POST', '/api/authentication/login', [
+			'email' => 'login@example.com',
+			'password' => 'WrongPass1',
+		]);
+
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testLoginWithUnknownEmailReturns401(): void
+	{
+		$response = $this->request('POST', '/api/authentication/login', [
+			'email' => 'nobody@example.com',
+			'password' => 'Whatever1',
+		]);
+
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testProtectedEndpointWithoutTokenReturns401(): void
+	{
+		$response = $this->request('GET', '/api/current-user');
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testProtectedEndpointWithInvalidTokenReturns401(): void
+	{
+		$response = $this->request('GET', '/api/current-user', bearerToken: 'not.a.jwt');
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testProtectedEndpointWithExpiredTokenReturns401(): void
+	{
+		$user = Fixture::createUser();
+		$response = $this->request(
+			'GET',
+			'/api/current-user',
+			bearerToken: Fixture::expiredAccessTokenFor($user),
+		);
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testRefreshWithExpiredAccessTokenIssuesNewTokens(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'POST',
+			'/api/authentication/refresh-token',
+			body: ['refreshToken' => Fixture::accessTokenFor($user)],
+			bearerToken: Fixture::expiredAccessTokenFor($user),
+		);
+
+		self::assertSame(200, $response->getStatusCode());
+		$body = $this->jsonBody($response);
+		self::assertArrayHasKey('accessToken', $body);
+	}
+
+	public function testRefreshWithMismatchedUserIdRejects(): void
+	{
+		$user = Fixture::createUser(email: 'a@example.com');
+		$otherUser = Fixture::createUser(email: 'b@example.com');
+
+		$response = $this->request(
+			'POST',
+			'/api/authentication/refresh-token',
+			body: ['refreshToken' => Fixture::accessTokenFor($otherUser)],
+			bearerToken: Fixture::accessTokenFor($user),
+		);
+
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testRequestAndConfirmPasswordResetUpdatesPasswordAndReturnsTokens(): void
+	{
+		$user = Fixture::createUser(email: 'reset@example.com', password: 'OldPass11');
+
+		$response = $this->request('POST', '/api/authentication/request-password-reset', [
+			'email' => 'reset@example.com',
+		]);
+		self::assertSame(200, $response->getStatusCode());
+
+		// Resolve the raw token by intercepting the provider: the provider stores
+		// only the hash, but we can re-issue a token via the same provider and
+		// confirm against it. Simpler: use the provider directly to obtain a known token.
+		$provider = $this->container->get(PasswordResetProviderInterface::class);
+		assert($provider instanceof PasswordResetProviderInterface);
+
+		// The first request created a token; trigger a second so we control the value.
+		[$rawToken] = $this->issueResetToken($provider, $user);
+
+		$confirm = $this->request('POST', '/api/authentication/confirm-password-reset', [
+			'token' => $rawToken,
+			'password' => 'NewPass11',
+		]);
+		self::assertSame(200, $confirm->getStatusCode());
+
+		// Verify the new password works
+		$login = $this->request('POST', '/api/authentication/login', [
+			'email' => 'reset@example.com',
+			'password' => 'NewPass11',
+		]);
+		self::assertSame(200, $login->getStatusCode());
+	}
+
+	/**
+	 * Helper that mirrors PasswordResetProvider::requestReset but exposes the raw token.
+	 *
+	 * @return array{0:string}
+	 */
+	private function issueResetToken(PasswordResetProviderInterface $provider, \Ukolio\Model\Entity\User $user): array
+	{
+		$rawToken = bin2hex(random_bytes(16));
+		$pdo = AppHarness::pdo();
+		$now = new \DateTimeImmutable();
+		$pdo->prepare(
+			'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, used_at, created_at, updated_at) '
+			. 'VALUES (:user_id, :hash, :expires, NULL, :now, :now)',
+		)->execute([
+			'user_id' => $user->id,
+			'hash' => hash('sha256', $rawToken),
+			'expires' => $now->modify('+1 hour')->format('Y-m-d H:i:s'),
+			'now' => $now->format('Y-m-d H:i:s'),
+		]);
+		return [$rawToken];
+	}
+}

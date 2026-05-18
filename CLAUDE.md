@@ -145,10 +145,19 @@ Designed for AI-agent-driven flows; the frontend stays for human overview.
 ## Testing
 
 ```bash
-make test           # All tests (backend + frontend)
-make test-backend   # PHPUnit
-make test-frontend  # Vitest (no specs yet at time of writing)
+make test                    # All tests (backend + frontend)
+make test-backend            # PHPUnit (runs inside the backend container)
+make test-backend-coverage   # +pcov HTML report at backend/.phpunit.cache/coverage-html
+make test-frontend           # Vitest (no specs yet at time of writing)
 ```
+
+Backend tests boot the full `ApplicationFactory` container against a separate
+MariaDB database (`ukolio_test`, auto-created by `tests/bootstrap.php`) and
+truncate tables between tests via `IntegrationTestCase`. Test helpers live in
+`backend/tests/Support/` — `AppHarness` (per-suite singleton),
+`IntegrationTestCase` (HTTP dispatch + DB reset), and `Fixture` (deterministic
+user/workspace/project/JWT builders). `phpunit.xml` scopes coverage to
+`src/{Controller,Mcp,Service,OAuth,Validator}`.
 
 ## Linting
 
