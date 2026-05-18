@@ -42,8 +42,16 @@ services:
             SMTP_PASSWORD: ${SMTP_PASSWORD}
             EMAIL_FROM: ${EMAIL_FROM}
             APP_URL: ${APP_URL}
+            S3_ENDPOINT: ${S3_ENDPOINT}
+            S3_REGION: ${S3_REGION}
+            S3_BUCKET: ${S3_BUCKET}
+            S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+            S3_SECRET_KEY: ${S3_SECRET_KEY}
+            S3_USE_PATH_STYLE: ${S3_USE_PATH_STYLE}
+            TASK_FILE_MAX_SIZE_MB: ${TASK_FILE_MAX_SIZE_MB}
         depends_on:
             - db
+            - minio
         restart: unless-stopped
         networks:
             - backend
@@ -82,6 +90,20 @@ services:
             MP_SMTP_AUTH_ACCEPT_ANY: 1
             MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
+    minio:
+        image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+        command: server /data --console-address ":9001"
+        environment:
+            MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+            MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+        restart: unless-stopped
+        networks:
+            - backend
+        ports:
+            - "9001:9001"
+        volumes:
+            - ukolio_minio:/data
+
 networks:
     frontend:
         name: ukolio_frontend
@@ -91,3 +113,5 @@ networks:
 volumes:
     ukolio_data:
         name: ukolio_data
+    ukolio_minio:
+        name: ukolio_minio

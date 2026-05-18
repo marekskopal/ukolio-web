@@ -100,7 +100,9 @@
                 "FieldCreated": "vytvořil(a) pole",
                 "FieldUpdated": "upravil(a) pole",
                 "FieldDeleted": "smazal(a) pole",
-                "ProjectFieldsUpdated": "upravil(a) pole projektu"
+                "ProjectFieldsUpdated": "upravil(a) pole projektu",
+                "TaskFileAdded": "přidal(a) přílohu",
+                "TaskFileDeleted": "odebral(a) přílohu"
             }
         },
         "tasks": {
@@ -204,7 +206,19 @@
                 "nothingToPreview": "Není co zobrazit.",
                 "dueDate": "Termín",
                 "status": "Stav",
-                "details": "Detaily"
+                "details": "Detaily",
+                "files": {
+                    "title": "Přílohy",
+                    "upload": "Nahrát soubor",
+                    "uploading": "Nahrávání…",
+                    "uploaded": "Soubor nahrán.",
+                    "empty": "Žádné přílohy.",
+                    "saveFirst": "Pro přidání příloh nejprve uložte úkol.",
+                    "delete": "Smazat",
+                    "deleteConfirm": "Smazat soubor „{{name}}\"?",
+                    "uploadedBy": "od {{name}}",
+                    "uploadedByAgent": "od agenta"
+                }
             }
         },
         "workflow": {
@@ -245,7 +259,9 @@
                 "FieldCreated": "přidal(a) vlastní pole „{{name}}\"",
                 "FieldUpdated": "upravil(a) vlastní pole „{{name}}\"",
                 "FieldDeleted": "smazal(a) vlastní pole „{{name}}\"",
-                "ProjectFieldsUpdated": "upravil(a) vlastní pole projektu"
+                "ProjectFieldsUpdated": "upravil(a) vlastní pole projektu",
+                "TaskFileAdded": "přidal(a) přílohu „{{filename}}\"",
+                "TaskFileDeleted": "odebral(a) přílohu „{{filename}}\""
             },
             "timeAgo": {
                 "seconds": "před {{n}}s",

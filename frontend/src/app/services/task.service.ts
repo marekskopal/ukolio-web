@@ -2,6 +2,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {TaskFieldValue} from '@app/models/field';
 import {OrderDirection, Task, TaskList, TaskOrderBy, TaskPriority} from '@app/models/task';
+import {TaskFile} from '@app/models/task-file';
 import {environment} from '@environments/environment';
 import {firstValueFrom} from 'rxjs';
 
@@ -64,5 +65,25 @@ export class TaskService {
 
     public deleteTask(taskId: number): Promise<void> {
         return firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/tasks/${taskId}`));
+    }
+
+    public listTaskFiles(taskId: number): Promise<TaskFile[]> {
+        return firstValueFrom(this.http.get<TaskFile[]>(`${environment.apiUrl}/tasks/${taskId}/files`));
+    }
+
+    public uploadTaskFile(taskId: number, file: File): Promise<TaskFile> {
+        const data = new FormData();
+        data.append('file', file, file.name);
+        return firstValueFrom(this.http.post<TaskFile>(`${environment.apiUrl}/tasks/${taskId}/files`, data));
+    }
+
+    public deleteTaskFile(taskId: number, fileId: number): Promise<void> {
+        return firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/tasks/${taskId}/files/${fileId}`));
+    }
+
+    public downloadTaskFile(taskId: number, fileId: number): Promise<Blob> {
+        return firstValueFrom(this.http.get(`${environment.apiUrl}/tasks/${taskId}/files/${fileId}/content`, {
+            responseType: 'blob',
+        }));
     }
 }

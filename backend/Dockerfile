@@ -21,6 +21,7 @@ COPY ./migrations /app/migrations
 COPY ./src /app/src
 COPY ./translations /app/translations
 COPY ./Caddyfile /etc/frankenphp/Caddyfile
+COPY ./docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY ./composer.json ./composer.lock* /app/
 
 WORKDIR /app/

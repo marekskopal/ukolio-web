@@ -32,4 +32,7 @@ enum EventTypeEnum: string
 	case FieldUpdated = 'FieldUpdated';
 	case FieldDeleted = 'FieldDeleted';
 	case ProjectFieldsUpdated = 'ProjectFieldsUpdated';
+
+	case TaskFileAdded = 'TaskFileAdded';
+	case TaskFileDeleted = 'TaskFileDeleted';
 }

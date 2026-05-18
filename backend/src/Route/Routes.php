@@ -46,6 +46,9 @@ enum Routes: string
 	case Tasks = '/api/tasks';
 	case Task = '/api/tasks/{taskId:number}';
 	case TaskMove = '/api/tasks/{taskId:number}/move';
+	case TaskFiles = '/api/tasks/{taskId:number}/files';
+	case TaskFile = '/api/tasks/{taskId:number}/files/{fileId:number}';
+	case TaskFileContent = '/api/tasks/{taskId:number}/files/{fileId:number}/content';
 
 	case AdminUsers = '/api/admin/users';
 	case AdminUser = '/api/admin/users/{userId:number}';

@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Ukolio\App\ServiceProvider;
 
+use AsyncAws\S3\S3Client;
 use Http\Discovery\Psr17FactoryDiscovery;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Ukolio\Service\Logger\Logger;
+use Ukolio\Service\Storage\FileStorageInterface;
+use Ukolio\Service\Storage\S3Config;
+use Ukolio\Service\Storage\S3FileStorage;
 
 final class InfrastructureServiceProvider extends AbstractServiceProvider
 {
@@ -17,6 +21,9 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 		return in_array($id, [
 			LoggerInterface::class,
 			ResponseFactoryInterface::class,
+			S3Config::class,
+			S3Client::class,
+			FileStorageInterface::class,
 		], true);
 	}
 
@@ -30,5 +37,32 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			ResponseFactoryInterface::class,
 			fn (): ResponseFactoryInterface => Psr17FactoryDiscovery::findResponseFactory(),
 		);
+
+		$container->add(S3Config::class, static fn (): S3Config => S3Config::fromEnv());
+
+		$container->add(S3Client::class, static function () use ($container): S3Client {
+			$config = $container->get(S3Config::class);
+			assert($config instanceof S3Config);
+			$options = [
+				'accessKeyId' => $config->accessKey,
+				'accessKeySecret' => $config->secretKey,
+				'region' => $config->region,
+				'pathStyleEndpoint' => $config->pathStyleEndpoint ? 'true' : 'false',
+			];
+			if ($config->endpoint !== '') {
+				$options['endpoint'] = $config->endpoint;
+			}
+			return new S3Client($options);
+		});
+
+		$container->add(FileStorageInterface::class, static function () use ($container): FileStorageInterface {
+			$client = $container->get(S3Client::class);
+			assert($client instanceof S3Client);
+			$config = $container->get(S3Config::class);
+			assert($config instanceof S3Config);
+			$logger = $container->get(LoggerInterface::class);
+			assert($logger instanceof LoggerInterface);
+			return new S3FileStorage($client, $config, $logger);
+		});
 	}
 }

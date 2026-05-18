@@ -1,0 +1,149 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ukolio\Controller;
+
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Stream;
+use MarekSkopal\Router\Attribute\RouteDelete;
+use MarekSkopal\Router\Attribute\RouteGet;
+use MarekSkopal\Router\Attribute\RoutePost;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UploadedFileInterface;
+use RuntimeException;
+use Ukolio\Dto\TaskFileDto;
+use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Entity\TaskFile;
+use Ukolio\Model\Entity\User;
+use Ukolio\Response\ErrorResponse;
+use Ukolio\Response\NotFoundResponse;
+use Ukolio\Response\OkResponse;
+use Ukolio\Route\Routes;
+use Ukolio\Service\Provider\TaskFileProviderInterface;
+use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use Ukolio\Service\Request\RequestServiceInterface;
+use const UPLOAD_ERR_OK;
+
+final readonly class TaskFileController
+{
+	public function __construct(
+		private TaskProviderInterface $taskProvider,
+		private TaskFileProviderInterface $taskFileProvider,
+		private WorkspaceProviderInterface $workspaceProvider,
+		private RequestServiceInterface $requestService,
+	) {
+	}
+
+	#[RouteGet(Routes::TaskFiles->value)]
+	public function actionGetFiles(ServerRequestInterface $request, int $taskId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$files = array_map(
+			static fn (TaskFile $file): TaskFileDto => TaskFileDto::fromEntity($file),
+			$this->taskFileProvider->findByTask($task),
+		);
+
+		return new JsonResponse($files);
+	}
+
+	#[RoutePost(Routes::TaskFiles->value)]
+	public function actionPostFile(ServerRequestInterface $request, int $taskId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$uploaded = $request->getUploadedFiles()['file'] ?? null;
+		if (!$uploaded instanceof UploadedFileInterface) {
+			return new ErrorResponse('Missing "file" multipart field.', 422);
+		}
+		if ($uploaded->getError() !== UPLOAD_ERR_OK) {
+			return new ErrorResponse('Upload failed with code ' . $uploaded->getError() . '.', 422);
+		}
+
+		$filename = $uploaded->getClientFilename() ?? 'file';
+		$mimeType = $uploaded->getClientMediaType() ?? 'application/octet-stream';
+		$body = $uploaded->getStream()->getContents();
+
+		try {
+			$file = $this->taskFileProvider->uploadFile($user, $task, $filename, $mimeType, $body);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		return new JsonResponse(TaskFileDto::fromEntity($file), 201);
+	}
+
+	#[RouteGet(Routes::TaskFileContent->value)]
+	public function actionGetFileContent(ServerRequestInterface $request, int $taskId, int $fileId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$file = $this->taskFileProvider->getFile($fileId);
+		if ($file === null || $file->task->id !== $task->id) {
+			return new NotFoundResponse('File not found.');
+		}
+
+		try {
+			$bytes = $this->taskFileProvider->readContent($file);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse('Failed to read file: ' . $e->getMessage(), 500);
+		}
+
+		$stream = new Stream('php://temp', 'wb+');
+		$stream->write($bytes);
+		$stream->rewind();
+
+		return new Response($stream, 200, [
+			'Content-Type' => $file->mimeType,
+			'Content-Length' => (string) $file->size,
+			'Content-Disposition' => 'attachment; filename="' . addslashes($file->filename) . '"',
+		]);
+	}
+
+	#[RouteDelete(Routes::TaskFile->value)]
+	public function actionDeleteFile(ServerRequestInterface $request, int $taskId, int $fileId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$file = $this->taskFileProvider->getFile($fileId);
+		if ($file === null || $file->task->id !== $task->id) {
+			return new NotFoundResponse('File not found.');
+		}
+
+		$this->taskFileProvider->deleteFile($user, $file);
+
+		return new OkResponse();
+	}
+
+	private function loadTaskInScope(User $user, int $taskId): ?Task
+	{
+		$task = $this->taskProvider->getTask($taskId);
+		if ($task === null) {
+			return null;
+		}
+		if (!$this->workspaceProvider->isMember($user, $task->project->workspace)) {
+			return null;
+		}
+		return $task;
+	}
+}

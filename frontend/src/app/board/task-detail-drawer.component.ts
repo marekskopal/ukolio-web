@@ -3,6 +3,7 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
 import {Task, TaskPriority} from '@app/models/task';
+import {TaskFile} from '@app/models/task-file';
 import {AlertService} from '@app/services/alert.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';
@@ -42,6 +43,9 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected readonly saving = signal(false);
     protected readonly tab = signal<'edit' | 'preview'>('edit');
+
+    protected readonly files = signal<TaskFile[]>([]);
+    protected readonly uploading = signal(false);
 
     protected readonly form = this.fb.nonNullable.group({
         name: ['', Validators.required],
@@ -83,6 +87,8 @@ export class TaskDetailDrawerComponent implements OnInit {
                 dueDate: existing.dueDate ?? '',
             });
             this.statusId.set(existing.statusId);
+            this.tab.set('preview');
+            void this.loadFiles(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             this.form.patchValue({statusId: fallbackStatusId});
@@ -164,5 +170,84 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected onCancel(): void {
         this.cancelled.emit();
+    }
+
+    protected async onFileSelected(event: Event): Promise<void> {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
+        target.value = '';
+        if (!file) {
+            return;
+        }
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        this.uploading.set(true);
+        try {
+            const uploaded = await this.taskService.uploadTaskFile(existing.id, file);
+            this.files.update((current) => [...current, uploaded]);
+            this.alertService.success(await this.translate.instant('app.board.drawer.files.uploaded') as string);
+        } catch {
+            // error interceptor
+        } finally {
+            this.uploading.set(false);
+        }
+    }
+
+    protected async onDownloadFile(file: TaskFile): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        try {
+            const blob = await this.taskService.downloadTaskFile(existing.id, file.id);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected async onDeleteFile(file: TaskFile): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        const message = await this.translate.instant('app.board.drawer.files.deleteConfirm', {name: file.filename}) as string;
+        if (!confirm(message)) {
+            return;
+        }
+        try {
+            await this.taskService.deleteTaskFile(existing.id, file.id);
+            this.files.update((current) => current.filter((f) => f.id !== file.id));
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected formatFileSize(size: number): string {
+        if (size < 1024) {
+            return size + ' B';
+        }
+        if (size < 1024 * 1024) {
+            return (size / 1024).toFixed(1) + ' KB';
+        }
+        return (size / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    private async loadFiles(taskId: number): Promise<void> {
+        try {
+            const list = await this.taskService.listTaskFiles(taskId);
+            this.files.set(list);
+        } catch {
+            // ignore — task may have just been created
+        }
     }
 }

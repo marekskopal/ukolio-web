@@ -40,6 +40,9 @@ final readonly class ApplicationFactory
 			'MYSQL_DATABASE',
 			'MYSQL_USER',
 			'MYSQL_PASSWORD',
+			'S3_BUCKET',
+			'S3_ACCESS_KEY',
+			'S3_SECRET_KEY',
 		];
 
 		$missing = [];

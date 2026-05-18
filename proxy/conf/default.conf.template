@@ -19,7 +19,7 @@ server {
     gzip_types        text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
     gzip_comp_level   6;
 
-    client_max_body_size 25m;
+    client_max_body_size 100m;
 
     location /api/ {
         proxy_pass http://http_backend;

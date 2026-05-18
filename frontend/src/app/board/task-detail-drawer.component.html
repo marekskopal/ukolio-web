@@ -95,6 +95,55 @@
 
         <section class="drawer-section">
             <div class="drawer-section-head">
+                <span class="uk-overline">{{ 'app.board.drawer.files.title' | translate }}</span>
+                @if (task()) {
+                    <label class="btn btn-ghost btn-sm file-upload-trigger" [class.is-disabled]="uploading()">
+                        @if (uploading()) {
+                            {{ 'app.board.drawer.files.uploading' | translate }}
+                        } @else {
+                            {{ 'app.board.drawer.files.upload' | translate }}
+                        }
+                        <input type="file" class="file-upload-input" (change)="onFileSelected($event)" [disabled]="uploading()" />
+                    </label>
+                }
+            </div>
+            @if (!task()) {
+                <p class="text-subtle file-empty">{{ 'app.board.drawer.files.saveFirst' | translate }}</p>
+            } @else if (files().length === 0) {
+                <p class="text-subtle file-empty">{{ 'app.board.drawer.files.empty' | translate }}</p>
+            } @else {
+                <ul class="file-list">
+                    @for (file of files(); track file.id) {
+                        <li class="file-item">
+                            <button type="button" class="file-name" (click)="onDownloadFile(file)" [title]="file.filename">
+                                {{ file.filename }}
+                            </button>
+                            <span class="file-meta">{{ formatFileSize(file.size) }}</span>
+                            <span class="file-meta">
+                                @if (file.uploadedByAgent) {
+                                    {{ 'app.board.drawer.files.uploadedByAgent' | translate }}
+                                } @else if (file.uploadedByUserName) {
+                                    {{ 'app.board.drawer.files.uploadedBy' | translate:{name: file.uploadedByUserName} }}
+                                }
+                            </span>
+                            <button
+                                type="button"
+                                class="btn btn-danger-ghost btn-icon btn-sm"
+                                (click)="onDeleteFile(file)"
+                                [attr.aria-label]="'app.board.drawer.files.delete' | translate"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="drawer-section">
+            <div class="drawer-section-head">
                 <span class="uk-overline">{{ 'app.common.description' | translate }}</span>
                 <div class="tab-group">
                     <button type="button" class="tab-button" [class.tab-button--active]="tab() === 'edit'" (click)="tab.set('edit')">

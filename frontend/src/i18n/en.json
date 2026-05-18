@@ -100,7 +100,9 @@
                 "FieldCreated": "created field",
                 "FieldUpdated": "updated field",
                 "FieldDeleted": "deleted field",
-                "ProjectFieldsUpdated": "updated project fields"
+                "ProjectFieldsUpdated": "updated project fields",
+                "TaskFileAdded": "attached file",
+                "TaskFileDeleted": "removed file"
             }
         },
         "tasks": {
@@ -204,7 +206,19 @@
                 "nothingToPreview": "Nothing to preview.",
                 "dueDate": "Due date",
                 "status": "Status",
-                "details": "Details"
+                "details": "Details",
+                "files": {
+                    "title": "Attachments",
+                    "upload": "Upload file",
+                    "uploading": "Uploading…",
+                    "uploaded": "File uploaded.",
+                    "empty": "No files attached.",
+                    "saveFirst": "Save the task first to attach files.",
+                    "delete": "Delete",
+                    "deleteConfirm": "Delete file \"{{name}}\"?",
+                    "uploadedBy": "by {{name}}",
+                    "uploadedByAgent": "by agent"
+                }
             }
         },
         "workflow": {
@@ -245,7 +259,9 @@
                 "FieldCreated": "added custom field \"{{name}}\"",
                 "FieldUpdated": "updated custom field \"{{name}}\"",
                 "FieldDeleted": "deleted custom field \"{{name}}\"",
-                "ProjectFieldsUpdated": "updated project custom fields"
+                "ProjectFieldsUpdated": "updated project custom fields",
+                "TaskFileAdded": "attached file \"{{filename}}\"",
+                "TaskFileDeleted": "removed file \"{{filename}}\""
             },
             "timeAgo": {
                 "seconds": "{{n}}s ago",
