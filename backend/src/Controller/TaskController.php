@@ -239,7 +239,7 @@ final readonly class TaskController
 	}
 
 	#[RouteGet(Routes::Task->value)]
-	public function actionGetTask(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionGetTask(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -253,7 +253,7 @@ final readonly class TaskController
 	}
 
 	#[RoutePut(Routes::Task->value)]
-	public function actionPutTask(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionPutTask(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -290,7 +290,7 @@ final readonly class TaskController
 	}
 
 	#[RoutePut(Routes::TaskMove->value)]
-	public function actionPutTaskMove(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionPutTaskMove(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -313,7 +313,7 @@ final readonly class TaskController
 	}
 
 	#[RouteDelete(Routes::Task->value)]
-	public function actionDeleteTask(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionDeleteTask(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -326,8 +326,8 @@ final readonly class TaskController
 		return new OkResponse();
 	}
 
-	private function loadTaskInScope(User $user, string $taskId): ?Task
+	private function loadTaskInScope(User $user, int|string $taskId): ?Task
 	{
-		return $this->taskCodeResolver->resolveForUser($user, $taskId);
+		return $this->taskCodeResolver->resolveForUser($user, (string) $taskId);
 	}
 }

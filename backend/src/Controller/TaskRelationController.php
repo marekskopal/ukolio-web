@@ -37,7 +37,7 @@ final readonly class TaskRelationController
 	}
 
 	#[RouteGet(Routes::TaskRelations->value)]
-	public function actionGetRelations(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionGetRelations(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -58,7 +58,7 @@ final readonly class TaskRelationController
 	}
 
 	#[RoutePost(Routes::TaskRelations->value)]
-	public function actionPostRelation(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionPostRelation(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$source = $this->loadTaskInScope($user, $taskId);
@@ -104,8 +104,8 @@ final readonly class TaskRelationController
 		return new OkResponse();
 	}
 
-	private function loadTaskInScope(User $user, string $taskId): ?Task
+	private function loadTaskInScope(User $user, int|string $taskId): ?Task
 	{
-		return $this->taskCodeResolver->resolveForUser($user, $taskId);
+		return $this->taskCodeResolver->resolveForUser($user, (string) $taskId);
 	}
 }

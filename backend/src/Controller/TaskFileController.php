@@ -37,7 +37,7 @@ final readonly class TaskFileController
 	}
 
 	#[RouteGet(Routes::TaskFiles->value)]
-	public function actionGetFiles(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionGetFiles(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -54,7 +54,7 @@ final readonly class TaskFileController
 	}
 
 	#[RoutePost(Routes::TaskFiles->value)]
-	public function actionPostFile(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionPostFile(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -84,7 +84,7 @@ final readonly class TaskFileController
 	}
 
 	#[RouteGet(Routes::TaskFileContent->value)]
-	public function actionGetFileContent(ServerRequestInterface $request, string $taskId, int $fileId): ResponseInterface
+	public function actionGetFileContent(ServerRequestInterface $request, int|string $taskId, int $fileId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -115,7 +115,7 @@ final readonly class TaskFileController
 	}
 
 	#[RouteDelete(Routes::TaskFile->value)]
-	public function actionDeleteFile(ServerRequestInterface $request, string $taskId, int $fileId): ResponseInterface
+	public function actionDeleteFile(ServerRequestInterface $request, int|string $taskId, int $fileId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -133,8 +133,8 @@ final readonly class TaskFileController
 		return new OkResponse();
 	}
 
-	private function loadTaskInScope(User $user, string $taskId): ?Task
+	private function loadTaskInScope(User $user, int|string $taskId): ?Task
 	{
-		return $this->taskCodeResolver->resolveForUser($user, $taskId);
+		return $this->taskCodeResolver->resolveForUser($user, (string) $taskId);
 	}
 }

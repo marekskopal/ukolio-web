@@ -44,11 +44,13 @@ final class TaskControllerTest extends IntegrationTestCase
 		$list = $this->request('GET', '/api/projects/' . $project->id . '/tasks', authenticatedAs: $owner);
 		self::assertCount(1, $this->jsonList($list));
 
-		// Get by code (task routes accept either int ID or PREFIX-N code; numeric URLs
-		// get coerced to int by JsonStrategy which clashes with the string param signature,
-		// so we use the code form here).
-		$get = $this->request('GET', '/api/tasks/' . $task['code'], authenticatedAs: $owner);
-		self::assertSame(200, $get->getStatusCode());
+		// Get by numeric ID (routes accept either int ID or PREFIX-N code)
+		$getById = $this->request('GET', '/api/tasks/' . $task['id'], authenticatedAs: $owner);
+		self::assertSame(200, $getById->getStatusCode());
+
+		// Get by code form
+		$getByCode = $this->request('GET', '/api/tasks/' . $task['code'], authenticatedAs: $owner);
+		self::assertSame(200, $getByCode->getStatusCode());
 
 		// Workspace-wide listing returns same task
 		$wsList = $this->request('GET', '/api/tasks', authenticatedAs: $owner);

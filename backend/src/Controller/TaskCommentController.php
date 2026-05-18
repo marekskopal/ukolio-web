@@ -39,7 +39,7 @@ final readonly class TaskCommentController
 	}
 
 	#[RouteGet(Routes::TaskComments->value)]
-	public function actionGetComments(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionGetComments(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -56,7 +56,7 @@ final readonly class TaskCommentController
 	}
 
 	#[RoutePost(Routes::TaskComments->value)]
-	public function actionPostComment(ServerRequestInterface $request, string $taskId): ResponseInterface
+	public function actionPostComment(ServerRequestInterface $request, int|string $taskId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
 		$task = $this->loadTaskInScope($user, $taskId);
@@ -102,8 +102,8 @@ final readonly class TaskCommentController
 		return new OkResponse();
 	}
 
-	private function loadTaskInScope(User $user, string $taskId): ?Task
+	private function loadTaskInScope(User $user, int|string $taskId): ?Task
 	{
-		return $this->taskCodeResolver->resolveForUser($user, $taskId);
+		return $this->taskCodeResolver->resolveForUser($user, (string) $taskId);
 	}
 }
