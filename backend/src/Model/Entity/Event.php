@@ -17,8 +17,8 @@ use Ukolio\Model\Repository\EventRepository;
 class Event extends AEntity
 {
 	public function __construct(
-		#[ManyToOne(entityClass: User::class)]
-		public readonly User $author,
+		#[ManyToOne(entityClass: User::class, nullable: true)]
+		public readonly ?User $author,
 		#[ColumnEnum(enum: EventTypeEnum::class)]
 		public EventTypeEnum $type,
 		#[Column(type: Type::Text)]

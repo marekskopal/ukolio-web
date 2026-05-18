@@ -24,4 +24,13 @@ final class InvitationRepository extends AbstractRepository
 			->orderBy('id', 'DESC')
 			->fetchAll();
 	}
+
+	/** @return Iterator<Invitation> */
+	public function findByInviter(int $userId): Iterator
+	{
+		return $this->select()
+			->where(['inviter_id' => $userId])
+			->orderBy('id', 'ASC')
+			->fetchAll();
+	}
 }

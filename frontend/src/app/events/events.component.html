@@ -14,7 +14,7 @@
         @for (event of events(); track event.id) {
             <li class="event-row">
                 <p class="event-text">
-                    <span class="event-author">{{ event.authorName }}</span>
+                    <span class="event-author">{{ event.authorName ?? ('app.events.deletedAuthor' | translate) }}</span>
                     {{ describe(event) }}
                 </p>
                 <time class="event-time">{{ formatRelative(event.createdAt) }}</time>

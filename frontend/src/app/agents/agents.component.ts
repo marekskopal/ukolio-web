@@ -3,7 +3,7 @@ import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} fr
 import {ActorType, AuditEvent, WorkspaceAgentStats} from '@app/models/event';
 import {EventService} from '@app/services/event.service';
 import {WorkspaceService} from '@app/services/workspace.service';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 type ChipKey = 'All' | 'Humans' | 'Agents' | 'Comments' | 'StatusChanges';
 
@@ -18,6 +18,7 @@ type ChipKey = 'All' | 'Humans' | 'Agents' | 'Comments' | 'StatusChanges';
 export class AgentsComponent {
     private readonly eventService = inject(EventService);
     private readonly workspaceService = inject(WorkspaceService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly stats = signal<WorkspaceAgentStats | null>(null);
     protected readonly allEvents = signal<AuditEvent[]>([]);
@@ -65,10 +66,11 @@ export class AgentsComponent {
     }
 
     protected actorTypeLabel(event: AuditEvent): string {
+        const fallback = this.translate.instant('app.agents.deletedAuthor') as string;
         if (event.actorType === 'Agent') {
-            return event.mcpClientName ?? event.mcpClientId ?? event.authorName;
+            return event.mcpClientName ?? event.mcpClientId ?? event.authorName ?? fallback;
         }
-        return event.authorName;
+        return event.authorName ?? fallback;
     }
 
     protected eventVerbKey(event: AuditEvent): string {

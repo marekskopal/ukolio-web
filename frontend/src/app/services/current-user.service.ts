@@ -21,6 +21,16 @@ export class CurrentUserService {
         return user;
     }
 
+    public async exportData(): Promise<Blob> {
+        return firstValueFrom(this.http.get(`${environment.apiUrl}/current-user/export`, {
+            responseType: 'blob',
+        }));
+    }
+
+    public async deleteAccount(): Promise<void> {
+        await firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/current-user`));
+    }
+
     public clear(): void {
         this.currentUser.set(null);
     }

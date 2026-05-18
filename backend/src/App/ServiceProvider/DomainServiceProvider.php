@@ -17,8 +17,12 @@ use Ukolio\Service\Actor\ActorContext;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Service\Auth\AdminService;
 use Ukolio\Service\Auth\AdminServiceInterface;
+use Ukolio\Service\Auth\CurrentUserDeletionService;
+use Ukolio\Service\Auth\CurrentUserDeletionServiceInterface;
 use Ukolio\Service\Auth\PermissionChecker;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
+use Ukolio\Service\Auth\UserDataExportService;
+use Ukolio\Service\Auth\UserDataExportServiceInterface;
 use Ukolio\Service\Provider\EmailVerificationProvider;
 use Ukolio\Service\Provider\EmailVerificationProviderInterface;
 use Ukolio\Service\Provider\EventProvider;
@@ -77,6 +81,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			WorkspaceMcpClientProviderInterface::class,
 			PermissionCheckerInterface::class,
 			AdminServiceInterface::class,
+			CurrentUserDeletionServiceInterface::class,
+			UserDataExportServiceInterface::class,
 			InvitationProviderInterface::class,
 			PasswordResetProviderInterface::class,
 			EmailVerificationProviderInterface::class,
@@ -113,6 +119,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(WorkspaceMcpClientProviderInterface::class, WorkspaceMcpClientProvider::class);
 		$c->add(PermissionCheckerInterface::class, PermissionChecker::class);
 		$c->add(AdminServiceInterface::class, AdminService::class);
+		$c->add(CurrentUserDeletionServiceInterface::class, CurrentUserDeletionService::class);
+		$c->add(UserDataExportServiceInterface::class, UserDataExportService::class);
 		$c->add(TranslatorServiceInterface::class, static fn (): TranslatorService => new TranslatorService(
 			translationsDir: __DIR__ . '/../../../translations',
 		));

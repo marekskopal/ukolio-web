@@ -51,4 +51,13 @@ class TaskRelationRepository extends AbstractRepository
 			->where(['source_task_id' => $taskId, 'type' => $type->value])
 			->fetchAll();
 	}
+
+	/** @return Iterator<TaskRelation> */
+	public function findByCreatedBy(int $userId): Iterator
+	{
+		return $this->select()
+			->where(['created_by_id' => $userId])
+			->orderBy('id', 'ASC')
+			->fetchAll();
+	}
 }

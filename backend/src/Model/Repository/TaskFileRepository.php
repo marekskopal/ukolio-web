@@ -24,4 +24,13 @@ final class TaskFileRepository extends AbstractRepository
 	{
 		return $this->findOne(['id' => $id]);
 	}
+
+	/** @return Iterator<TaskFile> */
+	public function findByUploader(int $userId): Iterator
+	{
+		return $this->select()
+			->where(['uploaded_by_user_id' => $userId])
+			->orderBy('id', 'ASC')
+			->fetchAll();
+	}
 }

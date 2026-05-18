@@ -25,4 +25,13 @@ final class TaskCommentRepository extends AbstractRepository
 	{
 		return $this->findOne(['id' => $id]);
 	}
+
+	/** @return Iterator<TaskComment> */
+	public function findByAuthor(int $userId): Iterator
+	{
+		return $this->select()
+			->where(['author_id' => $userId])
+			->orderBy('id', 'ASC')
+			->fetchAll();
+	}
 }

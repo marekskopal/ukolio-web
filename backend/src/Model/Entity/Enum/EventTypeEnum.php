@@ -46,4 +46,6 @@ enum EventTypeEnum: string
 
 	case TaskCommentAdded = 'TaskCommentAdded';
 	case TaskCommentDeleted = 'TaskCommentDeleted';
+
+	case UserSelfDeleted = 'UserSelfDeleted';
 }

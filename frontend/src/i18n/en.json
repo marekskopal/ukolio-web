@@ -105,8 +105,10 @@
                 "TaskFileAdded": "attached file",
                 "TaskFileDeleted": "removed file",
                 "TaskCommentAdded": "commented",
-                "TaskCommentDeleted": "deleted a comment"
-            }
+                "TaskCommentDeleted": "deleted a comment",
+                "UserSelfDeleted": "deleted their account"
+            },
+            "deletedAuthor": "Deleted user"
         },
         "tasks": {
             "title": "Tasks",
@@ -301,6 +303,7 @@
                 "TaskCommentAdded": "commented on the task",
                 "TaskCommentDeleted": "deleted a comment"
             },
+            "deletedAuthor": "Deleted user",
             "timeAgo": {
                 "seconds": "{{n}}s ago",
                 "minutes": "{{n}}m ago",
@@ -463,6 +466,19 @@
                 "submit": "Change password",
                 "submitting": "Updating…",
                 "success": "Password changed."
+            },
+            "dangerZone": {
+                "title": "Danger zone",
+                "subtitle": "Export your data or permanently delete your account.",
+                "exportTitle": "Export my data",
+                "exportDescription": "Download a JSON file with your profile, workspace memberships, invitations you sent, and content you authored (events, comments, files, relations).",
+                "exportButton": "Download JSON",
+                "exporting": "Preparing…",
+                "deleteTitle": "Delete account",
+                "deleteDescription": "Permanently delete your account and all data attributed to you. Workspaces you solely own must be transferred or deleted first.",
+                "deleteButton": "Delete account",
+                "deleting": "Deleting…",
+                "deleteConfirm": "This will permanently delete your account. Are you sure?"
             }
         },
         "fields": {

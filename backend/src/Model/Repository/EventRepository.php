@@ -57,4 +57,13 @@ final class EventRepository extends AbstractRepository
 			->where(['created_at', '>=', date('Y-m-d H:i:s', $sinceTimestamp)])
 			->count();
 	}
+
+	/** @return Iterator<Event> */
+	public function findByAuthor(int $userId): Iterator
+	{
+		return $this->select()
+			->where(['author_id' => $userId])
+			->orderBy('id', 'ASC')
+			->fetchAll();
+	}
 }

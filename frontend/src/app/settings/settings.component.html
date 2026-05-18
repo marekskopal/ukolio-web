@@ -56,4 +56,33 @@
             </div>
         </form>
     </section>
+
+    <section class="settings-section settings-section--danger">
+        <h2 class="uk-h3 settings-section-title">{{ 'app.settings.dangerZone.title' | translate }}</h2>
+        <p class="uk-caption settings-section-subtitle">{{ 'app.settings.dangerZone.subtitle' | translate }}</p>
+
+        <div class="danger-row">
+            <div class="danger-row-text">
+                <h3 class="danger-row-title">{{ 'app.settings.dangerZone.exportTitle' | translate }}</h3>
+                <p class="danger-row-description">{{ 'app.settings.dangerZone.exportDescription' | translate }}</p>
+            </div>
+            <div class="danger-row-action">
+                <button type="button" class="btn btn-secondary" [disabled]="exporting()" (click)="onExport()">
+                    {{ (exporting() ? 'app.settings.dangerZone.exporting' : 'app.settings.dangerZone.exportButton') | translate }}
+                </button>
+            </div>
+        </div>
+
+        <div class="danger-row">
+            <div class="danger-row-text">
+                <h3 class="danger-row-title">{{ 'app.settings.dangerZone.deleteTitle' | translate }}</h3>
+                <p class="danger-row-description">{{ 'app.settings.dangerZone.deleteDescription' | translate }}</p>
+            </div>
+            <div class="danger-row-action">
+                <button type="button" class="btn btn-danger" [disabled]="deleting()" (click)="onDelete()">
+                    {{ (deleting() ? 'app.settings.dangerZone.deleting' : 'app.settings.dangerZone.deleteButton') | translate }}
+                </button>
+            </div>
+        </div>
+    </section>
 </div>

@@ -12,7 +12,7 @@ final readonly class EventDto
 	/** @param array<string,mixed> $metadata */
 	public function __construct(
 		public int $id,
-		public string $authorName,
+		public ?string $authorName,
 		public ?int $taskId,
 		public ?string $taskCode,
 		public string $type,
@@ -31,7 +31,7 @@ final readonly class EventDto
 
 		return new self(
 			id: $event->id,
-			authorName: $event->author->name,
+			authorName: $event->author?->name,
 			taskId: $event->taskId,
 			taskCode: $taskCode,
 			type: $event->type->value,

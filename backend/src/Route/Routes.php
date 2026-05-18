@@ -18,6 +18,7 @@ enum Routes: string
 	case CurrentUser = '/api/current-user';
 	case CurrentUserPassword = '/api/current-user/password';
 	case CurrentUserResendVerification = '/api/current-user/resend-verification';
+	case CurrentUserExport = '/api/current-user/export';
 
 	case Workspaces = '/api/workspaces';
 	case Workspace = '/api/workspaces/{workspaceId:number}';

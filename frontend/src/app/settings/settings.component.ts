@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@ang
 import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import {AlertService} from '@app/services/alert.service';
 import {AuthenticationService} from '@app/services/authentication.service';
+import {CurrentUserService} from '@app/services/current-user.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
@@ -15,10 +16,13 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 export class SettingsComponent {
     private readonly fb = inject(FormBuilder);
     private readonly auth = inject(AuthenticationService);
+    private readonly currentUserService = inject(CurrentUserService);
     private readonly translate = inject(TranslateService);
     private readonly alertService = inject(AlertService);
 
     protected readonly saving = signal(false);
+    protected readonly exporting = signal(false);
+    protected readonly deleting = signal(false);
     protected readonly form = this.fb.nonNullable.group(
         {
             currentPassword: ['', Validators.required],
@@ -45,6 +49,42 @@ export class SettingsComponent {
             // error interceptor
         } finally {
             this.saving.set(false);
+        }
+    }
+
+    protected async onExport(): Promise<void> {
+        this.exporting.set(true);
+        try {
+            const blob = await this.currentUserService.exportData();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ukolio-export-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch {
+            // error interceptor
+        } finally {
+            this.exporting.set(false);
+        }
+    }
+
+    protected async onDelete(): Promise<void> {
+        const message = this.translate.instant('app.settings.dangerZone.deleteConfirm') as string;
+        if (!confirm(message)) {
+            return;
+        }
+        this.deleting.set(true);
+        try {
+            await this.currentUserService.deleteAccount();
+            this.currentUserService.clear();
+            this.auth.logout();
+        } catch {
+            // error interceptor surfaces the message (incl. blocking workspaces)
+        } finally {
+            this.deleting.set(false);
         }
     }
 }

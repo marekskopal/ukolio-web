@@ -105,8 +105,10 @@
                 "TaskFileAdded": "přidal(a) přílohu",
                 "TaskFileDeleted": "odebral(a) přílohu",
                 "TaskCommentAdded": "okomentoval(a)",
-                "TaskCommentDeleted": "smazal(a) komentář"
-            }
+                "TaskCommentDeleted": "smazal(a) komentář",
+                "UserSelfDeleted": "smazal(a) svůj účet"
+            },
+            "deletedAuthor": "Smazaný uživatel"
         },
         "tasks": {
             "title": "Úkoly",
@@ -301,6 +303,7 @@
                 "TaskCommentAdded": "okomentoval(a) úkol",
                 "TaskCommentDeleted": "smazal(a) komentář"
             },
+            "deletedAuthor": "Smazaný uživatel",
             "timeAgo": {
                 "seconds": "před {{n}}s",
                 "minutes": "před {{n}}m",
@@ -463,6 +466,19 @@
                 "submit": "Změnit heslo",
                 "submitting": "Aktualizuji…",
                 "success": "Heslo bylo změněno."
+            },
+            "dangerZone": {
+                "title": "Nebezpečná zóna",
+                "subtitle": "Exportujte svá data nebo trvale smažte svůj účet.",
+                "exportTitle": "Exportovat moje data",
+                "exportDescription": "Stáhněte JSON soubor s vaším profilem, členstvími v pracovních prostorech, odeslanými pozvánkami a obsahem, který jste vytvořili (události, komentáře, soubory, vazby).",
+                "exportButton": "Stáhnout JSON",
+                "exporting": "Připravuji…",
+                "deleteTitle": "Smazat účet",
+                "deleteDescription": "Trvale smaže váš účet a všechna data, která jsou s ním spojena. Pracovní prostory, které sami vlastníte, musí být nejprve převedeny nebo smazány.",
+                "deleteButton": "Smazat účet",
+                "deleting": "Mažu…",
+                "deleteConfirm": "Tato akce trvale smaže váš účet. Opravdu chcete pokračovat?"
             }
         },
         "fields": {

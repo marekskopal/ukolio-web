@@ -6,6 +6,12 @@ namespace Ukolio\Tests\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\CurrentUserController;
+use Ukolio\Model\Entity\Enum\EventTypeEnum;
+use Ukolio\Model\Entity\Enum\SystemRoleEnum;
+use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
+use Ukolio\Model\Repository\EventRepository;
+use Ukolio\Model\Repository\UserRepository;
+use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -94,5 +100,118 @@ final class CurrentUserControllerTest extends IntegrationTestCase
 			authenticatedAs: $user,
 		);
 		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testDeleteCurrentUserRemovesAccountAndAuditEventOutlivesUser(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$workspace = Fixture::createWorkspace($owner, 'Shared');
+		$member = Fixture::createUser(email: 'member@example.com', password: 'MemberPass1');
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+
+		$response = $this->request('DELETE', '/api/current-user', authenticatedAs: $member);
+		self::assertSame(200, $response->getStatusCode());
+
+		$userRepository = AppHarness::container()->get(UserRepository::class);
+		assert($userRepository instanceof UserRepository);
+		self::assertNull($userRepository->findUserByEmail('member@example.com'));
+
+		$eventRepository = AppHarness::container()->get(EventRepository::class);
+		assert($eventRepository instanceof EventRepository);
+		$auditEvents = [];
+		foreach ($eventRepository->findByAuthor($member->id) as $event) {
+			$auditEvents[] = $event;
+		}
+		self::assertSame([], $auditEvents, 'cascade should null out author_id, removing the event from findByAuthor');
+
+		$pdo = AppHarness::pdo();
+		$stmt = $pdo->prepare('SELECT author_id, metadata FROM events WHERE type = :type ORDER BY id DESC LIMIT 1');
+		assert($stmt !== false);
+		$stmt->execute(['type' => EventTypeEnum::UserSelfDeleted->value]);
+		/** @var array{author_id: int|null, metadata: string}|false $row */
+		$row = $stmt->fetch(\PDO::FETCH_ASSOC);
+		self::assertNotFalse($row, 'UserSelfDeleted event should survive the deletion');
+		self::assertNull($row['author_id'], 'author FK should be SET NULL after the user is deleted');
+		self::assertStringContainsString('member@example.com', $row['metadata']);
+	}
+
+	public function testDeleteCurrentUserBlockedForWorkspaceOwner(): void
+	{
+		$owner = Fixture::createUser(email: 'soleowner@example.com');
+		Fixture::createWorkspace($owner, 'Solo Workspace');
+
+		$response = $this->request('DELETE', '/api/current-user', authenticatedAs: $owner);
+		self::assertSame(409, $response->getStatusCode());
+
+		$body = $this->jsonBody($response);
+		self::assertSame(409, $body['code']);
+		$message = $body['message'];
+		self::assertIsString($message);
+		self::assertStringContainsString('Solo Workspace', $message);
+		self::assertIsArray($body['workspaces']);
+		self::assertCount(1, $body['workspaces']);
+		$firstWorkspace = $body['workspaces'][0];
+		self::assertIsArray($firstWorkspace);
+		self::assertSame('Solo Workspace', $firstWorkspace['name']);
+
+		$userRepository = AppHarness::container()->get(UserRepository::class);
+		assert($userRepository instanceof UserRepository);
+		self::assertNotNull($userRepository->findUserByEmail('soleowner@example.com'));
+	}
+
+	public function testDeleteCurrentUserBlocksLastSystemAdmin(): void
+	{
+		$sysAdmin = Fixture::createUser(systemRole: SystemRoleEnum::SystemAdmin);
+
+		$response = $this->request('DELETE', '/api/current-user', authenticatedAs: $sysAdmin);
+		self::assertSame(409, $response->getStatusCode());
+
+		$userRepository = AppHarness::container()->get(UserRepository::class);
+		assert($userRepository instanceof UserRepository);
+		self::assertNotNull($userRepository->findUserById($sysAdmin->id));
+	}
+
+	public function testDeleteCurrentUserRequiresAuth(): void
+	{
+		$response = $this->request('DELETE', '/api/current-user');
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testExportReturnsAttachmentWithUserAndMemberships(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$workspace = Fixture::createWorkspace($owner, 'Acme');
+		$me = Fixture::createUser(email: 'me@example.com', name: 'Me');
+		Fixture::addMember($workspace, $me, WorkspaceRoleEnum::Member);
+
+		$response = $this->request('GET', '/api/current-user/export', authenticatedAs: $me);
+		self::assertSame(200, $response->getStatusCode());
+
+		$disposition = $response->getHeaderLine('Content-Disposition');
+		self::assertStringContainsString('attachment', $disposition);
+		self::assertStringContainsString(sprintf('ukolio-export-%d.json', $me->id), $disposition);
+
+		$body = $this->jsonBody($response);
+		$userBlock = $body['user'];
+		self::assertIsArray($userBlock);
+		self::assertSame('me@example.com', $userBlock['email']);
+		self::assertSame('Me', $userBlock['name']);
+		self::assertArrayHasKey('exportedAt', $body);
+		$memberships = $body['workspaceMemberships'];
+		self::assertIsArray($memberships);
+		$workspaceNames = array_column($memberships, 'workspaceName');
+		self::assertContains('Acme', $workspaceNames);
+		self::assertArrayHasKey('events', $body);
+		self::assertArrayHasKey('taskComments', $body);
+		self::assertArrayHasKey('taskFiles', $body);
+		self::assertArrayHasKey('taskRelationsCreated', $body);
+		self::assertArrayHasKey('oauthClients', $body);
+		self::assertArrayHasKey('invitationsSent', $body);
+	}
+
+	public function testExportRequiresAuth(): void
+	{
+		$response = $this->request('GET', '/api/current-user/export');
+		self::assertSame(401, $response->getStatusCode());
 	}
 }

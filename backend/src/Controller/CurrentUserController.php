@@ -5,19 +5,25 @@ declare(strict_types=1);
 namespace Ukolio\Controller;
 
 use Laminas\Diactoros\Response\JsonResponse;
+use MarekSkopal\Router\Attribute\RouteDelete;
 use MarekSkopal\Router\Attribute\RouteGet;
 use MarekSkopal\Router\Attribute\RoutePatch;
 use MarekSkopal\Router\Attribute\RoutePost;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Ukolio\Dto\ChangePasswordDto;
 use Ukolio\Dto\CurrentUserUpdateDto;
 use Ukolio\Dto\UserDto;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
+use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
 use Ukolio\Response\OkResponse;
 use Ukolio\Route\Routes;
+use Ukolio\Service\Auth\CurrentUserDeletionServiceInterface;
+use Ukolio\Service\Auth\SoleOwnerException;
+use Ukolio\Service\Auth\UserDataExportServiceInterface;
 use Ukolio\Service\Provider\EmailVerificationProviderInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
@@ -28,6 +34,8 @@ final readonly class CurrentUserController
 	public function __construct(
 		private UserProviderInterface $userProvider,
 		private EmailVerificationProviderInterface $emailVerificationProvider,
+		private CurrentUserDeletionServiceInterface $currentUserDeletionService,
+		private UserDataExportServiceInterface $userDataExportService,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -93,5 +101,44 @@ final readonly class CurrentUserController
 		$this->emailVerificationProvider->requestVerification($user);
 
 		return new OkResponse();
+	}
+
+	#[RouteDelete(Routes::CurrentUser->value)]
+	public function actionDeleteCurrentUser(ServerRequestInterface $request): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+
+		try {
+			$this->currentUserDeletionService->deleteSelf($user);
+		} catch (SoleOwnerException $e) {
+			return new JsonResponse(
+				[
+					'code' => 409,
+					'message' => $e->getMessage(),
+					'workspaces' => array_map(
+						static fn (int $id, string $name): array => ['id' => $id, 'name' => $name],
+						$e->workspaceIds(),
+						$e->workspaceNames(),
+					),
+				],
+				409,
+			);
+		} catch (RuntimeException $e) {
+			return new ConflictResponse($e->getMessage());
+		}
+
+		return new OkResponse();
+	}
+
+	#[RouteGet(Routes::CurrentUserExport->value)]
+	public function actionGetExport(ServerRequestInterface $request): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$payload = $this->userDataExportService->export($user);
+
+		return (new JsonResponse($payload))->withHeader(
+			'Content-Disposition',
+			sprintf('attachment; filename="ukolio-export-%d.json"', $user->id),
+		);
 	}
 }
