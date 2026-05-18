@@ -47,6 +47,26 @@ export class AuthenticationService {
         return auth;
     }
 
+    public async requestPasswordReset(email: string): Promise<void> {
+        await firstValueFrom(
+            this.http.post<void>(`${environment.apiUrl}/authentication/request-password-reset`, {email}),
+        );
+    }
+
+    public async confirmPasswordReset(token: string, password: string): Promise<Authentication> {
+        const auth = await firstValueFrom(
+            this.http.post<Authentication>(`${environment.apiUrl}/authentication/confirm-password-reset`, {token, password}),
+        );
+        this.setAuthentication(auth);
+        return auth;
+    }
+
+    public async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+        await firstValueFrom(
+            this.http.post<void>(`${environment.apiUrl}/current-user/password`, {currentPassword, newPassword}),
+        );
+    }
+
     public logout(): void {
         this.storage.remove(STORAGE_KEY_AUTH);
         this.authentication.set(null);

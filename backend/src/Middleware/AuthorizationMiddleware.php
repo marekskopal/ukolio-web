@@ -29,6 +29,8 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		Routes::Health->value,
 		Routes::AuthenticationLogin->value,
 		Routes::AuthenticationSignUp->value,
+		Routes::AuthenticationRequestPasswordReset->value,
+		Routes::AuthenticationConfirmPasswordReset->value,
 		Routes::InvitationLookup->value,
 		Routes::Mcp->value,
 		Routes::OAuthMetadata->value,

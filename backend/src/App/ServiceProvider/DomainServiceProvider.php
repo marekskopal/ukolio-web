@@ -25,6 +25,8 @@ use Ukolio\Service\Provider\FieldProvider;
 use Ukolio\Service\Provider\FieldProviderInterface;
 use Ukolio\Service\Provider\InvitationProvider;
 use Ukolio\Service\Provider\InvitationProviderInterface;
+use Ukolio\Service\Provider\PasswordResetProvider;
+use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Service\Provider\ProjectFieldProvider;
 use Ukolio\Service\Provider\ProjectFieldProviderInterface;
 use Ukolio\Service\Provider\ProjectProvider;
@@ -68,6 +70,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			PermissionCheckerInterface::class,
 			AdminServiceInterface::class,
 			InvitationProviderInterface::class,
+			PasswordResetProviderInterface::class,
 			ProjectProviderInterface::class,
 			WorkflowProviderInterface::class,
 			StatusProviderInterface::class,
@@ -102,6 +105,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			translationsDir: __DIR__ . '/../../../translations',
 		));
 		$c->add(InvitationProviderInterface::class, InvitationProvider::class);
+		$c->add(PasswordResetProviderInterface::class, PasswordResetProvider::class);
 		$c->add(EventProviderInterface::class, EventProvider::class);
 		$c->add(StatusProviderInterface::class, StatusProvider::class);
 		$c->add(WorkflowProviderInterface::class, WorkflowProvider::class);

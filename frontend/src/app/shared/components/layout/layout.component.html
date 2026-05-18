@@ -129,6 +129,9 @@
                         </button>
                     }
                     <div class="menu-divider" aria-hidden="true"></div>
+                    <a class="menu-item" routerLink="/settings" role="menuitem" (click)="toggleUserMenu()">
+                        {{ 'app.nav.settings' | translate }}
+                    </a>
                     <button type="button" class="menu-item" role="menuitem" (click)="logout()">
                         {{ 'app.nav.signOut' | translate }}
                     </button>

@@ -45,6 +45,7 @@
             "workspaces": "Workspaces",
             "admin": "Admin",
             "signOut": "Sign out",
+            "settings": "Settings",
             "newWorkspace": "+ New workspace",
             "manageWorkspaces": "Manage workspaces",
             "search": "Search or jump to…",
@@ -138,7 +139,8 @@
                 "submit": "Sign in",
                 "submitting": "Signing in…",
                 "noAccount": "New here?",
-                "signUp": "Sign up"
+                "signUp": "Sign up",
+                "forgotPassword": "Forgot your password?"
             },
             "signUp": {
                 "title": "Create your account",
@@ -148,9 +150,29 @@
                 "hasAccount": "Already have an account?",
                 "logIn": "Log in"
             },
+            "forgotPassword": {
+                "title": "Forgot your password?",
+                "subtitle": "Enter your email and we'll send you a reset link.",
+                "submit": "Send reset link",
+                "submitting": "Sending…",
+                "sent": "If an account exists for that email, a reset link is on the way. Check your inbox.",
+                "backToLogin": "Back to sign in"
+            },
+            "resetPassword": {
+                "title": "Set a new password",
+                "subtitle": "Choose a new password to regain access to your account.",
+                "newPassword": "New password",
+                "confirmPassword": "Confirm new password",
+                "submit": "Update password",
+                "submitting": "Updating…",
+                "invalidToken": "This reset link is missing or no longer valid.",
+                "requestNew": "Request a new reset link",
+                "backToLogin": "Back to sign in"
+            },
             "errors": {
                 "invalidCredentials": "Email or password is invalid.",
-                "passwordPolicy": "Password must be at least 8 characters and contain uppercase, lowercase, and a digit."
+                "passwordPolicy": "Password must be at least 8 characters and contain uppercase, lowercase, and a digit.",
+                "passwordMismatch": "Passwords do not match."
             },
             "oauth": {
                 "loginTitle": "Sign in to authorize",
@@ -398,10 +420,22 @@
             "joined": "Joined \"{{workspace}}\"."
         },
         "settings": {
+            "title": "Settings",
+            "subtitle": "Manage your account.",
             "language": "Language",
             "languageEn": "English",
             "languageCs": "Čeština",
-            "languageUpdated": "Language updated."
+            "languageUpdated": "Language updated.",
+            "changePassword": {
+                "title": "Change password",
+                "description": "Use a strong password with a mix of upper and lower case letters and at least one digit.",
+                "currentPassword": "Current password",
+                "newPassword": "New password",
+                "confirmPassword": "Confirm new password",
+                "submit": "Change password",
+                "submitting": "Updating…",
+                "success": "Password changed."
+            }
         },
         "fields": {
             "title": "Custom fields",

@@ -1,7 +1,8 @@
 {
     "email": {
         "subject": {
-            "invitation": "You've been invited to {workspace} on Ukolio"
+            "invitation": "You've been invited to {workspace} on Ukolio",
+            "passwordReset": "Reset your Ukolio password"
         },
         "invitation": {
             "title": "You've been invited to Ukolio",
@@ -10,6 +11,15 @@
             "button": "Accept invitation",
             "fallback": "Or copy this link into your browser:",
             "expires": "This invitation expires in 7 days."
+        },
+        "passwordReset": {
+            "title": "Reset your password",
+            "greeting": "Hi {name},",
+            "intro": "We received a request to reset the password for your Ukolio account. Click the button below to choose a new password.",
+            "button": "Reset password",
+            "fallback": "Or copy this link into your browser:",
+            "expires": "This link expires in 1 hour.",
+            "ignore": "If you didn't request this, you can safely ignore this email — your password won't change."
         }
     }
 }

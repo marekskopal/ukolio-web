@@ -14,6 +14,7 @@ use Ukolio\Model\Entity\Field;
 use Ukolio\Model\Entity\Invitation;
 use Ukolio\Model\Entity\OAuthAuthorization;
 use Ukolio\Model\Entity\OAuthClient;
+use Ukolio\Model\Entity\PasswordResetToken;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\ProjectField;
 use Ukolio\Model\Entity\Status;
@@ -32,6 +33,7 @@ use Ukolio\Model\Repository\FieldRepository;
 use Ukolio\Model\Repository\InvitationRepository;
 use Ukolio\Model\Repository\OAuthAuthorizationRepository;
 use Ukolio\Model\Repository\OAuthClientRepository;
+use Ukolio\Model\Repository\PasswordResetTokenRepository;
 use Ukolio\Model\Repository\ProjectFieldRepository;
 use Ukolio\Model\Repository\ProjectRepository;
 use Ukolio\Model\Repository\StatusRepository;
@@ -62,6 +64,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			WorkspaceRepository::class,
 			WorkspaceUserRepository::class,
 			InvitationRepository::class,
+			PasswordResetTokenRepository::class,
 			ProjectRepository::class,
 			WorkflowRepository::class,
 			StatusRepository::class,
@@ -93,6 +96,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, WorkspaceRepository::class, Workspace::class);
 		$this->addRepository($container, $orm, WorkspaceUserRepository::class, WorkspaceUser::class);
 		$this->addRepository($container, $orm, InvitationRepository::class, Invitation::class);
+		$this->addRepository($container, $orm, PasswordResetTokenRepository::class, PasswordResetToken::class);
 		$this->addRepository($container, $orm, ProjectRepository::class, Project::class);
 		$this->addRepository($container, $orm, WorkflowRepository::class, Workflow::class);
 		$this->addRepository($container, $orm, StatusRepository::class, Status::class);

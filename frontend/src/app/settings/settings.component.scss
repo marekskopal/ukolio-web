@@ -1,0 +1,49 @@
+@use 'variables' as *;
+
+.settings-page {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.settings-header {
+    margin-bottom: $space-7;
+}
+
+.settings-title {
+    margin: 0 0 $space-1;
+}
+
+.settings-subtitle {
+    margin: 0;
+    color: $color-text-muted;
+}
+
+.settings-section {
+    padding: $space-6;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+}
+
+.settings-section-title {
+    margin: 0 0 $space-1;
+}
+
+.settings-section-subtitle {
+    margin: 0 0 $space-5;
+    color: $color-text-muted;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: $space-5;
+}
+
+.settings-form .field { margin-bottom: 0; }
+
+.settings-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: $space-1;
+}

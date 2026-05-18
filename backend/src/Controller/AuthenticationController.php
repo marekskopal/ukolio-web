@@ -11,16 +11,21 @@ use Laminas\Diactoros\Response\JsonResponse;
 use MarekSkopal\Router\Attribute\RoutePost;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
+use Ukolio\Dto\ConfirmPasswordResetDto;
 use Ukolio\Dto\CredentialsDto;
 use Ukolio\Dto\RefreshTokenDto;
+use Ukolio\Dto\RequestPasswordResetDto;
 use Ukolio\Dto\SignUpDto;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
 use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
+use Ukolio\Response\OkResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Authentication\AuthenticationServiceInterface;
 use Ukolio\Service\Authentication\Exception\AuthenticationException;
+use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
@@ -32,6 +37,7 @@ final readonly class AuthenticationController
 		private AuthenticationServiceInterface $authenticationService,
 		private UserProviderInterface $userProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
+		private PasswordResetProviderInterface $passwordResetProvider,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -88,6 +94,39 @@ final readonly class AuthenticationController
 
 		if ($decoded->id !== $user->id) {
 			return new NotAuthorizedResponse('Invalid RefreshToken.');
+		}
+
+		return new JsonResponse($this->authenticationService->createAuthentication($user));
+	}
+
+	#[RoutePost(Routes::AuthenticationRequestPasswordReset->value)]
+	public function actionPostRequestPasswordReset(ServerRequestInterface $request): ResponseInterface
+	{
+		$dto = $this->requestService->getRequestBodyDto($request, RequestPasswordResetDto::class);
+
+		$this->passwordResetProvider->requestReset($dto->email);
+
+		return new OkResponse();
+	}
+
+	#[RoutePost(Routes::AuthenticationConfirmPasswordReset->value)]
+	public function actionPostConfirmPasswordReset(ServerRequestInterface $request): ResponseInterface
+	{
+		$dto = $this->requestService->getRequestBodyDto($request, ConfirmPasswordResetDto::class);
+
+		if (!PasswordValidator::isValid($dto->password)) {
+			return new ErrorResponse('Password must be at least 8 characters and contain uppercase, lowercase, and a digit.', 422);
+		}
+
+		$token = $this->passwordResetProvider->findByToken($dto->token);
+		if ($token === null) {
+			return new ErrorResponse('This reset link is invalid.', 422);
+		}
+
+		try {
+			$user = $this->passwordResetProvider->confirmReset($token, $dto->password);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
 		}
 
 		return new JsonResponse($this->authenticationService->createAuthentication($user));

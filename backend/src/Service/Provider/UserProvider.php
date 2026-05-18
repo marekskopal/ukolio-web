@@ -61,4 +61,13 @@ final readonly class UserProvider implements UserProviderInterface
 
 		return $user;
 	}
+
+	public function updateUserPassword(User $user, #[SensitiveParameter] string $newPassword): User
+	{
+		$user->password = password_hash($newPassword, PASSWORD_BCRYPT);
+		$user->updatedAt = new DateTimeImmutable();
+		$this->userRepository->persist($user);
+
+		return $user;
+	}
 }

@@ -12,6 +12,14 @@ export const appRoutes: Routes = [
         loadComponent: () => import('@app/authentication/sign-up.component').then((m) => m.SignUpComponent),
     },
     {
+        path: 'forgot-password',
+        loadComponent: () => import('@app/authentication/forgot-password.component').then((m) => m.ForgotPasswordComponent),
+    },
+    {
+        path: 'reset-password',
+        loadComponent: () => import('@app/authentication/reset-password.component').then((m) => m.ResetPasswordComponent),
+    },
+    {
         path: 'invitations/accept',
         loadComponent: () => import('@app/invitations/accept-invitation.component').then((m) => m.AcceptInvitationComponent),
     },
@@ -60,6 +68,10 @@ export const appRoutes: Routes = [
             {
                 path: 'workspaces',
                 loadComponent: () => import('@app/workspaces/workspaces.component').then((m) => m.WorkspacesComponent),
+            },
+            {
+                path: 'settings',
+                loadComponent: () => import('@app/settings/settings.component').then((m) => m.SettingsComponent),
             },
             {
                 path: 'admin',

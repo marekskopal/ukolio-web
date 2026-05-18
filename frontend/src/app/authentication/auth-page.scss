@@ -76,6 +76,24 @@
     font-size: $font-size-12;
 }
 
+.auth-success {
+    margin: $space-5 0 0;
+    padding: $space-4 $space-5;
+    border-radius: $radius-md;
+    background: rgba(34, 197, 94, 0.08);
+    color: #15803d;
+    font-size: $font-size-14;
+    line-height: 1.5;
+}
+
+.auth-extra-link {
+    display: block;
+    text-align: right;
+    margin-top: -$space-3;
+    margin-bottom: -$space-1;
+    font-size: $font-size-12;
+}
+
 // ─── Dark aside ─────────────────────────────────────────────
 .auth-aside {
     flex: 1;

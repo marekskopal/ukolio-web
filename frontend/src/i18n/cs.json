@@ -45,6 +45,7 @@
             "workspaces": "Pracovní prostory",
             "admin": "Správa",
             "signOut": "Odhlásit se",
+            "settings": "Nastavení",
             "newWorkspace": "+ Nový pracovní prostor",
             "manageWorkspaces": "Spravovat pracovní prostory",
             "search": "Hledat nebo přejít…",
@@ -138,7 +139,8 @@
                 "submit": "Přihlásit se",
                 "submitting": "Přihlašuji…",
                 "noAccount": "Nemáte účet?",
-                "signUp": "Registrovat se"
+                "signUp": "Registrovat se",
+                "forgotPassword": "Zapomněli jste heslo?"
             },
             "signUp": {
                 "title": "Vytvořit účet",
@@ -148,9 +150,29 @@
                 "hasAccount": "Už máte účet?",
                 "logIn": "Přihlásit se"
             },
+            "forgotPassword": {
+                "title": "Zapomněli jste heslo?",
+                "subtitle": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovení.",
+                "submit": "Odeslat odkaz",
+                "submitting": "Odesílám…",
+                "sent": "Pokud k tomuto e-mailu existuje účet, odkaz pro obnovení je na cestě. Zkontrolujte si schránku.",
+                "backToLogin": "Zpět na přihlášení"
+            },
+            "resetPassword": {
+                "title": "Nastavit nové heslo",
+                "subtitle": "Zvolte si nové heslo a obnovte přístup k účtu.",
+                "newPassword": "Nové heslo",
+                "confirmPassword": "Potvrdit nové heslo",
+                "submit": "Aktualizovat heslo",
+                "submitting": "Aktualizuji…",
+                "invalidToken": "Tento odkaz pro obnovení chybí nebo už není platný.",
+                "requestNew": "Vyžádat nový odkaz",
+                "backToLogin": "Zpět na přihlášení"
+            },
             "errors": {
                 "invalidCredentials": "Neplatný e-mail nebo heslo.",
-                "passwordPolicy": "Heslo musí mít alespoň 8 znaků a obsahovat velké písmeno, malé písmeno a číslici."
+                "passwordPolicy": "Heslo musí mít alespoň 8 znaků a obsahovat velké písmeno, malé písmeno a číslici.",
+                "passwordMismatch": "Hesla se neshodují."
             },
             "oauth": {
                 "loginTitle": "Přihlaste se a autorizujte",
@@ -398,10 +420,22 @@
             "joined": "Připojeno k „{{workspace}}\"."
         },
         "settings": {
+            "title": "Nastavení",
+            "subtitle": "Spravujte svůj účet.",
             "language": "Jazyk",
             "languageEn": "English",
             "languageCs": "Čeština",
-            "languageUpdated": "Jazyk byl změněn."
+            "languageUpdated": "Jazyk byl změněn.",
+            "changePassword": {
+                "title": "Změna hesla",
+                "description": "Použijte silné heslo s malými i velkými písmeny a alespoň jednou číslicí.",
+                "currentPassword": "Současné heslo",
+                "newPassword": "Nové heslo",
+                "confirmPassword": "Potvrdit nové heslo",
+                "submit": "Změnit heslo",
+                "submitting": "Aktualizuji…",
+                "success": "Heslo bylo změněno."
+            }
         },
         "fields": {
             "title": "Vlastní pole",

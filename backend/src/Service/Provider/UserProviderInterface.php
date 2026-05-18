@@ -16,4 +16,6 @@ interface UserProviderInterface
 	public function createUser(string $email, string $password, string $name, LocaleEnum $locale = LocaleEnum::En): User;
 
 	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null): User;
+
+	public function updateUserPassword(User $user, string $newPassword): User;
 }
