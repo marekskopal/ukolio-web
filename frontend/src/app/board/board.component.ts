@@ -1,12 +1,12 @@
 import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {TaskCardComponent} from '@app/board/task-card.component';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {Board} from '@app/models/board';
 import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
-import {Task} from '@app/models/task';
+import {Task, TaskListItem} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';
@@ -27,6 +27,7 @@ interface Column {
 })
 export class BoardComponent implements OnInit {
     private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
     private readonly boardService = inject(BoardService);
     private readonly taskService = inject(TaskService);
     private readonly fieldService = inject(FieldService);
@@ -59,6 +60,21 @@ export class BoardComponent implements OnInit {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.projectId.set(id);
         await Promise.all([this.loadBoard(), this.loadProjectFields()]);
+
+        const openTaskParam = this.route.snapshot.queryParamMap.get('openTask');
+        if (openTaskParam !== null) {
+            const openId = Number(openTaskParam);
+            if (Number.isFinite(openId) && openId > 0) {
+                try {
+                    const task = await this.taskService.getTask(openId);
+                    this.editingTask.set(task);
+                    this.defaultStatusId.set(null);
+                    this.drawerOpen.set(true);
+                } catch {
+                    // task may have been deleted; ignore
+                }
+            }
+        }
     }
 
     private async loadBoard(): Promise<void> {
@@ -133,5 +149,23 @@ export class BoardComponent implements OnInit {
     protected onTaskDeleted(_id: number): void {
         this.closeDrawer();
         void this.loadBoard();
+    }
+
+    protected async onOpenRelatedTask(item: TaskListItem): Promise<void> {
+        const currentProjectId = this.projectId();
+        if (item.projectId !== currentProjectId) {
+            this.closeDrawer();
+            await this.router.navigate(['/projects', item.projectId, 'board'], {queryParams: {openTask: item.id}});
+            return;
+        }
+        try {
+            const task = await this.taskService.getTask(item.id);
+            this.drawerOpen.set(false);
+            this.editingTask.set(task);
+            this.defaultStatusId.set(null);
+            queueMicrotask(() => this.drawerOpen.set(true));
+        } catch {
+            // error interceptor
+        }
     }
 }

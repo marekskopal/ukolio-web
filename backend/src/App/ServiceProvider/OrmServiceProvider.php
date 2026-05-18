@@ -20,6 +20,7 @@ use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\TaskFieldValue;
 use Ukolio\Model\Entity\TaskFile;
+use Ukolio\Model\Entity\TaskRelation;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workflow;
 use Ukolio\Model\Entity\Workspace;
@@ -34,6 +35,7 @@ use Ukolio\Model\Repository\ProjectRepository;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskFileRepository;
+use Ukolio\Model\Repository\TaskRelationRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
@@ -62,6 +64,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			TaskRepository::class,
 			TaskFieldValueRepository::class,
 			TaskFileRepository::class,
+			TaskRelationRepository::class,
 			FieldRepository::class,
 			ProjectFieldRepository::class,
 			EventRepository::class,
@@ -90,6 +93,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, TaskRepository::class, Task::class);
 		$this->addRepository($container, $orm, TaskFieldValueRepository::class, TaskFieldValue::class);
 		$this->addRepository($container, $orm, TaskFileRepository::class, TaskFile::class);
+		$this->addRepository($container, $orm, TaskRelationRepository::class, TaskRelation::class);
 		$this->addRepository($container, $orm, FieldRepository::class, Field::class);
 		$this->addRepository($container, $orm, ProjectFieldRepository::class, ProjectField::class);
 		$this->addRepository($container, $orm, EventRepository::class, Event::class);

@@ -261,12 +261,52 @@
                 "FieldDeleted": "deleted custom field \"{{name}}\"",
                 "ProjectFieldsUpdated": "updated project custom fields",
                 "TaskFileAdded": "attached file \"{{filename}}\"",
-                "TaskFileDeleted": "removed file \"{{filename}}\""
+                "TaskFileDeleted": "removed file \"{{filename}}\"",
+                "TaskRelationCreated": "linked to \"{{targetTaskName}}\" ({{type}})",
+                "TaskRelationDeleted": "removed link to \"{{targetTaskName}}\" ({{type}})"
             },
             "timeAgo": {
                 "seconds": "{{n}}s ago",
                 "minutes": "{{n}}m ago",
                 "hours": "{{n}}h ago"
+            }
+        },
+        "taskRelations": {
+            "section": "Relations",
+            "addButton": "+ Add relation",
+            "empty": "No relations.",
+            "added": "Relation added.",
+            "removed": "Relation removed.",
+            "removeConfirm": "Remove relation to \"{{name}}\"?",
+            "addModal": {
+                "searchPlaceholder": "Search tasks by name…",
+                "noResults": "No tasks found."
+            },
+            "type": {
+                "Related": "Related",
+                "Duplicates": "Duplicates",
+                "Parent": "Parent",
+                "DependsOn": "Depends on"
+            },
+            "label": {
+                "Related": "Related",
+                "DuplicateOf": "Duplicate of",
+                "DuplicatedBy": "Duplicated by",
+                "Parent": "Parent",
+                "Subtask": "Subtask",
+                "DependsOn": "Depends on",
+                "RequiredFor": "Required for"
+            },
+            "groupHeader": {
+                "Parent": "Parent",
+                "Subtasks": "Subtasks",
+                "DependsOn": "Depends on",
+                "RequiredFor": "Required for",
+                "Related": "Related",
+                "Duplicates": "Duplicates"
+            },
+            "errors": {
+                "generic": "Failed to update relation."
             }
         },
         "workspaces": {

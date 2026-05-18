@@ -336,3 +336,153 @@
     font-size: $font-size-12;
     white-space: nowrap;
 }
+
+// ─── Relations ───────────────────────────────────────────────
+.relation-group {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    margin-top: $space-3;
+}
+
+.relation-group-header {
+    color: $color-text-subtle;
+    font-size: $font-size-12;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.relation-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+}
+
+.relation-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    font-size: $font-size-13;
+
+    &:hover {
+        border-color: $color-border-strong;
+    }
+}
+
+.relation-link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: $space-2;
+    align-items: center;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    text-align: left;
+    color: $color-text;
+    font: inherit;
+    cursor: pointer;
+    overflow: hidden;
+
+    &:hover .relation-task-name {
+        text-decoration: underline;
+    }
+}
+
+.relation-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.relation-task-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.relation-task-meta {
+    color: $color-text-subtle;
+    font-size: $font-size-12;
+    white-space: nowrap;
+}
+
+.relation-empty {
+    font-size: $font-size-12;
+    margin-top: $space-2;
+}
+
+.relation-picker {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    padding: $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    margin-bottom: $space-2;
+}
+
+.relation-picker-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: $space-2;
+    align-items: center;
+}
+
+.relation-picker-type {
+    min-width: 120px;
+}
+
+.relation-picker-search {
+    width: 100%;
+}
+
+.relation-picker-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.relation-picker-result {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: $space-2;
+    align-items: center;
+    padding: $space-2 $space-3;
+    border: 1px solid transparent;
+    border-radius: $radius-sm;
+    background: transparent;
+    text-align: left;
+    color: $color-text;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover:not([disabled]) {
+        border-color: $color-border-strong;
+        background: $color-surface-hover;
+    }
+
+    &[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.relation-picker-empty {
+    font-size: $font-size-12;
+}

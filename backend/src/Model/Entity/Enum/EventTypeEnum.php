@@ -35,4 +35,7 @@ enum EventTypeEnum: string
 
 	case TaskFileAdded = 'TaskFileAdded';
 	case TaskFileDeleted = 'TaskFileDeleted';
+
+	case TaskRelationCreated = 'TaskRelationCreated';
+	case TaskRelationDeleted = 'TaskRelationDeleted';
 }

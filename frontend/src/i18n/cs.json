@@ -261,12 +261,52 @@
                 "FieldDeleted": "smazal(a) vlastní pole „{{name}}\"",
                 "ProjectFieldsUpdated": "upravil(a) vlastní pole projektu",
                 "TaskFileAdded": "přidal(a) přílohu „{{filename}}\"",
-                "TaskFileDeleted": "odebral(a) přílohu „{{filename}}\""
+                "TaskFileDeleted": "odebral(a) přílohu „{{filename}}\"",
+                "TaskRelationCreated": "propojil(a) s „{{targetTaskName}}\" ({{type}})",
+                "TaskRelationDeleted": "odebral(a) vazbu na „{{targetTaskName}}\" ({{type}})"
             },
             "timeAgo": {
                 "seconds": "před {{n}}s",
                 "minutes": "před {{n}}m",
                 "hours": "před {{n}}h"
+            }
+        },
+        "taskRelations": {
+            "section": "Vazby",
+            "addButton": "+ Přidat vazbu",
+            "empty": "Žádné vazby.",
+            "added": "Vazba přidána.",
+            "removed": "Vazba odebrána.",
+            "removeConfirm": "Odebrat vazbu na „{{name}}\"?",
+            "addModal": {
+                "searchPlaceholder": "Hledat úkoly podle názvu…",
+                "noResults": "Žádné úkoly nenalezeny."
+            },
+            "type": {
+                "Related": "Souvisí",
+                "Duplicates": "Duplikuje",
+                "Parent": "Rodič",
+                "DependsOn": "Závisí na"
+            },
+            "label": {
+                "Related": "Souvisí",
+                "DuplicateOf": "Duplikát",
+                "DuplicatedBy": "Duplikováno",
+                "Parent": "Rodič",
+                "Subtask": "Podúkol",
+                "DependsOn": "Závisí na",
+                "RequiredFor": "Vyžadováno pro"
+            },
+            "groupHeader": {
+                "Parent": "Rodič",
+                "Subtasks": "Podúkoly",
+                "DependsOn": "Závisí na",
+                "RequiredFor": "Vyžadováno pro",
+                "Related": "Souvisí",
+                "Duplicates": "Duplikáty"
+            },
+            "errors": {
+                "generic": "Nepodařilo se aktualizovat vazbu."
             }
         },
         "workspaces": {

@@ -142,6 +142,97 @@
             }
         </section>
 
+        @if (task()) {
+            <section class="drawer-section">
+                <div class="drawer-section-head">
+                    <span class="uk-overline">{{ 'app.taskRelations.section' | translate }}</span>
+                    @if (!addRelationOpen()) {
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="onOpenAddRelation()">
+                            {{ 'app.taskRelations.addButton' | translate }}
+                        </button>
+                    }
+                </div>
+
+                @if (addRelationOpen()) {
+                    <div class="relation-picker">
+                        <div class="relation-picker-row">
+                            <select class="select relation-picker-type" (change)="onTypeChange($event)">
+                                @for (t of relationTypes; track t) {
+                                    <option [value]="t" [selected]="addRelationType() === t">
+                                        {{ 'app.taskRelations.type.' + t | translate }}
+                                    </option>
+                                }
+                            </select>
+                            <input
+                                type="search"
+                                class="input relation-picker-search"
+                                [formControl]="searchControl"
+                                [placeholder]="'app.taskRelations.addModal.searchPlaceholder' | translate"
+                                autocomplete="off"
+                            />
+                            <button type="button" class="btn btn-ghost btn-sm" (click)="onCloseAddRelation()">
+                                {{ 'app.actions.cancel' | translate }}
+                            </button>
+                        </div>
+                        @if (searchResults().length > 0) {
+                            <ul class="relation-picker-results">
+                                @for (item of searchResults(); track item.id) {
+                                    <li>
+                                        <button
+                                            type="button"
+                                            class="relation-picker-result"
+                                            [disabled]="addRelationSaving()"
+                                            (click)="onPickTarget(item)"
+                                        >
+                                            <span class="relation-status-dot" [style.background]="item.status.color"></span>
+                                            <span class="relation-task-name">{{ item.name }}</span>
+                                            <span class="relation-task-meta">{{ item.projectName }}</span>
+                                        </button>
+                                    </li>
+                                }
+                            </ul>
+                        } @else if (searchControl.value) {
+                            <p class="text-subtle relation-picker-empty">{{ 'app.taskRelations.addModal.noResults' | translate }}</p>
+                        }
+                    </div>
+                }
+
+                @if (relationsLoaded()) {
+                    @for (group of groupedRelations(); track group.key) {
+                        @if (group.items.length > 0) {
+                            <div class="relation-group">
+                                <div class="relation-group-header">{{ group.headerKey | translate }}</div>
+                                <ul class="relation-list">
+                                    @for (rel of group.items; track rel.id) {
+                                        <li class="relation-item">
+                                            <button type="button" class="relation-link" (click)="onOpenRelatedTask(rel)">
+                                                <span class="relation-status-dot" [style.background]="rel.otherTaskStatusColor"></span>
+                                                <span class="relation-task-name">{{ rel.otherTaskName }}</span>
+                                                <span class="relation-task-meta">{{ rel.otherTaskProjectName }}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-danger-ghost btn-icon btn-sm"
+                                                (click)="onRemoveRelation(rel)"
+                                                [attr.aria-label]="'app.actions.remove' | translate"
+                                            >
+                                                <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                                                    <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                                </svg>
+                                            </button>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    }
+                    @if (!hasAnyRelation()) {
+                        <p class="text-subtle relation-empty">{{ 'app.taskRelations.empty' | translate }}</p>
+                    }
+                }
+            </section>
+        }
+
         <section class="drawer-section">
             <div class="drawer-section-head">
                 <span class="uk-overline">{{ 'app.common.description' | translate }}</span>

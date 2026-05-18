@@ -25,6 +25,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private EventProviderInterface $eventProvider,
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskFileProviderInterface $taskFileProvider,
+		private TaskRelationProviderInterface $taskRelationProvider,
 		private ActorContextInterface $actorContext,
 	) {
 	}
@@ -211,6 +212,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 
 		$this->taskFieldValueProvider->deleteAllForTask($task);
 		$this->taskFileProvider->deleteAllForTask($author, $task);
+		$this->taskRelationProvider->deleteAllForTask($task);
 		$this->taskRepository->delete($task);
 	}
 

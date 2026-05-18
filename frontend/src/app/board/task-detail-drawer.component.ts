@@ -1,20 +1,32 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
-import {Task, TaskPriority} from '@app/models/task';
+import {Task, TaskListItem, TaskPriority} from '@app/models/task';
 import {TaskFile} from '@app/models/task-file';
+import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
 import {AlertService} from '@app/services/alert.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';
+import {TaskRelationService} from '@app/services/task-relation.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {MarkdownComponent} from 'ngx-markdown';
+import {debounceTime, distinctUntilChanged} from 'rxjs';
 
 interface CustomControlDescriptor {
     controlName: string;
     pf: ProjectField;
     options: string[];
 }
+
+interface RelationGroup {
+    key: string;
+    headerKey: string;
+    items: TaskRelation[];
+}
+
+const RELATION_TYPES: TaskRelationType[] = ['Related', 'Duplicates', 'Parent', 'DependsOn'];
 
 @Component({
     selector: 'uk-task-detail-drawer',
@@ -34,10 +46,12 @@ export class TaskDetailDrawerComponent implements OnInit {
     public readonly saved = output<Task>();
     public readonly deleted = output<number>();
     public readonly cancelled = output<void>();
+    public readonly openTask = output<TaskListItem>();
 
     private readonly fb = inject(FormBuilder);
     private readonly taskService = inject(TaskService);
     private readonly fieldService = inject(FieldService);
+    private readonly taskRelationService = inject(TaskRelationService);
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
 
@@ -46,6 +60,21 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected readonly files = signal<TaskFile[]>([]);
     protected readonly uploading = signal(false);
+
+    protected readonly outgoingRelations = signal<TaskRelation[]>([]);
+    protected readonly incomingRelations = signal<TaskRelation[]>([]);
+    protected readonly relationsLoaded = signal(false);
+    protected readonly addRelationOpen = signal(false);
+    protected readonly addRelationType = signal<TaskRelationType>('Related');
+    protected readonly addRelationSaving = signal(false);
+    protected readonly relationTypes = RELATION_TYPES;
+
+    protected readonly searchControl = new FormControl<string>('', {nonNullable: true});
+    protected readonly searchResults = signal<TaskListItem[]>([]);
+    private readonly searchTerm = toSignal(
+        this.searchControl.valueChanges.pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed()),
+        {initialValue: ''},
+    );
 
     protected readonly form = this.fb.nonNullable.group({
         name: ['', Validators.required],
@@ -76,6 +105,41 @@ export class TaskDetailDrawerComponent implements OnInit {
         }));
     });
 
+    protected readonly groupedRelations = computed<RelationGroup[]>(() => {
+        const outgoing = this.outgoingRelations();
+        const incoming = this.incomingRelations();
+        const groups: RelationGroup[] = [
+            {key: 'Parent', headerKey: 'app.taskRelations.groupHeader.Parent', items: incoming.filter((r) => r.type === 'Parent')},
+            {key: 'Subtasks', headerKey: 'app.taskRelations.groupHeader.Subtasks', items: outgoing.filter((r) => r.type === 'Parent')},
+            {key: 'DependsOn', headerKey: 'app.taskRelations.groupHeader.DependsOn', items: outgoing.filter((r) => r.type === 'DependsOn')},
+            {key: 'RequiredFor', headerKey: 'app.taskRelations.groupHeader.RequiredFor', items: incoming.filter((r) => r.type === 'DependsOn')},
+            {
+                key: 'Related',
+                headerKey: 'app.taskRelations.groupHeader.Related',
+                items: [...outgoing.filter((r) => r.type === 'Related'), ...incoming.filter((r) => r.type === 'Related')],
+            },
+            {
+                key: 'Duplicates',
+                headerKey: 'app.taskRelations.groupHeader.Duplicates',
+                items: [...outgoing.filter((r) => r.type === 'Duplicates'), ...incoming.filter((r) => r.type === 'Duplicates')],
+            },
+        ];
+        return groups;
+    });
+
+    protected readonly hasAnyRelation = computed<boolean>(() =>
+        this.outgoingRelations().length + this.incomingRelations().length > 0,
+    );
+
+    public constructor() {
+        const trigger = computed<string>(() => this.searchTerm() ?? '');
+        this.searchControl.valueChanges
+            .pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed())
+            .subscribe(() => {
+                void this.runSearch(trigger());
+            });
+    }
+
     public ngOnInit(): void {
         const existing = this.task();
         if (existing) {
@@ -89,6 +153,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             this.statusId.set(existing.statusId);
             this.tab.set('preview');
             void this.loadFiles(existing.id);
+            void this.loadRelations(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             this.form.patchValue({statusId: fallbackStatusId});
@@ -232,6 +297,97 @@ export class TaskDetailDrawerComponent implements OnInit {
         }
     }
 
+    protected onOpenAddRelation(): void {
+        this.addRelationOpen.set(true);
+        this.searchControl.setValue('');
+        this.searchResults.set([]);
+    }
+
+    protected onCloseAddRelation(): void {
+        this.addRelationOpen.set(false);
+        this.searchControl.setValue('');
+        this.searchResults.set([]);
+    }
+
+    protected onTypeChange(event: Event): void {
+        this.addRelationType.set((event.target as HTMLSelectElement).value as TaskRelationType);
+    }
+
+    protected async onPickTarget(target: TaskListItem): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        if (target.id === existing.id) {
+            return;
+        }
+        this.addRelationSaving.set(true);
+        try {
+            await this.taskRelationService.create(existing.id, {
+                targetTaskId: target.id,
+                type: this.addRelationType(),
+            });
+            this.alertService.success(await this.translate.instant('app.taskRelations.added') as string);
+            this.onCloseAddRelation();
+            await this.loadRelations(existing.id);
+        } catch (err) {
+            const message = this.extractErrorMessage(err)
+                ?? await this.translate.instant('app.taskRelations.errors.generic') as string;
+            this.alertService.error(message);
+        } finally {
+            this.addRelationSaving.set(false);
+        }
+    }
+
+    protected async onRemoveRelation(relation: TaskRelation): Promise<void> {
+        const message = await this.translate.instant('app.taskRelations.removeConfirm', {name: relation.otherTaskName}) as string;
+        if (!confirm(message)) {
+            return;
+        }
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        try {
+            await this.taskRelationService.delete(relation.id);
+            this.alertService.success(await this.translate.instant('app.taskRelations.removed') as string);
+            await this.loadRelations(existing.id);
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected async onOpenRelatedTask(relation: TaskRelation): Promise<void> {
+        try {
+            const task = await this.taskService.getTask(relation.otherTaskId);
+            const item: TaskListItem = {
+                id: task.id,
+                projectId: task.projectId,
+                projectName: relation.otherTaskProjectName,
+                statusId: task.statusId,
+                status: {
+                    id: relation.otherTaskStatusId,
+                    workflowId: 0,
+                    name: relation.otherTaskStatusName,
+                    color: relation.otherTaskStatusColor,
+                    position: 0,
+                    type: 'Normal',
+                },
+                name: task.name,
+                description: task.description,
+                priority: task.priority,
+                dueDate: task.dueDate,
+                position: task.position,
+                createdByAgent: task.createdByAgent,
+                createdAt: task.createdAt,
+                updatedAt: task.updatedAt,
+            };
+            this.openTask.emit(item);
+        } catch {
+            // error interceptor
+        }
+    }
+
     protected formatFileSize(size: number): string {
         if (size < 1024) {
             return size + ' B';
@@ -249,5 +405,54 @@ export class TaskDetailDrawerComponent implements OnInit {
         } catch {
             // ignore — task may have just been created
         }
+    }
+
+    private async loadRelations(taskId: number): Promise<void> {
+        try {
+            const list = await this.taskRelationService.list(taskId);
+            this.outgoingRelations.set(list.outgoing);
+            this.incomingRelations.set(list.incoming);
+            this.relationsLoaded.set(true);
+        } catch {
+            this.outgoingRelations.set([]);
+            this.incomingRelations.set([]);
+            this.relationsLoaded.set(true);
+        }
+    }
+
+    private async runSearch(term: string): Promise<void> {
+        if (!this.addRelationOpen()) {
+            return;
+        }
+        if (term.trim() === '') {
+            this.searchResults.set([]);
+            return;
+        }
+        try {
+            const result = await this.taskService.getTasks({
+                limit: 20,
+                offset: 0,
+                orderBy: 'name',
+                orderDirection: 'ASC',
+                search: term.trim(),
+            });
+            const currentId = this.task()?.id;
+            this.searchResults.set(result.tasks.filter((t) => t.id !== currentId));
+        } catch {
+            this.searchResults.set([]);
+        }
+    }
+
+    private extractErrorMessage(err: unknown): string | null {
+        if (typeof err === 'object' && err !== null && 'error' in err) {
+            const inner = (err as {error: unknown}).error;
+            if (typeof inner === 'object' && inner !== null && 'message' in inner) {
+                const msg = (inner as {message: unknown}).message;
+                if (typeof msg === 'string' && msg !== '') {
+                    return msg;
+                }
+            }
+        }
+        return null;
     }
 }

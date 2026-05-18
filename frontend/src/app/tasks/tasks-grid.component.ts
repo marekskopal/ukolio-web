@@ -189,16 +189,26 @@ export class TasksGridComponent implements OnInit {
     }
 
     protected async onRowClick(row: TaskListItem): Promise<void> {
+        await this.openTaskById(row.id, row.projectId);
+    }
+
+    protected async onOpenRelatedTask(item: TaskListItem): Promise<void> {
+        // Close + reopen so the drawer re-initializes for the new task.
+        this.drawer.set(null);
+        await this.openTaskById(item.id, item.projectId);
+    }
+
+    private async openTaskById(taskId: number, projectId: number): Promise<void> {
         try {
             const [task, board, fields] = await Promise.all([
-                this.taskService.getTask(row.id),
-                this.boardService.getBoard(row.projectId),
-                this.fieldService.listProjectFields(row.projectId).catch(() => [] as ProjectField[]),
+                this.taskService.getTask(taskId),
+                this.boardService.getBoard(projectId),
+                this.fieldService.listProjectFields(projectId).catch(() => [] as ProjectField[]),
             ]);
             this.drawer.set({
                 task,
                 statuses: board.statuses,
-                projectId: row.projectId,
+                projectId,
                 projectFields: fields,
             });
         } catch {

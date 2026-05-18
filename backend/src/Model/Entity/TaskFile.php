@@ -24,7 +24,7 @@ class TaskFile extends AEntity
 		public int $size,
 		#[Column(type: Type::String, size: 512)]
 		public readonly string $storageKey,
-		#[ManyToOne(entityClass: User::class, nullable: true)]
+		#[ManyToOne(entityClass: User::class, nullable: true, name: 'uploaded_by_user_id')]
 		public readonly ?User $uploadedBy,
 		#[Column(type: Type::Boolean, default: false)]
 		public readonly bool $uploadedByAgent = false,

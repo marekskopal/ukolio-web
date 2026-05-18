@@ -37,6 +37,8 @@ use Ukolio\Service\Provider\TaskFileProvider;
 use Ukolio\Service\Provider\TaskFileProviderInterface;
 use Ukolio\Service\Provider\TaskProvider;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskRelationProvider;
+use Ukolio\Service\Provider\TaskRelationProviderInterface;
 use Ukolio\Service\Provider\UserProvider;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Provider\WorkflowProvider;
@@ -68,6 +70,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			TaskProviderInterface::class,
 			TaskFieldValueProviderInterface::class,
 			TaskFileProviderInterface::class,
+			TaskRelationProviderInterface::class,
 			FieldProviderInterface::class,
 			ProjectFieldProviderInterface::class,
 			EventProviderInterface::class,
@@ -100,6 +103,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(TaskProviderInterface::class, TaskProvider::class);
 		$c->add(TaskFieldValueProviderInterface::class, TaskFieldValueProvider::class);
 		$c->add(TaskFileProviderInterface::class, TaskFileProvider::class);
+		$c->add(TaskRelationProviderInterface::class, TaskRelationProvider::class);
 		$c->add(FieldProviderInterface::class, FieldProvider::class);
 		$c->add(ProjectFieldProviderInterface::class, ProjectFieldProvider::class);
 		$c->add(McpUserContextInterface::class, McpUserContext::class);
