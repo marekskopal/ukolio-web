@@ -20,6 +20,7 @@ use Ukolio\Route\Routes;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
@@ -31,6 +32,7 @@ final readonly class BoardController
 		private WorkflowProviderInterface $workflowProvider,
 		private StatusProviderInterface $statusProvider,
 		private TaskProviderInterface $taskProvider,
+		private TaskTagProviderInterface $taskTagProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
@@ -59,9 +61,11 @@ final readonly class BoardController
 			iterator_to_array($this->statusProvider->getStatuses($workflow), false),
 		);
 
+		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project), false);
+		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $projectTasks));
 		$tasks = array_map(
-			fn (Task $t): TaskDto => TaskDto::fromEntity($t),
-			iterator_to_array($this->taskProvider->getTasksByProject($project), false),
+			fn (Task $t): TaskDto => TaskDto::fromEntity($t, [], $tagsByTaskId[$t->id] ?? []),
+			$projectTasks,
 		);
 
 		return new JsonResponse(new BoardDto(

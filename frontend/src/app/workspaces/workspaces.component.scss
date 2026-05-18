@@ -290,6 +290,39 @@
     }
 }
 
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 $space-2;
+    border-radius: $radius-xs;
+    background: $color-surface-muted;
+    color: $color-text;
+    font-size: $font-size-11;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.tag-color-label {
+    flex: 0 0 auto;
+}
+
+.tag-color-row {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+}
+
+.tag-color-input {
+    width: 36px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid $color-border;
+    border-radius: $radius-xs;
+    background: transparent;
+    cursor: pointer;
+}
+
 .field-actions-inline {
     display: flex;
     gap: $space-2;

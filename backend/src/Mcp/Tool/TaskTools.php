@@ -20,6 +20,7 @@ use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskFieldValueProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
@@ -33,6 +34,7 @@ final readonly class TaskTools
 		private TaskProviderInterface $taskProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
+		private TaskTagProviderInterface $taskTagProvider,
 	) {
 	}
 
@@ -52,7 +54,11 @@ final readonly class TaskTools
 			if ($statusId !== null && $task->status->id !== $statusId) {
 				continue;
 			}
-			$tasks[] = McpTaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task));
+			$tasks[] = McpTaskDto::fromEntity(
+				$task,
+				$this->taskFieldValueProvider->findByTask($task),
+				$this->taskTagProvider->getTagIdsForTask($task),
+			);
 		}
 
 		return new McpTaskListDto($tasks);
@@ -90,7 +96,11 @@ final readonly class TaskTools
 		$found = $exact ?? $partial;
 
 		return $found !== null
-			? McpTaskDto::fromEntity($found, $this->taskFieldValueProvider->findByTask($found))
+			? McpTaskDto::fromEntity(
+				$found,
+				$this->taskFieldValueProvider->findByTask($found),
+				$this->taskTagProvider->getTagIdsForTask($found),
+			)
 			: null;
 	}
 
@@ -103,7 +113,11 @@ final readonly class TaskTools
 	public function getTask(int $taskId): McpTaskDto
 	{
 		$task = $this->requireTask($taskId);
-		return McpTaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task));
+		return McpTaskDto::fromEntity(
+			$task,
+			$this->taskFieldValueProvider->findByTask($task),
+			$this->taskTagProvider->getTagIdsForTask($task),
+		);
 	}
 
 	/**
@@ -118,6 +132,7 @@ final readonly class TaskTools
 	 * @param string|null $statusName Optional status name (case-insensitive); ignored if statusId is given
 	 * @param string|null $dueDate Optional due date (YYYY-MM-DD)
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values keyed by fieldId
+	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply to the new task
 	 */
 	#[McpTool(name: 'create_task', description: 'Create a task in a project. Lands in Start status by default.')]
 	public function createTask(
@@ -129,6 +144,7 @@ final readonly class TaskTools
 		?string $statusName = null,
 		?string $dueDate = null,
 		?array $fieldValues = null,
+		?array $tagIds = null,
 	): McpTaskDto {
 		$user = $this->userContext->getUser();
 		$project = $this->requireProject($projectId);
@@ -146,9 +162,14 @@ final readonly class TaskTools
 			priority: $priorityEnum,
 			dueDate: $dueDate !== null ? new DateTimeImmutable($dueDate) : null,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
+			tagIds: $tagIds,
 		);
 
-		return McpTaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task));
+		return McpTaskDto::fromEntity(
+			$task,
+			$this->taskFieldValueProvider->findByTask($task),
+			$this->taskTagProvider->getTagIdsForTask($task),
+		);
 	}
 
 	/**
@@ -160,6 +181,7 @@ final readonly class TaskTools
 	 * @param string|null $priority New priority: Low, Medium, or High
 	 * @param string|null $dueDate New due date (YYYY-MM-DD), or empty string to clear
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values to replace
+	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply (replaces the full set)
 	 */
 	#[McpTool(name: 'update_task', description: 'Update a task. Use move_task to change status.')]
 	public function updateTask(
@@ -169,6 +191,7 @@ final readonly class TaskTools
 		?string $priority = null,
 		?string $dueDate = null,
 		?array $fieldValues = null,
+		?array $tagIds = null,
 	): McpTaskDto {
 		$user = $this->userContext->getUser();
 		$task = $this->requireTask($taskId);
@@ -187,9 +210,14 @@ final readonly class TaskTools
 			dueDate: $newDueDate,
 			status: $task->status,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
+			tagIds: $tagIds,
 		);
 
-		return McpTaskDto::fromEntity($updated, $this->taskFieldValueProvider->findByTask($updated));
+		return McpTaskDto::fromEntity(
+			$updated,
+			$this->taskFieldValueProvider->findByTask($updated),
+			$this->taskTagProvider->getTagIdsForTask($updated),
+		);
 	}
 
 	/**
@@ -213,7 +241,11 @@ final readonly class TaskTools
 		$position = $this->nextPositionInStatus($status->id);
 		$moved = $this->taskProvider->moveTask($user, $task, $status, $position);
 
-		return McpTaskDto::fromEntity($moved, $this->taskFieldValueProvider->findByTask($moved));
+		return McpTaskDto::fromEntity(
+			$moved,
+			$this->taskFieldValueProvider->findByTask($moved),
+			$this->taskTagProvider->getTagIdsForTask($moved),
+		);
 	}
 
 	/**

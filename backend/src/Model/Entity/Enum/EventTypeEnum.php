@@ -38,4 +38,9 @@ enum EventTypeEnum: string
 
 	case TaskRelationCreated = 'TaskRelationCreated';
 	case TaskRelationDeleted = 'TaskRelationDeleted';
+
+	case TagCreated = 'TagCreated';
+	case TagUpdated = 'TagUpdated';
+	case TagDeleted = 'TagDeleted';
+	case TaskTagsUpdated = 'TaskTagsUpdated';
 }

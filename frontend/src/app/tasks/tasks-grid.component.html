@@ -45,12 +45,41 @@
         </div>
     </details>
 
+    @if (workspaceTags().length > 0) {
+        <details class="filter-statuses" #tagDetails>
+            <summary class="filter-summary">
+                <span>{{ 'app.taskTags.filterTitle' | translate }}</span>
+                @if (selectedTagIds().length > 0) {
+                    <span class="filter-summary-count">{{ selectedTagIds().length }}</span>
+                }
+            </summary>
+            <div class="filter-popover">
+                <div class="filter-group">
+                    @for (tag of workspaceTags(); track tag.id) {
+                        <label class="filter-option">
+                            <input
+                                type="checkbox"
+                                [checked]="isTagSelected(tag.id)"
+                                (change)="onTagToggle(tag.id, $event)"
+                            />
+                            <span
+                                class="tag-chip"
+                                [style.background]="tag.color"
+                                [style.color]="tagForeground(tag.color)"
+                            >{{ tag.name }}</span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </details>
+    }
+
     <label class="filter-toggle">
         <input type="checkbox" [checked]="onlyActive()" (change)="onOnlyActiveToggle($event)" />
         <span>{{ 'app.tasks.onlyActive' | translate }}</span>
     </label>
 
-    @if (search() || selectedStatusIds().length > 0 || onlyActive()) {
+    @if (search() || selectedStatusIds().length > 0 || selectedTagIds().length > 0 || onlyActive()) {
         <button type="button" class="btn-link filter-clear" (click)="clearFilters()">
             {{ 'app.tasks.clearFilters' | translate }}
         </button>
@@ -73,13 +102,14 @@
                     {{ 'app.tasks.col.status' | translate }}
                     <span class="sort-arrow">{{ sortArrow('status_id') }}</span>
                 </th>
+                <th class="th-tags">{{ 'app.taskTags.heading' | translate }}</th>
             </tr>
         </thead>
         <tbody>
             @if (loading() && tasks().length === 0) {
-                <tr><td colspan="3" class="text-muted">{{ 'app.actions.loading' | translate }}</td></tr>
+                <tr><td colspan="4" class="text-muted">{{ 'app.actions.loading' | translate }}</td></tr>
             } @else if (tasks().length === 0) {
-                <tr><td colspan="3" class="text-muted">{{ 'app.tasks.empty' | translate }}</td></tr>
+                <tr><td colspan="4" class="text-muted">{{ 'app.tasks.empty' | translate }}</td></tr>
             } @else {
                 @for (task of tasks(); track task.id) {
                     <tr
@@ -122,6 +152,17 @@
                                 {{ task.status.name }}
                             </span>
                         </td>
+                        <td class="td-tags">
+                            <span class="tag-chip-row">
+                                @for (tag of tagsForTask(task.tagIds); track tag.id) {
+                                    <span
+                                        class="tag-chip"
+                                        [style.background]="tag.color"
+                                        [style.color]="tagForeground(tag.color)"
+                                    >{{ tag.name }}</span>
+                                }
+                            </span>
+                        </td>
                     </tr>
                 }
             }
@@ -143,6 +184,7 @@
         [statuses]="ctx.statuses"
         [projectId]="ctx.projectId"
         [projectFields]="ctx.projectFields"
+        [workspaceTags]="workspaceTags()"
         (saved)="onTaskSaved()"
         (deleted)="onTaskDeleted()"
         (cancelled)="closeDrawer()"

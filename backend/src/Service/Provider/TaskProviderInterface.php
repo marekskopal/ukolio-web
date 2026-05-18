@@ -24,6 +24,7 @@ interface TaskProviderInterface
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $tagIds
 	 * @return Iterator<Task>
 	 */
 	public function getTasksInWorkspace(
@@ -35,12 +36,25 @@ interface TaskProviderInterface
 		?string $search,
 		?array $statusIds,
 		bool $onlyActive,
+		?array $tagIds = null,
 	): Iterator;
 
-	/** @param list<int>|null $statusIds */
-	public function countTasksInWorkspace(Workspace $workspace, ?string $search, ?array $statusIds, bool $onlyActive,): int;
+	/**
+	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $tagIds
+	 */
+	public function countTasksInWorkspace(
+		Workspace $workspace,
+		?string $search,
+		?array $statusIds,
+		bool $onlyActive,
+		?array $tagIds = null,
+	): int;
 
-	/** @param array<int, ?string>|null $fieldValues */
+	/**
+	 * @param array<int, ?string>|null $fieldValues
+	 * @param list<int>|null $tagIds
+	 */
 	public function createTask(
 		User $author,
 		Project $project,
@@ -50,9 +64,13 @@ interface TaskProviderInterface
 		TaskPriorityEnum $priority,
 		?DateTimeImmutable $dueDate,
 		?array $fieldValues = null,
+		?array $tagIds = null,
 	): Task;
 
-	/** @param array<int, ?string>|null $fieldValues */
+	/**
+	 * @param array<int, ?string>|null $fieldValues
+	 * @param list<int>|null $tagIds
+	 */
 	public function updateTask(
 		User $author,
 		Task $task,
@@ -62,6 +80,7 @@ interface TaskProviderInterface
 		?DateTimeImmutable $dueDate,
 		Status $status,
 		?array $fieldValues = null,
+		?array $tagIds = null,
 	): Task;
 
 	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition): Task;

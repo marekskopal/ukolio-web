@@ -486,3 +486,64 @@
 .relation-picker-empty {
     font-size: $font-size-12;
 }
+
+.tag-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
+    align-items: center;
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1;
+    height: 20px;
+    padding: 0 $space-2;
+    border-radius: $radius-xs;
+    background: $color-surface-muted;
+    color: $color-text;
+    font-size: $font-size-11;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &--removable {
+        padding-right: 2px;
+    }
+
+    &--button {
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+    }
+}
+
+.tag-chip-remove {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    padding: 0;
+    border-radius: $radius-xs;
+    font-size: 14px;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.15);
+    }
+}
+
+.tag-picker {
+    margin-top: $space-2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
+    padding: $space-2;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: $color-surface;
+}

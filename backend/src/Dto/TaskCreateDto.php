@@ -7,10 +7,13 @@ namespace Ukolio\Dto;
 use DateTimeImmutable;
 use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
 
-/** @implements ArrayFactoryInterface<array{statusId: int, name: string, description?: ?string, priority?: string, dueDate?: ?string, fieldValues?: ?list<array{fieldId: int, value: ?string}>}> */
+/** @implements ArrayFactoryInterface<array{statusId: int, name: string, description?: ?string, priority?: string, dueDate?: ?string, fieldValues?: ?list<array{fieldId: int, value: ?string}>, tagIds?: ?list<int>}> */
 final readonly class TaskCreateDto implements ArrayFactoryInterface
 {
-	/** @param array<int, ?string>|null $fieldValues */
+	/**
+	 * @param array<int, ?string>|null $fieldValues
+	 * @param list<int>|null $tagIds
+	 */
 	public function __construct(
 		public int $statusId,
 		public string $name,
@@ -18,6 +21,7 @@ final readonly class TaskCreateDto implements ArrayFactoryInterface
 		public TaskPriorityEnum $priority,
 		public ?DateTimeImmutable $dueDate,
 		public ?array $fieldValues,
+		public ?array $tagIds,
 	) {
 	}
 
@@ -34,6 +38,7 @@ final readonly class TaskCreateDto implements ArrayFactoryInterface
 			priority: TaskPriorityEnum::tryFrom($data['priority'] ?? '') ?? TaskPriorityEnum::Medium,
 			dueDate: $dueDate,
 			fieldValues: self::parseFieldValues($data['fieldValues'] ?? null),
+			tagIds: self::parseTagIds($data['tagIds'] ?? null),
 		);
 	}
 
@@ -51,5 +56,17 @@ final readonly class TaskCreateDto implements ArrayFactoryInterface
 			$result[$entry['fieldId']] = $entry['value'];
 		}
 		return $result;
+	}
+
+	/**
+	 * @param list<int>|null $raw
+	 * @return list<int>|null
+	 */
+	private static function parseTagIds(?array $raw): ?array
+	{
+		if ($raw === null) {
+			return null;
+		}
+		return array_values(array_unique(array_map('intval', $raw)));
 	}
 }

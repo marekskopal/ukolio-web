@@ -71,6 +71,77 @@
                         </ul>
                     </section>
 
+                    @if (canManageTags()) {
+                        <section class="ws-section">
+                            <div class="ws-section-header">
+                                <h3>{{ 'app.tags.title' | translate }}</h3>
+                                @if (tagEditor() === null) {
+                                    <button type="button" class="btn btn-primary" (click)="openCreateTag()">{{ 'app.tags.addTag' | translate }}</button>
+                                }
+                            </div>
+                            <p class="muted">{{ 'app.tags.description' | translate }}</p>
+
+                            @if (tagEditor(); as ed) {
+                                <form class="field-editor" (submit)="saveTag(); $event.preventDefault()">
+                                    <div class="field-row">
+                                        <label class="field-label">
+                                            <span>{{ 'app.tags.name' | translate }}</span>
+                                            <input
+                                                type="text"
+                                                required
+                                                class="input"
+                                                [placeholder]="'app.tags.namePlaceholder' | translate"
+                                                [value]="ed.name"
+                                                (input)="updateTagEditor('name', $any($event.target).value)"
+                                            />
+                                        </label>
+                                        <label class="field-label tag-color-label">
+                                            <span>{{ 'app.tags.color' | translate }}</span>
+                                            <span class="tag-color-row">
+                                                <input
+                                                    type="color"
+                                                    class="tag-color-input"
+                                                    [value]="ed.color"
+                                                    (input)="updateTagEditor('color', $any($event.target).value)"
+                                                />
+                                                <span
+                                                    class="tag-chip"
+                                                    [style.background]="ed.color"
+                                                    [style.color]="tagForeground(ed.color)"
+                                                >{{ ed.name || ('app.tags.preview' | translate) }}</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="field-actions">
+                                        <button type="submit" class="btn btn-primary" [disabled]="tagSaving()">{{ 'app.actions.save' | translate }}</button>
+                                        <button type="button" class="btn btn-secondary" (click)="closeTagEditor()">{{ 'app.actions.cancel' | translate }}</button>
+                                    </div>
+                                </form>
+                            }
+
+                            <ul class="field-list">
+                                @for (tag of tags(); track tag.id) {
+                                    <li class="field-item">
+                                        <div class="field-meta">
+                                            <span
+                                                class="tag-chip"
+                                                [style.background]="tag.color"
+                                                [style.color]="tagForeground(tag.color)"
+                                            >{{ tag.name }}</span>
+                                            <span class="muted">{{ tag.color }}</span>
+                                        </div>
+                                        <div class="field-actions-inline">
+                                            <button type="button" class="btn btn-ghost" (click)="openEditTag(tag)">{{ 'app.actions.edit' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="deleteTag(tag)">{{ 'app.actions.delete' | translate }}</button>
+                                        </div>
+                                    </li>
+                                } @empty {
+                                    <li class="muted">{{ 'app.tags.empty' | translate }}</li>
+                                }
+                            </ul>
+                        </section>
+                    }
+
                     @if (canManageFields()) {
                         <section class="ws-section">
                             <div class="ws-section-header">

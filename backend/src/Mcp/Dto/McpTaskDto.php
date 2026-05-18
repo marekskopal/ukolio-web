@@ -8,7 +8,10 @@ use Ukolio\Model\Entity\Task;
 
 final readonly class McpTaskDto
 {
-	/** @param list<McpTaskFieldValueDto> $fieldValues */
+	/**
+	 * @param list<McpTaskFieldValueDto> $fieldValues
+	 * @param list<int> $tagIds
+	 */
 	public function __construct(
 		public int $id,
 		public int $projectId,
@@ -20,11 +23,15 @@ final readonly class McpTaskDto
 		public ?string $dueDate,
 		public int $position,
 		public array $fieldValues,
+		public array $tagIds,
 	) {
 	}
 
-	/** @param array<int, ?string> $fieldValues */
-	public static function fromEntity(Task $task, array $fieldValues = []): self
+	/**
+	 * @param array<int, ?string> $fieldValues
+	 * @param list<int> $tagIds
+	 */
+	public static function fromEntity(Task $task, array $fieldValues = [], array $tagIds = []): self
 	{
 		$values = [];
 		foreach ($fieldValues as $fieldId => $value) {
@@ -42,6 +49,7 @@ final readonly class McpTaskDto
 			dueDate: $task->dueDate?->format('Y-m-d'),
 			position: $task->position,
 			fieldValues: $values,
+			tagIds: $tagIds,
 		);
 	}
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
+use EmptyIterator;
 use Iterator;
 use MarekSkopal\ORM\Query\Select;
 use MarekSkopal\ORM\Repository\AbstractRepository;
@@ -41,6 +42,7 @@ final class TaskRepository extends AbstractRepository
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $taskIdsFilter restrict to these IDs; pass [] to force an empty result
 	 * @return Iterator<Task>
 	 */
 	public function findInWorkspace(
@@ -52,8 +54,13 @@ final class TaskRepository extends AbstractRepository
 		?string $search,
 		?array $statusIds,
 		bool $onlyActive,
+		?array $taskIdsFilter = null,
 	): Iterator {
-		$select = $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive);
+		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
+			return new EmptyIterator();
+		}
+
+		$select = $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter);
 
 		$select->orderBy($orderBy->value, $direction->value);
 
@@ -69,18 +76,35 @@ final class TaskRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @param list<int>|null $statusIds */
-	public function countInWorkspace(int $workspaceId, ?string $search, ?array $statusIds, bool $onlyActive,): int
-	{
-		return $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive)->count();
+	/**
+	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $taskIdsFilter
+	 */
+	public function countInWorkspace(
+		int $workspaceId,
+		?string $search,
+		?array $statusIds,
+		bool $onlyActive,
+		?array $taskIdsFilter = null,
+	): int {
+		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
+			return 0;
+		}
+		return $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter)->count();
 	}
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $taskIdsFilter
 	 * @return Select<Task>
 	 */
-	private function buildWorkspaceSelect(int $workspaceId, ?string $search, ?array $statusIds, bool $onlyActive,): Select
-	{
+	private function buildWorkspaceSelect(
+		int $workspaceId,
+		?string $search,
+		?array $statusIds,
+		bool $onlyActive,
+		?array $taskIdsFilter = null,
+	): Select {
 		$select = $this->select()
 			->where(['project.workspace_id' => $workspaceId]);
 
@@ -92,6 +116,9 @@ final class TaskRepository extends AbstractRepository
 		}
 		if ($onlyActive) {
 			$select->where(['status.type', '!=', StatusTypeEnum::Finish]);
+		}
+		if ($taskIdsFilter !== null && $taskIdsFilter !== []) {
+			$select->where(['id', 'IN', $taskIdsFilter]);
 		}
 
 		return $select;

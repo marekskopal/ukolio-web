@@ -6,10 +6,14 @@ import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component
 import {Board} from '@app/models/board';
 import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
+import {Tag} from '@app/models/tag';
 import {Task, TaskListItem} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
+import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {TagService} from '@app/services/tag.service';
 import {TaskService} from '@app/services/task.service';
+import {WorkspaceService} from '@app/services/workspace.service';
 import {TranslatePipe} from '@ngx-translate/core';
 
 interface Column {
@@ -31,11 +35,15 @@ export class BoardComponent implements OnInit {
     private readonly boardService = inject(BoardService);
     private readonly taskService = inject(TaskService);
     private readonly fieldService = inject(FieldService);
+    private readonly tagService = inject(TagService);
+    private readonly workspaceService = inject(WorkspaceService);
+    private readonly currentUserService = inject(CurrentUserService);
 
     protected readonly loading = signal(true);
     protected readonly board = signal<Board | null>(null);
     protected readonly projectId = signal<number | null>(null);
     protected readonly projectFields = signal<ProjectField[]>([]);
+    protected readonly workspaceTags = signal<Tag[]>([]);
 
     protected readonly drawerOpen = signal(false);
     protected readonly editingTask = signal<Task | null>(null);
@@ -59,7 +67,7 @@ export class BoardComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.projectId.set(id);
-        await Promise.all([this.loadBoard(), this.loadProjectFields()]);
+        await Promise.all([this.loadBoard(), this.loadProjectFields(), this.loadWorkspaceTags()]);
 
         const openTaskParam = this.route.snapshot.queryParamMap.get('openTask');
         if (openTaskParam !== null) {
@@ -93,6 +101,26 @@ export class BoardComponent implements OnInit {
             this.projectFields.set(await this.fieldService.listProjectFields(id));
         } catch {
             this.projectFields.set([]);
+        }
+    }
+
+    private async loadWorkspaceTags(): Promise<void> {
+        let workspaceId = this.workspaceService.currentWorkspaceId();
+        if (workspaceId === null) {
+            try {
+                workspaceId = (await this.currentUserService.load()).currentWorkspaceId;
+            } catch {
+                workspaceId = null;
+            }
+        }
+        if (workspaceId === null) {
+            this.workspaceTags.set([]);
+            return;
+        }
+        try {
+            this.workspaceTags.set(await this.tagService.loadWorkspaceTags(workspaceId));
+        } catch {
+            this.workspaceTags.set([]);
         }
     }
 

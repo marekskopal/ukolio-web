@@ -16,6 +16,7 @@ use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
 use Ukolio\Model\Repository\TaskRepository;
+use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
 
 final readonly class TaskProvider implements TaskProviderInterface
@@ -26,6 +27,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskFileProviderInterface $taskFileProvider,
 		private TaskRelationProviderInterface $taskRelationProvider,
+		private TaskTagProviderInterface $taskTagProvider,
+		private TaskTagRepository $taskTagRepository,
 		private ActorContextInterface $actorContext,
 	) {
 	}
@@ -43,6 +46,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $tagIds
 	 * @return Iterator<Task>
 	 */
 	public function getTasksInWorkspace(
@@ -54,6 +58,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?string $search,
 		?array $statusIds,
 		bool $onlyActive,
+		?array $tagIds = null,
 	): Iterator {
 		return $this->taskRepository->findInWorkspace(
 			$workspace->id,
@@ -64,16 +69,46 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$search,
 			$statusIds,
 			$onlyActive,
+			$this->resolveTaskIdsByTags($tagIds),
 		);
 	}
 
-	/** @param list<int>|null $statusIds */
-	public function countTasksInWorkspace(Workspace $workspace, ?string $search, ?array $statusIds, bool $onlyActive,): int
-	{
-		return $this->taskRepository->countInWorkspace($workspace->id, $search, $statusIds, $onlyActive);
+	/**
+	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $tagIds
+	 */
+	public function countTasksInWorkspace(
+		Workspace $workspace,
+		?string $search,
+		?array $statusIds,
+		bool $onlyActive,
+		?array $tagIds = null,
+	): int {
+		return $this->taskRepository->countInWorkspace(
+			$workspace->id,
+			$search,
+			$statusIds,
+			$onlyActive,
+			$this->resolveTaskIdsByTags($tagIds),
+		);
 	}
 
-	/** @param array<int, ?string>|null $fieldValues */
+	/**
+	 * @param list<int>|null $tagIds
+	 * @return list<int>|null null = no tag filter; [] = no matches
+	 */
+	private function resolveTaskIdsByTags(?array $tagIds): ?array
+	{
+		if ($tagIds === null || $tagIds === []) {
+			return null;
+		}
+		return $this->taskTagRepository->findTaskIdsByTagIds($tagIds);
+	}
+
+	/**
+	 * @param array<int, ?string>|null $fieldValues
+	 * @param list<int>|null $tagIds
+	 */
 	public function createTask(
 		User $author,
 		Project $project,
@@ -83,6 +118,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		TaskPriorityEnum $priority,
 		?DateTimeImmutable $dueDate,
 		?array $fieldValues = null,
+		?array $tagIds = null,
 	): Task {
 		if ($fieldValues !== null) {
 			$this->taskFieldValueProvider->validateForProject($project, $fieldValues);
@@ -110,6 +146,19 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$this->taskFieldValueProvider->persistForTask($task, $fieldValues);
 		}
 
+		if ($tagIds !== null) {
+			$tagChanges = $this->taskTagProvider->setTagsForTask($project->workspace, $task, $tagIds);
+			if ($tagChanges['added'] !== [] || $tagChanges['removed'] !== []) {
+				$this->eventProvider->recordEvent(
+					$author,
+					$project,
+					EventTypeEnum::TaskTagsUpdated,
+					['taskName' => $task->name, 'added' => $tagChanges['added'], 'removed' => $tagChanges['removed']],
+					$task->id,
+				);
+			}
+		}
+
 		$this->eventProvider->recordEvent(
 			$author,
 			$project,
@@ -121,7 +170,10 @@ final readonly class TaskProvider implements TaskProviderInterface
 		return $task;
 	}
 
-	/** @param array<int, ?string>|null $fieldValues */
+	/**
+	 * @param array<int, ?string>|null $fieldValues
+	 * @param list<int>|null $tagIds
+	 */
 	public function updateTask(
 		User $author,
 		Task $task,
@@ -131,6 +183,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?DateTimeImmutable $dueDate,
 		Status $status,
 		?array $fieldValues = null,
+		?array $tagIds = null,
 	): Task {
 		if ($fieldValues !== null) {
 			$this->taskFieldValueProvider->validateForProject($task->project, $fieldValues);
@@ -154,12 +207,26 @@ final readonly class TaskProvider implements TaskProviderInterface
 			? $this->taskFieldValueProvider->persistForTask($task, $fieldValues)
 			: [];
 
+		$tagChanges = $tagIds !== null
+			? $this->taskTagProvider->setTagsForTask($task->project->workspace, $task, $tagIds)
+			: ['added' => [], 'removed' => []];
+
 		$metadata = ['name' => $name, 'oldName' => $oldName];
 		if ($fieldChanges !== []) {
 			$metadata['fieldChanges'] = $fieldChanges;
 		}
 
 		$this->eventProvider->recordEvent($author, $task->project, EventTypeEnum::TaskUpdated, $metadata, $task->id);
+
+		if ($tagChanges['added'] !== [] || $tagChanges['removed'] !== []) {
+			$this->eventProvider->recordEvent(
+				$author,
+				$task->project,
+				EventTypeEnum::TaskTagsUpdated,
+				['taskName' => $task->name, 'added' => $tagChanges['added'], 'removed' => $tagChanges['removed']],
+				$task->id,
+			);
+		}
 
 		return $task;
 	}
@@ -213,6 +280,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$this->taskFieldValueProvider->deleteAllForTask($task);
 		$this->taskFileProvider->deleteAllForTask($author, $task);
 		$this->taskRelationProvider->deleteAllForTask($task);
+		$this->taskTagProvider->deleteAllForTask($task);
 		$this->taskRepository->delete($task);
 	}
 

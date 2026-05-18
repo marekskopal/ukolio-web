@@ -29,5 +29,7 @@ interface PermissionCheckerInterface
 
 	public function canManageFields(User $user, Workspace $workspace): bool;
 
+	public function canManageTags(User $user, Workspace $workspace): bool;
+
 	public function canInviteAs(User $actor, Workspace $workspace, WorkspaceRoleEnum $role): bool;
 }

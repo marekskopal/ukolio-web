@@ -24,6 +24,20 @@
     @if (task().description) {
         <p class="task-card-desc">{{ stripMd(task().description!) }}</p>
     }
+    @if (visibleTags().length > 0) {
+        <div class="task-card-tags">
+            @for (tag of visibleTags(); track tag.id) {
+                <span
+                    class="task-card-tag"
+                    [style.background]="tag.color"
+                    [style.color]="tagForeground(tag.color)"
+                >{{ tag.name }}</span>
+            }
+            @if (hiddenTagCount() > 0) {
+                <span class="task-card-tag-overflow">+{{ hiddenTagCount() }}</span>
+            }
+        </div>
+    }
     @if (task().dueDate) {
         <div class="task-card-meta" [class.task-card-meta--overdue]="isOverdue(task().dueDate!)">
             <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">

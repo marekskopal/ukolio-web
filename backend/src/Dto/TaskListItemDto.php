@@ -9,6 +9,7 @@ use const DATE_ATOM;
 
 final readonly class TaskListItemDto
 {
+	/** @param list<int> $tagIds */
 	public function __construct(
 		public int $id,
 		public int $projectId,
@@ -23,10 +24,12 @@ final readonly class TaskListItemDto
 		public bool $createdByAgent,
 		public string $createdAt,
 		public string $updatedAt,
+		public array $tagIds,
 	) {
 	}
 
-	public static function fromEntity(Task $task): self
+	/** @param list<int> $tagIds */
+	public static function fromEntity(Task $task, array $tagIds = []): self
 	{
 		return new self(
 			id: $task->id,
@@ -42,6 +45,7 @@ final readonly class TaskListItemDto
 			createdByAgent: $task->createdByAgent,
 			createdAt: $task->createdAt->format(DATE_ATOM),
 			updatedAt: $task->updatedAt->format(DATE_ATOM),
+			tagIds: $tagIds,
 		);
 	}
 }

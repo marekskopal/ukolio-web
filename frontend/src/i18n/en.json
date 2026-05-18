@@ -451,6 +451,30 @@
         "taskFields": {
             "heading": "Custom fields",
             "fieldRequired": "{{name}} is required."
+        },
+        "tags": {
+            "title": "Tags",
+            "description": "Workspace-wide labels you can attach to any task. Each tag has a name and a color.",
+            "addTag": "Add tag",
+            "editTag": "Edit tag",
+            "name": "Tag name",
+            "namePlaceholder": "e.g. bug",
+            "color": "Color",
+            "preview": "preview",
+            "empty": "No tags yet.",
+            "tagCreated": "Tag created.",
+            "tagUpdated": "Tag updated.",
+            "tagDeleted": "Tag deleted.",
+            "deleteConfirm": "Delete tag \"{{name}}\"? It will be removed from every task that uses it.",
+            "noPermission": "Only Owners and Admins can manage workspace tags."
+        },
+        "taskTags": {
+            "heading": "Tags",
+            "add": "Add tag",
+            "empty": "No tags applied.",
+            "remove": "Remove",
+            "filterTitle": "Filter by tag",
+            "noTagsAvailable": "No more tags to add."
         }
     }
 }

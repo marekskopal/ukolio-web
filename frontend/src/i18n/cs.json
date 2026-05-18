@@ -451,6 +451,30 @@
         "taskFields": {
             "heading": "Vlastní pole",
             "fieldRequired": "{{name}} je povinné."
+        },
+        "tags": {
+            "title": "Štítky",
+            "description": "Štítky v rámci workspace, které lze připojit ke kterémukoli úkolu. Každý štítek má název a barvu.",
+            "addTag": "Přidat štítek",
+            "editTag": "Upravit štítek",
+            "name": "Název štítku",
+            "namePlaceholder": "např. bug",
+            "color": "Barva",
+            "preview": "náhled",
+            "empty": "Zatím žádné štítky.",
+            "tagCreated": "Štítek vytvořen.",
+            "tagUpdated": "Štítek upraven.",
+            "tagDeleted": "Štítek smazán.",
+            "deleteConfirm": "Smazat štítek „{{name}}“? Odstraní se ze všech úkolů, které jej používají.",
+            "noPermission": "Spravovat štítky mohou pouze vlastník a admin."
+        },
+        "taskTags": {
+            "heading": "Štítky",
+            "add": "Přidat štítek",
+            "empty": "Bez štítků.",
+            "remove": "Odebrat",
+            "filterTitle": "Filtrovat podle štítku",
+            "noTagsAvailable": "Žádné další štítky k přidání."
         }
     }
 }

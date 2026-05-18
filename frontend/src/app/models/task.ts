@@ -16,6 +16,7 @@ export interface Task {
     createdAt: string;
     updatedAt: string;
     fieldValues: TaskFieldValue[];
+    tagIds: number[];
 }
 
 export type TaskOrderBy = 'created_at' | 'name' | 'status_id';
@@ -35,6 +36,7 @@ export interface TaskListItem {
     createdByAgent: boolean;
     createdAt: string;
     updatedAt: string;
+    tagIds: number[];
 }
 
 export interface TaskList {

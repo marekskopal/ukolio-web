@@ -23,6 +23,8 @@ enum Routes: string
 	case WorkspaceInvitations = '/api/workspaces/{workspaceId:number}/invitations';
 	case WorkspaceFields = '/api/workspaces/{workspaceId:number}/fields';
 	case WorkspaceField = '/api/workspaces/{workspaceId:number}/fields/{fieldId:number}';
+	case WorkspaceTags = '/api/workspaces/{workspaceId:number}/tags';
+	case WorkspaceTag = '/api/workspaces/{workspaceId:number}/tags/{tagId:number}';
 	case WorkspaceMcpClients = '/api/workspaces/{workspaceId:number}/mcp-clients';
 	case WorkspaceEvents = '/api/workspaces/{workspaceId:number}/events';
 	case WorkspaceAgentStats = '/api/workspaces/{workspaceId:number}/agent-stats';

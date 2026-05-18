@@ -3,6 +3,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} fr
 import {FormsModule} from '@angular/forms';
 import {WorkspaceMcpClient} from '@app/models/event';
 import {Field, FieldType} from '@app/models/field';
+import {Tag} from '@app/models/tag';
 import {User} from '@app/models/user';
 import {Invitation, Workspace, WorkspaceMember, WorkspaceRole} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
@@ -10,7 +11,9 @@ import {CurrentUserService} from '@app/services/current-user.service';
 import {EventService} from '@app/services/event.service';
 import {FieldService} from '@app/services/field.service';
 import {PermissionsService} from '@app/services/permissions.service';
+import {TagService} from '@app/services/tag.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {pickReadableForeground} from '@app/shared/color-contrast';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 interface FieldEditorState {
@@ -22,7 +25,15 @@ interface FieldEditorState {
     options: string[];
 }
 
+interface TagEditorState {
+    id: number | null;
+    name: string;
+    color: string;
+}
+
 const FIELD_TYPES: FieldType[] = ['Text', 'Textarea', 'Select', 'Version'];
+
+const DEFAULT_TAG_COLOR = '#3b82f6';
 
 @Component({
     selector: 'uk-workspaces',
@@ -39,6 +50,7 @@ export class WorkspacesComponent implements OnInit {
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
     private readonly fieldService = inject(FieldService);
+    private readonly tagService = inject(TagService);
     private readonly eventService = inject(EventService);
 
     protected readonly loading = signal(true);
@@ -54,11 +66,15 @@ export class WorkspacesComponent implements OnInit {
     protected readonly fieldEditor = signal<FieldEditorState | null>(null);
     protected readonly fieldSaving = signal(false);
     protected readonly fieldTypes = FIELD_TYPES;
+    protected readonly tags = signal<Tag[]>([]);
+    protected readonly tagEditor = signal<TagEditorState | null>(null);
+    protected readonly tagSaving = signal(false);
 
     protected readonly isSystemAdmin = this.permissionsService.isSystemAdmin;
     protected readonly canManageWorkspace = computed<boolean>(() => this.permissionsService.canManageWorkspace(this.members()));
     protected readonly canManageMembers = computed<boolean>(() => this.permissionsService.canManageMembers(this.members()));
     protected readonly canManageFields = computed<boolean>(() => this.permissionsService.canManageFields(this.members()));
+    protected readonly canManageTags = computed<boolean>(() => this.permissionsService.canManageTags(this.members()));
     protected readonly canTransferOwnership = computed<boolean>(() => this.permissionsService.canTransferOwnership(this.members()));
     protected readonly invitableRoles = computed<WorkspaceRole[]>(() => this.permissionsService.invitableRoles(this.members()));
     protected readonly editorHasOptions = computed<boolean>(() => {
@@ -92,15 +108,18 @@ export class WorkspacesComponent implements OnInit {
     protected async select(ws: Workspace): Promise<void> {
         this.selected.set(ws);
         this.fieldEditor.set(null);
-        const [members, invitations, fields, mcpClients] = await Promise.all([
+        this.tagEditor.set(null);
+        const [members, invitations, fields, tags, mcpClients] = await Promise.all([
             this.workspaceService.getMembers(ws.id),
             this.workspaceService.getInvitations(ws.id).catch(() => []),
             this.fieldService.listWorkspaceFields(ws.id).catch(() => [] as Field[]),
+            this.tagService.loadWorkspaceTags(ws.id, true).catch(() => [] as Tag[]),
             this.eventService.getWorkspaceMcpClients(ws.id).catch(() => [] as WorkspaceMcpClient[]),
         ]);
         this.members.set(members);
         this.invitations.set(invitations);
         this.fields.set(fields);
+        this.tags.set(tags);
         this.mcpClients.set(mcpClients);
         const allowed = this.permissionsService.invitableRoles(members);
         if (!allowed.includes(this.inviteRole())) {
@@ -371,6 +390,78 @@ export class WorkspacesComponent implements OnInit {
                 this.fieldEditor.set(null);
             }
             this.alertService.success(await this.translate.instant('app.fields.fieldDeleted') as string);
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected openCreateTag(): void {
+        this.tagEditor.set({id: null, name: '', color: DEFAULT_TAG_COLOR});
+    }
+
+    protected openEditTag(tag: Tag): void {
+        this.tagEditor.set({id: tag.id, name: tag.name, color: tag.color});
+    }
+
+    protected closeTagEditor(): void {
+        this.tagEditor.set(null);
+    }
+
+    protected updateTagEditor<K extends keyof TagEditorState>(key: K, value: TagEditorState[K]): void {
+        this.tagEditor.update((ed) => (ed === null ? ed : {...ed, [key]: value}));
+    }
+
+    protected tagForeground(color: string): string {
+        return pickReadableForeground(color);
+    }
+
+    protected async saveTag(): Promise<void> {
+        const ws = this.selected();
+        const ed = this.tagEditor();
+        if (ws === null || ed === null || !this.canManageTags()) {
+            return;
+        }
+        const name = ed.name.trim();
+        if (name === '') {
+            return;
+        }
+        const payload = {name, color: ed.color};
+
+        this.tagSaving.set(true);
+        try {
+            const saved = ed.id === null
+                ? await this.tagService.createTag(ws.id, payload)
+                : await this.tagService.updateTag(ws.id, ed.id, payload);
+            this.tags.update((all) => {
+                const filtered = all.filter((t) => t.id !== saved.id);
+                return [...filtered, saved].sort((a, b) => a.name.localeCompare(b.name));
+            });
+            const messageKey = ed.id === null ? 'app.tags.tagCreated' : 'app.tags.tagUpdated';
+            this.alertService.success(await this.translate.instant(messageKey) as string);
+            this.tagEditor.set(null);
+        } catch {
+            // error interceptor
+        } finally {
+            this.tagSaving.set(false);
+        }
+    }
+
+    protected async deleteTag(tag: Tag): Promise<void> {
+        const ws = this.selected();
+        if (ws === null || !this.canManageTags()) {
+            return;
+        }
+        const confirmMessage = await this.translate.instant('app.tags.deleteConfirm', {name: tag.name}) as string;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        try {
+            await this.tagService.deleteTag(ws.id, tag.id);
+            this.tags.update((all) => all.filter((t) => t.id !== tag.id));
+            if (this.tagEditor()?.id === tag.id) {
+                this.tagEditor.set(null);
+            }
+            this.alertService.success(await this.translate.instant('app.tags.tagDeleted') as string);
         } catch {
             // error interceptor
         }

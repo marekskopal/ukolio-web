@@ -95,6 +95,53 @@
 
         <section class="drawer-section">
             <div class="drawer-section-head">
+                <span class="uk-overline">{{ 'app.taskTags.heading' | translate }}</span>
+                @if (workspaceTags().length > 0) {
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="toggleTagPicker()">
+                        {{ 'app.taskTags.add' | translate }}
+                    </button>
+                }
+            </div>
+            <div class="tag-chip-row">
+                @for (tag of selectedTags(); track tag.id) {
+                    <span
+                        class="tag-chip tag-chip--removable"
+                        [style.background]="tag.color"
+                        [style.color]="tagForeground(tag.color)"
+                    >
+                        <span>{{ tag.name }}</span>
+                        <button
+                            type="button"
+                            class="tag-chip-remove"
+                            (click)="removeTagFromTask(tag)"
+                            [attr.aria-label]="'app.taskTags.remove' | translate"
+                        >×</button>
+                    </span>
+                } @empty {
+                    <span class="text-subtle">{{ 'app.taskTags.empty' | translate }}</span>
+                }
+            </div>
+            @if (tagPickerOpen()) {
+                <div class="tag-picker">
+                    @if (availableTags().length === 0) {
+                        <span class="text-subtle">{{ 'app.taskTags.noTagsAvailable' | translate }}</span>
+                    } @else {
+                        @for (tag of availableTags(); track tag.id) {
+                            <button
+                                type="button"
+                                class="tag-chip tag-chip--button"
+                                [style.background]="tag.color"
+                                [style.color]="tagForeground(tag.color)"
+                                (click)="addTagToTask(tag)"
+                            >{{ tag.name }}</button>
+                        }
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="drawer-section">
+            <div class="drawer-section-head">
                 <span class="uk-overline">{{ 'app.board.drawer.files.title' | translate }}</span>
                 @if (task()) {
                     <label class="btn btn-ghost btn-sm file-upload-trigger" [class.is-disabled]="uploading()">

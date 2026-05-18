@@ -3,6 +3,7 @@ import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ProjectField} from '@app/models/field';
 import {Status} from '@app/models/status';
+import {Tag} from '@app/models/tag';
 import {Task, TaskListItem, TaskPriority} from '@app/models/task';
 import {TaskFile} from '@app/models/task-file';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
@@ -10,6 +11,7 @@ import {AlertService} from '@app/services/alert.service';
 import {FieldService} from '@app/services/field.service';
 import {TaskService} from '@app/services/task.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
+import {pickReadableForeground} from '@app/shared/color-contrast';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {MarkdownComponent} from 'ngx-markdown';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
@@ -42,6 +44,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     public readonly projectId = input.required<number>();
     public readonly defaultStatusId = input<number | null>(null);
     public readonly projectFields = input<ProjectField[]>([]);
+    public readonly workspaceTags = input<Tag[]>([]);
 
     public readonly saved = output<Task>();
     public readonly deleted = output<number>();
@@ -57,6 +60,19 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected readonly saving = signal(false);
     protected readonly tab = signal<'edit' | 'preview'>('edit');
+
+    protected readonly selectedTagIds = signal<number[]>([]);
+    protected readonly tagPickerOpen = signal(false);
+
+    protected readonly selectedTags = computed<Tag[]>(() => {
+        const ids = new Set(this.selectedTagIds());
+        return this.workspaceTags().filter((t) => ids.has(t.id));
+    });
+
+    protected readonly availableTags = computed<Tag[]>(() => {
+        const ids = new Set(this.selectedTagIds());
+        return this.workspaceTags().filter((t) => !ids.has(t.id));
+    });
 
     protected readonly files = signal<TaskFile[]>([]);
     protected readonly uploading = signal(false);
@@ -151,6 +167,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 dueDate: existing.dueDate ?? '',
             });
             this.statusId.set(existing.statusId);
+            this.selectedTagIds.set([...(existing.tagIds ?? [])]);
             this.tab.set('preview');
             void this.loadFiles(existing.id);
             void this.loadRelations(existing.id);
@@ -198,6 +215,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             priority: this.form.value.priority as TaskPriority,
             dueDate: this.form.value.dueDate ? this.form.value.dueDate : null,
             fieldValues,
+            tagIds: this.selectedTagIds(),
         };
         try {
             const existing = this.task();
@@ -235,6 +253,27 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected onCancel(): void {
         this.cancelled.emit();
+    }
+
+    protected toggleTagPicker(): void {
+        this.tagPickerOpen.update((v) => !v);
+    }
+
+    protected closeTagPicker(): void {
+        this.tagPickerOpen.set(false);
+    }
+
+    protected addTagToTask(tag: Tag): void {
+        this.selectedTagIds.update((ids) => ids.includes(tag.id) ? ids : [...ids, tag.id]);
+        this.tagPickerOpen.set(false);
+    }
+
+    protected removeTagFromTask(tag: Tag): void {
+        this.selectedTagIds.update((ids) => ids.filter((id) => id !== tag.id));
+    }
+
+    protected tagForeground(color: string): string {
+        return pickReadableForeground(color);
     }
 
     protected async onFileSelected(event: Event): Promise<void> {
@@ -381,6 +420,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 createdByAgent: task.createdByAgent,
                 createdAt: task.createdAt,
                 updatedAt: task.updatedAt,
+                tagIds: task.tagIds,
             };
             this.openTask.emit(item);
         } catch {

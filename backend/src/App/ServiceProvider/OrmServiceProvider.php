@@ -17,10 +17,12 @@ use Ukolio\Model\Entity\OAuthClient;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\ProjectField;
 use Ukolio\Model\Entity\Status;
+use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\TaskFieldValue;
 use Ukolio\Model\Entity\TaskFile;
 use Ukolio\Model\Entity\TaskRelation;
+use Ukolio\Model\Entity\TaskTag;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workflow;
 use Ukolio\Model\Entity\Workspace;
@@ -33,10 +35,12 @@ use Ukolio\Model\Repository\OAuthClientRepository;
 use Ukolio\Model\Repository\ProjectFieldRepository;
 use Ukolio\Model\Repository\ProjectRepository;
 use Ukolio\Model\Repository\StatusRepository;
+use Ukolio\Model\Repository\TagRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskFileRepository;
 use Ukolio\Model\Repository\TaskRelationRepository;
 use Ukolio\Model\Repository\TaskRepository;
+use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
 use Ukolio\Model\Repository\WorkspaceRepository;
@@ -67,6 +71,8 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			TaskRelationRepository::class,
 			FieldRepository::class,
 			ProjectFieldRepository::class,
+			TagRepository::class,
+			TaskTagRepository::class,
 			EventRepository::class,
 			OAuthClientRepository::class,
 			OAuthAuthorizationRepository::class,
@@ -96,6 +102,8 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, TaskRelationRepository::class, TaskRelation::class);
 		$this->addRepository($container, $orm, FieldRepository::class, Field::class);
 		$this->addRepository($container, $orm, ProjectFieldRepository::class, ProjectField::class);
+		$this->addRepository($container, $orm, TagRepository::class, Tag::class);
+		$this->addRepository($container, $orm, TaskTagRepository::class, TaskTag::class);
 		$this->addRepository($container, $orm, EventRepository::class, Event::class);
 		$this->addRepository($container, $orm, OAuthClientRepository::class, OAuthClient::class);
 		$this->addRepository($container, $orm, OAuthAuthorizationRepository::class, OAuthAuthorization::class);

@@ -30,6 +30,7 @@ use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskFieldValueProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 use const PHP_INT_MAX;
@@ -42,6 +43,7 @@ final readonly class TaskController
 		private StatusProviderInterface $statusProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
+		private TaskTagProviderInterface $taskTagProvider,
 		private RequestServiceInterface $requestService,
 	) {
 	}
@@ -70,7 +72,8 @@ final readonly class TaskController
 		$limit = $this->intParam($query, 'limit', 50, 1, 200);
 		$offset = $this->intParam($query, 'offset', 0, 0, PHP_INT_MAX);
 		$search = $this->stringParam($query, 'search');
-		$statusIds = $this->statusIdsParam($query);
+		$statusIds = $this->idsParam($query, 'statusIds');
+		$tagIds = $this->idsParam($query, 'tagIds');
 		$onlyActive = $this->boolParam($query, 'onlyActive');
 
 		$tasks = iterator_to_array(
@@ -83,14 +86,20 @@ final readonly class TaskController
 				$search,
 				$statusIds,
 				$onlyActive,
+				$tagIds,
 			),
 			false,
 		);
 
-		$count = $this->taskProvider->countTasksInWorkspace($workspace, $search, $statusIds, $onlyActive);
+		$count = $this->taskProvider->countTasksInWorkspace($workspace, $search, $statusIds, $onlyActive, $tagIds);
+
+		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $tasks));
 
 		return new JsonResponse(new TaskListDto(
-			tasks: array_map(static fn (Task $t): TaskListItemDto => TaskListItemDto::fromEntity($t), $tasks),
+			tasks: array_map(
+				static fn (Task $t): TaskListItemDto => TaskListItemDto::fromEntity($t, $tagsByTaskId[$t->id] ?? []),
+				$tasks,
+			),
 			count: $count,
 		));
 	}
@@ -144,13 +153,13 @@ final readonly class TaskController
 	 * @param array<array-key, mixed> $query
 	 * @return list<int>|null
 	 */
-	private function statusIdsParam(array $query): ?array
+	private function idsParam(array $query, string $key): ?array
 	{
-		if (!isset($query['statusIds']) || !is_string($query['statusIds']) || $query['statusIds'] === '') {
+		if (!isset($query[$key]) || !is_string($query[$key]) || $query[$key] === '') {
 			return null;
 		}
 		$parsed = array_values(array_filter(
-			array_map('intval', explode('|', $query['statusIds'])),
+			array_map('intval', explode('|', $query[$key])),
 			static fn (int $id): bool => $id > 0,
 		));
 		return $parsed === [] ? null : $parsed;
@@ -170,9 +179,16 @@ final readonly class TaskController
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
 
+		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project), false);
+		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $projectTasks));
+
 		$tasks = array_map(
-			fn (Task $t): TaskDto => TaskDto::fromEntity($t, $this->taskFieldValueProvider->findByTask($t)),
-			iterator_to_array($this->taskProvider->getTasksByProject($project), false),
+			fn (Task $t): TaskDto => TaskDto::fromEntity(
+				$t,
+				$this->taskFieldValueProvider->findByTask($t),
+				$tagsByTaskId[$t->id] ?? [],
+			),
+			$projectTasks,
 		);
 
 		return new JsonResponse($tasks);
@@ -209,12 +225,15 @@ final readonly class TaskController
 				priority: $dto->priority,
 				dueDate: $dto->dueDate,
 				fieldValues: $dto->fieldValues,
+				tagIds: $dto->tagIds,
 			);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);
 		}
 
-		return new JsonResponse(TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task)));
+		return new JsonResponse(
+			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),
+		);
 	}
 
 	#[RouteGet(Routes::Task->value)]
@@ -226,7 +245,9 @@ final readonly class TaskController
 			return new NotFoundResponse('Task not found.');
 		}
 
-		return new JsonResponse(TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task)));
+		return new JsonResponse(
+			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),
+		);
 	}
 
 	#[RoutePut(Routes::Task->value)]
@@ -255,12 +276,15 @@ final readonly class TaskController
 				dueDate: $dto->dueDate,
 				status: $status,
 				fieldValues: $dto->fieldValues,
+				tagIds: $dto->tagIds,
 			);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);
 		}
 
-		return new JsonResponse(TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task)));
+		return new JsonResponse(
+			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),
+		);
 	}
 
 	#[RoutePut(Routes::TaskMove->value)]
@@ -281,7 +305,9 @@ final readonly class TaskController
 
 		$task = $this->taskProvider->moveTask($user, $task, $newStatus, $dto->position);
 
-		return new JsonResponse(TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task)));
+		return new JsonResponse(
+			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),
+		);
 	}
 
 	#[RouteDelete(Routes::Task->value)]

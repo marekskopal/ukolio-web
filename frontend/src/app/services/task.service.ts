@@ -13,6 +13,7 @@ export interface TaskWritePayload {
     priority: TaskPriority;
     dueDate: string | null;
     fieldValues?: TaskFieldValue[];
+    tagIds?: number[];
 }
 
 export interface TaskListParams {
@@ -22,6 +23,7 @@ export interface TaskListParams {
     orderDirection: OrderDirection;
     search?: string;
     statusIds?: number[];
+    tagIds?: number[];
     onlyActive?: boolean;
 }
 
@@ -40,6 +42,9 @@ export class TaskService {
         }
         if (params.statusIds && params.statusIds.length > 0) {
             httpParams = httpParams.set('statusIds', params.statusIds.join('|'));
+        }
+        if (params.tagIds && params.tagIds.length > 0) {
+            httpParams = httpParams.set('tagIds', params.tagIds.join('|'));
         }
         if (params.onlyActive) {
             httpParams = httpParams.set('onlyActive', '1');
