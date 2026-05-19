@@ -8,6 +8,14 @@ upstream http_backend {
     keepalive 8;
 }
 
+# SaaS marketing/landing site. Mirror fingather's web upstream — the actual
+# `web` service is not yet defined in docker-compose; requests to `/` will
+# 502 until it lands.
+upstream http_web {
+    server web:80;
+    keepalive 16;
+}
+
 server {
     listen 80;
     server_name _;
@@ -47,7 +55,7 @@ server {
         add_header X-Content-Type-Options nosniff always;
     }
 
-    location / {
+    location /app {
         # Strip Accept-Encoding so the upstream response is plain text and
         # sub_filter can substitute the CSP nonce before gzip.
         proxy_set_header Accept-Encoding "";
@@ -69,6 +77,21 @@ server {
 
         sub_filter_once off;
         sub_filter random_nonce_value $request_id;
+    }
+
+    location / {
+        proxy_pass http://http_web;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Frame-Options SAMEORIGIN always;
+        add_header X-Content-Type-Options nosniff always;
     }
 
     server_tokens off;
