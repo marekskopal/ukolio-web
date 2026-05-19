@@ -2,7 +2,7 @@ base: /
 baseVariants:
   - base: 'https://ukolio.com'
     condition: 'applicationContext == "Production"'
-  - base: 'https://localhost:4300'
+  - base: 'https://localhost:7281'
     condition: 'applicationContext == "Development"'
 errorHandling:
   -
