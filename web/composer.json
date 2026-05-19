@@ -1,0 +1,50 @@
+{
+    "name": "marekskopal/ukolio-web",
+    "description": "Ukolio",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./packages/*"
+        },
+        {
+            "type": "composer",
+            "url": "https://composer.typo3.org/"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "typo3/cms-core": "^14.3",
+        "typo3/cms-backend": "^14.3",
+        "typo3/cms-extbase": "^14.3",
+        "typo3/cms-extensionmanager": "^14.3",
+        "typo3/cms-filelist": "^14.3",
+        "typo3/cms-fluid": "^14.3",
+        "typo3/cms-frontend": "^14.3",
+        "typo3/cms-install": "^14.3",
+        "typo3/cms-recordlist": "^14.3",
+        "typo3/cms-fluid-styled-content": "^14.3",
+        "typo3/cms-rte-ckeditor": "^14.3",
+        "typo3/cms-belog": "^14.3",
+        "typo3/cms-beuser": "^14.3",
+        "typo3/cms-seo": "^14.3",
+        "typo3/cms-t3editor": "^14.3",
+        "typo3/cms-tstemplate": "^14.3",
+        "typo3/cms-info": "^14.3",
+        "typo3/cms-redirects": "^14.3",
+        "marekskopal/typo3-web": "@dev",
+        "marekskopal/typo3-core": "^14.1",
+        "marekskopal/typo3-google-font": "^1.0",
+        "marekskopal/typo3-features": "^1.0",
+        "marekskopal/typo3-mcp-server": "^0.9.0"
+    },
+    "config": {
+        "platform": {
+            "php": "8.4"
+        },
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true,
+            "php-http/discovery": true
+        }
+    }
+}

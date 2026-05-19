@@ -1,0 +1,52 @@
+base: /
+baseVariants:
+  - base: 'https://ukolio.com'
+    condition: 'applicationContext == "Production"'
+  - base: 'https://localhost:4300'
+    condition: 'applicationContext == "Development"'
+errorHandling:
+  -
+    errorCode: 404
+    errorHandler: Page
+    errorContentSource: 't3://page?uid=3'
+routes:
+  -
+    route: robots.txt
+    type: staticText
+    content: "User-agent: *\r\nDisallow: /typo3/\r\nSitemap: https://ukolio.com/sitemap.xml"
+  -
+    route: sitemap.xml
+    type: uri
+    source: 'https://ukolio.com/?type=1533906435'
+languages:
+  -
+    title: English
+    enabled: true
+    locale: en_US
+    hreflang: en
+    base: /
+    websiteTitle: Ukolio
+    navigationTitle: EN
+    fallbackType: strict
+    fallbacks: ''
+    flag: en-us-gb
+    languageId: 0
+  -
+    title: Czech
+    enabled: true
+    locale: cs_CZ
+    hreflang: cs
+    base: /cs/
+    baseVariants:
+      - base: 'https://ukolio.com/cs/'
+        condition: 'applicationContext == "Production"'
+      - base: 'https://localhost:443/cs/'
+        condition: 'applicationContext == "Development"'
+    websiteTitle: Ukolio
+    navigationTitle: CS
+    fallbackType: fallback
+    fallbacks: '0'
+    flag: cz
+    languageId: 1
+rootPageId: 1
+websiteTitle: Ukolio

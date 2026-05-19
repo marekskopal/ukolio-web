@@ -9,7 +9,6 @@ services:
             - "${PROXY_PORT}:80"
         restart: unless-stopped
         depends_on:
-            - web
             - frontend
             - backend
         networks:
@@ -17,12 +16,26 @@ services:
             - backend
 
     web:
-        image: nginx:1.29.7-alpine
+        build:
+            context: ./web
+            dockerfile: Dockerfile
+        environment:
+            MYSQL_HOST: ${MYSQL_HOST}
+            MYSQL_DATABASE: ${MYSQL_DATABASE_WEB}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            TYPO3_CONTEXT: ${TYPO3_CONTEXT}
+            REVERSE_PROXY_IP: ${REVERSE_PROXY_IP}
+        depends_on:
+            - proxy
         restart: unless-stopped
         networks:
             - frontend
+            - backend
         volumes:
-            - ./web/public:/usr/share/nginx/html:ro
+            - ukolio_web_public:/var/www/html/public
+            - ukolio_web_var:/var/www/html/var
+            - ./log:/var/www/html/var/log
 
     frontend:
         build:
@@ -142,3 +155,7 @@ volumes:
         name: ukolio_minio
     ukolio_redis:
         name: ukolio_redis
+    ukolio_web_public:
+        name: fingather_web_public
+    ukolio_web_var:
+        name: fingather_web_var
