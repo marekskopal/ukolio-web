@@ -153,8 +153,8 @@
     line-height: var(--uk-lh-snug);
 }
 .uk p { margin: 0; }
-.uk a { color: var(--uk-accent); text-decoration: none; }
-.uk a:hover { text-decoration: underline; }
+.uk a:not(.uk-btn) { color: var(--uk-accent); text-decoration: none; }
+.uk a:not(.uk-btn):hover { text-decoration: underline; }
 
 /* ====================================================================
    Type scale classes
