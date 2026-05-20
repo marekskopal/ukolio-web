@@ -104,6 +104,8 @@ services:
             - backend
         volumes:
             - ukolio_data:/var/lib/mysql
+        profiles:
+            - dev
 
     adminer:
         image: adminer:5.4.2
