@@ -50,6 +50,10 @@ server {
 
     client_max_body_size 100m;
 
+    if ($host != "${PROXY_HOST}") {
+        return  301 $scheme://www.ukolio.com$request_uri;
+    }
+
     location /mcp {
         proxy_pass http://http_web;
 
