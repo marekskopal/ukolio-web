@@ -1,16 +1,19 @@
 import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {TaskCardComponent} from '@app/board/task-card.component';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {Board} from '@app/models/board';
 import {ProjectField} from '@app/models/field';
+import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {Task, TaskListItem} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {RealtimeService} from '@app/services/realtime.service';
 import {TagService} from '@app/services/tag.service';
 import {TaskService} from '@app/services/task.service';
 import {WorkspaceService} from '@app/services/workspace.service';
@@ -38,6 +41,10 @@ export class BoardComponent implements OnInit {
     private readonly tagService = inject(TagService);
     private readonly workspaceService = inject(WorkspaceService);
     private readonly currentUserService = inject(CurrentUserService);
+    private readonly realtimeService = inject(RealtimeService);
+    private readonly destroyRef = inject(DestroyRef);
+
+    private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
     protected readonly loading = signal(true);
     protected readonly board = signal<Board | null>(null);
@@ -68,6 +75,10 @@ export class BoardComponent implements OnInit {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.projectId.set(id);
         await Promise.all([this.loadBoard(), this.loadProjectFields(), this.loadWorkspaceTags()]);
+
+        this.realtimeService.events$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((event) => this.onRealtimeEvent(event));
 
         const openTaskParam = this.route.snapshot.queryParamMap.get('openTask');
         if (openTaskParam !== null) {
@@ -177,6 +188,30 @@ export class BoardComponent implements OnInit {
     protected onTaskDeleted(_id: number): void {
         this.closeDrawer();
         void this.loadBoard();
+    }
+
+    private onRealtimeEvent(event: RealtimeEvent): void {
+        const projectId = this.projectId();
+        if (projectId === null) {
+            return;
+        }
+        if (event.type === 'RealtimeReconnected') {
+            this.scheduleBoardRefresh();
+            return;
+        }
+        if (TASK_EVENT_TYPES.has(event.type) && event.projectId === projectId) {
+            this.scheduleBoardRefresh();
+        }
+    }
+
+    private scheduleBoardRefresh(): void {
+        if (this.refreshTimer !== null) {
+            clearTimeout(this.refreshTimer);
+        }
+        this.refreshTimer = setTimeout(() => {
+            this.refreshTimer = null;
+            void this.loadBoard();
+        }, 150);
     }
 
     protected async onOpenRelatedTask(item: TaskListItem): Promise<void> {

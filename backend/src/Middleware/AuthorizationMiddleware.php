@@ -16,6 +16,7 @@ use Ukolio\Middleware\Exception\NotAuthorizedException;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Authentication\AuthenticationServiceInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
+use Ukolio\Service\Realtime\RealtimeOriginContextInterface;
 
 final readonly class AuthorizationMiddleware implements MiddlewareInterface
 {
@@ -24,6 +25,7 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 	private const string AttributeToken = 'token';
 	private const string AuthHeader = 'Authorization';
 	private const string AuthHeaderType = 'Bearer ';
+	private const string OriginClientIdHeader = 'X-Origin-Client-Id';
 
 	private const array OpenRoutes = [
 		Routes::Health->value,
@@ -41,12 +43,14 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		Routes::OAuthClientInfo->value,
 	];
 
-	public function __construct(private UserProviderInterface $userProvider)
+	public function __construct(private UserProviderInterface $userProvider, private RealtimeOriginContextInterface $realtimeOriginContext,)
 	{
 	}
 
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
 	{
+		$this->captureOriginClientId($request);
+
 		if (in_array($request->getUri()->getPath(), self::OpenRoutes, strict: true)) {
 			return $handler->handle($request);
 		}
@@ -73,6 +77,12 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		$request = $request->withAttribute(self::AttributeToken, $jwtToken);
 
 		return $handler->handle($request);
+	}
+
+	private function captureOriginClientId(ServerRequestInterface $request): void
+	{
+		$header = $request->getHeader(self::OriginClientIdHeader)[0] ?? null;
+		$this->realtimeOriginContext->set($header);
 	}
 
 	private function extractToken(ServerRequestInterface $request): string

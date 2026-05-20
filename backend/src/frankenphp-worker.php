@@ -13,6 +13,7 @@ use Ukolio\App\ApplicationFactory;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Realtime\RealtimeOriginContextInterface;
 
 $application = ApplicationFactory::create();
 
@@ -25,12 +26,16 @@ assert($mcpUserContext instanceof McpUserContextInterface);
 $actorContext = $application->container->get(ActorContextInterface::class);
 assert($actorContext instanceof ActorContextInterface);
 
+$realtimeOriginContext = $application->container->get(RealtimeOriginContextInterface::class);
+assert($realtimeOriginContext instanceof RealtimeOriginContextInterface);
+
 $emitter = new SapiEmitter();
 
-$handler = static function () use ($application, $logger, $emitter, $mcpUserContext, $actorContext): void {
+$handler = static function () use ($application, $logger, $emitter, $mcpUserContext, $actorContext, $realtimeOriginContext): void {
 	// Per-request reset of mutable, container-shared contexts.
 	$mcpUserContext->clear();
 	$actorContext->setHuman();
+	$realtimeOriginContext->clear();
 
 	try {
 		$request = ServerRequestFactory::fromGlobals();

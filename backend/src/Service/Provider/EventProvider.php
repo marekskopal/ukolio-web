@@ -14,12 +14,16 @@ use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\EventRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Realtime\RealtimePublisherInterface;
 use const JSON_THROW_ON_ERROR;
 
 final readonly class EventProvider implements EventProviderInterface
 {
-	public function __construct(private EventRepository $eventRepository, private ActorContextInterface $actorContext,)
-	{
+	public function __construct(
+		private EventRepository $eventRepository,
+		private ActorContextInterface $actorContext,
+		private RealtimePublisherInterface $realtimePublisher,
+	) {
 	}
 
 	/** @param array<string,mixed> $metadata */
@@ -41,6 +45,16 @@ final readonly class EventProvider implements EventProviderInterface
 		$event->updatedAt = $now;
 
 		$this->eventRepository->persist($event);
+
+		$this->realtimePublisher->publish(
+			type: $type,
+			workspaceId: $project->workspace->id,
+			projectId: $project->id,
+			taskId: $taskId,
+			commentId: $this->intFromMetadata($metadata, 'commentId'),
+			fileId: $this->intFromMetadata($metadata, 'fileId'),
+			relationId: $this->intFromMetadata($metadata, 'relationId'),
+		);
 
 		return $event;
 	}
@@ -64,7 +78,18 @@ final readonly class EventProvider implements EventProviderInterface
 
 		$this->eventRepository->persist($event);
 
+		if ($workspace !== null) {
+			$this->realtimePublisher->publish(type: $type, workspaceId: $workspace->id);
+		}
+
 		return $event;
+	}
+
+	/** @param array<string,mixed> $metadata */
+	private function intFromMetadata(array $metadata, string $key): ?int
+	{
+		$value = $metadata[$key] ?? null;
+		return is_int($value) ? $value : null;
 	}
 
 	/** @return Iterator<Event> */

@@ -67,6 +67,9 @@ services:
             REDIS_PORT: ${REDIS_PORT}
             REDIS_PASSWORD: ${REDIS_PASSWORD}
             MCP_SESSION_TTL: ${MCP_SESSION_TTL}
+            MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY}
+            MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY}
+            MERCURE_PUBLISH_URL: ${MERCURE_PUBLISH_URL}
         depends_on:
             db:
                 condition: service_healthy

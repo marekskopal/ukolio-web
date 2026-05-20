@@ -3,6 +3,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit, out
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ProjectField} from '@app/models/field';
+import {COMMENT_EVENT_TYPES, FILE_EVENT_TYPES, RealtimeEvent, RELATION_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {Task, TaskListItem, TaskPriority} from '@app/models/task';
@@ -12,6 +13,7 @@ import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {RealtimeService} from '@app/services/realtime.service';
 import {TaskService} from '@app/services/task.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
@@ -95,6 +97,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
+    private readonly realtimeService = inject(RealtimeService);
 
     protected readonly saving = signal(false);
     protected readonly tab = signal<'edit' | 'preview'>('edit');
@@ -199,6 +202,24 @@ export class TaskDetailDrawerComponent implements OnInit {
             .subscribe(() => {
                 void this.runSearch(trigger());
             });
+
+        this.realtimeService.events$
+            .pipe(takeUntilDestroyed())
+            .subscribe((event) => this.onRealtimeEvent(event));
+    }
+
+    private onRealtimeEvent(event: RealtimeEvent): void {
+        const current = this.task();
+        if (current === null || event.taskId !== current.id) {
+            return;
+        }
+        if (COMMENT_EVENT_TYPES.has(event.type)) {
+            void this.loadComments(current.id);
+        } else if (FILE_EVENT_TYPES.has(event.type)) {
+            void this.loadFiles(current.id);
+        } else if (RELATION_EVENT_TYPES.has(event.type)) {
+            void this.loadRelations(current.id);
+        }
     }
 
     public ngOnInit(): void {
