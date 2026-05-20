@@ -12,6 +12,9 @@ page.10 {
         pagets__default = TEXT
         pagets__default.value = Default.html
         pagets__default.insertData = 1
+        pagets__homepage = TEXT
+        pagets__homepage.value = Homepage
+        pagets__homepage.insertData = 1
     }
 }
 
@@ -41,6 +44,7 @@ plugin.tx_msgooglefont {
         }
     }
 }
+lib.contentElement.templateRootPaths.10 = EXT:ms_web/Resources/Private/View/Content/Templates/
 lib.contentElement.layoutRootPaths.10 = EXT:ms_web/Resources/Private/View/Content/Layouts/
 lib.contentElement.partialRootPaths.10 = EXT:ms_web/Resources/Private/View/Content/Partials/
 

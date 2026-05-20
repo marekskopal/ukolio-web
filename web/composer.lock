@@ -1029,16 +1029,16 @@
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "481557b130ef3790cf82b713667b43030dc9c957"
+                "reference": "d2d8dfae4757f384d630fdffc2d8d6618d8f4c5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/481557b130ef3790cf82b713667b43030dc9c957",
-                "reference": "481557b130ef3790cf82b713667b43030dc9c957",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/d2d8dfae4757f384d630fdffc2d8d6618d8f4c5e",
+                "reference": "d2d8dfae4757f384d630fdffc2d8d6618d8f4c5e",
                 "shasum": ""
             },
             "require": {
@@ -1046,7 +1046,7 @@
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^8.5.44 || ^9.6.25"
+                "phpunit/phpunit": "^8.5.52 || ^9.6.34"
             },
             "type": "library",
             "extra": {
@@ -1092,7 +1092,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.3.0"
+                "source": "https://github.com/guzzle/promises/tree/2.3.1"
             },
             "funding": [
                 {
@@ -1108,7 +1108,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-22T14:34:08+00:00"
+            "time": "2026-05-19T18:30:48+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -1354,16 +1354,16 @@
         },
         {
             "name": "marekskopal/typo3-features",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-features.git",
-                "reference": "33f7e0e95eb5287f4e0de5560a2ec8ba342b7adf"
+                "reference": "1ff18ecac3422ecc3a7e92b5f4b39545f3230d58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-features/zipball/33f7e0e95eb5287f4e0de5560a2ec8ba342b7adf",
-                "reference": "33f7e0e95eb5287f4e0de5560a2ec8ba342b7adf",
+                "url": "https://api.github.com/repos/marekskopal/typo3-features/zipball/1ff18ecac3422ecc3a7e92b5f4b39545f3230d58",
+                "reference": "1ff18ecac3422ecc3a7e92b5f4b39545f3230d58",
                 "shasum": ""
             },
             "require": {
@@ -1417,9 +1417,9 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/typo3-features/issues",
-                "source": "https://github.com/marekskopal/typo3-features/tree/v1.0.1"
+                "source": "https://github.com/marekskopal/typo3-features/tree/v1.0.2"
             },
-            "time": "2026-05-07T13:47:51+00:00"
+            "time": "2026-05-19T21:12:16+00:00"
         },
         {
             "name": "marekskopal/typo3-google-font",
@@ -1474,16 +1474,16 @@
         },
         {
             "name": "marekskopal/typo3-mcp-server",
-            "version": "v0.9.0",
+            "version": "v0.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-mcp-server.git",
-                "reference": "edf7a8a39fe8559c5d7ba9ac8f01b27bf6587ee1"
+                "reference": "a87d69ed7e38f721278ee16be034ab24a01175a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/edf7a8a39fe8559c5d7ba9ac8f01b27bf6587ee1",
-                "reference": "edf7a8a39fe8559c5d7ba9ac8f01b27bf6587ee1",
+                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/a87d69ed7e38f721278ee16be034ab24a01175a0",
+                "reference": "a87d69ed7e38f721278ee16be034ab24a01175a0",
                 "shasum": ""
             },
             "require": {
@@ -1536,9 +1536,9 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/typo3-mcp-server/issues",
-                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.9.0"
+                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.9.1"
             },
-            "time": "2026-04-30T18:46:13+00:00"
+            "time": "2026-05-19T23:35:45+00:00"
         },
         {
             "name": "marekskopal/typo3-web",

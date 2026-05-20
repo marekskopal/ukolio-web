@@ -1,0 +1,166 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<!--TYPO3SEARCH_begin-->
+<div class="uk uk-landing">
+
+    <header class="landing-topbar">
+        <a class="brand" href="/">
+            <svg class="brand-mark" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" fill="#18181b"/>
+                <path d="M7 8h3v4.5a2.5 2.5 0 0 0 5 0V8h-3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+            <span class="brand-name">ukolio</span>
+        </a>
+        <nav class="primary-nav">
+            <a href="#features">Features</a>
+            <a href="#agents">For agents</a>
+            <a href="#built-right">Built right</a>
+            <a href="#">Docs</a>
+            <a href="#">Pricing</a>
+        </nav>
+        <div class="topbar-actions">
+            <a href="/login" class="uk-btn uk-btn--ghost uk-btn--sm">Sign in</a>
+            <a href="/sign-up" class="uk-btn uk-btn--primary uk-btn--sm">Get started <span class="arrow">&rarr;</span></a>
+        </div>
+    </header>
+
+    <section class="section section-hero">
+        <div class="section-inner">
+            <div class="hero-content">
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
+            </div>
+
+            <div class="hero-board uk-card">
+                <div class="hero-board-head">
+                    <div><strong>Acme &middot; Backend</strong> &middot; Sprint 14</div>
+                    <span class="uk-badge uk-badge--ai">3 of 12 by agents this week</span>
+                </div>
+                <div class="hero-board-cols">
+                    <div class="hero-board-col">
+                        <div class="col-label"><span class="dot" style="background: var(--uk-status-todo);"></span> To do &middot; 3</div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-217</div>
+                            <div class="uk-task-title">Rate-limit refresh-token endpoint</div>
+                            <div class="uk-task-meta">
+                                <span class="uk-badge uk-badge--danger">High</span>
+                                <span class="uk-badge uk-badge--ai">via Claude</span>
+                            </div>
+                        </div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-219</div>
+                            <div class="uk-task-title">Backfill workspace.owner_id for legacy rows</div>
+                            <div class="uk-task-meta"><span class="uk-badge">Medium</span></div>
+                        </div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-220</div>
+                            <div class="uk-task-title">Add OpenTelemetry tracing to MCP transport</div>
+                            <div class="uk-task-meta"><span class="uk-badge uk-badge--ai">via Cursor</span></div>
+                        </div>
+                    </div>
+                    <div class="hero-board-col">
+                        <div class="col-label"><span class="dot" style="background: var(--uk-status-doing);"></span> In progress &middot; 2</div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-214</div>
+                            <div class="uk-task-title">Migrate file attachments to S3-compatible storage</div>
+                            <div class="uk-task-meta"><span class="uk-badge uk-badge--solid">Urgent</span></div>
+                        </div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-216</div>
+                            <div class="uk-task-title">Custom-field validation for Version type</div>
+                            <div class="uk-task-meta"><span class="uk-badge">Medium</span></div>
+                        </div>
+                    </div>
+                    <div class="hero-board-col">
+                        <div class="col-label"><span class="dot" style="background: var(--uk-status-done);"></span> Done &middot; 4</div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-210</div>
+                            <div class="uk-task-title">OAuth 2.1 dynamic client registration</div>
+                            <div class="uk-task-meta"><span class="uk-badge uk-badge--ai">closed by ChatGPT</span></div>
+                        </div>
+                        <div class="uk-task">
+                            <div class="uk-task-id">BE-211</div>
+                            <div class="uk-task-title">Workspace-scoped tag catalog</div>
+                            <div class="uk-task-meta"><span class="uk-badge">Medium</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-pillars">
+        <div class="section-inner">
+            <div class="section-head"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="10" /></div>
+            <div class="pillars-grid"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="11" /></div>
+        </div>
+    </section>
+
+    <section id="agents" class="section section-how">
+        <div class="section-inner">
+            <div class="section-head"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="20" /></div>
+            <div class="how-layout">
+                <ol class="how-steps"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="21" /></ol>
+                <pre class="how-code"><code><span class="cm"># claude_desktop_config.json</span>
+{
+  <span class="ky">"mcpServers"</span>: {
+    <span class="ky">"ukolio"</span>: {
+      <span class="ky">"url"</span>: <span class="st">"https://app.ukolio.com/api/mcp"</span>
+    }
+  }
+}
+
+<span class="cm"># In conversation:</span>
+&gt; Triage these 12 customer reports into the
+  Backend project. Mark anything mentioning
+  the migration as Urgent.
+
+<span class="fn">&rarr; ukolio.find_project_by_name("Backend")</span>
+<span class="fn">&rarr; ukolio.list_statuses(projectId)</span>
+<span class="fn">&rarr; ukolio.create_task &times; 12</span>
+<span class="fn">&rarr; ukolio.set_task_tags(["urgent"])</span></code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="section section-features">
+        <div class="section-inner">
+            <div class="section-head"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="30" /></div>
+            <div class="features-grid"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="31" /></div>
+        </div>
+    </section>
+
+    <section id="built-right" class="section section-trust">
+        <div class="section-inner">
+            <div class="section-head"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="40" /></div>
+            <div class="trust-grid"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="41" /></div>
+        </div>
+    </section>
+
+    <section class="section section-cta">
+        <div class="section-inner">
+            <div class="cta-box"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="50" /></div>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="footer-inner">
+            <div class="brand">
+                <svg class="brand-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="20" height="20" rx="5" fill="#18181b"/>
+                    <path d="M7 8h3v4.5a2.5 2.5 0 0 0 5 0V8h-3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <span class="brand-name">ukolio</span>
+                <span class="copy">&copy; <f:format.date format="Y" date="now" /></span>
+            </div>
+            <nav class="footer-nav">
+                <a href="/app">Open app</a>
+                <a href="#features">Features</a>
+                <a href="#built-right">Security</a>
+                <a href="#">Docs</a>
+                <a href="mailto:hello@ukolio.com">Contact</a>
+            </nav>
+        </div>
+    </footer>
+
+</div>
+<!--TYPO3SEARCH_end-->
+</html>

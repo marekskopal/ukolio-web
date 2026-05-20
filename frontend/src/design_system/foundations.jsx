@@ -3,11 +3,13 @@
 // Brand mark, color palette, type scale, spacing, radii, shadows
 // ============================================================
 
-const Mark = ({ size = 32 }) => (
+const Mark = ({ size = 32, invert = false }) => (
   <span style={{
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     width: size, height: size, borderRadius: size * 0.28,
-    background: '#18181b', color: '#fff', fontWeight: 700,
+    background: invert ? '#fff' : '#18181b',
+    color: invert ? '#18181b' : '#fff',
+    fontWeight: 700,
     fontSize: size * 0.5, letterSpacing: '-0.04em',
     fontFamily: "'Inter', sans-serif"
   }}>ú</span>
@@ -31,7 +33,7 @@ function BrandBoard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { bg: '#18181b', fg: '#fff' },
+          { bg: '#18181b', fg: '#fff', invert: true },
           { bg: '#5e6ad2', fg: '#fff' },
           { bg: '#fafafa', fg: '#18181b', border: true }
         ].map((t, i) => (
@@ -40,7 +42,7 @@ function BrandBoard() {
             border: t.border ? '1px solid #e7e7ea' : 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
           }}>
-            <Mark size={28} />
+            <Mark size={28} invert={t.invert} />
             <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.02em' }}>ukolio</span>
           </div>
         ))}

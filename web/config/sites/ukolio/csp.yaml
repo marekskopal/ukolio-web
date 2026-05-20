@@ -1,0 +1,30 @@
+# Inherits default site-unspecific frontend policy mutations (enabled per default)
+inheritDefault: true
+mutations:
+  - mode: "extend"
+    directive: "style-src"
+    sources:
+      - "https://fonts.googleapis.com"
+
+  - mode: "extend"
+    directive: "script-src"
+    sources:
+      - "https://www.googletagmanager.com"
+
+  - mode: "extend"
+    directive: "img-src"
+    sources:
+      - "https://www.googletagmanager.com"
+      - "https://*.google-analytics.com"
+
+  - mode: "extend"
+    directive: "connect-src"
+    sources:
+      - "https://www.googletagmanager.com"
+      - "https://*.google-analytics.com"
+      - "https://*.analytics.google.com"
+
+  - mode: "extend"
+    directive: "font-src"
+    sources:
+      - "https://fonts.gstatic.com"

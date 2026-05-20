@@ -1,0 +1,20 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:if condition="{data.header} || {data.subheader}">
+    <header class="ce-head">
+        <f:if condition="{data.subheader}">
+            <p class="ce-eyebrow">{data.subheader}</p>
+        </f:if>
+        <f:if condition="{data.header}">
+            <f:switch expression="{data.header_layout}">
+                <f:case value="1"><h1 class="ce-title">{data.header -> f:format.raw()}</h1></f:case>
+                <f:case value="2"><h2 class="ce-title">{data.header -> f:format.raw()}</h2></f:case>
+                <f:case value="3"><h3 class="ce-title">{data.header -> f:format.raw()}</h3></f:case>
+                <f:case value="4"><h4 class="ce-title">{data.header -> f:format.raw()}</h4></f:case>
+                <f:case value="5"><h5 class="ce-title">{data.header -> f:format.raw()}</h5></f:case>
+                <f:case value="100"></f:case>
+                <f:defaultCase><h2 class="ce-title">{data.header -> f:format.raw()}</h2></f:defaultCase>
+            </f:switch>
+        </f:if>
+    </header>
+</f:if>
+</html>

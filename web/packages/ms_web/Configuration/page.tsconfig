@@ -8,13 +8,90 @@ mod.web_layout.BackendLayouts {
         config {
             backend_layout {
                 colCount = 1
-                rowCount = 2
+                rowCount = 1
                 rows {
                     1 {
                         columns {
                             1 {
                                 name = Main
                                 colPos = 0
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    homepage {
+        title = Homepage
+        config {
+            backend_layout {
+                colCount = 2
+                rowCount = 6
+                rows {
+                    1 {
+                        columns {
+                            1 {
+                                name = Hero
+                                colPos = 0
+                                colspan = 2
+                            }
+                        }
+                    }
+                    2 {
+                        columns {
+                            1 {
+                                name = Pillars: head
+                                colPos = 10
+                            }
+                            2 {
+                                name = Pillars: cards
+                                colPos = 11
+                            }
+                        }
+                    }
+                    3 {
+                        columns {
+                            1 {
+                                name = How it works: head
+                                colPos = 20
+                            }
+                            2 {
+                                name = How it works: steps
+                                colPos = 21
+                            }
+                        }
+                    }
+                    4 {
+                        columns {
+                            1 {
+                                name = Features: head
+                                colPos = 30
+                            }
+                            2 {
+                                name = Features: cards
+                                colPos = 31
+                            }
+                        }
+                    }
+                    5 {
+                        columns {
+                            1 {
+                                name = Trust: head
+                                colPos = 40
+                            }
+                            2 {
+                                name = Trust: items
+                                colPos = 41
+                            }
+                        }
+                    }
+                    6 {
+                        columns {
+                            1 {
+                                name = CTA
+                                colPos = 50
+                                colspan = 2
                             }
                         }
                     }

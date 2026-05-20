@@ -22,6 +22,7 @@
 <script type="text/babel" src="components.jsx"></script>
 <script type="text/babel" src="features.jsx"></script>
 <script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="landing.jsx"></script>
 
 <script type="text/babel">
 const { DesignCanvas, DCSection, DCArtboard } = window;
@@ -54,6 +55,7 @@ function App() {
       </DCSection>
 
       <DCSection id="screens" title="04 · Application">
+        <DCArtboard id="landing"  label="Landing · marketing site"     width={1280} height={3360}><LandingScreen/></DCArtboard>
         <DCArtboard id="login"    label="Login"                       width={1080} height={680}><LoginScreen/></DCArtboard>
         <DCArtboard id="projects" label="Projects list"               width={1280} height={760}><ProjectsScreen/></DCArtboard>
         <DCArtboard id="kanban"   label="Kanban board"                width={1280} height={760}><KanbanScreen/></DCArtboard>
