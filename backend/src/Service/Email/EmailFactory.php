@@ -30,7 +30,7 @@ final readonly class EmailFactory
 
 	public function createInvitationEmail(Invitation $invitation, string $token, LocaleEnum $locale): Email
 	{
-		$acceptUrl = $this->appUrl . '/invitations/accept?token=' . urlencode($token);
+		$acceptUrl = $this->appUrl . '/app/invitations/accept?token=' . urlencode($token);
 
 		$subject = strtr(
 			$this->translator->translate('email.subject.invitation', $locale),
@@ -53,7 +53,7 @@ final readonly class EmailFactory
 
 	public function createPasswordResetEmail(User $user, string $token, LocaleEnum $locale): Email
 	{
-		$resetUrl = $this->appUrl . '/reset-password?token=' . urlencode($token);
+		$resetUrl = $this->appUrl . '/app/reset-password?token=' . urlencode($token);
 
 		$subject = $this->translator->translate('email.subject.passwordReset', $locale);
 
@@ -72,7 +72,7 @@ final readonly class EmailFactory
 
 	public function createEmailVerificationEmail(User $user, string $token, LocaleEnum $locale): Email
 	{
-		$verifyUrl = $this->appUrl . '/verify-email?token=' . urlencode($token);
+		$verifyUrl = $this->appUrl . '/app/verify-email?token=' . urlencode($token);
 
 		$subject = $this->translator->translate('email.subject.emailVerification', $locale);
 

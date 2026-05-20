@@ -35,7 +35,7 @@ final readonly class OAuthController
 
 		return new JsonResponse([
 			'issuer' => $issuer,
-			'authorization_endpoint' => $baseUrl . '/oauth/authorize',
+			'authorization_endpoint' => $baseUrl . '/app/oauth/authorize',
 			'token_endpoint' => $baseUrl . Routes::OAuthToken->value,
 			'registration_endpoint' => $baseUrl . Routes::OAuthRegister->value,
 			'response_types_supported' => ['code'],
