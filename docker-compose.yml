@@ -83,7 +83,6 @@ services:
             REDIS_PASSWORD: ${REDIS_PASSWORD}
             MCP_SESSION_TTL: ${MCP_SESSION_TTL}
         depends_on:
-            - db
             - minio
             - redis
         restart: unless-stopped
