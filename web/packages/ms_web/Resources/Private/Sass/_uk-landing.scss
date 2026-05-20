@@ -118,12 +118,12 @@ body { background: var(--uk-bg); margin: 0; }
     margin-top: 28px;
 }
 .hero-content .ce-bodytext .badges {
-    display: flex; gap: 18px; flex-wrap: wrap;
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
     margin-top: 24px;
     font-size: 12.5px; color: var(--uk-fg-subtle);
 }
-.hero-content .ce-bodytext .badges span { display: inline-flex; align-items: center; gap: 6px; }
-.hero-content .ce-bodytext .badges .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--uk-success); }
+.hero-content .ce-bodytext .badges > span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-content .ce-bodytext .badges .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--uk-success); display: inline-block; }
 
 /* ----- Hero board ----- */
 .hero-board {
