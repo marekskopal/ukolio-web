@@ -69,7 +69,7 @@ FROM php AS final
 COPY --from=build_frontend /var/www/html/packages/ms_web/Resources/Public /var/www/html/packages/ms_web/Resources/Public
 
 RUN \
-    mkdir -p var && \
+    mkdir -p var/log && \
     chown -R www-data:www-data /var/www/html/
 
 RUN service apache2 restart
