@@ -16,5 +16,6 @@ final class HealthControllerTest extends IntegrationTestCase
 		$response = $this->request('GET', '/api/health');
 
 		self::assertSame(200, $response->getStatusCode());
+		self::assertSame(['status' => 'ok', 'database' => 'ok'], $this->jsonBody($response));
 	}
 }

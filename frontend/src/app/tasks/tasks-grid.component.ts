@@ -3,6 +3,7 @@ import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {ProjectField} from '@app/models/field';
+import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {OrderDirection, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
@@ -10,6 +11,7 @@ import {WorkflowWithStatuses} from '@app/models/workflow';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {RealtimeService} from '@app/services/realtime.service';
 import {TagService} from '@app/services/tag.service';
 import {TaskService} from '@app/services/task.service';
 import {WorkflowService} from '@app/services/workflow.service';
@@ -53,6 +55,9 @@ export class TasksGridComponent implements OnInit {
     private readonly tagService = inject(TagService);
     private readonly workspaceService = inject(WorkspaceService);
     private readonly currentUserService = inject(CurrentUserService);
+    private readonly realtimeService = inject(RealtimeService);
+
+    private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
     protected readonly searchControl = new FormControl<string>('', {nonNullable: true});
     protected readonly search = toSignal(
@@ -110,6 +115,23 @@ export class TasksGridComponent implements OnInit {
             const params = this.queryParams();
             void this.fetchTasks(params);
         });
+
+        this.realtimeService.events$
+            .pipe(takeUntilDestroyed())
+            .subscribe((event) => this.onRealtimeEvent(event));
+    }
+
+    private onRealtimeEvent(event: RealtimeEvent): void {
+        if (event.type !== 'RealtimeReconnected' && !TASK_EVENT_TYPES.has(event.type)) {
+            return;
+        }
+        if (this.refreshTimer !== null) {
+            clearTimeout(this.refreshTimer);
+        }
+        this.refreshTimer = setTimeout(() => {
+            this.refreshTimer = null;
+            void this.fetchTasks(this.queryParams());
+        }, 150);
     }
 
     private async loadWorkflows(): Promise<void> {

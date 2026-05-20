@@ -7,6 +7,7 @@ import {AuthenticationService} from '@app/services/authentication.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {LanguageService} from '@app/services/language.service';
 import {PermissionsService} from '@app/services/permissions.service';
+import {RealtimeService} from '@app/services/realtime.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
@@ -28,6 +29,8 @@ export class LayoutComponent implements OnInit {
     private readonly alertService = inject(AlertService);
     private readonly router = inject(Router);
     private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+    // Instantiate the realtime service so its workspace-id effect is wired up while the user is signed in.
+    private readonly _realtime = inject(RealtimeService);
 
     protected readonly isSystemAdmin = this.permissionsService.isSystemAdmin;
 

@@ -13,6 +13,7 @@ use Ukolio\App\ServiceProvider\AuthenticationServiceProvider;
 use Ukolio\App\ServiceProvider\DomainServiceProvider;
 use Ukolio\App\ServiceProvider\InfrastructureServiceProvider;
 use Ukolio\App\ServiceProvider\OrmServiceProvider;
+use Ukolio\App\ServiceProvider\RealtimeServiceProvider;
 use Ukolio\Middleware\AuthorizationMiddleware;
 use Ukolio\Route\Strategy\JsonStrategy;
 use Ukolio\Service\Dbal\DbContext;
@@ -78,6 +79,7 @@ final readonly class ApplicationFactory
 		$container->addServiceProvider(new InfrastructureServiceProvider());
 		$container->addServiceProvider(new OrmServiceProvider($dbContext));
 		$container->addServiceProvider(new AuthenticationServiceProvider());
+		$container->addServiceProvider(new RealtimeServiceProvider());
 		$container->addServiceProvider(new DomainServiceProvider());
 
 		return $container;

@@ -1,0 +1,167 @@
+upstream http_frontend {
+    server frontend:80;
+    keepalive 16;
+}
+
+upstream http_backend {
+    server backend:80;
+    keepalive 8;
+}
+
+# SaaS marketing/landing site. Mirror fingather's web upstream — the actual
+# `web` service is not yet defined in docker-compose; requests to `/` will
+# 502 until it lands.
+upstream http_web {
+    server web:80;
+    keepalive 16;
+}
+
+server {
+    listen 80;
+
+    server_name _;
+
+    gzip on;
+    gzip_min_length   256;
+    gzip_vary         on;
+    gzip_proxied      expired no-cache no-store private auth;
+    gzip_types        text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_comp_level   6;
+
+    client_max_body_size 100m;
+
+    location /mcp {
+        proxy_pass http://http_web;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        proxy_buffering off;
+        proxy_cache off;
+    }
+
+    location /.well-known/oauth-protected-resource {
+        proxy_pass http://http_web;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /.well-known/oauth-authorization-server {
+        proxy_pass http://http_web;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /api/ {
+        proxy_pass http://http_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        add_header Cache-Control "no-store" always;
+        add_header X-Content-Type-Options nosniff always;
+    }
+
+    location ~ ^/\.well-known/oauth-.*/api/ {
+        proxy_pass http://http_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        add_header Cache-Control "no-store" always;
+        add_header X-Content-Type-Options nosniff always;
+    }
+
+    location /.well-known/mercure {
+        proxy_pass http://http_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 24h;
+        chunked_transfer_encoding off;
+        gzip off;
+
+        add_header Cache-Control "no-store" always;
+        add_header X-Accel-Buffering "no" always;
+        add_header X-Content-Type-Options nosniff always;
+    }
+
+    location /app {
+        # Strip Accept-Encoding so the upstream response is plain text and
+        # sub_filter can substitute the CSP nonce before gzip.
+        proxy_set_header Accept-Encoding "";
+
+        proxy_pass http://http_frontend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header X-Frame-Options DENY always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()" always;
+        add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'nonce-$request_id'; style-src 'self' 'nonce-$request_id' https://fonts.googleapis.com; object-src 'none'; base-uri 'self'; connect-src 'self'; font-src 'self' https://fonts.gstatic.com; frame-src 'self'; frame-ancestors 'none'; img-src 'self' data:; form-action 'self'; manifest-src 'self'; media-src 'self'; worker-src 'none'" always;
+
+        sub_filter_once off;
+        sub_filter random_nonce_value $request_id;
+    }
+
+    location / {
+        proxy_pass http://http_web;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header X-Frame-Options SAMEORIGIN always;
+        add_header X-Content-Type-Options nosniff always;
+    }
+
+    location /adminer {
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+
+        proxy_pass http://adminer:8080/;
+    }
+
+    server_tokens off;
+    proxy_connect_timeout 60;
+    proxy_send_timeout 60;
+    proxy_read_timeout 60;
+    send_timeout 60;
+}

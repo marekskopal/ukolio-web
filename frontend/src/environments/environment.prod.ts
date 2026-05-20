@@ -3,4 +3,5 @@ export const environment = {
     apiUrl: '/api',
     i18nPath: '/app/i18n/',
     i18nVersion: '3',
+    mercureHubUrl: '/.well-known/mercure',
 };

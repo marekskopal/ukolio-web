@@ -19,6 +19,7 @@ use Ukolio\Dto\RequestPasswordResetDto;
 use Ukolio\Dto\SignUpDto;
 use Ukolio\Dto\VerifyEmailDto;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
+use Ukolio\Model\Entity\User;
 use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
@@ -30,6 +31,7 @@ use Ukolio\Service\Provider\EmailVerificationProviderInterface;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use Ukolio\Service\Realtime\MercureCookieIssuerInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 use Ukolio\Validator\PasswordValidator;
 
@@ -42,6 +44,7 @@ final readonly class AuthenticationController
 		private PasswordResetProviderInterface $passwordResetProvider,
 		private EmailVerificationProviderInterface $emailVerificationProvider,
 		private RequestServiceInterface $requestService,
+		private MercureCookieIssuerInterface $mercureCookieIssuer,
 	) {
 	}
 
@@ -51,10 +54,14 @@ final readonly class AuthenticationController
 		$credentials = $this->requestService->getRequestBodyDto($request, CredentialsDto::class);
 
 		try {
-			return new JsonResponse($this->authenticationService->authenticate($credentials));
+			$auth = $this->authenticationService->authenticate($credentials);
 		} catch (AuthenticationException) {
 			return new NotAuthorizedResponse('Email or password is invalid.');
 		}
+
+		$user = $this->userProvider->getUser($auth->userId);
+
+		return $this->withMercureCookie(new JsonResponse($auth), $request, $user);
 	}
 
 	#[RoutePost(Routes::AuthenticationSignUp->value)]
@@ -77,7 +84,9 @@ final readonly class AuthenticationController
 
 		$this->emailVerificationProvider->requestVerification($user);
 
-		return new JsonResponse($this->authenticationService->authenticate(new CredentialsDto($signUp->email, $signUp->password)));
+		$auth = $this->authenticationService->authenticate(new CredentialsDto($signUp->email, $signUp->password));
+
+		return $this->withMercureCookie(new JsonResponse($auth), $request, $user);
 	}
 
 	#[RoutePost(Routes::AuthenticationRefreshToken->value)]
@@ -101,7 +110,11 @@ final readonly class AuthenticationController
 			return new NotAuthorizedResponse('Invalid RefreshToken.');
 		}
 
-		return new JsonResponse($this->authenticationService->createAuthentication($user));
+		return $this->withMercureCookie(
+			new JsonResponse($this->authenticationService->createAuthentication($user)),
+			$request,
+			$user,
+		);
 	}
 
 	#[RoutePost(Routes::AuthenticationRequestPasswordReset->value)]
@@ -134,7 +147,11 @@ final readonly class AuthenticationController
 			return new ErrorResponse($e->getMessage(), 422);
 		}
 
-		return new JsonResponse($this->authenticationService->createAuthentication($user));
+		return $this->withMercureCookie(
+			new JsonResponse($this->authenticationService->createAuthentication($user)),
+			$request,
+			$user,
+		);
 	}
 
 	#[RoutePost(Routes::AuthenticationVerifyEmail->value)]
@@ -154,5 +171,27 @@ final readonly class AuthenticationController
 		}
 
 		return new OkResponse();
+	}
+
+	private function withMercureCookie(ResponseInterface $response, ServerRequestInterface $request, ?User $user,): ResponseInterface
+	{
+		if ($user === null) {
+			return $response;
+		}
+
+		return $response->withAddedHeader(
+			'Set-Cookie',
+			$this->mercureCookieIssuer->issue($user, $this->isSecureRequest($request)),
+		);
+	}
+
+	private function isSecureRequest(ServerRequestInterface $request): bool
+	{
+		$forwardedProto = $request->getHeader('X-Forwarded-Proto')[0] ?? null;
+		if ($forwardedProto !== null) {
+			return strtolower($forwardedProto) === 'https';
+		}
+
+		return strtolower($request->getUri()->getScheme()) === 'https';
 	}
 }

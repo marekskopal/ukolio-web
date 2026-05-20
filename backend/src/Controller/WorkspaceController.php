@@ -29,6 +29,7 @@ use Ukolio\Route\Routes;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
 use Ukolio\Service\Provider\WorkspaceMcpClientProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use Ukolio\Service\Realtime\MercureCookieIssuerInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 
 final readonly class WorkspaceController
@@ -38,6 +39,7 @@ final readonly class WorkspaceController
 		private WorkspaceMcpClientProviderInterface $mcpClientProvider,
 		private PermissionCheckerInterface $permissionChecker,
 		private RequestServiceInterface $requestService,
+		private MercureCookieIssuerInterface $mercureCookieIssuer,
 	) {
 	}
 
@@ -127,7 +129,22 @@ final readonly class WorkspaceController
 
 		$this->workspaceProvider->switchCurrentWorkspace($user, $workspace);
 
-		return new JsonResponse(WorkspaceDto::fromEntity($workspace));
+		$response = new JsonResponse(WorkspaceDto::fromEntity($workspace));
+
+		return $response->withAddedHeader(
+			'Set-Cookie',
+			$this->mercureCookieIssuer->issue($user, $this->isSecureRequest($request)),
+		);
+	}
+
+	private function isSecureRequest(ServerRequestInterface $request): bool
+	{
+		$forwardedProto = $request->getHeader('X-Forwarded-Proto')[0] ?? null;
+		if ($forwardedProto !== null) {
+			return strtolower($forwardedProto) === 'https';
+		}
+
+		return strtolower($request->getUri()->getScheme()) === 'https';
 	}
 
 	#[RouteGet(Routes::WorkspaceMembers->value)]

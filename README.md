@@ -17,14 +17,17 @@ by AI agents over MCP, with a lightweight web UI for human overview.
 ## Quick start
 
 ```bash
-cp .env.example .env             # adjust ports / secrets as needed
-make up                          # build & start the full stack
-make migrate                     # run database migrations
-open http://localhost:4300/      # default proxy port
+cp .env.example .env                                          # adjust ports / secrets as needed
+make up                                                       # build & start the full stack
+make migrate                                                  # run database migrations
+docker compose exec backend php bin/console admin:create     # bootstrap the first SystemAdmin
+open http://localhost:4300/                                   # default proxy port
 ```
 
-A SystemAdmin is seeded automatically: `admin@ukolio.com` / `admin`.
-**Rotate this password before exposing the instance.**
+`admin:create` prompts for email + password (or accepts
+`--email`/`--password`/`--name` flags for non-interactive provisioning). See
+[DEPLOY.md](DEPLOY.md) for deployment details and the upgrade note for
+installs that previously shipped a default admin.
 
 Anyone can also sign up at `/sign-up`; the first registration auto-creates a
 personal workspace.
