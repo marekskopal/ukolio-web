@@ -1,7 +1,7 @@
 base: /
 baseVariants:
   -
-    base: 'https://ukolio.com'
+    base: 'https://www.ukolio.com'
     condition: 'applicationContext == "Production"'
   -
     base: 'https://localhost:7281'
@@ -39,7 +39,7 @@ languages:
     base: /cs/
     baseVariants:
       -
-        base: 'https://ukolio.com/cs/'
+        base: 'https://www.ukolio.com/cs/'
         condition: 'applicationContext == "Production"'
       -
         base: 'https://localhost:443/cs/'
@@ -55,9 +55,9 @@ routes:
   -
     route: robots.txt
     type: staticText
-    content: "User-agent: *\r\nDisallow: /typo3/\r\nSitemap: https://ukolio.com/sitemap.xml"
+    content: "User-agent: *\r\nDisallow: /typo3/\r\nSitemap: https://www.ukolio.com/sitemap.xml"
   -
     route: sitemap.xml
     type: uri
-    source: 'https://ukolio.com/?type=1533906435'
+    source: 'https://www.ukolio.com/?type=1533906435'
 websiteTitle: Ukolio
