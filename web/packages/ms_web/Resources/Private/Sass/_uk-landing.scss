@@ -294,8 +294,7 @@ body { background: var(--uk-bg); margin: 0; }
 }
 .trust-grid .ce-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
 .trust-grid .ce-bodytext { font-size: 13px; line-height: 1.55; color: var(--uk-fg-muted); }
-.trust-grid .ce-bodytext code,
-.uk-landing code {
+.ce-bodytext code {
     background: var(--uk-surface-2);
     padding: 1px 5px;
     border-radius: 4px;
