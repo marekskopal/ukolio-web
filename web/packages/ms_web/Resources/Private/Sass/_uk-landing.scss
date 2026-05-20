@@ -37,8 +37,9 @@ body { background: var(--uk-bg); margin: 0; }
     padding: 0 28px; gap: 24px;
     position: sticky; top: 0; z-index: 5;
 }
-.landing-topbar .brand { display: inline-flex; align-items: center; gap: 10px; }
-.landing-topbar .brand-name { font-weight: 600; letter-spacing: -0.02em; font-size: 15px; }
+.landing-topbar .brand { display: inline-flex; align-items: center; }
+.brand-wordmark { display: block; height: 24px; width: auto; }
+.landing-footer .brand-wordmark { height: 20px; }
 .primary-nav { display: flex; align-items: center; gap: 22px; margin-left: 12px; }
 .primary-nav a { font-size: 13px; color: var(--uk-fg-muted); padding: 6px 4px; font-weight: 500; letter-spacing: -0.005em; }
 .primary-nav a:hover { color: var(--uk-fg); }
@@ -347,7 +348,6 @@ body { background: var(--uk-bg); margin: 0; }
     flex-wrap: wrap; gap: 12px;
 }
 .landing-footer .brand { display: inline-flex; align-items: center; gap: 10px; }
-.landing-footer .brand-name { font-weight: 600; color: var(--uk-fg); letter-spacing: -0.015em; }
 .landing-footer .copy { margin-left: 6px; }
 .footer-nav { display: flex; gap: 18px; }
 .footer-nav a:hover { color: var(--uk-fg); }
