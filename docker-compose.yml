@@ -112,8 +112,6 @@ services:
         networks:
             - frontend
             - backend
-        profiles:
-            - dev
 
     mailpit:
         image: axllent/mailpit:v1.20
