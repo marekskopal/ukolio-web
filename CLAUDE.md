@@ -47,8 +47,12 @@ Ownership transfer (`POST /api/workspaces/{id}/transfer-ownership`)
 atomically updates `Workspace.owner` and both `WorkspaceUser` rows (old Owner
 becomes Admin). Workspace owner removal is blocked — transfer first.
 
-The first SystemAdmin is seeded by the init migration as `admin@ukolio.com` /
-`admin`. **Rotate this password immediately in any non-dev environment.**
+The first SystemAdmin is provisioned out-of-band via
+`docker compose exec backend php bin/console admin:create` (see DEPLOY.md).
+Earlier builds seeded a default `admin@ukolio.com` / `admin`; migration
+`20260520_120000_InvalidateDefaultAdminPassword` neutralises that account on
+existing installs by replacing its password with an unverifiable string when
+the default is still in place.
 
 MCP tools remain scoped to `currentWorkspace` — sysadmins must use the web
 admin UI for cross-workspace management.

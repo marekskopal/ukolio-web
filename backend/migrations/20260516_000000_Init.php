@@ -6,7 +6,6 @@ namespace Migrations;
 
 use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Migration\Migration;
-use const PASSWORD_BCRYPT;
 
 final class InitMigration extends Migration
 {
@@ -360,24 +359,6 @@ final class InitMigration extends Migration
 			->addForeignKey('task_id', 'tasks', 'id', 'task_comments_task_id_fk')
 			->addForeignKey('author_id', 'users', 'id', 'task_comments_author_id_fk')
 			->create();
-
-		$this->seedSystemAdmin();
-	}
-
-	private function seedSystemAdmin(): void
-	{
-		$pdo = $this->databaseProvider->getDatabase()->getPdo();
-		$stmt = $pdo->prepare(
-			'INSERT INTO users (email, password, name, locale, current_workspace_id, system_role, email_verified, created_at, updated_at) '
-			. 'VALUES (:email, :password, :name, :locale, NULL, :system_role, TRUE, NOW(), NOW())',
-		);
-		$stmt->execute([
-			'email' => 'admin@ukolio.com',
-			'password' => password_hash('admin', PASSWORD_BCRYPT),
-			'name' => 'System Administrator',
-			'locale' => 'en',
-			'system_role' => 'SystemAdmin',
-		]);
 	}
 
 	public function down(): void
