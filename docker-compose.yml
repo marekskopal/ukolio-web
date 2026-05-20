@@ -45,6 +45,7 @@ services:
         volumes:
             - ukolio_web_public:/var/www/html/public
             - ukolio_web_var:/var/www/html/var
+            - ukolio_web_config:/var/www/html/config
             - ./log:/var/www/html/var/log
 
     frontend:
@@ -165,6 +166,8 @@ volumes:
     ukolio_redis:
         name: ukolio_redis
     ukolio_web_public:
-        name: fingather_web_public
+        name: ukolio_web_public
     ukolio_web_var:
-        name: fingather_web_var
+        name: ukolio_web_var
+    ukolio_web_config:
+        name: ukolio_web_config
