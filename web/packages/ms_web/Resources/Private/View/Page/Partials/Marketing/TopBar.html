@@ -1,5 +1,15 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 
+<f:if condition="{applicationContext} == 'Production'">
+    <script async src="https://www.googletagmanager.com/gtag/js?id={gaMeasurementId}"></script>
+    <script nonce="{f:security.nonce()}">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{gaMeasurementId}');
+    </script>
+</f:if>
+
 <header class="landing-topbar" data-landing-topbar>
     <a class="brand" href="/" aria-label="Ukolio">
         <img src="{f:uri.resource(path:'Images/logo-wordmark.svg', extensionName:'MsWeb')}" alt="Ukolio" class="brand-wordmark" height="24" />

@@ -25,6 +25,12 @@ page.10 {
         pagets__legal.value = Legal
         pagets__legal.insertData = 1
     }
+    variables {
+        gaMeasurementId = TEXT
+        gaMeasurementId.value = {$page.analytics.measurementId}
+        appUrl = TEXT
+        appUrl.value = {$page.appUrl}
+    }
 }
 
 plugin.tx_mspricing {
