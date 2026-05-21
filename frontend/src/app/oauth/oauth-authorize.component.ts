@@ -1,3 +1,4 @@
+import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -8,7 +9,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 @Component({
     selector: 'uk-oauth-authorize',
     standalone: true,
-    imports: [ReactiveFormsModule, TranslatePipe],
+    imports: [NgOptimizedImage, ReactiveFormsModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './oauth-authorize.component.html',
     styleUrl: '../authentication/auth-page.scss',

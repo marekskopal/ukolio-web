@@ -1,3 +1,4 @@
+import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnInit, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {Locale, User} from '@app/models/user';
@@ -14,7 +15,7 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 @Component({
     selector: 'uk-layout',
     standalone: true,
-    imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
+    imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss',

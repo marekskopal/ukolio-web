@@ -1,3 +1,4 @@
+import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {AuthenticationService} from '@app/services/authentication.service';
@@ -9,7 +10,7 @@ type VerifyState = 'pending' | 'verifying' | 'success' | 'invalid';
 @Component({
     selector: 'uk-verify-email',
     standalone: true,
-    imports: [RouterLink, TranslatePipe],
+    imports: [NgOptimizedImage, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './verify-email.component.html',
     styleUrl: './auth-page.scss',

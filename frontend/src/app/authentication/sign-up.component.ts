@@ -1,3 +1,4 @@
+import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
@@ -8,7 +9,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 @Component({
     selector: 'uk-sign-up',
     standalone: true,
-    imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+    imports: [NgOptimizedImage, ReactiveFormsModule, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './sign-up.component.html',
     styleUrl: './auth-page.scss',
