@@ -163,6 +163,8 @@ services:
         environment:
             MP_SMTP_AUTH_ACCEPT_ANY: 1
             MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        profiles:
+            - dev
 
     minio:
         image: minio/minio:RELEASE.2025-01-20T14-49-07Z
@@ -177,6 +179,8 @@ services:
             - "9001:9001"
         volumes:
             - ukolio_minio:/data
+        profiles:
+            - dev
 
     memcached:
         image: memcached:1.6.41-alpine
