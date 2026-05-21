@@ -1,6 +1,30 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ----- Mobile hamburger toggle ----------------------------------
+    const burger = document.querySelector('[data-landing-burger]');
+    const topbar = document.querySelector('[data-landing-topbar]');
+    if (burger && topbar) {
+        const closeMenu = () => {
+            topbar.classList.remove('landing-topbar--open');
+            burger.setAttribute('aria-expanded', 'false');
+        };
+        burger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = topbar.classList.toggle('landing-topbar--open');
+            burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        document.addEventListener('click', (e) => {
+            if (!topbar.contains(e.target)) closeMenu();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMenu();
+        });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) closeMenu();
+        });
+    }
+
     // ----- Pricing billing-period toggle ----------------------------
     const toggleButtons = document.querySelectorAll('[data-mspricing-toggle]');
     if (toggleButtons.length > 0) {

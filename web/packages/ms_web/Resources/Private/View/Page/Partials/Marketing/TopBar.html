@@ -1,13 +1,22 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 
-<header class="landing-topbar">
+<header class="landing-topbar" data-landing-topbar>
     <a class="brand" href="/" aria-label="Ukolio">
         <img src="{f:uri.resource(path:'Images/logo-wordmark.svg', extensionName:'MsWeb')}" alt="Ukolio" class="brand-wordmark" height="24" />
     </a>
-    <f:cObject typoscriptObjectPath="lib.primaryNav" />
-    <div class="topbar-actions">
-        <a href="/app/login" class="uk-btn uk-btn--ghost uk-btn--sm">Sign in</a>
-        <a href="/app/sign-up" class="uk-btn uk-btn--primary uk-btn--sm">Get started <span class="arrow">&rarr;</span></a>
+
+    <button type="button" class="landing-topbar__burger" aria-label="Menu" aria-expanded="false" aria-controls="landing-mobile-menu" data-landing-burger>
+        <span class="landing-topbar__burger-bar"></span>
+        <span class="landing-topbar__burger-bar"></span>
+        <span class="landing-topbar__burger-bar"></span>
+    </button>
+
+    <div class="landing-topbar__drawer" id="landing-mobile-menu" data-landing-drawer>
+        <f:cObject typoscriptObjectPath="lib.primaryNav" />
+        <div class="topbar-actions">
+            <a href="/app/login" class="uk-btn uk-btn--ghost uk-btn--sm">Sign in</a>
+            <a href="/app/sign-up" class="uk-btn uk-btn--primary uk-btn--sm">Get started <span class="arrow">&rarr;</span></a>
+        </div>
     </div>
 </header>
 
