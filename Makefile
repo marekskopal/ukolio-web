@@ -1,4 +1,4 @@
-.PHONY: up down logs build migrate test test-backend test-backend-coverage test-frontend lint lint-backend lint-fix install
+.PHONY: up down logs build migrate test test-backend test-backend-coverage test-frontend test-e2e test-e2e-ui lint lint-backend lint-fix install
 
 ## Start stack
 up:
@@ -26,7 +26,7 @@ migrate:
 	docker compose exec backend php bin/console migration:run
 
 ## Run all tests
-test: test-backend test-frontend
+test: test-backend test-frontend test-e2e
 
 ## Backend unit tests (PHPUnit). Runs inside the backend container so the test
 ## suite can reach MariaDB. The harness auto-creates the `ukolio_test` database
@@ -43,6 +43,17 @@ test-backend-coverage:
 ## Frontend unit tests (Vitest)
 test-frontend:
 	cd frontend && pnpm run test
+
+## End-to-end tests (Playwright). Brings up the dev stack via docker compose if it
+## is not already running (Playwright's webServer config uses reuseExistingServer).
+## Override the base URL with E2E_BASE_URL=... and skip the auto-up with
+## E2E_SKIP_WEBSERVER=1 when the stack is managed externally.
+test-e2e:
+	cd frontend && pnpm run e2e
+
+## Run Playwright in interactive UI mode against the running dev stack.
+test-e2e-ui:
+	cd frontend && pnpm run e2e:ui
 
 ## Backend static analysis + code style
 lint: lint-backend

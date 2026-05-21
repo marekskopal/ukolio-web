@@ -149,10 +149,12 @@ Designed for AI-agent-driven flows; the frontend stays for human overview.
 ## Testing
 
 ```bash
-make test                    # All tests (backend + frontend)
+make test                    # All tests (backend + frontend + e2e)
 make test-backend            # PHPUnit (runs inside the backend container)
 make test-backend-coverage   # +pcov HTML report at backend/.phpunit.cache/coverage-html
-make test-frontend           # Vitest (no specs yet at time of writing)
+make test-frontend           # Vitest (jsdom + @analogjs/vite-plugin-angular)
+make test-e2e                # Playwright (boots the docker stack via webServer)
+make test-e2e-ui             # Playwright UI mode
 ```
 
 Backend tests boot the full `ApplicationFactory` container against a separate
@@ -162,6 +164,38 @@ truncate tables between tests via `IntegrationTestCase`. Test helpers live in
 `IntegrationTestCase` (HTTP dispatch + DB reset), and `Fixture` (deterministic
 user/workspace/project/JWT builders). `phpunit.xml` scopes coverage to
 `src/{Controller,Mcp,Service,OAuth,Validator}`.
+
+Frontend tests use Vitest 4 with jsdom and the AnalogJS Vite plugin (config
+in `frontend/vitest.config.ts`, TestBed bootstrap in `frontend/src/test-setup.ts`).
+The app is zoneless, so specs **must not** import `zone.js/testing` — use
+`provideZonelessChangeDetection()` in TestBed providers and the standard
+`fixture.detectChanges()` / `await fixture.whenStable()` lifecycle.
+
+- File naming: `*.spec.ts` co-located next to the unit under test.
+- Shared TestBed boilerplate lives in `frontend/src/app/testing/test-providers.ts` —
+  prefer `commonTestProviders()` (zoneless + router + HTTP testing) and
+  `provideTranslateStub()` (covers any component whose template uses `TranslatePipe`).
+- Run: `pnpm run test` (single run) or `pnpm run test:watch`. `make test-frontend`
+  is the equivalent from the repo root.
+
+End-to-end tests use Playwright (config in `frontend/playwright.config.ts`).
+Specs live in `frontend/e2e/` with page objects under `frontend/e2e/pages/`.
+
+- The `setup` Playwright project (`e2e/setup/auth.setup.ts`) signs up a fresh
+  fixture user per run and writes `e2e/.auth/user.json` (storage state) plus
+  `e2e/.auth/credentials.json` (for specs that need to log in again).
+- The default `chromium` project reuses that storage state. Auth specs
+  (`sign-up.spec.ts`, `login.spec.ts`) opt out via `test.use({storageState: {cookies: [], origins: []}})`.
+- `webServer` invokes `docker compose up -d --build --wait` from the repo root.
+  `reuseExistingServer: true` makes the run a no-op when `make up` is already
+  running. Override the URL with `E2E_BASE_URL=...` and disable the auto-up
+  with `E2E_SKIP_WEBSERVER=1` (CI with an external stack).
+- Self-signed certs in dev are ignored (`ignoreHTTPSErrors: true`).
+- Credentials default to `Test1234!`; override with `E2E_USER_EMAIL` / `E2E_PASSWORD`
+  in `.env.test` at the repo root.
+- Coverage: sign-up + login + workspace switch/create + project CRUD +
+  workflow status CRUD + task CRUD (create → edit → move across statuses →
+  delete).
 
 ## Linting
 
