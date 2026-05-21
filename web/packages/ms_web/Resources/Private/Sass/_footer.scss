@@ -1,17 +1,19 @@
+/* ====================================================================
+   Site footer (legacy chrome, not the landing footer)
+   ==================================================================== */
+
 .site-footer {
     text-align: center;
     padding: 2rem $content-padding-x;
-    color: $color-text-muted;
-    font-size: $font-size-sm;
-    border-top: 1px solid $color-gray;
+    color: var(--fg-subtle);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
     margin-top: $section-padding-y;
 
     a {
-        color: $color-text-dim;
+        color: var(--fg-muted);
         @include transitionAll(0.25);
 
-        &:hover {
-            color: $color-primary;
-        }
+        &:hover { color: var(--accent); }
     }
 }

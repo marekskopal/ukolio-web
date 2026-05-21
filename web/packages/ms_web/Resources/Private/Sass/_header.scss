@@ -1,9 +1,13 @@
+/* ====================================================================
+   Site header (legacy chrome, not the landing topbar)
+   ==================================================================== */
+
 .site-header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background-color: $color-bg;
-    border-bottom: 1px solid $color-gray;
+    background-color: var(--bg);
+    border-bottom: 1px solid var(--border);
 
     .top-nav {
         display: flex;
@@ -21,12 +25,10 @@
     .nav-logo {
         font-weight: 700;
         font-size: 1.25rem;
-        color: $color-text;
+        color: var(--fg);
         @include transitionAll(0.25);
 
-        &:hover {
-            color: $color-primary;
-        }
+        &:hover { color: var(--accent); }
     }
 
     .nav-links {
@@ -38,12 +40,10 @@
         }
 
         a {
-            color: $color-text-dim;
+            color: var(--fg-muted);
             @include transitionAll(0.25);
 
-            &:hover {
-                color: $color-primary;
-            }
+            &:hover { color: var(--accent); }
         }
     }
 
@@ -52,17 +52,15 @@
         align-items: center;
         gap: 0.5rem;
         margin-left: 2rem;
-        font-size: $font-size-sm;
+        font-size: 13px;
 
         a {
-            color: $color-text-muted;
+            color: var(--fg-subtle);
             text-transform: uppercase;
             @include transitionAll(0.25);
 
             &:hover,
-            &.active {
-                color: $color-primary;
-            }
+            &.active { color: var(--accent); }
         }
     }
 }

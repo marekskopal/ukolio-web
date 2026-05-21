@@ -1,3 +1,7 @@
+/* ====================================================================
+   Universal reset
+   ==================================================================== */
+
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -11,17 +15,17 @@ html {
 
 body {
     margin: 0;
-    font-family: $font-family-body;
-    font-size: $font-size;
+    font-family: var(--font-sans);
+    font-size: var(--fs-15);
     line-height: 1.6;
-    color: $color-text;
-    background-color: $color-bg;
+    color: var(--fg);
+    background-color: var(--bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-    color: $color-text;
+    color: var(--fg);
     text-decoration: none;
 }
 
@@ -45,9 +49,4 @@ button, input, textarea, select {
 
 button {
     cursor: pointer;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    margin: 0;
-    font-weight: 700;
 }

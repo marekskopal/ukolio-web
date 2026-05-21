@@ -1,0 +1,52 @@
+/* ====================================================================
+   Marketing wrapper — shared chrome for Pricing, Contact, Legal
+   ==================================================================== */
+
+.marketing {
+    .section {
+        padding: 32px 0;
+        border-top: 1px solid var(--border);
+
+        &:first-of-type { border-top: none; }
+
+        @include breakpoint-up(md) {
+            padding: 64px 0;
+        }
+    }
+
+    .section-inner--narrow { max-width: 880px; }
+}
+
+/* Section head variant shared by Compare table + FAQ */
+.section-head--marketing {
+    margin-bottom: 18px;
+
+    .section-head__eyebrow {
+        color: var(--accent);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .section-head__title {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+        color: var(--fg);
+        margin: 0;
+    }
+
+    @include breakpoint-up(md) {
+        margin-bottom: 24px;
+
+        .section-head__eyebrow {
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .section-head__title { font-size: 26px; }
+    }
+}

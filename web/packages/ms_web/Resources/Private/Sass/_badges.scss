@@ -1,0 +1,37 @@
+/* ====================================================================
+   Badges + dot
+   ==================================================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: var(--r-xs);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    background: var(--surface-2);
+    color: var(--fg-muted);
+    border: 1px solid transparent;
+    line-height: 1;
+
+    &--outline { background: var(--surface); border-color: var(--border); }
+    &--accent  { background: var(--accent-soft); color: var(--accent); }
+    &--success { background: var(--success-soft); color: var(--success); }
+    &--warn    { background: var(--warn-soft); color: var(--warn); }
+    &--danger  { background: var(--danger-soft); color: var(--danger); }
+    &--info    { background: var(--info-soft); color: var(--info); }
+    &--ai      { background: var(--ai-soft); color: var(--ai); }
+    &--solid   { background: var(--fg); color: white; }
+}
+
+.dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}

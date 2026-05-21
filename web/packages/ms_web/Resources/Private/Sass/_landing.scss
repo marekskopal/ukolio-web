@@ -1,0 +1,171 @@
+/* ====================================================================
+   Landing wrapper + section primitives + content-element atoms
+   ==================================================================== */
+
+body {
+    background: var(--bg);
+    margin: 0;
+}
+
+.landing main,
+main {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.landing {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--fs-15);
+    line-height: var(--lh-normal);
+    -webkit-font-smoothing: antialiased;
+
+    /* Sticky-footer scaffolding: stretch the wrapper to fill the viewport,
+       let <main> absorb the slack, and pin the footer to the bottom. */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    > main { flex: 1 0 auto; }
+    > .landing-footer { flex-shrink: 0; }
+
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+
+    a:not(.btn) {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    h1, h2, h3, h4 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--fg);
+        letter-spacing: var(--tracking-tight);
+        line-height: var(--lh-snug);
+    }
+
+    p { margin: 0; }
+
+    /* Strip the frame chrome from fluid_styled_content's layout */
+    .frame {
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: none;
+    }
+}
+
+/* ----- Section primitives ----- */
+.section {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+
+    @include breakpoint-up(md) {
+        padding: 72px 0;
+    }
+}
+
+.section-hero {
+    padding: 36px 0 24px;
+    border-top: none;
+
+    .section-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    @include breakpoint-up(md) {
+        padding: 88px 0 56px;
+
+        .section-inner { gap: 48px; }
+    }
+}
+
+.section-cta {
+    padding: 24px 0 36px;
+    border-top: none;
+
+    @include breakpoint-up(md) {
+        padding: 40px 0 64px;
+    }
+}
+
+.section-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    @include breakpoint-up(md) {
+        padding: 0 28px;
+    }
+}
+
+/* ----- Content-element atoms ----- */
+.ce-head { display: block; }
+
+.ce-eyebrow {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+
+    @include breakpoint-up(md) {
+        font-size: 11px;
+        margin-bottom: 12px;
+    }
+}
+
+.ce-title {
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: var(--fg);
+
+    @include breakpoint-up(md) {
+        font-size: 34px;
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+    }
+}
+
+.ce-bodytext {
+    color: var(--fg);
+
+    code {
+        background: var(--surface-2);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+    }
+}
+
+.section-head {
+    max-width: 720px;
+    margin-bottom: 18px;
+
+    .ce-bodytext {
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--fg-muted);
+        max-width: 620px;
+    }
+
+    @include breakpoint-up(md) {
+        margin-bottom: 40px;
+
+        .ce-bodytext {
+            margin-top: 14px;
+            font-size: 16px;
+        }
+    }
+}

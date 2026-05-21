@@ -1,0 +1,21 @@
+/* ====================================================================
+   Avatar
+   ==================================================================== */
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    color: var(--fg);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0;
+    flex-shrink: 0;
+    border: 1px solid var(--surface);
+
+    &--ai { background: var(--ai-soft); color: var(--ai); }
+}

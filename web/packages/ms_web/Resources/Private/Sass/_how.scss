@@ -1,0 +1,100 @@
+/* ====================================================================
+   "How it works" — numbered steps + adjacent code sample
+   ==================================================================== */
+
+.how-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    @include breakpoint-up(md) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: start;
+    }
+}
+
+.how-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: 0;
+
+    > .frame {
+        counter-increment: step;
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        column-gap: 12px;
+        align-items: start;
+
+        &::before {
+            content: counter(step);
+            grid-column: 1;
+            grid-row: 1 / span 99;
+            align-self: start;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: var(--fg);
+            color: #fff;
+            display: inline-grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        > .ce-head,
+        > .ce-bodytext { grid-column: 2; }
+    }
+
+    .ce-title {
+        font-size: 14.5px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .ce-bodytext {
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--fg-muted);
+    }
+
+    @include breakpoint-up(md) {
+        gap: 22px;
+
+        > .frame { column-gap: 14px; }
+
+        .ce-title { font-size: 15px; }
+        .ce-bodytext { font-size: 13.5px; }
+    }
+}
+
+.how-code {
+    background: #18181b;
+    color: #e4e4e7;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.65;
+    border: 1px solid #27272a;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre;
+
+    .cm { color: #71717a; }
+    .ky { color: #a1a1aa; }
+    .st { color: #a5d6a7; }
+    .fn { color: #c5cae9; }
+
+    @include breakpoint-up(md) {
+        padding: 20px;
+        font-size: 12.5px;
+        line-height: 1.7;
+    }
+}

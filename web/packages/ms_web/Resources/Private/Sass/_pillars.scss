@@ -1,0 +1,79 @@
+/* ====================================================================
+   Pillars grid — three value-prop cards with inlined SVG icons
+   ==================================================================== */
+
+.pillars-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    > .frame {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 16px;
+
+        .ce-head::before {
+            content: "";
+            display: block;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: var(--accent-soft) center / 14px no-repeat;
+            margin-bottom: 10px;
+        }
+
+        &:nth-child(1) .ce-head::before {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235e6ad2' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M12 2 2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>");
+        }
+        &:nth-child(2) .ce-head::before {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235e6ad2' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>");
+        }
+        &:nth-child(3) .ce-head::before {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235e6ad2' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/></svg>");
+        }
+    }
+
+    .ce-title {
+        font-size: 14.5px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        letter-spacing: -0.012em;
+    }
+
+    .ce-bodytext {
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--fg-muted);
+    }
+
+    @include breakpoint-up(md) {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+
+        > .frame {
+            padding: 22px;
+
+            .ce-head::before {
+                width: 32px;
+                height: 32px;
+                background-size: 16px;
+                margin-bottom: 14px;
+            }
+
+            &:nth-child(1) .ce-head::before {
+                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235e6ad2' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M12 2 2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>");
+            }
+            &:nth-child(2) .ce-head::before {
+                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235e6ad2' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>");
+            }
+            &:nth-child(3) .ce-head::before {
+                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235e6ad2' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/></svg>");
+            }
+        }
+
+        .ce-title { font-size: 16px; margin-bottom: 6px; }
+        .ce-bodytext { font-size: 13.5px; }
+    }
+}

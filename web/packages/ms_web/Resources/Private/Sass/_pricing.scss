@@ -1,0 +1,344 @@
+/* ====================================================================
+   Pricing hero + plan-cards section (uses ms_pricing extension classes)
+   ==================================================================== */
+
+.section-hero-pricing {
+    padding: 32px 0 12px;
+    border-top: none !important;
+
+    @include breakpoint-up(md) {
+        padding: 88px 0 24px;
+    }
+}
+
+.pricing-hero {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: left;
+
+    .ce-eyebrow {
+        color: var(--accent);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .ce-title {
+        font-size: 32px;
+        line-height: 1.1;
+        letter-spacing: -0.028em;
+        font-weight: 600;
+    }
+
+    .ce-bodytext {
+        margin-top: 12px;
+        font-size: 14.5px;
+        line-height: 1.55;
+        color: var(--fg-muted);
+    }
+
+    @include breakpoint-up(md) {
+        text-align: center;
+
+        .ce-eyebrow {
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .ce-title {
+            font-size: 48px;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        .ce-bodytext {
+            margin-top: 18px;
+            font-size: 16.5px;
+        }
+    }
+}
+
+.section-plans {
+    padding: 16px 0 24px;
+
+    .section-inner { max-width: 880px; }
+
+    @include breakpoint-up(md) {
+        padding: 24px 0 56px;
+    }
+}
+
+.mspricing { width: 100%; }
+
+.mspricing-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    margin: 0 0 24px;
+
+    &__button {
+        border: none;
+        cursor: pointer;
+        height: 30px;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        color: var(--fg-muted);
+        background: transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 120ms, color 120ms;
+
+        &--active {
+            background: var(--fg);
+            color: #fff;
+
+            .mspricing-toggle__badge {
+                background: rgba(255, 255, 255, 0.16);
+                color: #fff;
+            }
+        }
+    }
+
+    &__badge {
+        font-size: 9.5px;
+        font-weight: 600;
+        padding: 1px 5px;
+        border-radius: 999px;
+        background: var(--success-soft);
+        color: var(--success);
+        letter-spacing: 0.02em;
+    }
+
+    @include breakpoint-up(md) {
+        margin: 0 auto 32px;
+
+        &__button {
+            height: 32px;
+            padding: 0 16px;
+            font-size: 13px;
+            gap: 8px;
+        }
+
+        &__badge {
+            font-size: 10px;
+            padding: 2px 6px;
+        }
+    }
+}
+
+.mspricing-cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    @include breakpoint-up(md) {
+        align-items: center;
+    }
+}
+
+.mspricing-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+
+    @include breakpoint-up(md) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    &__legal {
+        margin-top: 18px;
+        font-size: 11.5px;
+        color: var(--fg-subtle);
+        text-align: center;
+
+        @include breakpoint-up(md) {
+            margin-top: 22px;
+            font-size: 12.5px;
+        }
+    }
+}
+
+.mspricing-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    &--highlighted {
+        border-color: var(--fg);
+        border-width: 1.5px;
+        box-shadow: var(--shadow-md);
+    }
+
+    &__badge {
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        background: var(--fg);
+        color: #fff;
+        font-size: 10.5px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 999px;
+        letter-spacing: -0.005em;
+    }
+
+    &__name {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.012em;
+        margin: 0;
+    }
+
+    &__blurb {
+        margin: 4px 0 0;
+        font-size: 12.5px;
+        color: var(--fg-muted);
+        line-height: 1.5;
+    }
+
+    &__price-row {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__price {
+        display: inline-flex;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    &__price-amount {
+        font-size: 36px;
+        font-weight: 600;
+        letter-spacing: -0.028em;
+        line-height: 1;
+        color: var(--fg);
+    }
+
+    &__price-unit {
+        font-size: 12px;
+        color: var(--fg-subtle);
+        margin-bottom: 4px;
+    }
+
+    &__price-suffix {
+        font-size: 11.5px;
+        color: var(--fg-subtle);
+    }
+
+    &__cta {
+        margin-top: 16px;
+        width: 100%;
+        text-align: center;
+    }
+
+    &__sep {
+        margin: 16px 0 12px;
+        border: 0;
+        border-top: 1px solid var(--border);
+    }
+
+    &__features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__feature {
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--fg);
+    }
+
+    &__feature-check {
+        flex-shrink: 0;
+        margin-top: 3px;
+        width: 13px;
+        height: 13px;
+        border-radius: 999px;
+        background: var(--success-soft);
+        color: var(--success);
+        display: grid;
+        place-items: center;
+    }
+
+    &__feature-text em {
+        font-style: normal;
+        color: var(--fg-muted);
+    }
+
+    @include breakpoint-up(md) {
+        padding: 28px;
+
+        &__badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            left: 28px;
+        }
+
+        &__name { font-size: 18px; }
+
+        &__blurb {
+            margin-top: 6px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            min-height: 38px;
+        }
+
+        &__price-row {
+            margin-top: 20px;
+            gap: 4px;
+        }
+
+        &__price-amount {
+            font-size: 44px;
+            letter-spacing: -0.03em;
+        }
+
+        &__price-unit {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        &__price-suffix { font-size: 12px; }
+
+        &__cta { margin-top: 22px; }
+        &__sep { margin: 24px 0 18px; }
+        &__features { gap: 10px; }
+
+        &__feature {
+            font-size: 13px;
+            line-height: 1.5;
+            gap: 10px;
+        }
+
+        &__feature-check {
+            width: 14px;
+            height: 14px;
+        }
+    }
+}

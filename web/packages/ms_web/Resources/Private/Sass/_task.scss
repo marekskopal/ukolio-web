@@ -1,0 +1,47 @@
+/* ====================================================================
+   Task card (kanban)
+   ==================================================================== */
+
+.task {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 10px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 80ms ease, box-shadow 80ms ease;
+    cursor: pointer;
+
+    &:hover { border-color: var(--border-strong); }
+}
+
+.task-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-subtle);
+    letter-spacing: 0.02em;
+}
+
+.task-title {
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 500;
+    color: var(--fg);
+    letter-spacing: -0.005em;
+}
+
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--fg-subtle);
+
+    .divider {
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        background: var(--fg-faint);
+    }
+}

@@ -1,0 +1,11 @@
+/* ====================================================================
+   Cards / surfaces
+   ==================================================================== */
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+
+    &--muted { background: var(--surface-2); }
+}

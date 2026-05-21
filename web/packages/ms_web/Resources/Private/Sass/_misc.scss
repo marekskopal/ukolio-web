@@ -1,0 +1,60 @@
+/* ====================================================================
+   Miscellaneous utilities — section chrome, swatches, dividers
+   ==================================================================== */
+
+.section-utility {
+    padding: 24px;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+}
+
+.swatch {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.swatch-color {
+    width: 100%;
+    height: 64px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+}
+
+.swatch-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.swatch-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--fg);
+}
+
+.swatch-val {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--fg-subtle);
+    letter-spacing: 0.01em;
+}
+
+.hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 0;
+}
+
+.vr {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+}

@@ -1,26 +1,57 @@
-@import "uk-tokens";
-@import "uk-landing";
-@import "uk-marketing";
-@import "basic";
+/* ====================================================================
+   Main stylesheet — imports + global page wrapper
+   ==================================================================== */
+
+// Foundations
+@import "tokens";
 @import "mixins";
+@import "reset";
+@import "typography";
+
+// Atoms / components
+@import "buttons";
+@import "forms";
+@import "badges";
+@import "cards";
+@import "alerts";
+@import "tables";
+@import "lists";
+@import "task";
+@import "avatar";
+@import "misc";
+
+// Site chrome (legacy)
 @import "header";
 @import "footer";
 
+// Landing page
+@import "landing";
+@import "topbar";
+@import "hero";
+@import "pillars";
+@import "how";
+@import "features";
+@import "trust";
+@import "cta";
+@import "landing-footer";
+
+// Marketing pages (Pricing, Contact, Legal)
+@import "marketing";
+@import "pricing";
+@import "community";
+@import "compare";
+@import "faq";
+@import "contact";
+@import "legal";
+
+/* ----- Global page rules ----- */
 html {
     scroll-behavior: smooth;
 }
 
-body {
-    font-family: $font-family-body;
-    background: $color-bg;
-    color: $color-text;
-    line-height: 1.6;
-    overflow-x: hidden;
-}
-
 ::selection {
-    background: $color-primary;
-    color: $color-white;
+    background: var(--accent);
+    color: #fff;
 }
 
 main {
@@ -33,10 +64,6 @@ main {
     }
 }
 
-p {
-    margin: 0 0 16px;
-}
-
 a {
     @include transitionAll(0.25);
 
@@ -46,7 +73,6 @@ a {
     }
 }
 
-// Sections common
 section.content-section {
     padding: $section-padding-y $content-padding-x;
     max-width: $content-max-width;
@@ -57,7 +83,6 @@ section.content-section {
     }
 }
 
-// Content sections within dynamic content
 .ce-textpic,
 .ce-text,
 .ce-default {
@@ -65,28 +90,5 @@ section.content-section {
 
     @include breakpoint-down(md) {
         padding: $section-padding-y-mobile 0;
-    }
-}
-
-// Utility
-.btn {
-    display: inline-block;
-    padding: 0.85rem 2rem;
-    border-radius: $border-radius;
-    border: 0;
-    cursor: pointer;
-    font-size: $font-size-sm;
-    font-weight: 600;
-    text-align: center;
-    @include transitionAll(0.25);
-}
-
-.btn-default,
-.btn-primary {
-    background-color: $color-primary;
-    color: $color-white;
-
-    &:hover {
-        opacity: 0.9;
     }
 }

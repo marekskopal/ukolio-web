@@ -1,0 +1,85 @@
+/* ====================================================================
+   Buttons
+   ==================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: var(--h-md);
+    padding: 0 var(--s-5);
+    border-radius: var(--r-sm);
+    border: 1px solid transparent;
+    font: inherit;
+    font-size: var(--fs-13);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--fg);
+    background: transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: background 80ms ease, border-color 80ms ease, color 80ms ease, box-shadow 80ms ease;
+    white-space: nowrap;
+
+    &:disabled,
+    &[aria-disabled="true"] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--ring);
+    }
+
+    &--xs { height: var(--h-xs); padding: 0 8px;  font-size: 11px; }
+    &--sm { height: var(--h-sm); padding: 0 10px; font-size: 12px; }
+    &--lg { height: var(--h-lg); padding: 0 14px; font-size: 14px; }
+    &--xl { height: var(--h-xl); padding: 0 18px; font-size: 15px; }
+
+    &--primary {
+        background: var(--accent);
+        color: var(--accent-fg);
+        border-color: var(--accent);
+
+        &:hover  { background: var(--accent-hover); border-color: var(--accent-hover); }
+        &:active { background: var(--accent-active); }
+    }
+
+    &--secondary {
+        background: var(--surface);
+        border-color: var(--border-strong);
+        color: var(--fg);
+
+        &:hover { background: var(--surface-2); border-color: var(--border-strong); }
+    }
+
+    &--ghost {
+        color: var(--fg-muted);
+
+        &:hover { color: var(--fg); background: var(--surface-2); }
+    }
+
+    &--danger {
+        background: var(--danger);
+        color: white;
+        border-color: var(--danger);
+
+        &:hover { filter: brightness(0.95); }
+    }
+
+    &--danger-ghost {
+        color: var(--danger);
+
+        &:hover { background: var(--danger-soft); }
+    }
+
+    &--icon {
+        padding: 0;
+        width: var(--h-md);
+
+        &.btn--sm { width: var(--h-sm); }
+        &.btn--xs { width: var(--h-xs); }
+    }
+}

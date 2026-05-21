@@ -1,6 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <!--TYPO3SEARCH_begin-->
-<div class="uk uk-landing">
+<div class="landing">
 
     <f:render partial="Marketing/TopBar" arguments="{_all}" />
 
@@ -10,57 +10,57 @@
                 <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
             </div>
 
-            <div class="hero-board uk-card">
+            <div class="hero-board card">
                 <div class="hero-board-head">
                     <div><strong>Acme &middot; Backend</strong> &middot; Sprint 14</div>
-                    <span class="uk-badge uk-badge--ai">3 of 12 by agents this week</span>
+                    <span class="badge badge--ai">3 of 12 by agents this week</span>
                 </div>
                 <div class="hero-board-cols">
                     <div class="hero-board-col">
-                        <div class="col-label"><span class="dot" style="background: var(--uk-status-todo);"></span> To do &middot; 3</div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-217</div>
-                            <div class="uk-task-title">Rate-limit refresh-token endpoint</div>
-                            <div class="uk-task-meta">
-                                <span class="uk-badge uk-badge--danger">High</span>
-                                <span class="uk-badge uk-badge--ai">via Claude</span>
+                        <div class="col-label"><span class="dot" style="background: var(--status-todo);"></span> To do &middot; 3</div>
+                        <div class="task">
+                            <div class="task-id">BE-217</div>
+                            <div class="task-title">Rate-limit refresh-token endpoint</div>
+                            <div class="task-meta">
+                                <span class="badge badge--danger">High</span>
+                                <span class="badge badge--ai">via Claude</span>
                             </div>
                         </div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-219</div>
-                            <div class="uk-task-title">Backfill workspace.owner_id for legacy rows</div>
-                            <div class="uk-task-meta"><span class="uk-badge">Medium</span></div>
+                        <div class="task">
+                            <div class="task-id">BE-219</div>
+                            <div class="task-title">Backfill workspace.owner_id for legacy rows</div>
+                            <div class="task-meta"><span class="badge">Medium</span></div>
                         </div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-220</div>
-                            <div class="uk-task-title">Add OpenTelemetry tracing to MCP transport</div>
-                            <div class="uk-task-meta"><span class="uk-badge uk-badge--ai">via Cursor</span></div>
-                        </div>
-                    </div>
-                    <div class="hero-board-col">
-                        <div class="col-label"><span class="dot" style="background: var(--uk-status-doing);"></span> In progress &middot; 2</div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-214</div>
-                            <div class="uk-task-title">Migrate file attachments to S3-compatible storage</div>
-                            <div class="uk-task-meta"><span class="uk-badge uk-badge--solid">Urgent</span></div>
-                        </div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-216</div>
-                            <div class="uk-task-title">Custom-field validation for Version type</div>
-                            <div class="uk-task-meta"><span class="uk-badge">Medium</span></div>
+                        <div class="task">
+                            <div class="task-id">BE-220</div>
+                            <div class="task-title">Add OpenTelemetry tracing to MCP transport</div>
+                            <div class="task-meta"><span class="badge badge--ai">via Cursor</span></div>
                         </div>
                     </div>
                     <div class="hero-board-col">
-                        <div class="col-label"><span class="dot" style="background: var(--uk-status-done);"></span> Done &middot; 4</div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-210</div>
-                            <div class="uk-task-title">OAuth 2.1 dynamic client registration</div>
-                            <div class="uk-task-meta"><span class="uk-badge uk-badge--ai">closed by ChatGPT</span></div>
+                        <div class="col-label"><span class="dot" style="background: var(--status-doing);"></span> In progress &middot; 2</div>
+                        <div class="task">
+                            <div class="task-id">BE-214</div>
+                            <div class="task-title">Migrate file attachments to S3-compatible storage</div>
+                            <div class="task-meta"><span class="badge badge--solid">Urgent</span></div>
                         </div>
-                        <div class="uk-task">
-                            <div class="uk-task-id">BE-211</div>
-                            <div class="uk-task-title">Workspace-scoped tag catalog</div>
-                            <div class="uk-task-meta"><span class="uk-badge">Medium</span></div>
+                        <div class="task">
+                            <div class="task-id">BE-216</div>
+                            <div class="task-title">Custom-field validation for Version type</div>
+                            <div class="task-meta"><span class="badge">Medium</span></div>
+                        </div>
+                    </div>
+                    <div class="hero-board-col">
+                        <div class="col-label"><span class="dot" style="background: var(--status-done);"></span> Done &middot; 4</div>
+                        <div class="task">
+                            <div class="task-id">BE-210</div>
+                            <div class="task-title">OAuth 2.1 dynamic client registration</div>
+                            <div class="task-meta"><span class="badge badge--ai">closed by ChatGPT</span></div>
+                        </div>
+                        <div class="task">
+                            <div class="task-id">BE-211</div>
+                            <div class="task-title">Workspace-scoped tag catalog</div>
+                            <div class="task-meta"><span class="badge">Medium</span></div>
                         </div>
                     </div>
                 </div>

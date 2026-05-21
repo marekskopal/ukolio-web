@@ -1,0 +1,140 @@
+/* ====================================================================
+   Pricing compare table — mobile scrolls horizontally; desktop full-width
+   ==================================================================== */
+
+.section-compare {
+    padding: 32px 0;
+
+    .section-inner { max-width: 1120px; }
+
+    @include breakpoint-up(md) {
+        padding: 56px 0;
+    }
+}
+
+.mspricing-table-wrapper {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mspricing-table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    th,
+    td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        font-size: 12.5px;
+    }
+
+    thead th {
+        background: var(--surface-2);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--fg-subtle);
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    @include breakpoint-up(md) {
+        min-width: 0;
+
+        th,
+        td {
+            padding: 14px 16px;
+            font-size: 13px;
+        }
+
+        thead th { font-size: 11px; }
+    }
+}
+
+.mspricing-plan {
+    text-align: center;
+    width: 140px;
+
+    &__name {
+        display: block;
+        font-weight: 600;
+        color: var(--fg);
+        font-size: 12.5px;
+    }
+
+    &__subtitle,
+    &__price {
+        display: block;
+        font-size: 10.5px;
+        color: var(--fg-subtle);
+        font-weight: 400;
+    }
+
+    @include breakpoint-up(md) {
+        width: 200px;
+
+        &__name { font-size: 13px; }
+
+        &__subtitle,
+        &__price { font-size: 11px; }
+    }
+}
+
+.mspricing-cell {
+    text-align: center;
+    color: var(--fg-muted);
+}
+
+.mspricing-feature {
+    &__name {
+        font-size: 13px;
+        color: var(--fg);
+
+        @include breakpoint-up(md) {
+            font-size: 13.5px;
+        }
+    }
+
+    &__tooltip {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        background: var(--surface-2);
+        color: var(--fg-subtle);
+        font-size: 10px;
+        line-height: 14px;
+        text-align: center;
+        margin-left: 4px;
+        cursor: help;
+    }
+}
+
+.mspricing-group-header td {
+    background: var(--surface-2);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--fg-subtle);
+
+    @include breakpoint-up(md) {
+        font-size: 11px;
+    }
+}
+
+.mspricing-check {
+    width: 18px;
+    height: 18px;
+    color: var(--success);
+    padding: 3px;
+    background: var(--success-soft);
+    border-radius: 999px;
+}
