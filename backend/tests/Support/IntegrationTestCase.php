@@ -107,6 +107,24 @@ abstract class IntegrationTestCase extends TestCase
 		$decoded = Json::decode($body, forceArrays: true);
 		assert(is_array($decoded));
 		/** @var list<array<string, mixed>> $decoded */
-		return array_values($decoded);
+		return $decoded;
+	}
+
+	/**
+	 * Narrow a mixed value coming out of a JSON body to an int.
+	 */
+	protected static function intField(mixed $value): int
+	{
+		self::assertIsInt($value);
+		return $value;
+	}
+
+	/**
+	 * Narrow a mixed value coming out of a JSON body to a string.
+	 */
+	protected static function stringField(mixed $value): string
+	{
+		self::assertIsString($value);
+		return $value;
 	}
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Support;
 
-use MarekSkopal\ORM\Database\DatabaseInterface;
 use MarekSkopal\ORM\ORM;
 use PDO;
 use Psr\Container\ContainerInterface;
@@ -45,9 +44,7 @@ final class AppHarness
 
 	public static function pdo(): PDO
 	{
-		$db = self::app()->dbContext->getDatabase();
-		assert($db instanceof DatabaseInterface);
-		return $db->getPdo();
+		return self::app()->dbContext->getDatabase()->getPdo();
 	}
 
 	/**
@@ -59,11 +56,18 @@ final class AppHarness
 		$pdo = self::pdo();
 
 		if (self::$tables === null) {
-			$rows = $pdo->query('SHOW TABLES')?->fetchAll(PDO::FETCH_COLUMN) ?: [];
-			self::$tables = array_values(array_filter(
-				array_map(static fn (mixed $r): string => (string) $r, $rows),
-				static fn (string $name): bool => $name !== 'migrations',
-			));
+			$stmt = $pdo->query('SHOW TABLES');
+			if ($stmt === false) {
+				throw new \RuntimeException('SHOW TABLES query failed');
+			}
+			$tables = [];
+			foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $row) {
+				if (!is_string($row) || $row === 'migrations') {
+					continue;
+				}
+				$tables[] = $row;
+			}
+			self::$tables = $tables;
 		}
 
 		$pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

@@ -35,7 +35,9 @@ final class EmailFactoryTest extends TestCase
 
 		self::assertSame('no-reply@ukolio.example', $email->getFrom()[0]->getAddress());
 		self::assertSame('invitee@example.com', $email->getTo()[0]->getAddress());
-		self::assertStringContainsString('Acme', $email->getSubject());
+		$subject = $email->getSubject();
+		self::assertIsString($subject);
+		self::assertStringContainsString('Acme', $subject);
 
 		$html = $email->getHtmlBody();
 		self::assertIsString($html);
