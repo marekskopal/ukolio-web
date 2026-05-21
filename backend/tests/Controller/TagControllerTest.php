@@ -25,7 +25,7 @@ final class TagControllerTest extends IntegrationTestCase
 			authenticatedAs: $owner,
 		);
 		self::assertSame(200, $create->getStatusCode());
-		$tagId = $this->jsonBody($create)['id'];
+		$tagId = self::intField($this->jsonBody($create)['id']);
 
 		$list = $this->request('GET', '/api/workspaces/' . $workspace->id . '/tags', authenticatedAs: $owner);
 		self::assertCount(1, $this->jsonList($list));

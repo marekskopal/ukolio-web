@@ -6,7 +6,6 @@ namespace Ukolio\Tests\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\AuthenticationController;
-use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\WorkspaceRepository;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Tests\Support\AppHarness;
@@ -34,7 +33,6 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		assert($workspaceRepo instanceof WorkspaceRepository);
 		$workspaces = iterator_to_array($workspaceRepo->findAll(), false);
 		self::assertCount(1, $workspaces);
-		assert($workspaces[0] instanceof Workspace);
 		self::assertSame("New Person's Workspace", $workspaces[0]->name);
 	}
 
@@ -195,10 +193,14 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		$rawToken = bin2hex(random_bytes(16));
 		$pdo = AppHarness::pdo();
 		$now = new \DateTimeImmutable();
-		$pdo->prepare(
+		$stmt = $pdo->prepare(
 			'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, used_at, created_at, updated_at) '
 			. 'VALUES (:user_id, :hash, :expires, NULL, :now, :now)',
-		)->execute([
+		);
+		if ($stmt === false) {
+			self::fail('Failed to prepare INSERT statement');
+		}
+		$stmt->execute([
 			'user_id' => $user->id,
 			'hash' => hash('sha256', $rawToken),
 			'expires' => $now->modify('+1 hour')->format('Y-m-d H:i:s'),

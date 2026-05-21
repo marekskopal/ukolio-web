@@ -39,6 +39,9 @@ final class TaskToolsTest extends IntegrationTestCase
 		// Verify the task was attributed to an agent (ActorContext was flipped to Agent in bootAs).
 		$pdo = AppHarness::pdo();
 		$stmt = $pdo->prepare('SELECT created_by_agent FROM tasks WHERE id = :id');
+		if ($stmt === false) {
+			self::fail('Failed to prepare SELECT statement');
+		}
 		$stmt->execute(['id' => $task->id]);
 		self::assertSame(1, (int) $stmt->fetchColumn());
 	}
@@ -56,7 +59,7 @@ final class TaskToolsTest extends IntegrationTestCase
 			name: 'In progress task',
 			statusName: 'In Progress',
 		);
-		self::assertNotNull($task);
+		self::assertSame('In progress task', $task->name);
 	}
 
 	public function testMoveTaskByStatusName(): void

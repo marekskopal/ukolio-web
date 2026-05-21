@@ -39,17 +39,19 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame('Write tests', $task['name']);
 		self::assertSame('High', $task['priority']);
 		self::assertNotEmpty($task['code']);
+		$taskId = self::intField($task['id']);
+		$taskCode = self::stringField($task['code']);
 
 		// List under project
 		$list = $this->request('GET', '/api/projects/' . $project->id . '/tasks', authenticatedAs: $owner);
 		self::assertCount(1, $this->jsonList($list));
 
 		// Get by numeric ID (routes accept either int ID or PREFIX-N code)
-		$getById = $this->request('GET', '/api/tasks/' . $task['id'], authenticatedAs: $owner);
+		$getById = $this->request('GET', '/api/tasks/' . $taskId, authenticatedAs: $owner);
 		self::assertSame(200, $getById->getStatusCode());
 
 		// Get by code form
-		$getByCode = $this->request('GET', '/api/tasks/' . $task['code'], authenticatedAs: $owner);
+		$getByCode = $this->request('GET', '/api/tasks/' . $taskCode, authenticatedAs: $owner);
 		self::assertSame(200, $getByCode->getStatusCode());
 
 		// Workspace-wide listing returns same task
@@ -57,7 +59,9 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(200, $wsList->getStatusCode());
 		$payload = $this->jsonBody($wsList);
 		self::assertSame(1, $payload['count']);
-		self::assertCount(1, $payload['tasks']);
+		$payloadTasks = $payload['tasks'];
+		self::assertIsArray($payloadTasks);
+		self::assertCount(1, $payloadTasks);
 	}
 
 	public function testMoveTaskBetweenStatuses(): void
@@ -74,7 +78,7 @@ final class TaskControllerTest extends IntegrationTestCase
 			body: ['statusId' => $todoId, 'name' => 'Move me', 'description' => null, 'priority' => 'Medium'],
 			authenticatedAs: $owner,
 		);
-		$code = $this->jsonBody($create)['code'];
+		$code = self::stringField($this->jsonBody($create)['code']);
 
 		$move = $this->request(
 			'PUT',
@@ -115,8 +119,11 @@ final class TaskControllerTest extends IntegrationTestCase
 			'/api/tasks?limit=2&offset=0',
 			authenticatedAs: $owner,
 		);
-		self::assertCount(2, $this->jsonBody($paged)['tasks']);
-		self::assertSame(4, $this->jsonBody($paged)['count']);
+		$pagedBody = $this->jsonBody($paged);
+		$pagedTasks = $pagedBody['tasks'];
+		self::assertIsArray($pagedTasks);
+		self::assertCount(2, $pagedTasks);
+		self::assertSame(4, $pagedBody['count']);
 	}
 
 	public function testDeleteTaskRemovesIt(): void
@@ -132,7 +139,7 @@ final class TaskControllerTest extends IntegrationTestCase
 			body: ['statusId' => $todoId, 'name' => 'Doomed', 'description' => null, 'priority' => 'Low'],
 			authenticatedAs: $owner,
 		);
-		$code = $this->jsonBody($create)['code'];
+		$code = self::stringField($this->jsonBody($create)['code']);
 
 		$delete = $this->request('DELETE', '/api/tasks/' . $code, authenticatedAs: $owner);
 		self::assertSame(200, $delete->getStatusCode());

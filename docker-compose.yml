@@ -99,6 +99,8 @@ services:
             REDIS_HOST: ${REDIS_HOST}
             REDIS_PORT: ${REDIS_PORT}
             REDIS_PASSWORD: ${REDIS_PASSWORD}
+            MEMCACHED_HOST: ${MEMCACHED_HOST}
+            MEMCACHED_PORT: ${MEMCACHED_PORT}
             MCP_SESSION_TTL: ${MCP_SESSION_TTL}
             MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY}
             MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY}
@@ -106,6 +108,8 @@ services:
         depends_on:
             redis:
                 condition: service_healthy
+            memcached:
+                condition: service_started
             minio:
                 condition: service_started
         restart: unless-stopped
@@ -171,6 +175,12 @@ services:
             - "9001:9001"
         volumes:
             - ukolio_minio:/data
+
+    memcached:
+        image: memcached:1.6.41-alpine
+        restart: unless-stopped
+        networks:
+            - backend
 
     redis:
         image: redis:8.6.3-alpine

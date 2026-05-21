@@ -11,7 +11,9 @@ RUN install-php-extensions \
     mbstring \
     pcov \
     sockets \
-    zip
+    zip \
+    igbinary \
+    memcached
 
 RUN apk add --no-cache curl tzdata
 

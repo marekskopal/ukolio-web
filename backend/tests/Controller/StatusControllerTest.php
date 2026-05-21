@@ -29,7 +29,7 @@ final class StatusControllerTest extends IntegrationTestCase
 			authenticatedAs: $owner,
 		);
 		self::assertSame(200, $create->getStatusCode());
-		$statusId = (int) $this->jsonBody($create)['id'];
+		$statusId = self::intField($this->jsonBody($create)['id']);
 
 		// Update
 		$update = $this->request(

@@ -11,6 +11,8 @@ use Predis\Client;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Ukolio\Service\Cache\CacheFactory;
+use Ukolio\Service\Cache\CacheFactoryInterface;
 use Ukolio\Service\Logger\Logger;
 use Ukolio\Service\Storage\FileStorageInterface;
 use Ukolio\Service\Storage\S3Config;
@@ -27,6 +29,7 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			S3Client::class,
 			FileStorageInterface::class,
 			ClientInterface::class,
+			CacheFactoryInterface::class,
 		], true);
 	}
 
@@ -76,5 +79,11 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 				],
 			]),
 		);
+
+		$container->add(CacheFactoryInterface::class, static function () use ($container): CacheFactoryInterface {
+			$redisClient = $container->get(ClientInterface::class);
+			assert($redisClient instanceof ClientInterface);
+			return new CacheFactory($redisClient);
+		});
 	}
 }

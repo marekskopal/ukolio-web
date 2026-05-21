@@ -82,9 +82,16 @@ $pdo = new PDO(
 );
 
 $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
-$tables = $pdo->query('SHOW TABLES')?->fetchAll(PDO::FETCH_COLUMN) ?: [];
-foreach ($tables as $table) {
-	$pdo->exec('DROP TABLE IF EXISTS `' . (string) $table . '`');
+$showTables = $pdo->query('SHOW TABLES');
+if ($showTables === false) {
+	fwrite(STDERR, "SHOW TABLES query failed.\n");
+	exit(1);
+}
+foreach ($showTables->fetchAll(PDO::FETCH_COLUMN) as $table) {
+	if (!is_string($table)) {
+		continue;
+	}
+	$pdo->exec('DROP TABLE IF EXISTS `' . $table . '`');
 }
 $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
 

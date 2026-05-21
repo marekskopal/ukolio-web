@@ -47,6 +47,8 @@ final readonly class ApplicationFactory
 			'REDIS_HOST',
 			'REDIS_PORT',
 			'REDIS_PASSWORD',
+			'MEMCACHED_HOST',
+			'MEMCACHED_PORT',
 		];
 
 		$missing = [];

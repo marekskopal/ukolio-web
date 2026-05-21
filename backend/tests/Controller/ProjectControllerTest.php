@@ -30,6 +30,7 @@ final class ProjectControllerTest extends IntegrationTestCase
 		$project = $this->jsonBody($response);
 		self::assertSame('My Project', $project['name']);
 		self::assertNotEmpty($project['prefix']);
+		$projectId = self::intField($project['id']);
 
 		// Project shows up in the list
 		$listResponse = $this->request('GET', '/api/projects', authenticatedAs: $owner);
@@ -39,15 +40,16 @@ final class ProjectControllerTest extends IntegrationTestCase
 		// Default workflow has 3 statuses
 		$workflowResponse = $this->request(
 			'GET',
-			'/api/projects/' . $project['id'] . '/workflow',
+			'/api/projects/' . $projectId . '/workflow',
 			authenticatedAs: $owner,
 		);
 		self::assertSame(200, $workflowResponse->getStatusCode());
 		$workflow = $this->jsonBody($workflowResponse);
+		$workflowId = self::intField($workflow['id']);
 
 		$statusRepo = $this->container->get(StatusRepository::class);
 		assert($statusRepo instanceof StatusRepository);
-		$statuses = iterator_to_array($statusRepo->findByWorkflow($workflow['id']), false);
+		$statuses = iterator_to_array($statusRepo->findByWorkflow($workflowId), false);
 		self::assertCount(3, $statuses);
 	}
 
