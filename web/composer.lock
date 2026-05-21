@@ -1543,12 +1543,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-mcp-server.git",
-                "reference": "74bbcdf0b096b583911dc92fe37f6aabe60b816a"
+                "reference": "15a53b990bb6b920575a25f41016ce4e284fddd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/74bbcdf0b096b583911dc92fe37f6aabe60b816a",
-                "reference": "74bbcdf0b096b583911dc92fe37f6aabe60b816a",
+                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/15a53b990bb6b920575a25f41016ce4e284fddd5",
+                "reference": "15a53b990bb6b920575a25f41016ce4e284fddd5",
                 "shasum": ""
             },
             "require": {
@@ -1603,7 +1603,7 @@
                 "issues": "https://github.com/marekskopal/typo3-mcp-server/issues",
                 "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.10.0"
             },
-            "time": "2026-05-21T16:09:39+00:00"
+            "time": "2026-05-21T16:28:35+00:00"
         },
         {
             "name": "marekskopal/typo3-pricing",
