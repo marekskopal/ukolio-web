@@ -49,7 +49,8 @@ Required variables — see `.env.example` for the full list:
 
 | Variable | Notes |
 |----------|-------|
-| `APP_ENV` | Set to `production` on real deployments. The boot guard then rejects the dev defaults for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` and anything shorter than 16 characters |
+| `APP_ENV` | Set to `production` on real deployments. The boot guard then rejects the dev defaults for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` (and anything shorter than 16 characters), and refuses `*` for `BACKEND_CORS_ALLOWED_ORIGIN` |
+| `BACKEND_CORS_ALLOWED_ORIGIN` | Allowed Origin(s) for `/api/*` and the Mercure hub. Space- or comma-separated; production must list explicit origins (no `*`) |
 | `AUTHORIZATION_TOKEN_KEY` | ≥ 32 chars; sign with `openssl rand -hex 32`. The boot guard rejects the placeholder value regardless of `APP_ENV` |
 | `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` | Mercure realtime hub JWT keys; also generate with `openssl rand -hex 32` |
 | `MYSQL_*` | Database host + credentials |

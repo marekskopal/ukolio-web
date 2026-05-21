@@ -16,6 +16,7 @@ use Ukolio\App\ServiceProvider\InfrastructureServiceProvider;
 use Ukolio\App\ServiceProvider\OrmServiceProvider;
 use Ukolio\App\ServiceProvider\RealtimeServiceProvider;
 use Ukolio\Middleware\AuthorizationMiddleware;
+use Ukolio\Middleware\CorsMiddleware;
 use Ukolio\Route\Strategy\JsonStrategy;
 use Ukolio\Service\Dbal\DbContext;
 
@@ -60,6 +61,12 @@ final readonly class ApplicationFactory
 			->build();
 
 		$router->setStrategy($strategy);
+
+		$corsMiddleware = $container->get(CorsMiddleware::class);
+		if (!$corsMiddleware instanceof CorsMiddleware) {
+			throw new \RuntimeException('CorsMiddleware not found in container.');
+		}
+		$router->middleware($corsMiddleware);
 
 		$authorizationMiddleware = $container->get(AuthorizationMiddleware::class);
 		if (!$authorizationMiddleware instanceof AuthorizationMiddleware) {

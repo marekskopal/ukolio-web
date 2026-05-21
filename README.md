@@ -227,7 +227,7 @@ php bin/console migration:run
 | `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` | Mercure realtime hub JWT keys. Generate with `openssl rand -hex 32` |
 | `S3_ACCESS_KEY` / `S3_SECRET_KEY` | Object-storage credentials (rotate from `minioadmin` before `APP_ENV=production`) |
 | `BACKEND_FRANKENPHP_WORKERS` | FrankenPHP worker count |
-| `BACKEND_CORS_ALLOWED_ORIGIN` | CORS allow-list (default `*` for dev) |
+| `BACKEND_CORS_ALLOWED_ORIGIN` | Allowed Origin(s) for `/api/*` and Mercure. `*` for dev; with `APP_ENV=production` an explicit space- or comma-separated list is required |
 | `BACKEND_LOG_LEVEL` | `development` / `production` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` | Outbound mail |
 | `EMAIL_FROM` | Sender used by invitation emails |

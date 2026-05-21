@@ -34,6 +34,7 @@ final class EnvironmentValidatorTest extends TestCase
 			'MEMCACHED_HOST' => 'memcached',
 			'MEMCACHED_PORT' => '11211',
 			'APP_ENV' => 'development',
+			'BACKEND_CORS_ALLOWED_ORIGIN' => 'https://app.example.com',
 		];
 	}
 
@@ -169,6 +170,61 @@ final class EnvironmentValidatorTest extends TestCase
 		$env['MYSQL_ROOT_PASSWORD'] = 'ukolio';
 		$env['S3_ACCESS_KEY'] = 'minioadmin';
 		$env['S3_SECRET_KEY'] = 'minioadmin';
+		$env['BACKEND_CORS_ALLOWED_ORIGIN'] = '*';
+
+		$validator = new EnvironmentValidator($env);
+		$validator->validate();
+	}
+
+	public function testProductionRejectsWildcardCorsOrigin(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['BACKEND_CORS_ALLOWED_ORIGIN'] = '*';
+
+		$validator = new EnvironmentValidator($env);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('BACKEND_CORS_ALLOWED_ORIGIN must not include `*` when APP_ENV=production');
+
+		$validator->validate();
+	}
+
+	public function testProductionRejectsWildcardWithinList(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['BACKEND_CORS_ALLOWED_ORIGIN'] = 'https://app.example.com, *';
+
+		$validator = new EnvironmentValidator($env);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('BACKEND_CORS_ALLOWED_ORIGIN must not include `*`');
+
+		$validator->validate();
+	}
+
+	public function testProductionRejectsEmptyCorsOrigin(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['BACKEND_CORS_ALLOWED_ORIGIN'] = '';
+
+		$validator = new EnvironmentValidator($env);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('BACKEND_CORS_ALLOWED_ORIGIN must list at least one origin');
+
+		$validator->validate();
+	}
+
+	public function testProductionAcceptsExplicitOriginList(): void
+	{
+		$this->expectNotToPerformAssertions();
+
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['BACKEND_CORS_ALLOWED_ORIGIN'] = 'https://app.example.com, https://staging.example.com';
 
 		$validator = new EnvironmentValidator($env);
 		$validator->validate();
