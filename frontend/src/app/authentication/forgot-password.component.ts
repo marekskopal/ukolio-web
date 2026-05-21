@@ -1,3 +1,4 @@
+import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RouterLink} from '@angular/router';
@@ -7,7 +8,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 @Component({
     selector: 'uk-forgot-password',
     standalone: true,
-    imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+    imports: [NgOptimizedImage, ReactiveFormsModule, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './forgot-password.component.html',
     styleUrl: './auth-page.scss',
