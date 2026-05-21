@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a115874f5c3a6438b2d3236e036576c",
+    "content-hash": "b6ae9fc4faae8bbc40734342a93dbdb2",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1539,16 +1539,16 @@
         },
         {
             "name": "marekskopal/typo3-mcp-server",
-            "version": "v0.9.3",
+            "version": "v0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-mcp-server.git",
-                "reference": "2aa5eab2d7769dfaddfae26261bc034bdeacf94e"
+                "reference": "74bbcdf0b096b583911dc92fe37f6aabe60b816a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/2aa5eab2d7769dfaddfae26261bc034bdeacf94e",
-                "reference": "2aa5eab2d7769dfaddfae26261bc034bdeacf94e",
+                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/74bbcdf0b096b583911dc92fe37f6aabe60b816a",
+                "reference": "74bbcdf0b096b583911dc92fe37f6aabe60b816a",
                 "shasum": ""
             },
             "require": {
@@ -1601,9 +1601,9 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/typo3-mcp-server/issues",
-                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.9.3"
+                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.10.0"
             },
-            "time": "2026-05-21T11:43:27+00:00"
+            "time": "2026-05-21T16:09:39+00:00"
         },
         {
             "name": "marekskopal/typo3-pricing",
