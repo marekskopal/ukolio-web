@@ -9,7 +9,7 @@ import {ProjectField} from '@app/models/field';
 import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
-import {Task, TaskListItem} from '@app/models/task';
+import {Task, TaskListItem, TaskPriority} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
@@ -56,18 +56,21 @@ export class BoardComponent implements OnInit {
     protected readonly editingTask = signal<Task | null>(null);
     protected readonly defaultStatusId = signal<number | null>(null);
 
+    private static readonly PRIORITY_ORDER: Record<TaskPriority, number> = {High: 0, Medium: 1, Low: 2};
+
     protected readonly columns = computed<Column[]>(() => {
         const board = this.board();
         if (!board) {
             return [];
         }
+        const priorityOrder = BoardComponent.PRIORITY_ORDER;
         return [...board.statuses]
             .sort((a, b) => a.position - b.position)
             .map((status) => ({
                 status,
                 tasks: board.tasks
                     .filter((t) => t.statusId === status.id)
-                    .sort((a, b) => a.position - b.position),
+                    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority] || a.position - b.position),
             }));
     });
 
