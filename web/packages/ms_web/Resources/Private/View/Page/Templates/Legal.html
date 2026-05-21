@@ -1,9 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
-<!--TYPO3SEARCH_begin-->
-<div class="landing marketing legal">
-
-    <f:render partial="Marketing/TopBar" arguments="{_all}" />
-
+<f:layout name="Default" />
+<f:variable name="bodyClass" value="marketing legal" />
+<f:section name="Main">
     <main>
         <section class="section section-legal">
             <div class="section-inner legal-grid">
@@ -51,9 +49,5 @@
             </div>
         </section>
     </main>
-
-    <f:render partial="Marketing/Footer" arguments="{_all}" />
-
-</div>
-<!--TYPO3SEARCH_end-->
+</f:section>
 </html>

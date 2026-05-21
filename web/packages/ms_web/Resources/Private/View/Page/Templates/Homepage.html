@@ -1,9 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
-<!--TYPO3SEARCH_begin-->
-<div class="landing">
-
-    <f:render partial="Marketing/TopBar" arguments="{_all}" />
-
+<f:layout name="Default" />
+<f:section name="Main">
     <section class="section section-hero">
         <div class="section-inner">
             <div class="hero-content">
@@ -121,9 +118,5 @@
             <div class="cta-box"><f:cObject typoscriptObjectPath="lib.dynamicContent" data="50" /></div>
         </div>
     </section>
-
-    <f:render partial="Marketing/Footer" arguments="{_all}" />
-
-</div>
-<!--TYPO3SEARCH_end-->
+</f:section>
 </html>

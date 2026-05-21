@@ -1,12 +1,13 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:layout name="Default" />
+<f:variable name="bodyClass" value="marketing" />
 <f:section name="Main">
-    <!--TYPO3SEARCH_begin-->
-    <main class="main">
-        <div class="container">
-            <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
-        </div>
+    <main>
+        <section class="section">
+            <div class="section-inner">
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
+            </div>
+        </section>
     </main>
-    <!--TYPO3SEARCH_end-->
 </f:section>
 </html>
