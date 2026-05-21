@@ -42,10 +42,12 @@ services:
             context: ./backend
             dockerfile: Dockerfile
         environment:
+            APP_ENV: ${APP_ENV:-development}
             MYSQL_HOST: ${MYSQL_HOST}
             MYSQL_DATABASE: ${MYSQL_DATABASE}
             MYSQL_USER: ${MYSQL_USER}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             AUTHORIZATION_TOKEN_KEY: ${AUTHORIZATION_TOKEN_KEY}
             BACKEND_FRANKENPHP_WORKERS: ${BACKEND_FRANKENPHP_WORKERS}
             BACKEND_CORS_ALLOWED_ORIGIN: ${BACKEND_CORS_ALLOWED_ORIGIN}
