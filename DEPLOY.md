@@ -49,7 +49,9 @@ Required variables — see `.env.example` for the full list:
 
 | Variable | Notes |
 |----------|-------|
-| `AUTHORIZATION_TOKEN_KEY` | ≥ 32 chars; sign with `openssl rand -hex 32` |
+| `APP_ENV` | Set to `production` on real deployments. The boot guard then rejects the dev defaults for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` and anything shorter than 16 characters |
+| `AUTHORIZATION_TOKEN_KEY` | ≥ 32 chars; sign with `openssl rand -hex 32`. The boot guard rejects the placeholder value regardless of `APP_ENV` |
+| `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` | Mercure realtime hub JWT keys; also generate with `openssl rand -hex 32` |
 | `MYSQL_*` | Database host + credentials |
 | `SMTP_*`, `EMAIL_FROM` | Outbound mail (invitations, password resets) |
 | `APP_URL` | Embedded in email links |

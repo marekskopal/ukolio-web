@@ -18,11 +18,19 @@ by AI agents over MCP, with a lightweight web UI for human overview.
 
 ```bash
 cp .env.example .env                                          # adjust ports / secrets as needed
+openssl rand -hex 32                                          # generate AUTHORIZATION_TOKEN_KEY (+ Mercure keys)
 make up                                                       # build & start the full stack
 make migrate                                                  # run database migrations
 docker compose exec backend php bin/console admin:create     # bootstrap the first SystemAdmin
 open http://localhost:4300/                                   # default proxy port
 ```
+
+The backend refuses to boot when `AUTHORIZATION_TOKEN_KEY` is missing, shorter
+than 32 characters, or still set to the `replace-with-32-char-random-hex-key-here`
+placeholder. Generate one (and the two Mercure JWT keys) with
+`openssl rand -hex 32`. With `APP_ENV=production` the same boot guard also
+rejects the dev defaults for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`,
+`S3_ACCESS_KEY`, and `S3_SECRET_KEY` — rotate them before going live.
 
 `admin:create` prompts for email + password (or accepts
 `--email`/`--password`/`--name` flags for non-interactive provisioning). See
@@ -212,9 +220,12 @@ php bin/console migration:run
 
 | Variable | Purpose |
 |----------|---------|
+| `APP_ENV` | `development` (default) or `production`. `production` rejects default MYSQL/S3 credentials and short secrets at boot |
 | `PROXY_PORT` | Host port the nginx proxy binds to |
-| `MYSQL_*` | Database credentials |
-| `AUTHORIZATION_TOKEN_KEY` | 32-char secret used to sign JWTs |
+| `MYSQL_*` | Database credentials (rotate from defaults before `APP_ENV=production`) |
+| `AUTHORIZATION_TOKEN_KEY` | 32-char secret used to sign JWTs. Generate with `openssl rand -hex 32`; boot fails on the placeholder |
+| `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` | Mercure realtime hub JWT keys. Generate with `openssl rand -hex 32` |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` | Object-storage credentials (rotate from `minioadmin` before `APP_ENV=production`) |
 | `BACKEND_FRANKENPHP_WORKERS` | FrankenPHP worker count |
 | `BACKEND_CORS_ALLOWED_ORIGIN` | CORS allow-list (default `*` for dev) |
 | `BACKEND_LOG_LEVEL` | `development` / `production` |
