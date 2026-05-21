@@ -1,0 +1,31 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<f:layout name="Default" />
+
+<f:section name="Main">
+    <f:if condition="{questions}">
+        <f:then>
+            <f:if condition="{jsonLd}">
+                <script type="application/ld+json"><f:format.raw>{jsonLd}</f:format.raw></script>
+            </f:if>
+            <div class="msfaq-accordion">
+                <f:groupedFor each="{questions}" as="categoryQuestions" groupBy="primaryCategory.uid" groupKey="categoryUid">
+                    <f:for each="{categoryQuestions}" as="question" iteration="iter">
+                        <f:if condition="{iter.isFirst}">
+                            <f:if condition="{question.primaryCategory}">
+                                <h3 class="msfaq__category">{question.primaryCategory.title}</h3>
+                            </f:if>
+                        </f:if>
+                        <f:if condition="{question.answers}">
+                            <f:render partial="Question/Item" arguments="{question: question}" />
+                        </f:if>
+                    </f:for>
+                </f:groupedFor>
+            </div>
+        </f:then>
+        <f:else>
+            <p class="msfaq__empty"><f:translate key="plugin.faq.empty" /></p>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

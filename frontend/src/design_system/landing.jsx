@@ -553,9 +553,8 @@ function LandingFooter() {
 function LandingScreen() {
   return (
     <div className="uk" style={{
-      height: '100%', width: '100%',
+      minHeight: '100%', width: '100%',
       background: 'var(--uk-bg)',
-      overflow: 'hidden',
     }}>
       <LandingTopBar />
       <Hero />
@@ -570,3 +569,7 @@ function LandingScreen() {
 }
 
 window.LandingScreen = LandingScreen;
+window.LandingTopBar = LandingTopBar;
+window.LandingFooter = LandingFooter;
+window.SectionHead    = SectionHead;
+window.LIcon          = LIcon;

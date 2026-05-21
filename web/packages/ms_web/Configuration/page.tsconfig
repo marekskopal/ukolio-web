@@ -99,4 +99,93 @@ mod.web_layout.BackendLayouts {
             }
         }
     }
+    pricing {
+        title = Pricing
+        config {
+            backend_layout {
+                colCount = 1
+                rowCount = 5
+                rows {
+                    1 {
+                        columns {
+                            1 {
+                                name = Hero (eyebrow + title + lead)
+                                colPos = 0
+                            }
+                        }
+                    }
+                    2 {
+                        columns {
+                            1 {
+                                name = Plan cards (Pricing plugin, mode = cards)
+                                colPos = 10
+                            }
+                        }
+                    }
+                    3 {
+                        columns {
+                            1 {
+                                name = Community / open source plan
+                                colPos = 20
+                            }
+                        }
+                    }
+                    4 {
+                        columns {
+                            1 {
+                                name = Compare table (Pricing plugin, mode = table)
+                                colPos = 30
+                            }
+                        }
+                    }
+                    5 {
+                        columns {
+                            1 {
+                                name = FAQ (FAQ plugin)
+                                colPos = 40
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    contact {
+        title = Contact
+        config {
+            backend_layout {
+                colCount = 1
+                rowCount = 1
+                rows {
+                    1 {
+                        columns {
+                            1 {
+                                name = Main
+                                colPos = 0
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    legal {
+        title = Legal / long-form
+        config {
+            backend_layout {
+                colCount = 1
+                rowCount = 1
+                rows {
+                    1 {
+                        columns {
+                            1 {
+                                name = Body
+                                colPos = 0
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

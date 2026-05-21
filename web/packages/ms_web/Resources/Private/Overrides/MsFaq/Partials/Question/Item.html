@@ -1,0 +1,23 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<details class="msfaq__item" {f:if(condition: question.alwaysOpen, then: 'open')}>
+    <summary class="msfaq__question">
+        <span class="msfaq__question-text">{question.title}</span>
+        <span class="msfaq__chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+            </svg>
+        </span>
+    </summary>
+    <div class="msfaq__answers">
+        <f:if condition="{question.perex}">
+            <p class="msfaq__perex">{question.perex}</p>
+        </f:if>
+        <f:for each="{question.answers}" as="answer">
+            <f:format.html>{answer.content}</f:format.html>
+        </f:for>
+    </div>
+</details>
+</html>

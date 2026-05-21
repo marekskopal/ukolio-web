@@ -15,8 +15,43 @@ page.10 {
         pagets__homepage = TEXT
         pagets__homepage.value = Homepage
         pagets__homepage.insertData = 1
+        pagets__pricing = TEXT
+        pagets__pricing.value = Pricing
+        pagets__pricing.insertData = 1
+        pagets__contact = TEXT
+        pagets__contact.value = Contact
+        pagets__contact.insertData = 1
+        pagets__legal = TEXT
+        pagets__legal.value = Legal
+        pagets__legal.insertData = 1
     }
 }
+
+plugin.tx_mspricing {
+    view {
+        templateRootPaths.10 = EXT:ms_web/Resources/Private/Overrides/MsPricing/Templates/
+        partialRootPaths.10 = EXT:ms_web/Resources/Private/Overrides/MsPricing/Partials/
+        layoutRootPaths.10 = EXT:ms_web/Resources/Private/Overrides/MsPricing/Layouts/
+    }
+    settings {
+        currency = $
+    }
+}
+
+plugin.tx_msfaq_faq {
+    view {
+        templateRootPaths.10 = EXT:ms_web/Resources/Private/Overrides/MsFaq/Templates/
+        partialRootPaths.10 = EXT:ms_web/Resources/Private/Overrides/MsFaq/Partials/
+        layoutRootPaths.10 = EXT:ms_web/Resources/Private/Overrides/MsFaq/Layouts/
+    }
+}
+
+# The vendor FAQ stylesheet collides with our design-system overrides
+# (it adds per-item borders + a "+" pseudo-element next to our chevron).
+# Drop it; our _uk-marketing.scss owns FAQ styling.
+page.includeCSS.msfaq >
+page.includeCSS.mspricing >
+
 
 page.includeCSS {
     print = {$page.includePath.css}print.min.css
@@ -53,6 +88,22 @@ lib.navigation {
     dataProcessing.30 {
         languages = auto
         as = languageNavigation
+    }
+}
+
+lib.primaryNav = FLUIDTEMPLATE
+lib.primaryNav {
+    templateName = PrimaryNav
+    templateRootPaths.10 = EXT:ms_web/Resources/Private/View/PageParts/Templates/
+    partialRootPaths.10 = EXT:ms_web/Resources/Private/View/PageParts/Partials/
+    dataProcessing.10 = TYPO3\CMS\Frontend\DataProcessing\MenuProcessor
+    dataProcessing.10 {
+        entryLevel = 0
+        levels = 1
+        as = primaryMenu
+        titleField = nav_title // title
+        # Skip sysfolders and pages flagged "Hide in menus".
+        excludeDoktypes = 254,199
     }
 }
 

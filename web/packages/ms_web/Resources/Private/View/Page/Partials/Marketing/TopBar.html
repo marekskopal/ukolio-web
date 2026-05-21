@@ -1,0 +1,14 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<header class="landing-topbar">
+    <a class="brand" href="/" aria-label="Ukolio">
+        <img src="{f:uri.resource(path:'Images/logo-wordmark.svg', extensionName:'MsWeb')}" alt="Ukolio" class="brand-wordmark" height="24" />
+    </a>
+    <f:cObject typoscriptObjectPath="lib.primaryNav" />
+    <div class="topbar-actions">
+        <a href="/app/login" class="uk-btn uk-btn--ghost uk-btn--sm">Sign in</a>
+        <a href="/app/sign-up" class="uk-btn uk-btn--primary uk-btn--sm">Get started <span class="arrow">&rarr;</span></a>
+    </div>
+</header>
+
+</html>

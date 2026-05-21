@@ -1,0 +1,55 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<!--TYPO3SEARCH_begin-->
+<div class="uk uk-landing uk-marketing">
+
+    <f:render partial="Marketing/TopBar" arguments="{_all}" />
+
+    <main>
+
+        <section class="section section-hero-pricing">
+            <div class="section-inner">
+                <div class="pricing-hero">
+                    <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-plans">
+            <div class="section-inner">
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="10" />
+            </div>
+        </section>
+
+        <section class="section section-community">
+            <div class="section-inner">
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="20" />
+            </div>
+        </section>
+
+        <section class="section section-compare">
+            <div class="section-inner">
+                <div class="section-head section-head--marketing">
+                    <div class="section-head__eyebrow">Compare</div>
+                    <h2 class="section-head__title">What's in each plan.</h2>
+                </div>
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="30" />
+            </div>
+        </section>
+
+        <section class="section section-faq">
+            <div class="section-inner section-inner--narrow">
+                <div class="section-head section-head--marketing">
+                    <div class="section-head__eyebrow">FAQ</div>
+                    <h2 class="section-head__title">Things people ask before signing up.</h2>
+                </div>
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="40" />
+            </div>
+        </section>
+
+    </main>
+
+    <f:render partial="Marketing/Footer" arguments="{_all}" />
+
+</div>
+<!--TYPO3SEARCH_end-->
+</html>

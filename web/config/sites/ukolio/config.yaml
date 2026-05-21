@@ -13,6 +13,8 @@ dependencies:
   - marekskopal/typo3-google-font
   - marekskopal/typo3-core
   - marekskopal/typo3-web
+  - marekskopal/typo3-pricing
+  - marekskopal/typo3-faq
 errorHandling:
   -
     errorCode: 404

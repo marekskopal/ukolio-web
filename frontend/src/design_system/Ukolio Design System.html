@@ -23,6 +23,7 @@
 <script type="text/babel" src="features.jsx"></script>
 <script type="text/babel" src="screens.jsx"></script>
 <script type="text/babel" src="landing.jsx"></script>
+<script type="text/babel" src="marketing-pages.jsx"></script>
 
 <script type="text/babel">
 const { DesignCanvas, DCSection, DCArtboard } = window;
@@ -55,7 +56,6 @@ function App() {
       </DCSection>
 
       <DCSection id="screens" title="04 · Application">
-        <DCArtboard id="landing"  label="Landing · marketing site"     width={1280} height={3360}><LandingScreen/></DCArtboard>
         <DCArtboard id="login"    label="Login"                       width={1080} height={680}><LoginScreen/></DCArtboard>
         <DCArtboard id="projects" label="Projects list"               width={1280} height={760}><ProjectsScreen/></DCArtboard>
         <DCArtboard id="kanban"   label="Kanban board"                width={1280} height={760}><KanbanScreen/></DCArtboard>
@@ -63,6 +63,13 @@ function App() {
         <DCArtboard id="grid"     label="Workspace tasks grid"        width={1280} height={760}><TasksGridScreen/></DCArtboard>
         <DCArtboard id="events"   label="Agent activity log"          width={1280} height={760}><EventsScreen/></DCArtboard>
         <DCArtboard id="workspace" label="Workspace management"       width={1280} height={760}><WorkspaceScreen/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="marketing" title="05 · Marketing site">
+        <DCArtboard id="landing"  label="Landing"        width={1280} height={4200}><LandingScreen/></DCArtboard>
+        <DCArtboard id="pricing"  label="Pricing"        width={1280} height={3500}><PricingScreen/></DCArtboard>
+        <DCArtboard id="contact"  label="Contact"        width={1280} height={900}><ContactScreen/></DCArtboard>
+        <DCArtboard id="textpage" label="Text · Legal"   width={1280} height={2840}><TextPageScreen/></DCArtboard>
       </DCSection>
     </DesignCanvas>
   );

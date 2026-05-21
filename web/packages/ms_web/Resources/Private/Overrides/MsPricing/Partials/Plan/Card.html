@@ -1,0 +1,83 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:msp="http://typo3.org/ns/MarekSkopal/MsPricing/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<div class="mspricing-card {f:if(condition: '{plan.cssClass} == \'highlighted\'', then: 'mspricing-card--highlighted')} {plan.cssClass}">
+
+    <f:if condition="{plan.cssClass} == 'highlighted'">
+        <span class="mspricing-card__badge">Most teams</span>
+    </f:if>
+
+    <h3 class="mspricing-card__name">{plan.name}</h3>
+
+    <f:if condition="{plan.subtitle}">
+        <p class="mspricing-card__blurb">{plan.subtitle}</p>
+    </f:if>
+
+    <div class="mspricing-card__price-row">
+        <f:if condition="{plan.priceMonthly} || {plan.priceYearly}">
+            <f:then>
+                <span class="mspricing-card__price" data-mspricing-price="monthly" hidden>
+                    <span class="mspricing-card__price-amount">{plan.currency}{plan.priceMonthly -> f:format.number(decimals: 0)}</span>
+                    <span class="mspricing-card__price-unit">/ mo</span>
+                </span>
+                <span class="mspricing-card__price" data-mspricing-price="yearly">
+                    <span class="mspricing-card__price-amount">{plan.currency}{plan.priceYearly -> f:format.number(decimals: 0)}</span>
+                    <span class="mspricing-card__price-unit">/ mo</span>
+                </span>
+                <span class="mspricing-card__price-suffix" data-mspricing-price="monthly" hidden>
+                    per member &middot; billed monthly
+                </span>
+                <span class="mspricing-card__price-suffix" data-mspricing-price="yearly">
+                    per member &middot; billed annually
+                </span>
+            </f:then>
+            <f:else>
+                <span class="mspricing-card__price">
+                    <span class="mspricing-card__price-amount">{plan.currency}0</span>
+                </span>
+                <span class="mspricing-card__price-suffix">forever</span>
+            </f:else>
+        </f:if>
+    </div>
+
+    <a class="mspricing-card__cta {f:if(condition: '{plan.cssClass} == \'highlighted\'', then: 'uk-btn uk-btn--primary uk-btn--lg', else: 'uk-btn uk-btn--secondary uk-btn--lg')}"
+       href="/app/sign-up">
+        <f:if condition="{plan.cssClass} == 'highlighted'">
+            <f:then>Start 14-day trial</f:then>
+            <f:else>Start free</f:else>
+        </f:if>
+    </a>
+
+    <hr class="mspricing-card__sep" />
+
+    <ul class="mspricing-card__features">
+        <f:for each="{groups}" as="group">
+            <f:for each="{group.features}" as="featureRow">
+                <f:variable name="planUid" value="{plan.uid}" />
+                <f:variable name="pf" value="{featureRow.values.{planUid}}" />
+                <f:if condition="{pf} && {pf.valueType} != 'unavailable'">
+                    <li class="mspricing-card__feature">
+                        <span class="mspricing-card__feature-check" aria-hidden="true">
+                            <svg width="9" height="9" viewBox="0 0 16 16" fill="none"
+                                 stroke="currentColor" stroke-width="2.4"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 8.5l3 3 6-7"/>
+                            </svg>
+                        </span>
+                        <span class="mspricing-card__feature-text">
+                            <f:switch expression="{pf.valueType}">
+                                <f:case value="text">{featureRow.feature.name} &mdash; <em>{pf.valueText}</em></f:case>
+                                <f:case value="unlimited">{featureRow.feature.name} &mdash; <em>Unlimited</em></f:case>
+                                <f:defaultCase>{featureRow.feature.name}</f:defaultCase>
+                            </f:switch>
+                        </span>
+                    </li>
+                </f:if>
+            </f:for>
+        </f:for>
+    </ul>
+</div>
+</html>

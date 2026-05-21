@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fdff6b49280d05b70594f1d21f437778",
+    "content-hash": "0a115874f5c3a6438b2d3236e036576c",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -902,16 +902,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.10.1",
+            "version": "7.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "b777df1776c667e287664dda75b0298ad8ae3a14"
+                "reference": "47ba23c7a55247e2e1b7407aca90e9bbed0d9d86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b777df1776c667e287664dda75b0298ad8ae3a14",
-                "reference": "b777df1776c667e287664dda75b0298ad8ae3a14",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/47ba23c7a55247e2e1b7407aca90e9bbed0d9d86",
+                "reference": "47ba23c7a55247e2e1b7407aca90e9bbed0d9d86",
                 "shasum": ""
             },
             "require": {
@@ -1009,7 +1009,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.10.1"
+                "source": "https://github.com/guzzle/guzzle/tree/7.10.3"
             },
             "funding": [
                 {
@@ -1025,20 +1025,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-19T18:01:31+00:00"
+            "time": "2026-05-20T22:59:19+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.3.1",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "d2d8dfae4757f384d630fdffc2d8d6618d8f4c5e"
+                "reference": "09e8a212562fb1fb6a512c4156ed71525969d6c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/d2d8dfae4757f384d630fdffc2d8d6618d8f4c5e",
-                "reference": "d2d8dfae4757f384d630fdffc2d8d6618d8f4c5e",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/09e8a212562fb1fb6a512c4156ed71525969d6c2",
+                "reference": "09e8a212562fb1fb6a512c4156ed71525969d6c2",
                 "shasum": ""
             },
             "require": {
@@ -1092,7 +1092,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.3.1"
+                "source": "https://github.com/guzzle/promises/tree/2.4.1"
             },
             "funding": [
                 {
@@ -1108,20 +1108,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-19T18:30:48+00:00"
+            "time": "2026-05-20T22:57:30+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.10.0",
+            "version": "2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "d5ddaf5743c42a61cb6100f83dc9d5a2bafe75ca"
+                "reference": "73ab136360b5dfd858006eae9795e8fe43c80361"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/d5ddaf5743c42a61cb6100f83dc9d5a2bafe75ca",
-                "reference": "d5ddaf5743c42a61cb6100f83dc9d5a2bafe75ca",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/73ab136360b5dfd858006eae9795e8fe43c80361",
+                "reference": "73ab136360b5dfd858006eae9795e8fe43c80361",
                 "shasum": ""
             },
             "require": {
@@ -1209,7 +1209,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.10.0"
+                "source": "https://github.com/guzzle/psr7/tree/2.10.1"
             },
             "funding": [
                 {
@@ -1225,7 +1225,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-19T17:32:11+00:00"
+            "time": "2026-05-20T09:27:36+00:00"
         },
         {
             "name": "lolli42/finediff",
@@ -1353,6 +1353,71 @@
             "time": "2026-04-09T20:43:19+00:00"
         },
         {
+            "name": "marekskopal/typo3-faq",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marekskopal/typo3-faq.git",
+                "reference": "62eaf95beb293fdc0179521eccda9242f0acd543"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marekskopal/typo3-faq/zipball/62eaf95beb293fdc0179521eccda9242f0acd543",
+                "reference": "62eaf95beb293fdc0179521eccda9242f0acd543",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.3",
+                "typo3/cms-backend": "^13.4.24 || ^14.1.0",
+                "typo3/cms-core": "^13.4.24 || ^14.1.0",
+                "typo3/cms-extbase": "^13.4.24 || ^14.1.0",
+                "typo3/cms-fluid": "^13.4.24 || ^14.1.0"
+            },
+            "require-dev": {
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^12.0",
+                "shipmonk/phpstan-rules": "^4.0",
+                "slevomat/coding-standard": "^8.14"
+            },
+            "type": "typo3-cms-extension",
+            "extra": {
+                "typo3/cms": {
+                    "extension-key": "ms_faq"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MarekSkopal\\MsFaq\\": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Marek Skopal",
+                    "homepage": "https://marekskopal.cz",
+                    "role": "Developer"
+                }
+            ],
+            "description": "FAQ plugin for TYPO3 CMS",
+            "homepage": "https://marekskopal.cz",
+            "keywords": [
+                "FAQ",
+                "typo3"
+            ],
+            "support": {
+                "issues": "https://github.com/marekskopal/typo3-faq/issues",
+                "source": "https://github.com/marekskopal/typo3-faq/tree/v1.1.0"
+            },
+            "time": "2026-03-23T00:22:13+00:00"
+        },
+        {
             "name": "marekskopal/typo3-features",
             "version": "v1.0.2",
             "source": {
@@ -1474,16 +1539,16 @@
         },
         {
             "name": "marekskopal/typo3-mcp-server",
-            "version": "v0.9.1",
+            "version": "v0.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-mcp-server.git",
-                "reference": "a87d69ed7e38f721278ee16be034ab24a01175a0"
+                "reference": "2aa5eab2d7769dfaddfae26261bc034bdeacf94e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/a87d69ed7e38f721278ee16be034ab24a01175a0",
-                "reference": "a87d69ed7e38f721278ee16be034ab24a01175a0",
+                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/2aa5eab2d7769dfaddfae26261bc034bdeacf94e",
+                "reference": "2aa5eab2d7769dfaddfae26261bc034bdeacf94e",
                 "shasum": ""
             },
             "require": {
@@ -1536,9 +1601,73 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/typo3-mcp-server/issues",
-                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.9.1"
+                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.9.3"
             },
-            "time": "2026-05-19T23:35:45+00:00"
+            "time": "2026-05-21T11:43:27+00:00"
+        },
+        {
+            "name": "marekskopal/typo3-pricing",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marekskopal/typo3-pricing.git",
+                "reference": "166a5470c9c4cc8d0d02c10b3959422e5544dd57"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marekskopal/typo3-pricing/zipball/166a5470c9c4cc8d0d02c10b3959422e5544dd57",
+                "reference": "166a5470c9c4cc8d0d02c10b3959422e5544dd57",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.3",
+                "typo3/cms-core": "^13.4.24 || ^14.1.0",
+                "typo3/cms-extbase": "^13.4.24 || ^14.1.0"
+            },
+            "require-dev": {
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^12.0",
+                "shipmonk/phpstan-rules": "^4.0",
+                "slevomat/coding-standard": "^8.14"
+            },
+            "type": "typo3-cms-extension",
+            "extra": {
+                "typo3/cms": {
+                    "extension-key": "ms_pricing"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MarekSkopal\\MsPricing\\": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Marek Skopal",
+                    "homepage": "https://marekskopal.cz",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Dynamic pricing comparison table for TYPO3 CMS",
+            "homepage": "https://marekskopal.cz",
+            "keywords": [
+                "comparison",
+                "pricing",
+                "typo3"
+            ],
+            "support": {
+                "issues": "https://github.com/marekskopal/typo3-pricing/issues",
+                "source": "https://github.com/marekskopal/typo3-pricing/tree/v1.0.1"
+            },
+            "time": "2026-03-06T15:29:14+00:00"
         },
         {
             "name": "marekskopal/typo3-web",
@@ -2918,16 +3047,16 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v8.0.10",
+            "version": "v8.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "8ff96cde73684bfa32b702f5cff1eb83b1fac429"
+                "reference": "11dc0681506ff07ca80bfb4cbf84c601c3cf04f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/8ff96cde73684bfa32b702f5cff1eb83b1fac429",
-                "reference": "8ff96cde73684bfa32b702f5cff1eb83b1fac429",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/11dc0681506ff07ca80bfb4cbf84c601c3cf04f7",
+                "reference": "11dc0681506ff07ca80bfb4cbf84c601c3cf04f7",
                 "shasum": ""
             },
             "require": {
@@ -2993,7 +3122,7 @@
                 "psr6"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache/tree/v8.0.10"
+                "source": "https://github.com/symfony/cache/tree/v8.0.12"
             },
             "funding": [
                 {
@@ -3013,7 +3142,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-05T08:24:00+00:00"
+            "time": "2026-05-20T07:22:03+00:00"
         },
         {
             "name": "symfony/cache-contracts",
@@ -4035,16 +4164,16 @@
         },
         {
             "name": "symfony/mailer",
-            "version": "v7.4.8",
+            "version": "v7.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
-                "reference": "f6ea532250b476bfc1b56699b388a1bdbf168f62"
+                "reference": "5cefb712a25f320579615ba9e1942abaeade7dff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mailer/zipball/f6ea532250b476bfc1b56699b388a1bdbf168f62",
-                "reference": "f6ea532250b476bfc1b56699b388a1bdbf168f62",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/5cefb712a25f320579615ba9e1942abaeade7dff",
+                "reference": "5cefb712a25f320579615ba9e1942abaeade7dff",
                 "shasum": ""
             },
             "require": {
@@ -4095,7 +4224,7 @@
             "description": "Helps sending emails",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/mailer/tree/v7.4.8"
+                "source": "https://github.com/symfony/mailer/tree/v7.4.12"
             },
             "funding": [
                 {
@@ -4115,20 +4244,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-24T13:12:05+00:00"
+            "time": "2026-05-20T07:20:23+00:00"
         },
         {
             "name": "symfony/messenger",
-            "version": "v7.4.11",
+            "version": "v7.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/messenger.git",
-                "reference": "8fd102ae3f4167a552fe8085d09da652ff063163"
+                "reference": "906387986caecc10b2ad2e85f715d834e5133a04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/messenger/zipball/8fd102ae3f4167a552fe8085d09da652ff063163",
-                "reference": "8fd102ae3f4167a552fe8085d09da652ff063163",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/906387986caecc10b2ad2e85f715d834e5133a04",
+                "reference": "906387986caecc10b2ad2e85f715d834e5133a04",
                 "shasum": ""
             },
             "require": {
@@ -4189,7 +4318,7 @@
             "description": "Helps applications send and receive messages to/from other applications or via message queues",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/messenger/tree/v7.4.11"
+                "source": "https://github.com/symfony/messenger/tree/v7.4.12"
             },
             "funding": [
                 {
@@ -4209,20 +4338,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-13T08:45:04+00:00"
+            "time": "2026-05-19T07:02:47+00:00"
         },
         {
             "name": "symfony/mime",
-            "version": "v7.4.9",
+            "version": "v7.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mime.git",
-                "reference": "2d550c4758ba4c47519a6667c36553d535705b0c"
+                "reference": "b198dd66c211c97119bcaaff7c13431dbbb5e470"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mime/zipball/2d550c4758ba4c47519a6667c36553d535705b0c",
-                "reference": "2d550c4758ba4c47519a6667c36553d535705b0c",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/b198dd66c211c97119bcaaff7c13431dbbb5e470",
+                "reference": "b198dd66c211c97119bcaaff7c13431dbbb5e470",
                 "shasum": ""
             },
             "require": {
@@ -4278,7 +4407,7 @@
                 "mime-type"
             ],
             "support": {
-                "source": "https://github.com/symfony/mime/tree/v7.4.9"
+                "source": "https://github.com/symfony/mime/tree/v7.4.12"
             },
             "funding": [
                 {
@@ -4298,7 +4427,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-29T13:21:53+00:00"
+            "time": "2026-05-20T07:20:23+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -5268,16 +5397,16 @@
         },
         {
             "name": "symfony/routing",
-            "version": "v7.4.9",
+            "version": "v7.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/routing.git",
-                "reference": "287771d8bc86eacb30678dd10eda6c64a859951f"
+                "reference": "3b04a5ec4887a8135a12ebf0f4cbc5b8fc8ee204"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/routing/zipball/287771d8bc86eacb30678dd10eda6c64a859951f",
-                "reference": "287771d8bc86eacb30678dd10eda6c64a859951f",
+                "url": "https://api.github.com/repos/symfony/routing/zipball/3b04a5ec4887a8135a12ebf0f4cbc5b8fc8ee204",
+                "reference": "3b04a5ec4887a8135a12ebf0f4cbc5b8fc8ee204",
                 "shasum": ""
             },
             "require": {
@@ -5329,7 +5458,7 @@
                 "url"
             ],
             "support": {
-                "source": "https://github.com/symfony/routing/tree/v7.4.9"
+                "source": "https://github.com/symfony/routing/tree/v7.4.12"
             },
             "funding": [
                 {
@@ -5349,7 +5478,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-22T15:21:55+00:00"
+            "time": "2026-05-20T07:20:23+00:00"
         },
         {
             "name": "symfony/service-contracts",
@@ -6056,16 +6185,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v7.4.11",
+            "version": "v7.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "e2eb64a57763815ccae07ac1c7653d6cc1c326fd"
+                "reference": "8b6952b56ca6417f25f7a65758cadd0ce02edc51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/e2eb64a57763815ccae07ac1c7653d6cc1c326fd",
-                "reference": "e2eb64a57763815ccae07ac1c7653d6cc1c326fd",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/8b6952b56ca6417f25f7a65758cadd0ce02edc51",
+                "reference": "8b6952b56ca6417f25f7a65758cadd0ce02edc51",
                 "shasum": ""
             },
             "require": {
@@ -6108,7 +6237,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v7.4.11"
+                "source": "https://github.com/symfony/yaml/tree/v7.4.12"
             },
             "funding": [
                 {
@@ -6128,7 +6257,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-13T12:04:42+00:00"
+            "time": "2026-05-20T07:20:23+00:00"
         },
         {
             "name": "tpwd/ke_search",
@@ -7748,16 +7877,16 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "2.3.0",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "eb0d790f735ba6cff25c683a85a1da0eadeff9e4"
+                "reference": "9007ea6f45ecf352a9422b36644e4bfc039b9155"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/eb0d790f735ba6cff25c683a85a1da0eadeff9e4",
-                "reference": "eb0d790f735ba6cff25c683a85a1da0eadeff9e4",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9007ea6f45ecf352a9422b36644e4bfc039b9155",
+                "reference": "9007ea6f45ecf352a9422b36644e4bfc039b9155",
                 "shasum": ""
             },
             "require": {
@@ -7773,7 +7902,11 @@
             },
             "type": "library",
             "extra": {
+                "psalm": {
+                    "pluginClass": "Webmozart\\Assert\\PsalmPlugin"
+                },
                 "branch-alias": {
+                    "dev-master": "2.0-dev",
                     "dev-feature/2-0": "2.0-dev"
                 }
             },
@@ -7804,9 +7937,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/2.3.0"
+                "source": "https://github.com/webmozarts/assert/tree/2.4.0"
             },
-            "time": "2026-04-11T10:33:05+00:00"
+            "time": "2026-05-20T13:07:01+00:00"
         }
     ],
     "packages-dev": [],

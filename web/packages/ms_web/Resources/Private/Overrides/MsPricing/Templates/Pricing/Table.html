@@ -1,0 +1,68 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:msp="http://typo3.org/ns/MarekSkopal/MsPricing/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Default" />
+
+<f:section name="Main">
+    <f:variable name="displayMode" value="{settings.displayMode}" />
+    <f:if condition="!{displayMode}">
+        <f:variable name="displayMode" value="both" />
+    </f:if>
+
+    <f:if condition="{displayMode} == 'cards' || {displayMode} == 'both'">
+        <div class="mspricing-cards-wrapper">
+            <div class="mspricing-toggle" role="group" aria-label="Billing period">
+                <button type="button" class="mspricing-toggle__button" data-mspricing-toggle="monthly" aria-pressed="false">
+                    <f:translate key="LLL:EXT:ms_pricing/Resources/Private/Language/locallang.xlf:toggle.monthly" />
+                </button>
+                <button type="button" class="mspricing-toggle__button mspricing-toggle__button--active" data-mspricing-toggle="yearly" aria-pressed="true">
+                    <f:translate key="LLL:EXT:ms_pricing/Resources/Private/Language/locallang.xlf:toggle.yearly" />
+                    <span class="mspricing-toggle__badge">&minus;20%</span>
+                </button>
+            </div>
+
+            <div class="mspricing-cards">
+                <f:for each="{plans}" as="plan" iteration="planIter">
+                    <f:render partial="Plan/Card" arguments="{plan: plan, groups: groups, highlighted: '{plan.cssClass}'}" />
+                </f:for>
+            </div>
+
+            <p class="mspricing-cards__legal">
+                Prices in {settings.currency}. Annual billing charged once per year. VAT applied where required.
+            </p>
+        </div>
+    </f:if>
+
+    <f:if condition="{displayMode} == 'table' || {displayMode} == 'both'">
+        <div class="mspricing-table-wrapper">
+            <table class="mspricing-table">
+                <thead>
+                    <tr>
+                        <th class="mspricing-feature-col"></th>
+                        <f:for each="{plans}" as="plan">
+                            <th class="mspricing-plan {plan.cssClass}">
+                                <f:render partial="Plan/Header" arguments="{plan: plan}" />
+                            </th>
+                        </f:for>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{groups}" as="group">
+                        <f:if condition="{group.group}">
+                            <tr class="mspricing-group-header">
+                                <td colspan="{plans -> f:count() + 1}">{group.group.name}</td>
+                            </tr>
+                        </f:if>
+                        <f:for each="{group.features}" as="featureRow">
+                            <f:render partial="Feature/Row" arguments="{featureRow: featureRow, plans: plans}" />
+                        </f:for>
+                    </f:for>
+                </tbody>
+            </table>
+        </div>
+    </f:if>
+</f:section>
+</html>

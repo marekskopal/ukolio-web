@@ -1,0 +1,41 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<!--TYPO3SEARCH_begin-->
+<div class="uk uk-landing uk-marketing">
+
+    <f:render partial="Marketing/TopBar" arguments="{_all}" />
+
+    <main>
+        <section class="section section-contact">
+            <div class="section-inner section-inner--narrow contact-inner">
+                <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
+
+                <div class="contact-card">
+                    <div class="contact-card__icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.7"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <path d="m2 7 10 7 10-7"/>
+                        </svg>
+                    </div>
+                    <div class="contact-card__label">Email us</div>
+                    <a href="mailto:info@ukolio.com" class="contact-card__email">info@ukolio.com</a>
+                    <div class="contact-card__hint">
+                        <span class="dot"></span>
+                        We reply within one business day, in English or Czech.
+                    </div>
+                </div>
+
+                <p class="contact-security">
+                    For security disclosures, please email
+                    <a href="mailto:security@ukolio.com">security@ukolio.com</a>.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <f:render partial="Marketing/Footer" arguments="{_all}" />
+
+</div>
+<!--TYPO3SEARCH_end-->
+</html>

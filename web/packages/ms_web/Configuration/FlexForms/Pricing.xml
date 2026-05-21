@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<T3DataStructure>
+    <sheets>
+        <sDEF>
+            <ROOT>
+                <sheetTitle>Pricing display</sheetTitle>
+                <type>array</type>
+                <el>
+                    <settings.displayMode>
+                        <label>Display mode</label>
+                        <config>
+                            <type>select</type>
+                            <renderType>selectSingle</renderType>
+                            <default>both</default>
+                            <items>
+                                <numIndex index="0" type="array">
+                                    <label>Plan cards only</label>
+                                    <value>cards</value>
+                                </numIndex>
+                                <numIndex index="1" type="array">
+                                    <label>Compare table only</label>
+                                    <value>table</value>
+                                </numIndex>
+                                <numIndex index="2" type="array">
+                                    <label>Cards + compare table</label>
+                                    <value>both</value>
+                                </numIndex>
+                            </items>
+                        </config>
+                    </settings.displayMode>
+                </el>
+            </ROOT>
+        </sDEF>
+    </sheets>
+</T3DataStructure>

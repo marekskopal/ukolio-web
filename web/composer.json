@@ -35,7 +35,9 @@
         "marekskopal/typo3-core": "^14.1",
         "marekskopal/typo3-google-font": "^1.0",
         "marekskopal/typo3-features": "^1.0",
-        "marekskopal/typo3-mcp-server": "^0.9.0"
+        "marekskopal/typo3-mcp-server": "^0.9.0",
+        "marekskopal/typo3-pricing": "^1.0",
+        "marekskopal/typo3-faq": "^1.1"
     },
     "config": {
         "platform": {

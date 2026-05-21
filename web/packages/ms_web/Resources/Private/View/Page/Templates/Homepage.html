@@ -2,22 +2,7 @@
 <!--TYPO3SEARCH_begin-->
 <div class="uk uk-landing">
 
-    <header class="landing-topbar">
-        <a class="brand" href="/" aria-label="Ukolio">
-            <img src="{f:uri.resource(path:'Images/logo-wordmark.svg', extensionName:'MsWeb')}" alt="Ukolio" class="brand-wordmark" height="24" />
-        </a>
-        <nav class="primary-nav">
-            <a href="#features">Features</a>
-            <a href="#agents">For agents</a>
-            <a href="#built-right">Built right</a>
-            <a href="#">Docs</a>
-            <a href="#">Pricing</a>
-        </nav>
-        <div class="topbar-actions">
-            <a href="/app/login" class="uk-btn uk-btn--ghost uk-btn--sm">Sign in</a>
-            <a href="/app/sign-up" class="uk-btn uk-btn--primary uk-btn--sm">Get started <span class="arrow">&rarr;</span></a>
-        </div>
-    </header>
+    <f:render partial="Marketing/TopBar" arguments="{_all}" />
 
     <section class="section section-hero">
         <div class="section-inner">
@@ -137,21 +122,7 @@
         </div>
     </section>
 
-    <footer class="landing-footer">
-        <div class="footer-inner">
-            <div class="brand">
-                <img src="{f:uri.resource(path:'Images/logo-wordmark.svg', extensionName:'MsWeb')}" alt="Ukolio" class="brand-wordmark" height="20" />
-                <span class="copy">&copy; <f:format.date format="Y" date="now" /></span>
-            </div>
-            <nav class="footer-nav">
-                <a href="/app">Open app</a>
-                <a href="#features">Features</a>
-                <a href="#built-right">Security</a>
-                <a href="#">Docs</a>
-                <a href="mailto:hello@ukolio.com">Contact</a>
-            </nav>
-        </div>
-    </footer>
+    <f:render partial="Marketing/Footer" arguments="{_all}" />
 
 </div>
 <!--TYPO3SEARCH_end-->

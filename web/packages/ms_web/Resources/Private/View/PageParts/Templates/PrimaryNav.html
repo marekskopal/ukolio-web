@@ -1,0 +1,9 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<nav class="primary-nav">
+    <f:for each="{primaryMenu}" as="item">
+        <a href="{item.link}"{f:if(condition: item.active, then: ' class="active"')}>{item.title}</a>
+    </f:for>
+</nav>
+
+</html>
