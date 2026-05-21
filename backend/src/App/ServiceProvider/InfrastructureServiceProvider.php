@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Ukolio\Service\Cache\CacheFactory;
 use Ukolio\Service\Cache\CacheFactoryInterface;
+use Ukolio\Service\Cors\CorsPolicy;
 use Ukolio\Service\Logger\Logger;
 use Ukolio\Service\Storage\FileStorageInterface;
 use Ukolio\Service\Storage\S3Config;
@@ -30,6 +31,7 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			FileStorageInterface::class,
 			ClientInterface::class,
 			CacheFactoryInterface::class,
+			CorsPolicy::class,
 		], true);
 	}
 
@@ -85,5 +87,10 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			assert($redisClient instanceof ClientInterface);
 			return new CacheFactory($redisClient);
 		});
+
+		$container->add(
+			CorsPolicy::class,
+			static fn (): CorsPolicy => CorsPolicy::fromEnvValue((string) getenv('BACKEND_CORS_ALLOWED_ORIGIN')),
+		);
 	}
 }

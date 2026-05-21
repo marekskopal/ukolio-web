@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\App\Bootstrap;
 
 use RuntimeException;
+use Ukolio\Service\Cors\CorsPolicy;
 
 final readonly class EnvironmentValidator
 {
@@ -46,7 +47,7 @@ final readonly class EnvironmentValidator
 		$names = array_unique(array_merge(
 			self::RequiredEnvVars,
 			array_keys(self::ProductionDefaultSecrets),
-			['APP_ENV'],
+			['APP_ENV', 'BACKEND_CORS_ALLOWED_ORIGIN'],
 		));
 
 		$env = [];
@@ -63,9 +64,12 @@ final readonly class EnvironmentValidator
 		$this->assertRequiredPresent();
 		$this->assertAuthorizationTokenKeyStrong();
 
-		if (($this->env['APP_ENV'] ?? '') === self::ProductionAppEnv) {
-			$this->assertProductionSecretsStrong();
+		if (($this->env['APP_ENV'] ?? '') !== self::ProductionAppEnv) {
+			return;
 		}
+
+		$this->assertProductionSecretsStrong();
+		$this->assertProductionCorsOriginStrict();
 	}
 
 	private function assertRequiredPresent(): void
@@ -118,6 +122,25 @@ final readonly class EnvironmentValidator
 				implode(', ', $weak),
 				self::ProductionSecretMinLength,
 			));
+		}
+	}
+
+	private function assertProductionCorsOriginStrict(): void
+	{
+		$policy = CorsPolicy::fromEnvValue($this->env['BACKEND_CORS_ALLOWED_ORIGIN'] ?? '');
+
+		if ($policy->origins() === []) {
+			throw new RuntimeException(
+				'BACKEND_CORS_ALLOWED_ORIGIN must list at least one origin when APP_ENV=production. '
+				. 'Set it to a space- or comma-separated list of allowed origins (e.g. `https://app.example.com`).',
+			);
+		}
+
+		if ($policy->allowsAnyOrigin()) {
+			throw new RuntimeException(
+				'BACKEND_CORS_ALLOWED_ORIGIN must not include `*` when APP_ENV=production. '
+				. 'Replace it with an explicit list of origins (e.g. `https://app.example.com`).',
+			);
 		}
 	}
 }
