@@ -22,5 +22,7 @@ frontend/out-tsc/
 
 log/
 
+test-ssl/
+
 docker-compose.override.yml
 /.playwright-mcp/
