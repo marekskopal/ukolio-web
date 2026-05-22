@@ -11,6 +11,24 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  coverage: none
+                  tools: composer
+
+            - name: Cache composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: backend/vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install composer dependencies
+              working-directory: backend
+              run: composer install --prefer-dist --no-progress --no-interaction
+
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
@@ -47,10 +65,18 @@ jobs:
             - name: Start test stack
               run: make test-env-up
 
+            - name: Dump docker compose ps + proxy state on stack issues
+              if: always()
+              run: |
+                  SSL=""; [ -f docker-compose.ssl.yml ] && SSL="-f docker-compose.ssl.yml"
+                  docker compose -f docker-compose.yml $SSL -f docker-compose.test.yml --profile dev ps || true
+                  docker compose -f docker-compose.yml $SSL -f docker-compose.test.yml --profile dev logs proxy --tail 80 || true
+
             - name: Run Playwright tests
               working-directory: frontend
               env:
                   E2E_SKIP_WEBSERVER: '1'
+                  E2E_BASE_URL: https://localhost:7281/
               run: pnpm run e2e
 
             - name: Stop test stack
