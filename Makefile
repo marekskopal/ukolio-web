@@ -66,6 +66,7 @@ test-env-up:
 	@if grep -q "^AUTHORIZATION_TOKEN_KEY=replace-with-32-char-random-hex-key-here" .env; then \
 		sed -i.bak "s|AUTHORIZATION_TOKEN_KEY=replace-with-32-char-random-hex-key-here|AUTHORIZATION_TOKEN_KEY=$$(openssl rand -hex 32)|" .env && rm -f .env.bak; \
 	fi
+	@sed -i.bak "s|^PROXY_PORT_SSL=.*|PROXY_PORT_SSL=7281|" .env && rm -f .env.bak
 	@mkdir -p test-ssl
 	@if [ ! -f test-ssl/server.crt ]; then \
 		openssl req -x509 -newkey rsa:2048 -keyout test-ssl/server.key -out test-ssl/server.crt \
@@ -77,7 +78,6 @@ test-env-up:
 	fi
 	PROXY_SSL_CERT=$(CURDIR)/test-ssl/server.crt \
 	PROXY_SSL_KEY=$(CURDIR)/test-ssl/server.key \
-	PROXY_PORT_SSL=7281 \
 	ADMINER_USER=test ADMINER_PASSWORD=test \
 		docker compose -f docker-compose.yml -f docker-compose.test.yml --profile dev up -d --build --wait db redis memcached backend frontend proxy
 	docker compose exec -T backend php bin/console migration:run
