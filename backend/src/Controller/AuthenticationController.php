@@ -35,6 +35,7 @@ use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Realtime\MercureCookieIssuerInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 use Ukolio\Validator\PasswordValidator;
+use const FILTER_VALIDATE_EMAIL;
 
 final readonly class AuthenticationController
 {
@@ -75,6 +76,10 @@ final readonly class AuthenticationController
 	public function actionPostSignUp(ServerRequestInterface $request): ResponseInterface
 	{
 		$signUp = $this->requestService->getRequestBodyDto($request, SignUpDto::class);
+
+		if ($signUp->email === '' || filter_var($signUp->email, FILTER_VALIDATE_EMAIL) === false) {
+			return new ErrorResponse('Invalid email address.', 422);
+		}
 
 		if (!PasswordValidator::isValid($signUp->password)) {
 			return new ErrorResponse('Password must be at least 8 characters and contain uppercase, lowercase, and a digit.', 422);
