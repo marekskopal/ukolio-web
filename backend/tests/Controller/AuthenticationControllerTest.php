@@ -49,6 +49,17 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		self::assertSame(422, $response->getStatusCode());
 	}
 
+	public function testSignUpRejectsMalformedEmail(): void
+	{
+		$response = $this->request('POST', '/api/authentication/sign-up', [
+			'email' => 'not-an-email',
+			'password' => 'StrongPass1',
+			'name' => 'Bad Email',
+		]);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
 	public function testSignUpRejectsDuplicateEmail(): void
 	{
 		Fixture::createUser(email: 'dup@example.com', password: 'OldPass1!');
@@ -197,6 +208,34 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		self::assertSame(200, $response->getStatusCode());
 		$body = $this->jsonBody($response);
 		self::assertArrayHasKey('accessToken', $body);
+	}
+
+	public function testRefreshTokenWithMalformedTokenReturns401(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'POST',
+			'/api/authentication/refresh-token',
+			body: ['refreshToken' => 'not.a.valid.jwt'],
+			bearerToken: Fixture::accessTokenFor($user),
+		);
+
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testRefreshTokenWithExpiredRefreshTokenReturns401(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'POST',
+			'/api/authentication/refresh-token',
+			body: ['refreshToken' => Fixture::expiredAccessTokenFor($user)],
+			bearerToken: Fixture::accessTokenFor($user),
+		);
+
+		self::assertSame(401, $response->getStatusCode());
 	}
 
 	public function testRefreshWithMismatchedUserIdRejects(): void

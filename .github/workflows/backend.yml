@@ -1,0 +1,34 @@
+name: Backend
+
+on:
+    workflow_dispatch:
+
+jobs:
+    backend:
+        name: Backend
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Prepare .env
+              run: cp .env.example .env
+
+            - name: Boot test services (db + redis + memcached + backend)
+              run: docker compose --profile dev up -d --build --wait db redis memcached backend
+
+            - name: Run PHPStan
+              if: always()
+              run: docker compose exec -T backend vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+            - name: Run PHPCS
+              if: always()
+              run: docker compose exec -T backend vendor/bin/phpcs
+
+            - name: Run PHPUnit
+              if: always()
+              run: docker compose exec -T -e TEST_MYSQL_DATABASE=ukolio_test backend vendor/bin/phpunit
+
+            - name: Dump docker logs on failure
+              if: failure()
+              run: docker compose logs --no-color

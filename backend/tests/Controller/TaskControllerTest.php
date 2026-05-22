@@ -6,6 +6,8 @@ namespace Ukolio\Tests\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\TaskController;
+use Ukolio\Model\Entity\Project;
+use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
 use Ukolio\Tests\Support\Fixture;
@@ -138,6 +140,95 @@ final class TaskControllerTest extends IntegrationTestCase
 
 		$get = $this->request('GET', '/api/tasks/' . $code, authenticatedAs: $owner);
 		self::assertSame(404, $get->getStatusCode());
+	}
+
+	public function testGetTaskFromAnotherWorkspaceIsNotFound(): void
+	{
+		[, $intruder, , $taskCode] = $this->seedCrossWorkspace();
+
+		$response = $this->request('GET', '/api/tasks/' . $taskCode, authenticatedAs: $intruder);
+		self::assertSame(404, $response->getStatusCode());
+
+		// Also assert the workspace-wide list does not leak the foreign task.
+		$list = $this->request('GET', '/api/tasks', authenticatedAs: $intruder);
+		self::assertSame(0, $this->jsonBody($list)['count']);
+	}
+
+	public function testCreateTaskInAnotherWorkspaceProjectIsNotFound(): void
+	{
+		[$projectInA, $intruder, $todoIdInA] = $this->seedCrossWorkspace();
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $projectInA->id . '/tasks',
+			body: ['statusId' => $todoIdInA, 'name' => 'Hijack', 'description' => null, 'priority' => 'High'],
+			authenticatedAs: $intruder,
+		);
+		self::assertSame(404, $response->getStatusCode());
+	}
+
+	public function testUpdateTaskFromAnotherWorkspaceIsNotFound(): void
+	{
+		[, $intruder, , $taskCode] = $this->seedCrossWorkspace();
+
+		$response = $this->request(
+			'PUT',
+			'/api/tasks/' . $taskCode,
+			body: ['name' => 'Renamed by intruder', 'description' => null, 'priority' => 'Low'],
+			authenticatedAs: $intruder,
+		);
+		self::assertSame(404, $response->getStatusCode());
+	}
+
+	public function testMoveTaskFromAnotherWorkspaceIsNotFound(): void
+	{
+		[$projectInA, $intruder, , $taskCode] = $this->seedCrossWorkspace();
+		$statusesInA = $this->statusIds($projectInA->id);
+
+		$response = $this->request(
+			'PUT',
+			'/api/tasks/' . $taskCode . '/move',
+			body: ['statusId' => $statusesInA[1], 'position' => 0],
+			authenticatedAs: $intruder,
+		);
+		self::assertSame(404, $response->getStatusCode());
+	}
+
+	public function testDeleteTaskFromAnotherWorkspaceIsNotFound(): void
+	{
+		[, $intruder, , $taskCode] = $this->seedCrossWorkspace();
+
+		$response = $this->request('DELETE', '/api/tasks/' . $taskCode, authenticatedAs: $intruder);
+		self::assertSame(404, $response->getStatusCode());
+	}
+
+	/**
+	 * Build the two-workspace scaffold used by every cross-workspace test:
+	 * an owner with workspace A holding one task; a separate intruder in workspace B.
+	 *
+	 * @return array{0:Project,1:User,2:int,3:string}
+	 *   [project in A, intruder user, first-status id in A, task code in A]
+	 */
+	private function seedCrossWorkspace(): array
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$workspaceA = Fixture::createWorkspace($owner, 'A');
+		$projectInA = Fixture::createProject($owner, $workspaceA);
+		$todoIdInA = $this->firstStatusId($projectInA->id);
+
+		$create = $this->request(
+			'POST',
+			'/api/projects/' . $projectInA->id . '/tasks',
+			body: ['statusId' => $todoIdInA, 'name' => 'Owner task', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+		assert($create->getStatusCode() === 200);
+		$taskCode = self::stringField($this->jsonBody($create)['code']);
+
+		$intruder = Fixture::createUser(email: 'intruder@example.com');
+		Fixture::createWorkspace($intruder, 'B');
+
+		return [$projectInA, $intruder, $todoIdInA, $taskCode];
 	}
 
 	/** @return array{0:int,1:int} */

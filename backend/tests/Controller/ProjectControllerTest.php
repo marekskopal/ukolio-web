@@ -113,4 +113,35 @@ final class ProjectControllerTest extends IntegrationTestCase
 		$response = $this->request('GET', '/api/projects/' . $projectInA->id, authenticatedAs: $intruder);
 		self::assertSame(404, $response->getStatusCode());
 	}
+
+	public function testUpdateProjectInAnotherWorkspaceIsNotFound(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$workspaceA = Fixture::createWorkspace($owner, 'A');
+		$projectInA = Fixture::createProject($owner, $workspaceA);
+
+		$intruder = Fixture::createUser(email: 'intruder@example.com');
+		Fixture::createWorkspace($intruder, 'B');
+
+		$response = $this->request(
+			'PUT',
+			'/api/projects/' . $projectInA->id,
+			body: ['name' => 'Hijacked', 'description' => null],
+			authenticatedAs: $intruder,
+		);
+		self::assertSame(404, $response->getStatusCode());
+	}
+
+	public function testDeleteProjectInAnotherWorkspaceIsNotFound(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$workspaceA = Fixture::createWorkspace($owner, 'A');
+		$projectInA = Fixture::createProject($owner, $workspaceA);
+
+		$intruder = Fixture::createUser(email: 'intruder@example.com');
+		Fixture::createWorkspace($intruder, 'B');
+
+		$response = $this->request('DELETE', '/api/projects/' . $projectInA->id, authenticatedAs: $intruder);
+		self::assertSame(404, $response->getStatusCode());
+	}
 }
