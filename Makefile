@@ -66,7 +66,6 @@ test-env-up:
 	@if grep -q "^AUTHORIZATION_TOKEN_KEY=replace-with-32-char-random-hex-key-here" .env; then \
 		sed -i.bak "s|AUTHORIZATION_TOKEN_KEY=replace-with-32-char-random-hex-key-here|AUTHORIZATION_TOKEN_KEY=$$(openssl rand -hex 32)|" .env && rm -f .env.bak; \
 	fi
-	@sed -i.bak "s|^PROXY_PORT_SSL=.*|PROXY_PORT_SSL=7281|" .env && rm -f .env.bak
 	@mkdir -p test-ssl
 	@if [ ! -f test-ssl/server.crt ]; then \
 		openssl req -x509 -newkey rsa:2048 -keyout test-ssl/server.key -out test-ssl/server.crt \
