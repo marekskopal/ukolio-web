@@ -11,6 +11,7 @@ use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Service\Authentication\AuthenticationServiceInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
@@ -44,8 +45,8 @@ final class Fixture
 		if ($systemRole !== SystemRoleEnum::User || $emailVerified) {
 			$user->systemRole = $systemRole;
 			$user->emailVerified = $emailVerified;
-			$repository = AppHarness::container()->get(\Ukolio\Model\Repository\UserRepository::class);
-			assert($repository instanceof \Ukolio\Model\Repository\UserRepository);
+			$repository = AppHarness::container()->get(UserRepository::class);
+			assert($repository instanceof UserRepository);
 			$repository->persist($user);
 		}
 

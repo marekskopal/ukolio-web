@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\ProjectController;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Repository\StatusRepository;
+use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -38,11 +39,7 @@ final class ProjectControllerTest extends IntegrationTestCase
 		self::assertCount(1, $this->jsonList($listResponse));
 
 		// Default workflow has 3 statuses
-		$workflowResponse = $this->request(
-			'GET',
-			'/api/projects/' . $projectId . '/workflow',
-			authenticatedAs: $owner,
-		);
+		$workflowResponse = $this->request('GET', '/api/projects/' . $projectId . '/workflow', authenticatedAs: $owner);
 		self::assertSame(200, $workflowResponse->getStatusCode());
 		$workflow = $this->jsonBody($workflowResponse);
 		$workflowId = self::intField($workflow['id']);
@@ -61,8 +58,8 @@ final class ProjectControllerTest extends IntegrationTestCase
 		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
 		// Member needs to have this workspace as current. createWorkspace switches owner; member's currentWorkspaceId may be null.
 		$member->currentWorkspaceId = $workspace->id;
-		$repo = $this->container->get(\Ukolio\Model\Repository\UserRepository::class);
-		assert($repo instanceof \Ukolio\Model\Repository\UserRepository);
+		$repo = $this->container->get(UserRepository::class);
+		assert($repo instanceof UserRepository);
 		$repo->persist($member);
 
 		$response = $this->request(
@@ -82,8 +79,8 @@ final class ProjectControllerTest extends IntegrationTestCase
 		$workspace = Fixture::createWorkspace($owner);
 		Fixture::addMember($workspace, $admin, WorkspaceRoleEnum::Admin);
 		$admin->currentWorkspaceId = $workspace->id;
-		$repo = $this->container->get(\Ukolio\Model\Repository\UserRepository::class);
-		assert($repo instanceof \Ukolio\Model\Repository\UserRepository);
+		$repo = $this->container->get(UserRepository::class);
+		assert($repo instanceof UserRepository);
 		$repo->persist($admin);
 
 		$project = Fixture::createProject($owner, $workspace);
@@ -113,11 +110,7 @@ final class ProjectControllerTest extends IntegrationTestCase
 		$intruder = Fixture::createUser(email: 'intruder@example.com');
 		Fixture::createWorkspace($intruder, 'B');
 
-		$response = $this->request(
-			'GET',
-			'/api/projects/' . $projectInA->id,
-			authenticatedAs: $intruder,
-		);
+		$response = $this->request('GET', '/api/projects/' . $projectInA->id, authenticatedAs: $intruder);
 		self::assertSame(404, $response->getStatusCode());
 	}
 }

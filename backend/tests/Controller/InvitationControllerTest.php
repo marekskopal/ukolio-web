@@ -48,7 +48,7 @@ final class InvitationControllerTest extends IntegrationTestCase
 		$workspace = Fixture::createWorkspace($owner);
 
 		// Seed an invitation directly with a known token (the provider only stores the hash).
-		[$rawToken, $invitation] = $this->seedInvitation($workspace, $owner, 'invitee@example.com');
+		[$rawToken] = $this->seedInvitation($workspace, $owner, 'invitee@example.com');
 
 		$invitee = Fixture::createUser(email: 'invitee@example.com');
 

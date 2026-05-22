@@ -86,11 +86,7 @@ final class WorkspaceControllerTest extends IntegrationTestCase
 		self::assertSame(200, $response->getStatusCode());
 
 		// Members listing now shows other as Owner, original owner as Admin
-		$members = $this->request(
-			'GET',
-			'/api/workspaces/' . $workspace->id . '/members',
-			authenticatedAs: $other,
-		);
+		$members = $this->request('GET', '/api/workspaces/' . $workspace->id . '/members', authenticatedAs: $other);
 		self::assertSame(200, $members->getStatusCode());
 		$byEmail = [];
 		foreach ($this->jsonList($members) as $member) {
@@ -124,11 +120,7 @@ final class WorkspaceControllerTest extends IntegrationTestCase
 		$intruder = Fixture::createUser(email: 'intruder@example.com');
 		$workspace = Fixture::createWorkspace($owner);
 
-		$response = $this->request(
-			'GET',
-			'/api/workspaces/' . $workspace->id . '/members',
-			authenticatedAs: $intruder,
-		);
+		$response = $this->request('GET', '/api/workspaces/' . $workspace->id . '/members', authenticatedAs: $intruder);
 		self::assertSame(401, $response->getStatusCode());
 	}
 
@@ -137,11 +129,7 @@ final class WorkspaceControllerTest extends IntegrationTestCase
 		$owner = Fixture::createUser();
 		$workspace = Fixture::createWorkspace($owner);
 
-		$response = $this->request(
-			'DELETE',
-			'/api/workspaces/' . $workspace->id . '/members/' . $owner->id,
-			authenticatedAs: $owner,
-		);
+		$response = $this->request('DELETE', '/api/workspaces/' . $workspace->id . '/members/' . $owner->id, authenticatedAs: $owner);
 		self::assertSame(422, $response->getStatusCode());
 	}
 }

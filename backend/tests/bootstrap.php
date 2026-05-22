@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Ukolio\Tests\Support\AppHarness;
+
 require __DIR__ . '/../vendor/autoload.php';
 
 // Force deterministic env for the test suite. putenv() takes precedence over
@@ -95,5 +97,5 @@ foreach ($showTables->fetchAll(PDO::FETCH_COLUMN) as $table) {
 }
 $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
 
-\Ukolio\Tests\Support\AppHarness::initialize();
-\Ukolio\Tests\Support\AppHarness::app()->dbContext->getMigrator()->migrate();
+AppHarness::initialize();
+AppHarness::app()->dbContext->getMigrator()->migrate();

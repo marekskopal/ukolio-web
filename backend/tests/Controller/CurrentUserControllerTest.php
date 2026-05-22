@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Controller;
 
+use PDO;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\CurrentUserController;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
@@ -129,7 +130,7 @@ final class CurrentUserControllerTest extends IntegrationTestCase
 		assert($stmt !== false);
 		$stmt->execute(['type' => EventTypeEnum::UserSelfDeleted->value]);
 		/** @var array{author_id: int|null, metadata: string}|false $row */
-		$row = $stmt->fetch(\PDO::FETCH_ASSOC);
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		self::assertNotFalse($row, 'UserSelfDeleted event should survive the deletion');
 		self::assertNull($row['author_id'], 'author FK should be SET NULL after the user is deleted');
 		self::assertStringContainsString('member@example.com', $row['metadata']);

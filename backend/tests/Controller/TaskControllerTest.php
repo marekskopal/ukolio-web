@@ -106,19 +106,11 @@ final class TaskControllerTest extends IntegrationTestCase
 			);
 		}
 
-		$filtered = $this->request(
-			'GET',
-			'/api/tasks?statusIds=' . $todoId . '&limit=10',
-			authenticatedAs: $owner,
-		);
+		$filtered = $this->request('GET', '/api/tasks?statusIds=' . $todoId . '&limit=10', authenticatedAs: $owner);
 		self::assertSame(200, $filtered->getStatusCode());
 		self::assertSame(2, $this->jsonBody($filtered)['count']);
 
-		$paged = $this->request(
-			'GET',
-			'/api/tasks?limit=2&offset=0',
-			authenticatedAs: $owner,
-		);
+		$paged = $this->request('GET', '/api/tasks?limit=2&offset=0', authenticatedAs: $owner);
 		$pagedBody = $this->jsonBody($paged);
 		$pagedTasks = $pagedBody['tasks'];
 		self::assertIsArray($pagedTasks);

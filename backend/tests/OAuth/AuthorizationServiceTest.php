@@ -88,13 +88,7 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 		$verifier = 'real-verifier';
 		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
 
-		$code = $authService->createAuthorizationCode(
-			$client->clientId,
-			$user->id,
-			$challenge,
-			'S256',
-			'http://localhost/cb',
-		);
+		$code = $authService->createAuthorizationCode($client->clientId, $user->id, $challenge, 'S256', 'http://localhost/cb');
 
 		$this->expectException(\RuntimeException::class);
 		$authService->exchangeCode($code, 'wrong-verifier', $client->clientId, 'http://localhost/cb');
@@ -112,13 +106,7 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 
 		$verifier = 'verifier-refresh';
 		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
-		$code = $authService->createAuthorizationCode(
-			$client->clientId,
-			$user->id,
-			$challenge,
-			'S256',
-			'http://localhost/cb',
-		);
+		$code = $authService->createAuthorizationCode($client->clientId, $user->id, $challenge, 'S256', 'http://localhost/cb');
 		$pair = $authService->exchangeCode($code, $verifier, $client->clientId, 'http://localhost/cb');
 
 		$refreshed = $authService->refreshToken($pair->refreshToken, $client->clientId);
@@ -142,13 +130,7 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 
 		$verifier = 'verifier';
 		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
-		$code = $authService->createAuthorizationCode(
-			$client->clientId,
-			$user->id,
-			$challenge,
-			'S256',
-			'http://localhost/cb',
-		);
+		$code = $authService->createAuthorizationCode($client->clientId, $user->id, $challenge, 'S256', 'http://localhost/cb');
 		$pair = $authService->exchangeCode($code, $verifier, $client->clientId, 'http://localhost/cb');
 
 		$auth = $authService->validateAccessToken($pair->accessToken);

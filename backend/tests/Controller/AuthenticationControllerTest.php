@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Controller;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\AuthenticationController;
+use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\WorkspaceRepository;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Tests\Support\AppHarness;
@@ -249,11 +251,11 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 	 *
 	 * @return array{0:string}
 	 */
-	private function issueResetToken(PasswordResetProviderInterface $provider, \Ukolio\Model\Entity\User $user): array
+	private function issueResetToken(PasswordResetProviderInterface $provider, User $user): array
 	{
 		$rawToken = bin2hex(random_bytes(16));
 		$pdo = AppHarness::pdo();
-		$now = new \DateTimeImmutable();
+		$now = new DateTimeImmutable();
 		$stmt = $pdo->prepare(
 			'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, used_at, created_at, updated_at) '
 			. 'VALUES (:user_id, :hash, :expires, NULL, :now, :now)',

@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Mcp\Tool\TaskTools;
 use Ukolio\Mcp\Tool\WorkflowTools;
+use Ukolio\Model\Entity\User;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
@@ -25,10 +26,7 @@ final class TaskToolsTest extends IntegrationTestCase
 
 		[$taskTools, $workflowTools] = $this->bootAs($user);
 
-		$task = $taskTools->createTask(
-			projectId: $project->id,
-			name: 'Agent task',
-		);
+		$task = $taskTools->createTask(projectId: $project->id, name: 'Agent task');
 
 		self::assertSame('Agent task', $task->name);
 
@@ -54,11 +52,7 @@ final class TaskToolsTest extends IntegrationTestCase
 
 		[$taskTools] = $this->bootAs($user);
 
-		$task = $taskTools->createTask(
-			projectId: $project->id,
-			name: 'In progress task',
-			statusName: 'In Progress',
-		);
+		$task = $taskTools->createTask(projectId: $project->id, name: 'In progress task', statusName: 'In Progress');
 		self::assertSame('In progress task', $task->name);
 	}
 
@@ -127,7 +121,7 @@ final class TaskToolsTest extends IntegrationTestCase
 	}
 
 	/** @return array{0:TaskTools,1:WorkflowTools} */
-	private function bootAs(\Ukolio\Model\Entity\User $user): array
+	private function bootAs(User $user): array
 	{
 		$ctx = AppHarness::container()->get(McpUserContextInterface::class);
 		assert($ctx instanceof McpUserContextInterface);

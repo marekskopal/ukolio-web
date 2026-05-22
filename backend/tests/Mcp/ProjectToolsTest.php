@@ -7,6 +7,7 @@ namespace Ukolio\Tests\Mcp;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Mcp\Tool\ProjectTools;
+use Ukolio\Model\Entity\User;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
@@ -67,7 +68,7 @@ final class ProjectToolsTest extends IntegrationTestCase
 		self::assertCount(0, $tools->listProjects()->projects);
 	}
 
-	private function bootMcpAs(\Ukolio\Model\Entity\User $user): ProjectTools
+	private function bootMcpAs(User $user): ProjectTools
 	{
 		$ctx = AppHarness::container()->get(McpUserContextInterface::class);
 		assert($ctx instanceof McpUserContextInterface);

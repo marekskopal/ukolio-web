@@ -26,6 +26,7 @@ abstract class IntegrationTestCase extends TestCase
 	protected function setUp(): void
 	{
 		parent::setUp();
+
 		AppHarness::resetState();
 		Fixture::reset();
 
@@ -49,9 +50,7 @@ abstract class IntegrationTestCase extends TestCase
 		return $this->handler->handle($this->buildRequest($method, $path, $body, $authenticatedAs, $bearerToken));
 	}
 
-	/**
-	 * @param array<string, mixed>|null $body
-	 */
+	/** @param array<string, mixed>|null $body */
 	protected function buildRequest(
 		string $method,
 		string $path,
@@ -86,27 +85,21 @@ abstract class IntegrationTestCase extends TestCase
 		return $request;
 	}
 
-	/**
-	 * @return array<string, mixed>
-	 */
+	/** @return array<string, mixed> */
 	protected function jsonBody(ResponseInterface $response): array
 	{
 		$body = (string) $response->getBody();
-		$decoded = Json::decode($body, forceArrays: true);
-		assert(is_array($decoded));
 		/** @var array<string, mixed> $decoded */
+		$decoded = Json::decode($body, forceArrays: true);
 		return $decoded;
 	}
 
-	/**
-	 * @return list<array<string, mixed>>
-	 */
+	/** @return list<array<string, mixed>> */
 	protected function jsonList(ResponseInterface $response): array
 	{
 		$body = (string) $response->getBody();
-		$decoded = Json::decode($body, forceArrays: true);
-		assert(is_array($decoded));
 		/** @var list<array<string, mixed>> $decoded */
+		$decoded = Json::decode($body, forceArrays: true);
 		return $decoded;
 	}
 

@@ -39,11 +39,7 @@ final class TagControllerTest extends IntegrationTestCase
 		self::assertSame(200, $update->getStatusCode());
 		self::assertSame('critical', $this->jsonBody($update)['name']);
 
-		$delete = $this->request(
-			'DELETE',
-			'/api/workspaces/' . $workspace->id . '/tags/' . $tagId,
-			authenticatedAs: $owner,
-		);
+		$delete = $this->request('DELETE', '/api/workspaces/' . $workspace->id . '/tags/' . $tagId, authenticatedAs: $owner);
 		self::assertSame(200, $delete->getStatusCode());
 
 		$listAfter = $this->request('GET', '/api/workspaces/' . $workspace->id . '/tags', authenticatedAs: $owner);

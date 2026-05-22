@@ -13,7 +13,8 @@ final class PkceVerifierTest extends TestCase
 {
 	public function testVerifyAcceptsMatchingS256Challenge(): void
 	{
-		$verifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk'; // RFC 7636 sample
+		// RFC 7636 sample
+		$verifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk';
 		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
 
 		self::assertTrue(new PkceVerifier()->verify($verifier, $challenge));
