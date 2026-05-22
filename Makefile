@@ -78,12 +78,12 @@ test-env-up:
 	PROXY_SSL_CERT=$(CURDIR)/test-ssl/server.crt \
 	PROXY_SSL_KEY=$(CURDIR)/test-ssl/server.key \
 	ADMINER_USER=test ADMINER_PASSWORD=test \
-		docker compose -f docker-compose.yml -f docker-compose.test.yml --profile dev up -d --build --wait db redis memcached backend frontend proxy
+		docker compose -f docker-compose.yml -f docker-compose.ssl.yml -f docker-compose.test.yml --profile dev up -d --build --wait db redis memcached backend frontend proxy
 	docker compose exec -T backend php bin/console migration:run
 
 ## Stop the e2e docker stack.
 test-env-down:
-	docker compose -f docker-compose.yml -f docker-compose.test.yml --profile dev down
+	docker compose -f docker-compose.yml -f docker-compose.ssl.yml -f docker-compose.test.yml --profile dev down
 
 ## Run Playwright in interactive UI mode against the running dev stack.
 test-e2e-ui:
