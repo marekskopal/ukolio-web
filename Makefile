@@ -1,4 +1,4 @@
-.PHONY: up down logs build migrate test test-backend test-backend-coverage test-frontend test-e2e test-e2e-ui lint lint-backend lint-fix install
+.PHONY: up down logs build migrate test test-backend test-backend-coverage test-frontend test-e2e test-e2e-ui test-env-up test-env-down lint lint-backend lint-fix install
 
 ## Start stack
 up:
@@ -48,8 +48,32 @@ test-frontend:
 ## is not already running (Playwright's webServer config uses reuseExistingServer).
 ## Override the base URL with E2E_BASE_URL=... and skip the auto-up with
 ## E2E_SKIP_WEBSERVER=1 when the stack is managed externally.
-test-e2e:
-	cd frontend && pnpm run e2e
+test-e2e: test-env-up
+	cd frontend && E2E_SKIP_WEBSERVER=1 pnpm run e2e; \
+	status=$$?; \
+	$(MAKE) -C $(CURDIR) test-env-down; \
+	exit $$status
+
+## Bring up the e2e docker stack (db, redis, memcached, backend, frontend, proxy).
+## Generates a self-signed TLS cert at ./test-ssl/ for the proxy on first run,
+## bootstraps a .env from .env.example if missing, and applies migrations.
+## The web/marketing service is skipped.
+test-env-up:
+	@if [ ! -f .env ]; then cp .env.example .env; fi
+	@mkdir -p test-ssl
+	@if [ ! -f test-ssl/server.crt ]; then \
+		openssl req -x509 -newkey rsa:2048 -keyout test-ssl/server.key -out test-ssl/server.crt \
+			-days 365 -nodes -subj '/CN=localhost' 2>/dev/null; \
+	fi
+	PROXY_SSL_CERT=$(CURDIR)/test-ssl/server.crt \
+	PROXY_SSL_KEY=$(CURDIR)/test-ssl/server.key \
+	ADMINER_USER=test ADMINER_PASSWORD=test \
+		docker compose --profile dev up -d --build --wait db redis memcached backend frontend proxy
+	docker compose exec -T backend php bin/console migration:run
+
+## Stop the e2e docker stack.
+test-env-down:
+	docker compose --profile dev down
 
 ## Run Playwright in interactive UI mode against the running dev stack.
 test-e2e-ui:
