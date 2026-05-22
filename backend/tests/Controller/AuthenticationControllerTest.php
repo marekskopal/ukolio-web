@@ -97,6 +97,67 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		self::assertSame(401, $response->getStatusCode());
 	}
 
+	public function testLoginLocksAccountAfterRepeatedFailures(): void
+	{
+		Fixture::createUser(email: 'lockme@example.com', password: 'Secret123');
+
+		// Threshold default = 5. First 4 wrong-password attempts return 401.
+		for ($i = 1; $i <= 4; $i++) {
+			$response = $this->request('POST', '/api/authentication/login', [
+				'email' => 'lockme@example.com',
+				'password' => 'WrongPass1',
+			]);
+			self::assertSame(401, $response->getStatusCode(), 'Attempt ' . $i . ' should still be 401');
+		}
+
+		// The 5th wrong-password attempt trips the lock and returns 429 with Retry-After.
+		$locked = $this->request('POST', '/api/authentication/login', [
+			'email' => 'lockme@example.com',
+			'password' => 'WrongPass1',
+		]);
+		self::assertSame(429, $locked->getStatusCode());
+		$retryAfter = $locked->getHeaderLine('Retry-After');
+		self::assertNotSame('', $retryAfter);
+		self::assertGreaterThan(0, (int) $retryAfter);
+		self::assertLessThanOrEqual(60, (int) $retryAfter);
+
+		// Correct password while locked still returns 429 — the lock is honored.
+		$stillLocked = $this->request('POST', '/api/authentication/login', [
+			'email' => 'lockme@example.com',
+			'password' => 'Secret123',
+		]);
+		self::assertSame(429, $stillLocked->getStatusCode());
+	}
+
+	public function testSuccessfulLoginResetsFailureCounter(): void
+	{
+		Fixture::createUser(email: 'reset@example.com', password: 'Secret123');
+
+		for ($i = 1; $i <= 4; $i++) {
+			$response = $this->request('POST', '/api/authentication/login', [
+				'email' => 'reset@example.com',
+				'password' => 'WrongPass1',
+			]);
+			self::assertSame(401, $response->getStatusCode());
+		}
+
+		// Success clears the counter.
+		$success = $this->request('POST', '/api/authentication/login', [
+			'email' => 'reset@example.com',
+			'password' => 'Secret123',
+		]);
+		self::assertSame(200, $success->getStatusCode());
+
+		// Another 4 failures should not lock — the counter restarted.
+		for ($i = 1; $i <= 4; $i++) {
+			$response = $this->request('POST', '/api/authentication/login', [
+				'email' => 'reset@example.com',
+				'password' => 'WrongPass1',
+			]);
+			self::assertSame(401, $response->getStatusCode());
+		}
+	}
+
 	public function testProtectedEndpointWithoutTokenReturns401(): void
 	{
 		$response = $this->request('GET', '/api/current-user');

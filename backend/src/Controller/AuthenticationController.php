@@ -26,6 +26,7 @@ use Ukolio\Response\NotAuthorizedResponse;
 use Ukolio\Response\OkResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Authentication\AuthenticationServiceInterface;
+use Ukolio\Service\Authentication\Exception\AccountLockedException;
 use Ukolio\Service\Authentication\Exception\AuthenticationException;
 use Ukolio\Service\Provider\EmailVerificationProviderInterface;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
@@ -55,6 +56,12 @@ final readonly class AuthenticationController
 
 		try {
 			$auth = $this->authenticationService->authenticate($credentials);
+		} catch (AccountLockedException $e) {
+			return new ErrorResponse(
+				'Too many failed sign-in attempts. Please try again later.',
+				429,
+				['Retry-After' => (string) $e->retryAfterSeconds],
+			);
 		} catch (AuthenticationException) {
 			return new NotAuthorizedResponse('Email or password is invalid.');
 		}

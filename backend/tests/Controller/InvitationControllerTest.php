@@ -88,6 +88,27 @@ final class InvitationControllerTest extends IntegrationTestCase
 		self::assertSame(422, $response->getStatusCode());
 	}
 
+	public function testWorkspaceInvitationCapReturns429(): void
+	{
+		$owner = Fixture::createUser(email: 'capowner@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+
+		// Seed 50 fresh invitations (the configured per-hour cap default).
+		for ($i = 0; $i < 50; $i++) {
+			$this->seedInvitation($workspace, $owner, 'seed' . $i . '@example.com');
+		}
+
+		$response = $this->request(
+			'POST',
+			'/api/workspaces/' . $workspace->id . '/invitations',
+			body: ['email' => 'over-cap@example.com', 'role' => 'Member'],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(429, $response->getStatusCode());
+		self::assertSame('3600', $response->getHeaderLine('Retry-After'));
+	}
+
 	/** @return array{0:string,1:Invitation} */
 	private function seedInvitation(Workspace $workspace, User $inviter, string $email): array
 	{

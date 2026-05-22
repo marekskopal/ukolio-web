@@ -16,7 +16,7 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 	private const int AccessTokenExpiration = 3600;
 	private const int RefreshTokenExpiration = 604800;
 
-	public function __construct(private UserProviderInterface $userProvider)
+	public function __construct(private UserProviderInterface $userProvider, private LoginAttemptService $loginAttempts)
 	{
 	}
 
@@ -27,9 +27,17 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 			throw new AuthenticationException('Invalid credentials.');
 		}
 
+		$this->loginAttempts->assertNotLocked($user);
+
 		if (!password_verify($credentials->password, $user->password)) {
+			$this->loginAttempts->recordFailure($user);
+			// If this failure just tripped the lock, surface that to the caller as 429.
+			$this->loginAttempts->assertNotLocked($user);
+
 			throw new AuthenticationException('Invalid credentials.');
 		}
+
+		$this->loginAttempts->recordSuccess($user);
 
 		return $this->createAuthentication($user);
 	}

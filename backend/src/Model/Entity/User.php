@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Entity;
 
+use DateTimeImmutable;
 use MarekSkopal\ORM\Attribute\Column;
 use MarekSkopal\ORM\Attribute\ColumnEnum;
 use MarekSkopal\ORM\Attribute\Entity;
@@ -15,6 +16,12 @@ use Ukolio\Model\Repository\UserRepository;
 #[Entity(repositoryClass: UserRepository::class)]
 class User extends AEntity
 {
+	#[Column(type: Type::Int, default: 0)]
+	public int $failedLoginAttempts = 0;
+
+	#[Column(type: Type::Timestamp, nullable: true)]
+	public ?DateTimeImmutable $lockedUntil = null;
+
 	public function __construct(
 		#[Column(type: Type::String)]
 		public string $email,

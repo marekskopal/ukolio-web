@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Controller;
 
+use DateTimeImmutable;
 use Laminas\Diactoros\Response\JsonResponse;
 use MarekSkopal\Router\Attribute\RouteDelete;
 use MarekSkopal\Router\Attribute\RouteGet;
@@ -15,12 +16,14 @@ use Ukolio\Dto\InvitationCreateDto;
 use Ukolio\Dto\InvitationDto;
 use Ukolio\Dto\InvitationTokenDto;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
+use Ukolio\Model\Repository\InvitationRepository;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
 use Ukolio\Response\NotFoundResponse;
 use Ukolio\Response\OkResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
+use Ukolio\Service\Authentication\RateLimitConfig;
 use Ukolio\Service\Provider\InvitationProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
@@ -29,9 +32,11 @@ final readonly class InvitationController
 {
 	public function __construct(
 		private InvitationProviderInterface $invitationProvider,
+		private InvitationRepository $invitationRepository,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private PermissionCheckerInterface $permissionChecker,
 		private RequestServiceInterface $requestService,
+		private RateLimitConfig $rateLimitConfig,
 	) {
 	}
 
@@ -74,6 +79,18 @@ final readonly class InvitationController
 
 		if (!$this->permissionChecker->canInviteAs($user, $workspace, $role)) {
 			return new NotAuthorizedResponse('You cannot invite a member with this role.');
+		}
+
+		$recentCount = $this->invitationRepository->countByWorkspaceSince(
+			$workspace->id,
+			(new DateTimeImmutable())->modify('-1 hour'),
+		);
+		if ($recentCount >= $this->rateLimitConfig->invitationsPerHour) {
+			return new ErrorResponse(
+				'This workspace has reached its hourly invitation limit. Please try again later.',
+				429,
+				['Retry-After' => '3600'],
+			);
 		}
 
 		try {
