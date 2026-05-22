@@ -78,7 +78,7 @@ test-env-up:
 		exit 1; \
 	fi
 	ADMINER_USER=test ADMINER_PASSWORD=test \
-		docker compose -f docker-compose.yml -f docker-compose.ssl.yml -f docker-compose.test.yml --profile dev up -d --build --wait db redis memcached backend frontend proxy
+		docker compose -f docker-compose.yml -f docker-compose.ssl.yml -f docker-compose.test.yml --profile dev up -d --build --wait db redis memcached backend frontend proxy adminer
 	docker compose exec -T backend php bin/console migration:run
 
 ## Stop the e2e docker stack.
