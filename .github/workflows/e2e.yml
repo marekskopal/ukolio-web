@@ -67,6 +67,12 @@ jobs:
             - name: Start test stack
               run: make test-env-up
 
+            - name: Dump docker compose ps + proxy state on stack issues
+              if: always()
+              run: |
+                  docker compose -f docker-compose.yml -f docker-compose.ssl.yml -f docker-compose.test.yml --profile dev ps || true
+                  docker compose -f docker-compose.yml -f docker-compose.ssl.yml -f docker-compose.test.yml --profile dev logs proxy --tail 80 || true
+
             - name: Run Playwright tests
               working-directory: frontend
               env:
