@@ -554,6 +554,74 @@
             "remove": "Remove",
             "filterTitle": "Filter by tag",
             "noTagsAvailable": "No more tags to add."
+        },
+        "onboarding": {
+            "shell": {
+                "gettingStarted": "Getting started",
+                "signOut": "Sign out",
+                "signedInAs": "Signed in as",
+                "workspaceLabel": "Set up workspace",
+                "tipTitle": "Why workflows?",
+                "tipBody": "Each project owns one workflow — the ordered statuses a task moves through. You can rename or add columns later.",
+                "stepCounter": "Step {{step}} of {{total}}",
+                "skip": "Skip for now",
+                "back": "Back",
+                "continue": "Continue",
+                "openWorkspace": "Open workspace"
+            },
+            "steps": {
+                "step1": {"label": "Project & workflow", "hint": "Where work lives"},
+                "step2": {"label": "Invite teammates", "hint": "Bring your team in"},
+                "step3": {"label": "Connect agents", "hint": "Optional · MCP"}
+            },
+            "step1": {
+                "overline": "Step 01",
+                "title": "Create your first project",
+                "lead": "A project groups related tasks. Pick a name, then choose the workflow your team will use to move work to done.",
+                "nameLabel": "Project name",
+                "namePlaceholder": "Backend rewrite",
+                "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Optional context for your team.",
+                "optional": "optional",
+                "workflowTitle": "Workflow",
+                "workflowSub": "The statuses tasks move through. Pick a template — you can edit it after.",
+                "errorCreate": "Could not create project. Please try again.",
+                "templates": {
+                    "kanban": {"name": "Kanban", "sub": "Classic 4-stage flow"},
+                    "engineering": {"name": "Engineering", "sub": "Backlog → Spec → Build → Ship"},
+                    "simple": {"name": "Simple", "sub": "Just open / closed"},
+                    "blank": {"name": "Start blank", "sub": "Define your own columns"}
+                }
+            },
+            "step2": {
+                "overline": "Step 02",
+                "title": "Invite your teammates",
+                "lead": "They’ll get an email with a one-click link into your workspace. Add as many as you like — you can manage roles any time.",
+                "emailPlaceholder": "teammate@example.com",
+                "addAnother": "Add another",
+                "removeRow": "Remove row",
+                "skipInvites": "Skip invites",
+                "errorNoWorkspace": "No active workspace. Refresh and try again.",
+                "errorSomeFailed": "{{count}} invitation(s) could not be sent."
+            },
+            "step3": {
+                "overline": "Step 03",
+                "title": "You’re set",
+                "lead": "Your workspace and first project are good to go. One optional step left: connect an MCP-compatible agent so Claude or Cursor can move tasks for you.",
+                "summaryWorkspace": "Workspace",
+                "summaryProject": "Project",
+                "summaryInvites": "Invites sent",
+                "mcpServerTitle": "MCP server",
+                "mcpServerSub": "Point your agent at this URL.",
+                "serverUrl": "Server URL",
+                "claudeTitle": "Claude Desktop",
+                "claudeSub": "Add this entry to ~/Library/Application Support/Claude/claude_desktop_config.json.",
+                "cursorTitle": "Cursor",
+                "cursorSub": "Add this entry to .cursor/mcp.json in your workspace.",
+                "copy": "Copy",
+                "copied": "Copied to clipboard.",
+                "copyFailed": "Couldn’t copy. Select the text manually."
+            }
         }
     }
 }

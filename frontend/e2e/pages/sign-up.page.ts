@@ -14,8 +14,13 @@ export class SignUpPage {
         await this.page.getByRole('button', {name: 'Sign up'}).click();
     }
 
+    public async expectLandedAtOnboarding(): Promise<void> {
+        // Sign-up routes new users into the onboarding wizard.
+        await expect(this.page).toHaveURL(/\/onboarding\/step-1/, {timeout: 15_000});
+    }
+
     public async expectLandedInsideApp(): Promise<void> {
-        // Successful sign-up lands the user inside the authenticated layout, defaulting to /projects.
+        // After onboarding is dismissed, the user lands at /projects.
         await expect(this.page).toHaveURL(/\/projects/, {timeout: 15_000});
     }
 }

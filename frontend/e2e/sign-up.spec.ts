@@ -1,13 +1,15 @@
 import {expect, test} from '@playwright/test';
 
 import {LayoutPage} from './pages/layout.page';
+import {OnboardingPage} from './pages/onboarding.page';
 import {SignUpPage} from './pages/sign-up.page';
 
 test.use({storageState: {cookies: [], origins: []}});
 
 test.describe('Sign-up', () => {
-    test('a brand-new user signs up and lands inside the app with a workspace ready', async ({page}) => {
+    test('a brand-new user signs up, skips onboarding, and lands inside the app', async ({page}) => {
         const signUp = new SignUpPage(page);
+        const onboarding = new OnboardingPage(page);
         const layout = new LayoutPage(page);
 
         const stamp = Date.now();
@@ -16,6 +18,8 @@ test.describe('Sign-up', () => {
 
         await signUp.goto();
         await signUp.signUp(name, email, 'Test1234!');
+        await signUp.expectLandedAtOnboarding();
+        await onboarding.skip();
         await signUp.expectLandedInsideApp();
 
         await layout.expectVisible();

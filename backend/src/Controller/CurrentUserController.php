@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Controller;
 
+use DateTimeImmutable;
 use Laminas\Diactoros\Response\JsonResponse;
 use MarekSkopal\Router\Attribute\RouteDelete;
 use MarekSkopal\Router\Attribute\RouteGet;
@@ -16,6 +17,7 @@ use Ukolio\Dto\ChangePasswordDto;
 use Ukolio\Dto\CurrentUserUpdateDto;
 use Ukolio\Dto\UserDto;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
+use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
@@ -37,6 +39,7 @@ final readonly class CurrentUserController
 		private CurrentUserDeletionServiceInterface $currentUserDeletionService,
 		private UserDataExportServiceInterface $userDataExportService,
 		private RequestServiceInterface $requestService,
+		private UserRepository $userRepository,
 	) {
 	}
 
@@ -101,6 +104,19 @@ final readonly class CurrentUserController
 		$this->emailVerificationProvider->requestVerification($user);
 
 		return new OkResponse();
+	}
+
+	#[RoutePost(Routes::CurrentUserOnboardingComplete->value)]
+	public function actionPostOnboardingComplete(ServerRequestInterface $request): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+
+		if ($user->onboardingCompletedAt === null) {
+			$user->onboardingCompletedAt = new DateTimeImmutable();
+			$this->userRepository->persist($user);
+		}
+
+		return new JsonResponse(UserDto::fromEntity($user));
 	}
 
 	#[RouteDelete(Routes::CurrentUser->value)]

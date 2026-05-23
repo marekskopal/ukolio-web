@@ -22,6 +22,9 @@ class User extends AEntity
 	#[Column(type: Type::Timestamp, nullable: true)]
 	public ?DateTimeImmutable $lockedUntil = null;
 
+	#[Column(type: Type::Timestamp, nullable: true)]
+	public ?DateTimeImmutable $onboardingCompletedAt = null;
+
 	public function __construct(
 		#[Column(type: Type::String)]
 		public string $email,

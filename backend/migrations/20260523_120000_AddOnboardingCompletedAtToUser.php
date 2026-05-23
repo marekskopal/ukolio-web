@@ -7,21 +7,19 @@ namespace Migrations;
 use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Migration\Migration;
 
-final class AddLoginRateLimitToUserMigration extends Migration
+final class AddOnboardingCompletedAtToUserMigration extends Migration
 {
 	public function up(): void
 	{
 		$this->table('users')
-			->addColumn('failed_login_attempts', Type::Int, default: 0)
-			->addColumn('locked_until', Type::Timestamp, nullable: true)
+			->addColumn('onboarding_completed_at', Type::Timestamp, nullable: true)
 			->alter();
 	}
 
 	public function down(): void
 	{
 		$this->table('users')
-			->dropColumn('failed_login_attempts')
-			->dropColumn('locked_until')
+			->dropColumn('onboarding_completed_at')
 			->alter();
 	}
 }

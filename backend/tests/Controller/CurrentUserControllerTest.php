@@ -29,6 +29,45 @@ final class CurrentUserControllerTest extends IntegrationTestCase
 		$body = $this->jsonBody($response);
 		self::assertSame('me@example.com', $body['email']);
 		self::assertSame('Me', $body['name']);
+		self::assertArrayHasKey('onboardingCompletedAt', $body);
+		self::assertNull($body['onboardingCompletedAt']);
+	}
+
+	public function testPostOnboardingCompleteSetsTimestamp(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request('POST', '/api/current-user/onboarding-complete', authenticatedAs: $user);
+
+		self::assertSame(200, $response->getStatusCode());
+		$body = $this->jsonBody($response);
+		self::assertIsString($body['onboardingCompletedAt']);
+
+		$userRepository = AppHarness::container()->get(UserRepository::class);
+		assert($userRepository instanceof UserRepository);
+		$persisted = $userRepository->findUserById($user->id);
+		self::assertNotNull($persisted);
+		self::assertNotNull($persisted->onboardingCompletedAt);
+	}
+
+	public function testPostOnboardingCompleteIsIdempotent(): void
+	{
+		$user = Fixture::createUser();
+
+		$first = $this->request('POST', '/api/current-user/onboarding-complete', authenticatedAs: $user);
+		self::assertSame(200, $first->getStatusCode());
+		$initial = $this->jsonBody($first)['onboardingCompletedAt'];
+		self::assertIsString($initial);
+
+		$second = $this->request('POST', '/api/current-user/onboarding-complete', authenticatedAs: $user);
+		self::assertSame(200, $second->getStatusCode());
+		self::assertSame($initial, $this->jsonBody($second)['onboardingCompletedAt']);
+	}
+
+	public function testPostOnboardingCompleteRequiresAuth(): void
+	{
+		$response = $this->request('POST', '/api/current-user/onboarding-complete');
+		self::assertSame(401, $response->getStatusCode());
 	}
 
 	public function testPatchUpdatesNameAndLocale(): void

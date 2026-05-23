@@ -1,6 +1,7 @@
 import {Routes} from '@angular/router';
 import {AuthGuard} from '@app/core/guards/auth.guard';
 import {GuestGuard} from '@app/core/guards/guest.guard';
+import {OnboardingGuard} from '@app/core/guards/onboarding.guard';
 import {SystemAdminGuard} from '@app/core/guards/system-admin.guard';
 
 export const appRoutes: Routes = [
@@ -32,6 +33,26 @@ export const appRoutes: Routes = [
     {
         path: 'oauth/authorize',
         loadComponent: () => import('@app/oauth/oauth-authorize.component').then((m) => m.OAuthAuthorizeComponent),
+    },
+    {
+        path: 'onboarding',
+        canActivate: [AuthGuard, OnboardingGuard],
+        loadComponent: () => import('@app/onboarding/onboarding-shell.component').then((m) => m.OnboardingShellComponent),
+        children: [
+            {path: '', redirectTo: 'step-1', pathMatch: 'full'},
+            {
+                path: 'step-1',
+                loadComponent: () => import('@app/onboarding/step-1.component').then((m) => m.OnboardingStep1Component),
+            },
+            {
+                path: 'step-2',
+                loadComponent: () => import('@app/onboarding/step-2.component').then((m) => m.OnboardingStep2Component),
+            },
+            {
+                path: 'step-3',
+                loadComponent: () => import('@app/onboarding/step-3.component').then((m) => m.OnboardingStep3Component),
+            },
+        ],
     },
     {
         path: '',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Dto;
 
+use DateTimeImmutable;
 use Ukolio\Model\Entity\User;
 
 final readonly class UserDto
@@ -16,6 +17,7 @@ final readonly class UserDto
 		public ?int $currentWorkspaceId,
 		public string $systemRole,
 		public bool $emailVerified,
+		public ?string $onboardingCompletedAt,
 	) {
 	}
 
@@ -29,6 +31,7 @@ final readonly class UserDto
 			currentWorkspaceId: $user->currentWorkspaceId,
 			systemRole: $user->systemRole->value,
 			emailVerified: $user->emailVerified,
+			onboardingCompletedAt: $user->onboardingCompletedAt?->format(DateTimeImmutable::ATOM),
 		);
 	}
 }

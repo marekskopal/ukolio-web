@@ -554,6 +554,74 @@
             "remove": "Odebrat",
             "filterTitle": "Filtrovat podle štítku",
             "noTagsAvailable": "Žádné další štítky k přidání."
+        },
+        "onboarding": {
+            "shell": {
+                "gettingStarted": "Začínáme",
+                "signOut": "Odhlásit se",
+                "signedInAs": "Přihlášen jako",
+                "workspaceLabel": "Nastavit workspace",
+                "tipTitle": "Proč workflow?",
+                "tipBody": "Každý projekt má jeden workflow — uspořádané stavy, kterými úkol prochází. Přejmenovat nebo přidat sloupce můžete kdykoli později.",
+                "stepCounter": "Krok {{step}} z {{total}}",
+                "skip": "Přeskočit",
+                "back": "Zpět",
+                "continue": "Pokračovat",
+                "openWorkspace": "Otevřít workspace"
+            },
+            "steps": {
+                "step1": {"label": "Projekt a workflow", "hint": "Kde žijí úkoly"},
+                "step2": {"label": "Pozvat kolegy", "hint": "Přiveďte tým"},
+                "step3": {"label": "Připojit agenty", "hint": "Volitelné · MCP"}
+            },
+            "step1": {
+                "overline": "Krok 01",
+                "title": "Vytvořte první projekt",
+                "lead": "Projekt sdružuje související úkoly. Vyberte název a zvolte workflow, kterým bude tým úkoly posouvat.",
+                "nameLabel": "Název projektu",
+                "namePlaceholder": "Přepis backendu",
+                "descriptionLabel": "Popis",
+                "descriptionPlaceholder": "Volitelný kontext pro tým.",
+                "optional": "volitelné",
+                "workflowTitle": "Workflow",
+                "workflowSub": "Stavy, kterými úkoly procházejí. Vyberte šablonu — později ji můžete upravit.",
+                "errorCreate": "Projekt se nepodařilo vytvořit. Zkuste to znovu.",
+                "templates": {
+                    "kanban": {"name": "Kanban", "sub": "Klasický 4-stavový tok"},
+                    "engineering": {"name": "Engineering", "sub": "Backlog → Spec → Build → Ship"},
+                    "simple": {"name": "Jednoduchý", "sub": "Jen otevřené / zavřené"},
+                    "blank": {"name": "Začít prázdné", "sub": "Vlastní sloupce"}
+                }
+            },
+            "step2": {
+                "overline": "Krok 02",
+                "title": "Pozvěte kolegy",
+                "lead": "Dostanou e-mail s odkazem pro vstup do vašeho workspace. Přidejte jich kolik chcete — role můžete kdykoli upravit.",
+                "emailPlaceholder": "kolega@example.com",
+                "addAnother": "Přidat dalšího",
+                "removeRow": "Odebrat řádek",
+                "skipInvites": "Přeskočit pozvánky",
+                "errorNoWorkspace": "Žádný aktivní workspace. Obnovte stránku a zkuste znovu.",
+                "errorSomeFailed": "{{count}} pozvánek se nepodařilo odeslat."
+            },
+            "step3": {
+                "overline": "Krok 03",
+                "title": "Hotovo",
+                "lead": "Workspace i první projekt jsou připraveny. Zbývá volitelný krok: připojte agenta kompatibilního s MCP, aby Claude nebo Cursor mohli úkoly posouvat za vás.",
+                "summaryWorkspace": "Workspace",
+                "summaryProject": "Projekt",
+                "summaryInvites": "Pozvánek",
+                "mcpServerTitle": "MCP server",
+                "mcpServerSub": "Nasměrujte agenta na tuto URL.",
+                "serverUrl": "URL serveru",
+                "claudeTitle": "Claude Desktop",
+                "claudeSub": "Přidejte tento záznam do ~/Library/Application Support/Claude/claude_desktop_config.json.",
+                "cursorTitle": "Cursor",
+                "cursorSub": "Přidejte tento záznam do .cursor/mcp.json ve svém workspace.",
+                "copy": "Kopírovat",
+                "copied": "Zkopírováno.",
+                "copyFailed": "Kopírování se nezdařilo. Vyberte text ručně."
+            }
         }
     }
 }

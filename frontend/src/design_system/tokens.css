@@ -131,6 +131,84 @@
 }
 
 /* ====================================================================
+   Dark theme — applied via `.uk.uk-dark`
+   ==================================================================== */
+.uk.uk-dark {
+    --uk-bg:              #0a0a0c;
+    --uk-surface:         #161619;
+    --uk-surface-2:       #1f1f23;
+    --uk-surface-3:       #27272b;
+    --uk-surface-hover:   #1b1b1e;
+
+    --uk-border:          #2a2a2e;
+    --uk-border-strong:   #3a3a40;
+    --uk-border-focus:    #7c87e0;
+
+    --uk-fg:              #fafafa;
+    --uk-fg-muted:        #a1a1a8;
+    --uk-fg-subtle:       #71717a;
+    --uk-fg-faint:        #52525b;
+    --uk-fg-inverse:      #18181b;
+
+    --uk-accent:          #7c87e0;
+    --uk-accent-hover:    #6b76d6;
+    --uk-accent-active:   #5a64c4;
+    --uk-accent-soft:     #1e2150;
+    --uk-accent-fg:       #ffffff;
+
+    --uk-success:         #22c55e;
+    --uk-success-soft:    #0f3a25;
+    --uk-success-border:  #1d6840;
+
+    --uk-warn:            #fbbf24;
+    --uk-warn-soft:       #2d2107;
+    --uk-warn-border:     #5a4310;
+
+    --uk-danger:          #f87171;
+    --uk-danger-soft:     #2a0f0f;
+    --uk-danger-border:   #5a1f1f;
+
+    --uk-info:            #60a5fa;
+    --uk-info-soft:       #0f1a35;
+    --uk-info-border:     #1d3a6e;
+
+    --uk-ai:              #a78bfa;
+    --uk-ai-soft:         #1c1530;
+    --uk-ai-border:       #3a2c5e;
+
+    --uk-status-todo:     #71717a;
+    --uk-status-doing:    #fbbf24;
+    --uk-status-review:   #60a5fa;
+    --uk-status-done:     #22c55e;
+    --uk-status-blocked:  #f87171;
+
+    --uk-prio-low-bg:     #1f1f23;
+    --uk-prio-low-fg:     #a1a1a8;
+    --uk-prio-med-bg:     #2d2107;
+    --uk-prio-med-fg:     #fbbf24;
+    --uk-prio-high-bg:    #2a0f0f;
+    --uk-prio-high-fg:    #f87171;
+    --uk-prio-urgent-bg:  #fafafa;
+    --uk-prio-urgent-fg:  #18181b;
+
+    --uk-shadow-xs: 0 1px 0 rgba(0,0,0,0.4);
+    --uk-shadow-sm: 0 1px 2px rgba(0,0,0,0.5), 0 1px 1px rgba(0,0,0,0.3);
+    --uk-shadow-md: 0 6px 16px -4px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.35);
+    --uk-shadow-lg: 0 16px 40px -8px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.4);
+    --uk-ring:      0 0 0 3px rgba(124,135,224,0.30);
+
+    color-scheme: dark;
+}
+
+/* Dark theme — element-level adjustments */
+.uk.uk-dark .uk-select {
+    /* Re-tint the chevron stroke for dark surfaces */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%23a1a1a8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5l3 3 3-3'/></svg>");
+}
+.uk.uk-dark .uk-toast { background: #fafafa; color: #18181b; }
+.uk.uk-dark .uk-badge--solid { background: #fafafa; color: #18181b; }
+
+/* ====================================================================
    Global element resets / base
    ==================================================================== */
 .uk {

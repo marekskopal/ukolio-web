@@ -39,7 +39,7 @@ export class SignUpComponent {
                 this.form.value.name!,
                 this.languageService.currentLang(),
             );
-            this.router.navigateByUrl('/projects');
+            this.router.navigateByUrl('/onboarding/step-1');
         } catch {
             // error interceptor
         } finally {

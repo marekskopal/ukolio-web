@@ -10,4 +10,5 @@ export interface User {
     currentWorkspaceId: number | null;
     systemRole: SystemRole;
     emailVerified: boolean;
+    onboardingCompletedAt: string | null;
 }

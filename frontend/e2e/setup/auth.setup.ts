@@ -3,6 +3,7 @@ import * as path from 'path';
 
 import {test as setup} from '@playwright/test';
 
+import {OnboardingPage} from '../pages/onboarding.page';
 import {SignUpPage} from '../pages/sign-up.page';
 
 const AUTH_DIR = path.resolve(__dirname, '../.auth');
@@ -21,8 +22,11 @@ setup('sign up the shared fixture user', async ({page}) => {
     const name = process.env['E2E_USER_NAME'] ?? `E2E User ${runId}`;
 
     const signUp = new SignUpPage(page);
+    const onboarding = new OnboardingPage(page);
     await signUp.goto();
     await signUp.signUp(name, email, E2E_PASSWORD);
+    await signUp.expectLandedAtOnboarding();
+    await onboarding.skip();
     await signUp.expectLandedInsideApp();
 
     await page.context().storageState({path: STORAGE_STATE_PATH});

@@ -22,6 +22,8 @@
 <script type="text/babel" src="components.jsx"></script>
 <script type="text/babel" src="features.jsx"></script>
 <script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="onboarding.jsx"></script>
+<script type="text/babel" src="screens-dark.jsx"></script>
 <script type="text/babel" src="landing.jsx"></script>
 <script type="text/babel" src="marketing-pages.jsx"></script>
 <script type="text/babel" src="ios-frame.jsx"></script>
@@ -59,12 +61,25 @@ function App() {
 
       <DCSection id="screens" title="04 · Application">
         <DCArtboard id="login"    label="Login"                       width={1080} height={680}><LoginScreen/></DCArtboard>
+        <DCArtboard id="onb-1"   label="Onboarding · 1/3 · Project & workflow" width={1280} height={820}><OnboardingStep1/></DCArtboard>
+        <DCArtboard id="onb-2"   label="Onboarding · 2/3 · Invite teammates"   width={1280} height={820}><OnboardingStep2/></DCArtboard>
+        <DCArtboard id="onb-3"   label="Onboarding · 3/3 · You're set"         width={1280} height={820}><OnboardingStep3/></DCArtboard>
         <DCArtboard id="projects" label="Projects list"               width={1280} height={760}><ProjectsScreen/></DCArtboard>
         <DCArtboard id="kanban"   label="Kanban board"                width={1280} height={760}><KanbanScreen/></DCArtboard>
         <DCArtboard id="drawer"   label="Task detail · drawer (with Tags, Files, Relations)"        width={1280} height={1080}><DrawerScreen/></DCArtboard>
         <DCArtboard id="grid"     label="Workspace tasks grid"        width={1280} height={760}><TasksGridScreen/></DCArtboard>
         <DCArtboard id="events"   label="Agent activity log"          width={1280} height={760}><EventsScreen/></DCArtboard>
         <DCArtboard id="workspace" label="Workspace management"       width={1280} height={760}><WorkspaceScreen/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="screens-dark" title="04b · Application · Dark mode">
+        <DCArtboard id="login-dark"     label="Login · dark"                   width={1080} height={680}><LoginScreenDark/></DCArtboard>
+        <DCArtboard id="projects-dark"  label="Projects list · dark"           width={1280} height={760}><ProjectsScreenDark/></DCArtboard>
+        <DCArtboard id="kanban-dark"    label="Kanban board · dark"            width={1280} height={760}><KanbanScreenDark/></DCArtboard>
+        <DCArtboard id="drawer-dark"    label="Task detail · drawer · dark"    width={1280} height={1080}><DrawerScreenDark/></DCArtboard>
+        <DCArtboard id="grid-dark"      label="Workspace tasks grid · dark"    width={1280} height={760}><TasksGridScreenDark/></DCArtboard>
+        <DCArtboard id="events-dark"    label="Agent activity log · dark"      width={1280} height={760}><EventsScreenDark/></DCArtboard>
+        <DCArtboard id="workspace-dark" label="Workspace management · dark"    width={1280} height={760}><WorkspaceScreenDark/></DCArtboard>
       </DCSection>
 
       <DCSection id="marketing" title="05 · Marketing site">
