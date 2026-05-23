@@ -1,0 +1,19 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<f:if condition="{languageNavigation} && {languageNavigation -> f:count()} > 1">
+    <nav class="lang-switch" aria-label="{f:translate(key:'topbar.language', extensionName:'MsWeb')}">
+        <f:for each="{languageNavigation}" as="item" iteration="iterator">
+            <a href="{item.link}"
+               hreflang="{item.hreflang}"
+               title="{item.navigationTitle}"
+               class="lang-switch__item{f:if(condition: item.active, then: ' lang-switch__item--active')}"
+               {f:if(condition: item.active, then: 'aria-current="true"')}
+            >{item.twoLetterIsoCode -> f:format.case(mode: 'upper')}</a>
+            <f:if condition="!{iterator.isLast}">
+                <span class="lang-switch__sep" aria-hidden="true">/</span>
+            </f:if>
+        </f:for>
+    </nav>
+</f:if>
+
+</html>

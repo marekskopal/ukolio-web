@@ -24,8 +24,9 @@
     <div class="landing-topbar__drawer" id="landing-mobile-menu" data-landing-drawer>
         <f:cObject typoscriptObjectPath="lib.primaryNav" />
         <div class="topbar-actions">
-            <a href="/app/login" class="btn btn--ghost btn--sm">Sign in</a>
-            <a href="/app/sign-up" class="btn btn--primary btn--sm">Get started <span class="arrow">&rarr;</span></a>
+            <f:cObject typoscriptObjectPath="lib.languageNav" />
+            <a href="/app/login" class="btn btn--ghost btn--sm"><f:translate key="topbar.signIn" extensionName="MsWeb" /></a>
+            <a href="/app/sign-up" class="btn btn--primary btn--sm"><f:translate key="topbar.getStarted" extensionName="MsWeb" /> <span class="arrow">&rarr;</span></a>
         </div>
     </div>
 </header>

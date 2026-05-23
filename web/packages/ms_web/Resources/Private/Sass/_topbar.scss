@@ -152,6 +152,7 @@
 
 .topbar-actions {
     display: flex;
+    align-items: center;
     gap: 8px;
     padding: 14px 20px 4px;
 
@@ -166,5 +167,37 @@
         gap: 6px;
 
         .btn { flex: none; }
+    }
+}
+
+.lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-right: 4px;
+
+    &__item {
+        color: var(--fg-muted);
+        text-decoration: none;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: color 0.15s ease, background-color 0.15s ease;
+
+        &:hover { color: var(--fg); }
+
+        &--active {
+            color: var(--fg);
+            background: var(--bg-subtle, rgba(0, 0, 0, 0.06));
+            cursor: default;
+
+            &:hover { color: var(--fg); }
+        }
+    }
+
+    &__sep {
+        color: var(--fg-muted);
+        opacity: 0.5;
     }
 }

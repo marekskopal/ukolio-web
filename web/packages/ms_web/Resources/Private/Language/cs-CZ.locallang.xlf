@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="cs">
+	<file id="ms_web">
+		<unit id="topbar.signIn">
+			<segment state="final">
+				<source>Sign in</source>
+				<target>Přihlásit se</target>
+			</segment>
+		</unit>
+		<unit id="topbar.getStarted">
+			<segment state="final">
+				<source>Get started</source>
+				<target>Začít</target>
+			</segment>
+		</unit>
+		<unit id="topbar.language">
+			<segment state="final">
+				<source>Language</source>
+				<target>Jazyk</target>
+			</segment>
+		</unit>
+	</file>
+</xliff>

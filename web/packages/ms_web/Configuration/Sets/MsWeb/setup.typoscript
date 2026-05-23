@@ -113,6 +113,18 @@ lib.primaryNav {
     }
 }
 
+lib.languageNav = FLUIDTEMPLATE
+lib.languageNav {
+    templateName = LanguageNav
+    templateRootPaths.10 = EXT:ms_web/Resources/Private/View/PageParts/Templates/
+    partialRootPaths.10 = EXT:ms_web/Resources/Private/View/PageParts/Partials/
+    dataProcessing.10 = TYPO3\CMS\Frontend\DataProcessing\LanguageMenuProcessor
+    dataProcessing.10 {
+        languages = auto
+        as = languageNavigation
+    }
+}
+
 config.spamProtectEmailAddresses = 0
 config.spamProtectEmailAddresses_atSubst >
 config.spamProtectEmailAddresses_lastDotSubst >
