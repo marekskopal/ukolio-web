@@ -8,7 +8,11 @@
         </div>
         <div class="field">
             <label for="project-description" class="field-label">{{ 'app.common.description' | translate }}</label>
-            <textarea id="project-description" formControlName="description" rows="4" class="textarea"></textarea>
+            <uk-markdown-editor
+                formControlName="description"
+                inputId="project-description"
+                [rows]="6"
+            />
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">

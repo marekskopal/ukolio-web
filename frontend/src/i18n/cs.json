@@ -37,6 +37,11 @@
             "empty": "Zatím tu nic není.",
             "required": "Povinné"
         },
+        "markdownEditor": {
+            "edit": "Editor",
+            "preview": "Náhled",
+            "nothingToPreview": "Není co zobrazit."
+        },
         "nav": {
             "primary": "Hlavní",
             "projects": "Projekty",

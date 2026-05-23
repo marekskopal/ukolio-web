@@ -8,12 +8,13 @@ import {FieldService} from '@app/services/field.service';
 import {PermissionsService} from '@app/services/permissions.service';
 import {ProjectService} from '@app/services/project.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {MarkdownEditorComponent} from '@app/shared/components/markdown-editor/markdown-editor.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-add-edit-project',
     standalone: true,
-    imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+    imports: [ReactiveFormsModule, RouterLink, TranslatePipe, MarkdownEditorComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './add-edit-project.component.html',
     styleUrl: './add-edit-project.component.scss',

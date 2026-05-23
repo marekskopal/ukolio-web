@@ -37,6 +37,11 @@
             "empty": "Nothing here yet.",
             "required": "Required"
         },
+        "markdownEditor": {
+            "edit": "Edit",
+            "preview": "Preview",
+            "nothingToPreview": "Nothing to preview."
+        },
         "nav": {
             "primary": "Primary",
             "projects": "Projects",

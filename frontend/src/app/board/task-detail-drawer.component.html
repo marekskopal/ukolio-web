@@ -323,41 +323,14 @@
         }
 
         <section class="drawer-section">
-            <div class="drawer-section-head">
-                <span class="uk-overline">{{ 'app.common.description' | translate }}</span>
-                <div class="tab-group">
-                    <button type="button" class="tab-button" [class.tab-button--active]="tab() === 'edit'" (click)="tab.set('edit')">
-                        {{ 'app.board.drawer.edit' | translate }}
-                    </button>
-                    <button
-                        type="button"
-                        class="tab-button"
-                        [class.tab-button--active]="tab() === 'preview'"
-                        (click)="tab.set('preview')"
-                    >
-                        {{ 'app.board.drawer.preview' | translate }}
-                    </button>
-                </div>
-            </div>
-            <div class="description-panel">
-                @if (tab() === 'edit') {
-                    <textarea
-                        id="task-description"
-                        formControlName="description"
-                        rows="8"
-                        class="textarea description-editor"
-                        [placeholder]="'app.board.drawer.descriptionPlaceholder' | translate"
-                    ></textarea>
-                } @else {
-                    <div class="description-preview">
-                        @if (description()) {
-                            <markdown [data]="description()" />
-                        } @else {
-                            <p class="text-subtle">{{ 'app.board.drawer.nothingToPreview' | translate }}</p>
-                        }
-                    </div>
-                }
-            </div>
+            <div class="uk-overline">{{ 'app.common.description' | translate }}</div>
+            <uk-markdown-editor
+                formControlName="description"
+                inputId="task-description"
+                [rows]="8"
+                [initialTab]="descriptionInitialTab()"
+                [placeholder]="'app.board.drawer.descriptionPlaceholder' | translate"
+            />
         </section>
 
         @if (task()) {

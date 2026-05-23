@@ -18,6 +18,7 @@ import {TaskService} from '@app/services/task.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
+import {MarkdownEditorComponent} from '@app/shared/components/markdown-editor/markdown-editor.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {MarkdownComponent} from 'ngx-markdown';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
@@ -71,7 +72,7 @@ const FILE_TYPE_FALLBACK: FileTypeChip = {tag: 'FILE', fg: '#52525b', bg: '#f4f4
 @Component({
     selector: 'uk-task-detail-drawer',
     standalone: true,
-    imports: [ReactiveFormsModule, MarkdownComponent, TranslatePipe, DatePipe],
+    imports: [ReactiveFormsModule, MarkdownComponent, MarkdownEditorComponent, TranslatePipe, DatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-detail-drawer.component.html',
     styleUrl: './task-detail-drawer.component.scss',
@@ -100,7 +101,9 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly realtimeService = inject(RealtimeService);
 
     protected readonly saving = signal(false);
-    protected readonly tab = signal<'edit' | 'preview'>('edit');
+    protected readonly descriptionInitialTab = computed<'edit' | 'preview'>(() =>
+        this.task() === null ? 'edit' : 'preview',
+    );
 
     protected readonly selectedTagIds = signal<number[]>([]);
     protected readonly tagPickerOpen = signal(false);
@@ -147,8 +150,6 @@ export class TaskDetailDrawerComponent implements OnInit {
         priority: ['Medium' as TaskPriority, Validators.required],
         dueDate: [''],
     });
-
-    protected readonly description = computed(() => this.form.controls.description.value ?? '');
 
     private readonly statusId = signal<number>(0);
 
@@ -234,7 +235,6 @@ export class TaskDetailDrawerComponent implements OnInit {
             });
             this.statusId.set(existing.statusId);
             this.selectedTagIds.set([...(existing.tagIds ?? [])]);
-            this.tab.set('preview');
             void this.loadFiles(existing.id);
             void this.loadRelations(existing.id);
             void this.loadComments(existing.id);
