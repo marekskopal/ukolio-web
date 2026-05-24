@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6ae9fc4faae8bbc40734342a93dbdb2",
+    "content-hash": "89ab09b68c4afae9946a9b9f0b9a9509",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1539,19 +1539,20 @@
         },
         {
             "name": "marekskopal/typo3-mcp-server",
-            "version": "v0.10.0",
+            "version": "v0.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-mcp-server.git",
-                "reference": "15a53b990bb6b920575a25f41016ce4e284fddd5"
+                "reference": "464bdd4144c2ec07d4a803a6c551db95f448eeb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/15a53b990bb6b920575a25f41016ce4e284fddd5",
-                "reference": "15a53b990bb6b920575a25f41016ce4e284fddd5",
+                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/464bdd4144c2ec07d4a803a6c551db95f448eeb2",
+                "reference": "464bdd4144c2ec07d4a803a6c551db95f448eeb2",
                 "shasum": ""
             },
             "require": {
+                "ext-curl": "*",
                 "mcp/sdk": "^0.5",
                 "php": ">=8.3",
                 "typo3/cms-backend": "^13.4.24 || ^14.3.0",
@@ -1601,9 +1602,9 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/typo3-mcp-server/issues",
-                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.10.0"
+                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.11.0"
             },
-            "time": "2026-05-21T16:28:35+00:00"
+            "time": "2026-05-24T13:31:53+00:00"
         },
         {
             "name": "marekskopal/typo3-pricing",

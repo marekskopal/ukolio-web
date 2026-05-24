@@ -431,7 +431,7 @@
 			<div class="section-head">
 				<div class="section-eyebrow">For agents</div>
 				<h2>Connect your MCP client in under a minute.</h2>
-				<p>Point your client at <code style="font-family: var(--mono); background: var(--surface-muted); padding: 1px 6px; border-radius: 4px; font-size: 14px;">https://your-host/api/mcp</code>. Discovery, registration, and consent are handled automatically.</p>
+				<p>Point your client at <code style="font-family: var(--mono); background: var(--surface-muted); padding: 1px 6px; border-radius: 4px; font-size: 14px;" data-mcp-url>https://www.ukolio.com/mcp</code>. Discovery, registration, and consent are handled automatically.</p>
 			</div>
 
 			<div class="how">
@@ -471,7 +471,7 @@
 					{<br>
 					&nbsp;&nbsp;<span class="c-key">"mcpServers"</span>: {<br>
 					&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"ukolio"</span>: {<br>
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"url"</span>: <span class="c-str">"https://app.ukolio.com/api/mcp"</span><br>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"url"</span>: <span class="c-str" data-mcp-url-quoted>"https://www.ukolio.com/mcp"</span><br>
 					&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 					&nbsp;&nbsp;}<br>
 					}<br>
@@ -630,6 +630,15 @@
 		</div>
 	</div>
 </footer>
+
+<script>
+	(function () {
+		var origin = window.location.protocol + '//' + window.location.host;
+		var url = origin + '/mcp';
+		document.querySelectorAll('[data-mcp-url]').forEach(function (el) { el.textContent = url; });
+		document.querySelectorAll('[data-mcp-url-quoted]').forEach(function (el) { el.textContent = '"' + url + '"'; });
+	})();
+</script>
 
 </body>
 </html>

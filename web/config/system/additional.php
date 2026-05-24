@@ -11,3 +11,5 @@ $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport_smtp_username'] = (string)getenv(
 
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['displayErrors'] = (string)getenv('TYPO3_CONTEXT') === 'Development' ? 1 : 0;
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['reverseProxyIP'] = (string)getenv('REVERSE_PROXY_IP');
+
+$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ms_mcp_server']['mcpBasePath'] = '/typo3/mcp';
