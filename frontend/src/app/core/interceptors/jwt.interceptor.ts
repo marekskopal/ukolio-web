@@ -6,6 +6,7 @@ import {environment} from '@environments/environment';
 import {catchError, from, Observable, shareReplay, switchMap, tap, throwError} from 'rxjs';
 
 const refreshTokenUrl = `${environment.apiUrl}/authentication/refresh-token`;
+const authenticatedNonApiUrls = ['/mcp/oauth/authorize'];
 
 let refreshTokenObservable: Observable<Authentication> | null = null;
 
@@ -25,12 +26,16 @@ export function jwtInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): 
 }
 
 function addAuthHeader(req: HttpRequest<unknown>, authService: AuthenticationService): HttpRequest<unknown> {
-    if (!authService.isLoggedIn() || !req.url.startsWith(environment.apiUrl)) {
+    if (!authService.isLoggedIn() || !requiresAuthHeader(req.url)) {
         return req;
     }
     return req.clone({
         setHeaders: {Authorization: `Bearer ${authService.authentication()?.accessToken}`},
     });
+}
+
+function requiresAuthHeader(url: string): boolean {
+    return url.startsWith(environment.apiUrl) || authenticatedNonApiUrls.includes(url);
 }
 
 function handleTokenRefresh(

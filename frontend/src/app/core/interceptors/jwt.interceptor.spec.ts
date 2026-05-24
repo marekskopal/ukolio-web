@@ -74,6 +74,16 @@ describe('jwtInterceptor', () => {
         req.flush({});
     });
 
+    it('attaches the Authorization header to the MCP OAuth authorize endpoint', () => {
+        const {http, httpMock} = setup({loggedIn: true});
+
+        http.post('/mcp/oauth/authorize', {}).subscribe();
+
+        const req = httpMock.expectOne('/mcp/oauth/authorize');
+        expect(req.request.headers.get('Authorization')).toBe('Bearer access-token');
+        req.flush({});
+    });
+
     it('does not attach Authorization when logged out', () => {
         const {http, httpMock} = setup({loggedIn: false});
 
