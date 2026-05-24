@@ -1,6 +1,6 @@
 'use strict';
 
-document.addEventListener('DOMContentLoaded', () => {
+const init = () => {
     // ----- Mobile hamburger toggle ----------------------------------
     const burger = document.querySelector('[data-landing-burger]');
     const topbar = document.querySelector('[data-landing-topbar]');
@@ -74,4 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { rootMargin: '-100px 0px -60% 0px' });
         headings.forEach((h) => observer.observe(h));
     }
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
