@@ -19,6 +19,7 @@ export class ForgotPasswordComponent {
 
     protected readonly saving = signal(false);
     protected readonly sent = signal(false);
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
     protected readonly form = this.fb.nonNullable.group({
         email: ['', [Validators.required, Validators.email]],
     });

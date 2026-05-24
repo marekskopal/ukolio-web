@@ -20,6 +20,7 @@ export class LoginComponent {
     private readonly route = inject(ActivatedRoute);
 
     protected readonly saving = signal(false);
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
     protected readonly form = this.fb.nonNullable.group({
         email: ['', [Validators.required, Validators.email]],
         password: ['', Validators.required],

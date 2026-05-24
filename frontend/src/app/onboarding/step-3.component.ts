@@ -24,7 +24,7 @@ export class OnboardingStep3Component {
 
     protected readonly finishing = signal(false);
 
-    protected readonly mcpUrl = `${window.location.origin}/api/mcp`;
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
 
     protected readonly workspaceName = computed(() => {
         const wsId = this.workspaceService.currentWorkspaceId();

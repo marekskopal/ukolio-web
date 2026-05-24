@@ -21,6 +21,7 @@ export class ResetPasswordComponent implements OnInit {
 
     protected readonly token = signal<string | null>(null);
     protected readonly saving = signal(false);
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
     protected readonly form = this.fb.nonNullable.group(
         {
             password: ['', [Validators.required, Validators.minLength(8)]],

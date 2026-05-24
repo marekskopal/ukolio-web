@@ -22,6 +22,7 @@ export class VerifyEmailComponent implements OnInit {
 
     protected readonly state = signal<VerifyState>('pending');
     protected readonly isLoggedIn = this.auth.isLoggedIn;
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
 
     public async ngOnInit(): Promise<void> {
         const token = this.route.snapshot.queryParamMap.get('token');

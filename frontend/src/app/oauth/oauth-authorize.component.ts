@@ -25,6 +25,7 @@ export class OAuthAuthorizeComponent implements OnInit {
     protected readonly saving = signal(false);
     protected readonly authorizing = signal(false);
     protected readonly errorKey = signal<string>('');
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
 
     protected readonly form = this.fb.nonNullable.group({
         email: ['', [Validators.required, Validators.email]],

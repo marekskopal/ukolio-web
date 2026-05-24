@@ -21,6 +21,7 @@ export class SignUpComponent {
     private readonly languageService = inject(LanguageService);
 
     protected readonly saving = signal(false);
+    protected readonly mcpUrl = `${window.location.origin}/mcp`;
     protected readonly form = this.fb.nonNullable.group({
         name: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],

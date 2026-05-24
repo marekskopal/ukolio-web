@@ -21,7 +21,7 @@ final class OAuthControllerTest extends IntegrationTestCase
 		// 1. Register a client.
 		$register = $this->request(
 			'POST',
-			'/api/mcp/oauth/register',
+			'/mcp/oauth/register',
 			body: ['client_name' => 'Test Client', 'redirect_uris' => ['http://localhost/cb']],
 		);
 		self::assertSame(201, $register->getStatusCode());
@@ -32,7 +32,7 @@ final class OAuthControllerTest extends IntegrationTestCase
 
 		$authorize = $this->request(
 			'POST',
-			'/api/mcp/oauth/authorize',
+			'/mcp/oauth/authorize',
 			body: [
 				'clientId' => $clientId,
 				'redirectUri' => 'http://localhost/cb',
@@ -67,7 +67,7 @@ final class OAuthControllerTest extends IntegrationTestCase
 
 		$register = $this->request(
 			'POST',
-			'/api/mcp/oauth/register',
+			'/mcp/oauth/register',
 			body: ['client_name' => 'Test Client', 'redirect_uris' => ['http://localhost/cb']],
 		);
 		$clientId = self::stringField($this->jsonBody($register)['client_id']);
@@ -76,7 +76,7 @@ final class OAuthControllerTest extends IntegrationTestCase
 
 		$authorize = $this->request(
 			'POST',
-			'/api/mcp/oauth/authorize',
+			'/mcp/oauth/authorize',
 			body: [
 				'clientId' => $clientId,
 				'redirectUri' => 'http://localhost/cb',
@@ -116,7 +116,7 @@ final class OAuthControllerTest extends IntegrationTestCase
 	 */
 	private function postFormToken(array $form): ResponseInterface
 	{
-		$request = new ServerRequest([], [], '/api/mcp/oauth/token', 'POST');
+		$request = new ServerRequest([], [], '/mcp/oauth/token', 'POST');
 		$request = $request
 			->withHeader('Content-Type', 'application/x-www-form-urlencoded')
 			->withParsedBody($form);
