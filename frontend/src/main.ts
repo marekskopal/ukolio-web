@@ -1,5 +1,5 @@
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {enableProdMode, provideZonelessChangeDetection} from '@angular/core';
+import {enableProdMode, provideZonelessChangeDetection, SecurityContext} from '@angular/core';
 import {bootstrapApplication} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
 import {AppComponent} from '@app/app.component';
@@ -10,7 +10,7 @@ import {realtimeOriginInterceptor} from '@app/core/interceptors/realtime-origin.
 import {environment} from '@environments/environment';
 import {provideTranslateService} from '@ngx-translate/core';
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
-import {provideMarkdown} from 'ngx-markdown';
+import {provideMarkdown, SANITIZE} from 'ngx-markdown';
 
 if (environment.production) {
     enableProdMode();
@@ -26,7 +26,7 @@ bootstrapApplication(AppComponent, {
                 suffix: `.json?v=${environment.i18nVersion}`,
             }),
         }),
-        provideMarkdown(),
+        provideMarkdown({sanitize: {provide: SANITIZE, useValue: SecurityContext.HTML}}),
         provideZonelessChangeDetection(),
     ],
 }).catch((err: unknown) => console.error(err));
