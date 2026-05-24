@@ -15,7 +15,9 @@ use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
@@ -37,6 +39,7 @@ final readonly class TaskTools
 		private WorkspaceProviderInterface $workspaceProvider,
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskTagProviderInterface $taskTagProvider,
+		private UserRepository $userRepository,
 	) {
 	}
 
@@ -133,6 +136,7 @@ final readonly class TaskTools
 	 * @param int|null $statusId Optional explicit status ID
 	 * @param string|null $statusName Optional status name (case-insensitive); ignored if statusId is given
 	 * @param string|null $dueDate Optional due date (YYYY-MM-DD)
+	 * @param int|null $assigneeId Optional user ID to assign. Defaults to the current MCP user. Must be a member of the project's workspace.
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values keyed by fieldId
 	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply to the new task
 	 */
@@ -145,6 +149,7 @@ final readonly class TaskTools
 		?int $statusId = null,
 		?string $statusName = null,
 		?string $dueDate = null,
+		?int $assigneeId = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): McpTaskDto {
@@ -155,6 +160,8 @@ final readonly class TaskTools
 			?? $this->findStatusByType($project, StatusTypeEnum::Start)
 			?? throw new RuntimeException(sprintf('No Start status found for project %d.', $projectId));
 
+		$assignee = $assigneeId !== null ? $this->resolveAssignee($project, $assigneeId) : $user;
+
 		$task = $this->taskProvider->createTask(
 			author: $user,
 			project: $project,
@@ -163,6 +170,7 @@ final readonly class TaskTools
 			description: $description,
 			priority: $priorityEnum,
 			dueDate: $dueDate !== null ? new DateTimeImmutable($dueDate) : null,
+			assignee: $assignee,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
 			tagIds: $tagIds,
 		);
@@ -182,6 +190,8 @@ final readonly class TaskTools
 	 * @param string|null $description New description
 	 * @param string|null $priority New priority: Low, Medium, or High
 	 * @param string|null $dueDate New due date (YYYY-MM-DD), or empty string to clear
+	 * @param int|null $assigneeId New assignee user ID. Pass null to clear (unassign). Omit the parameter to leave unchanged. Must be a member of the project's workspace.
+	 * @param bool $clearAssignee Pass true together with omitting assigneeId to explicitly unassign the task.
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values to replace
 	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply (replaces the full set)
 	 */
@@ -192,16 +202,16 @@ final readonly class TaskTools
 		?string $description = null,
 		?string $priority = null,
 		?string $dueDate = null,
+		?int $assigneeId = null,
+		bool $clearAssignee = false,
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): McpTaskDto {
 		$user = $this->userContext->getUser();
 		$task = $this->requireTask($taskId);
 
-		$newDueDate = $task->dueDate;
-		if ($dueDate !== null) {
-			$newDueDate = $dueDate === '' ? null : new DateTimeImmutable($dueDate);
-		}
+		$newDueDate = $this->resolveNewDueDate($task->dueDate, $dueDate);
+		$assignee = $this->resolveAssigneeForUpdate($task, $assigneeId, $clearAssignee);
 
 		$updated = $this->taskProvider->updateTask(
 			author: $user,
@@ -211,6 +221,7 @@ final readonly class TaskTools
 			priority: $priority !== null ? $this->parsePriority($priority) : $task->priority,
 			dueDate: $newDueDate,
 			status: $task->status,
+			assignee: $assignee,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
 			tagIds: $tagIds,
 		);
@@ -296,6 +307,38 @@ final readonly class TaskTools
 		return $task;
 	}
 
+	private function resolveAssignee(Project $project, int $assigneeId): User
+	{
+		$assignee = $this->userRepository->findUserById($assigneeId);
+		if ($assignee === null || !$this->workspaceProvider->isMember($assignee, $project->workspace)) {
+			throw new RuntimeException(sprintf(
+				'Assignee user %d must be a member of the project\'s workspace.',
+				$assigneeId,
+			));
+		}
+
+		return $assignee;
+	}
+
+	private function resolveAssigneeForUpdate(Task $task, ?int $assigneeId, bool $clearAssignee): ?User
+	{
+		if ($assigneeId !== null) {
+			return $this->resolveAssignee($task->project, $assigneeId);
+		}
+		if ($clearAssignee) {
+			return null;
+		}
+		return $task->assignee;
+	}
+
+	private function resolveNewDueDate(?DateTimeImmutable $current, ?string $dueDate): ?DateTimeImmutable
+	{
+		if ($dueDate === null) {
+			return $current;
+		}
+		return $dueDate === '' ? null : new DateTimeImmutable($dueDate);
+	}
+
 	private function parsePriority(string $priority): TaskPriorityEnum
 	{
 		$enum = TaskPriorityEnum::tryFrom($priority);
@@ -313,29 +356,37 @@ final readonly class TaskTools
 	private function resolveStatus(Project $project, ?int $statusId, ?string $statusName): ?Status
 	{
 		if ($statusId !== null) {
-			$status = $this->statusProvider->getStatus($statusId);
-			if ($status === null || $status->workflow->project->id !== $project->id) {
-				throw new RuntimeException(sprintf('Status %d not found in project %d.', $statusId, $project->id));
-			}
-			return $status;
+			return $this->resolveStatusById($project, $statusId);
 		}
-
 		if ($statusName !== null) {
-			$workflow = $this->workflowProvider->getWorkflowByProject($project);
-			if ($workflow === null) {
-				throw new RuntimeException(sprintf('Workflow for project %d not found.', $project->id));
-			}
-			$needle = mb_strtolower($statusName);
-			foreach ($this->statusProvider->getStatuses($workflow) as $status) {
-				if (mb_strtolower($status->name) === $needle) {
-					return $status;
-				}
-			}
+			return $this->resolveStatusByName($project, $statusName);
+		}
+		return null;
+	}
 
-			throw new RuntimeException(sprintf('Status "%s" not found in project %d.', $statusName, $project->id));
+	private function resolveStatusById(Project $project, int $statusId): Status
+	{
+		$status = $this->statusProvider->getStatus($statusId);
+		if ($status === null || $status->workflow->project->id !== $project->id) {
+			throw new RuntimeException(sprintf('Status %d not found in project %d.', $statusId, $project->id));
+		}
+		return $status;
+	}
+
+	private function resolveStatusByName(Project $project, string $statusName): Status
+	{
+		$workflow = $this->workflowProvider->getWorkflowByProject($project);
+		if ($workflow === null) {
+			throw new RuntimeException(sprintf('Workflow for project %d not found.', $project->id));
+		}
+		$needle = mb_strtolower($statusName);
+		foreach ($this->statusProvider->getStatuses($workflow) as $status) {
+			if (mb_strtolower($status->name) === $needle) {
+				return $status;
+			}
 		}
 
-		return null;
+		throw new RuntimeException(sprintf('Status "%s" not found in project %d.', $statusName, $project->id));
 	}
 
 	private function findStatusByType(Project $project, StatusTypeEnum $type): ?Status

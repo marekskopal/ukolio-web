@@ -192,8 +192,9 @@
         color: $color-accent;
     }
 
-    .th-created { width: 140px; }
-    .th-status  { width: 200px; }
+    .th-created  { width: 140px; }
+    .th-status   { width: 200px; }
+    .th-assignee { width: 180px; }
 }
 
 .task-row {
@@ -258,6 +259,31 @@
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
+}
+
+.td-assignee {
+    white-space: nowrap;
+    font-size: $font-size-12;
+}
+
+.assignee-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+}
+
+.assignee-cell-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $color-accent;
+    color: $color-accent-fg;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .td-tags {

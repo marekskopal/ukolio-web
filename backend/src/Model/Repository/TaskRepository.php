@@ -72,6 +72,7 @@ final class TaskRepository extends AbstractRepository
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $assigneeIds
 	 * @param list<int>|null $taskIdsFilter restrict to these IDs; pass [] to force an empty result
 	 * @return Iterator<Task>
 	 */
@@ -85,12 +86,13 @@ final class TaskRepository extends AbstractRepository
 		?array $statusIds,
 		bool $onlyActive,
 		?array $taskIdsFilter = null,
+		?array $assigneeIds = null,
 	): Iterator {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
 			return new EmptyIterator();
 		}
 
-		$select = $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter);
+		$select = $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter, $assigneeIds);
 
 		$select->orderBy($orderBy->value, $direction->value);
 
@@ -108,6 +110,7 @@ final class TaskRepository extends AbstractRepository
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $assigneeIds
 	 * @param list<int>|null $taskIdsFilter
 	 */
 	public function countInWorkspace(
@@ -116,15 +119,26 @@ final class TaskRepository extends AbstractRepository
 		?array $statusIds,
 		bool $onlyActive,
 		?array $taskIdsFilter = null,
+		?array $assigneeIds = null,
 	): int {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
 			return 0;
 		}
-		return $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter)->count();
+		return $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter, $assigneeIds)->count();
+	}
+
+	/** @return Iterator<Task> */
+	public function findByAssigneeInWorkspace(int $userId, int $workspaceId): Iterator
+	{
+		return $this->select()
+			->where(['assignee_id' => $userId])
+			->where(['project.workspace_id' => $workspaceId])
+			->fetchAll();
 	}
 
 	/**
 	 * @param list<int>|null $statusIds
+	 * @param list<int>|null $assigneeIds
 	 * @param list<int>|null $taskIdsFilter
 	 * @return Select<Task>
 	 */
@@ -134,6 +148,7 @@ final class TaskRepository extends AbstractRepository
 		?array $statusIds,
 		bool $onlyActive,
 		?array $taskIdsFilter = null,
+		?array $assigneeIds = null,
 	): Select {
 		$select = $this->select()
 			->where(['project.workspace_id' => $workspaceId]);
@@ -149,6 +164,9 @@ final class TaskRepository extends AbstractRepository
 		}
 		if ($taskIdsFilter !== null && $taskIdsFilter !== []) {
 			$select->where(['id', 'IN', $taskIdsFilter]);
+		}
+		if ($assigneeIds !== null && $assigneeIds !== []) {
+			$select->where(['assignee_id', 'IN', $assigneeIds]);
 		}
 
 		return $select;

@@ -51,4 +51,7 @@
             }
         </div>
     }
+    @if (assignee(); as a) {
+        <span class="task-card-assignee" [title]="a.name">{{ memberInitials(a.name) }}</span>
+    }
 </div>

@@ -8,6 +8,7 @@ export interface Task {
     code: string;
     projectId: number;
     statusId: number;
+    assigneeId: number | null;
     name: string;
     description: string | null;
     priority: TaskPriority;
@@ -31,6 +32,7 @@ export interface TaskListItem {
     projectName: string;
     statusId: number;
     status: Status;
+    assigneeId: number | null;
     name: string;
     description: string | null;
     priority: TaskPriority;

@@ -8,6 +8,7 @@ import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {OrderDirection, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
 import {WorkflowWithStatuses} from '@app/models/workflow';
+import {WorkspaceMember} from '@app/models/workspace';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
@@ -36,6 +37,7 @@ interface QueryParams {
     search: string | undefined;
     statusIds: number[] | undefined;
     tagIds: number[] | undefined;
+    assigneeIds: number[] | undefined;
     onlyActive: boolean | undefined;
 }
 
@@ -67,7 +69,9 @@ export class TasksGridComponent implements OnInit {
 
     protected readonly selectedStatusIds = signal<number[]>([]);
     protected readonly selectedTagIds = signal<number[]>([]);
+    protected readonly selectedAssigneeIds = signal<number[]>([]);
     protected readonly workspaceTags = signal<Tag[]>([]);
+    protected readonly members = this.workspaceService.currentMembers;
     protected readonly onlyActive = signal<boolean>(false);
     protected readonly sortBy = signal<TaskOrderBy>('created_at');
     protected readonly sortDirection = signal<OrderDirection>('DESC');
@@ -83,9 +87,23 @@ export class TasksGridComponent implements OnInit {
 
     private readonly statusDetails = viewChild<ElementRef<HTMLDetailsElement>>('statusDetails');
     private readonly tagDetails = viewChild<ElementRef<HTMLDetailsElement>>('tagDetails');
+    private readonly assigneeDetails = viewChild<ElementRef<HTMLDetailsElement>>('assigneeDetails');
 
     protected readonly tagById = computed<Map<number, Tag>>(() => {
         return new Map(this.workspaceTags().map((t) => [t.id, t]));
+    });
+
+    protected readonly memberById = computed<Map<number, WorkspaceMember>>(() => {
+        return new Map(this.members().map((m) => [m.userId, m]));
+    });
+
+    protected readonly sortedMembers = computed<WorkspaceMember[]>(() => {
+        const me = this.currentUserService.currentUser()?.id;
+        return [...this.members()].sort((a, b) => {
+            if (a.userId === me && b.userId !== me) return -1;
+            if (b.userId === me && a.userId !== me) return 1;
+            return a.name.localeCompare(b.name);
+        });
     });
 
     protected readonly offset = computed<number>(() => (this.page() - 1) * this.pageSize());
@@ -98,12 +116,16 @@ export class TasksGridComponent implements OnInit {
         search: this.search() === '' ? undefined : this.search(),
         statusIds: this.selectedStatusIds().length > 0 ? this.selectedStatusIds() : undefined,
         tagIds: this.selectedTagIds().length > 0 ? this.selectedTagIds() : undefined,
+        assigneeIds: this.selectedAssigneeIds().length > 0 ? this.selectedAssigneeIds() : undefined,
         onlyActive: this.onlyActive() ? true : undefined,
     }));
 
     public ngOnInit(): void {
         void this.loadWorkflows();
         void this.loadWorkspaceTags();
+        if (this.workspaceService.currentMembers().length === 0) {
+            void this.workspaceService.loadCurrentMembers();
+        }
     }
 
     public constructor() {
@@ -173,6 +195,7 @@ export class TasksGridComponent implements OnInit {
                 search: params.search,
                 statusIds: params.statusIds,
                 tagIds: params.tagIds,
+                assigneeIds: params.assigneeIds,
                 onlyActive: params.onlyActive,
             });
             this.tasks.set(result.tasks);
@@ -197,6 +220,10 @@ export class TasksGridComponent implements OnInit {
         const tag = this.tagDetails()?.nativeElement;
         if (tag?.open && !tag.contains(target)) {
             tag.open = false;
+        }
+        const assignee = this.assigneeDetails()?.nativeElement;
+        if (assignee?.open && !assignee.contains(target)) {
+            assignee.open = false;
         }
     }
 
@@ -247,6 +274,21 @@ export class TasksGridComponent implements OnInit {
         return this.selectedTagIds().includes(tagId);
     }
 
+    protected onAssigneeToggle(userId: number, event: Event): void {
+        const checked = (event.target as HTMLInputElement).checked;
+        const current = this.selectedAssigneeIds();
+        if (checked && !current.includes(userId)) {
+            this.selectedAssigneeIds.set([...current, userId]);
+        } else if (!checked) {
+            this.selectedAssigneeIds.set(current.filter((id) => id !== userId));
+        }
+        this.page.set(1);
+    }
+
+    protected isAssigneeSelected(userId: number): boolean {
+        return this.selectedAssigneeIds().includes(userId);
+    }
+
     protected onOnlyActiveToggle(event: Event): void {
         this.onlyActive.set((event.target as HTMLInputElement).checked);
         this.page.set(1);
@@ -256,8 +298,21 @@ export class TasksGridComponent implements OnInit {
         this.searchControl.setValue('');
         this.selectedStatusIds.set([]);
         this.selectedTagIds.set([]);
+        this.selectedAssigneeIds.set([]);
         this.onlyActive.set(false);
         this.page.set(1);
+    }
+
+    protected memberName(userId: number | null): string {
+        if (userId === null) return '';
+        return this.memberById().get(userId)?.name ?? '';
+    }
+
+    protected memberInitials(name: string): string {
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 0 || parts[0] === '') return '?';
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
 
     protected tagsForTask(taskTagIds: number[] | undefined): Tag[] {

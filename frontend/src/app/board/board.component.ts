@@ -51,6 +51,7 @@ export class BoardComponent implements OnInit {
     protected readonly projectId = signal<number | null>(null);
     protected readonly projectFields = signal<ProjectField[]>([]);
     protected readonly workspaceTags = signal<Tag[]>([]);
+    protected readonly members = this.workspaceService.currentMembers;
 
     protected readonly drawerOpen = signal(false);
     protected readonly editingTask = signal<Task | null>(null);
@@ -77,7 +78,14 @@ export class BoardComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.projectId.set(id);
-        await Promise.all([this.loadBoard(), this.loadProjectFields(), this.loadWorkspaceTags()]);
+        await Promise.all([
+            this.loadBoard(),
+            this.loadProjectFields(),
+            this.loadWorkspaceTags(),
+            this.workspaceService.currentMembers().length === 0
+                ? this.workspaceService.loadCurrentMembers()
+                : Promise.resolve(),
+        ]);
 
         this.realtimeService.events$
             .pipe(takeUntilDestroyed(this.destroyRef))

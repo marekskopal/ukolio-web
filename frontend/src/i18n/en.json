@@ -120,6 +120,7 @@
             "subtitle": "{{count}} task(s) across all projects",
             "search": "Search by name…",
             "filterStatus": "Status",
+            "filterAssignee": "Assignee",
             "onlyActive": "Only active",
             "clearFilters": "Clear filters",
             "noWorkflows": "No workflows yet.",
@@ -127,7 +128,8 @@
             "col": {
                 "created": "Created",
                 "name": "Name",
-                "status": "Status"
+                "status": "Status",
+                "assignee": "Assignee"
             }
         },
         "pagination": {
@@ -247,6 +249,12 @@
                 "dueDate": "Due date",
                 "status": "Status",
                 "details": "Details",
+                "assignee": "Assignee",
+                "assigneeAdd": "Assign",
+                "assigneeChange": "Change",
+                "assigneeClear": "Clear",
+                "assigneePlaceholder": "Unassigned",
+                "assigneeNoMembers": "No workspace members yet.",
                 "files": {
                     "title": "Attachments",
                     "upload": "Upload file",

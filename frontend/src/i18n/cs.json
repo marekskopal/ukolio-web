@@ -120,6 +120,7 @@
             "subtitle": "{{count}} úkolů napříč všemi projekty",
             "search": "Hledat podle názvu…",
             "filterStatus": "Stav",
+            "filterAssignee": "Řešitel",
             "onlyActive": "Pouze aktivní",
             "clearFilters": "Vymazat filtry",
             "noWorkflows": "Zatím žádné pracovní postupy.",
@@ -127,7 +128,8 @@
             "col": {
                 "created": "Vytvořeno",
                 "name": "Název",
-                "status": "Stav"
+                "status": "Stav",
+                "assignee": "Řešitel"
             }
         },
         "pagination": {
@@ -247,6 +249,12 @@
                 "dueDate": "Termín",
                 "status": "Stav",
                 "details": "Detaily",
+                "assignee": "Řešitel",
+                "assigneeAdd": "Přiřadit",
+                "assigneeChange": "Změnit",
+                "assigneeClear": "Zrušit",
+                "assigneePlaceholder": "Nepřiřazeno",
+                "assigneeNoMembers": "Žádní členové pracovního prostoru.",
                 "files": {
                     "title": "Přílohy",
                     "upload": "Nahrát soubor",

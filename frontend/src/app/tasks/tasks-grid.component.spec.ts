@@ -1,4 +1,5 @@
 import {provideZonelessChangeDetection} from '@angular/core';
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
 import {OrderDirection, TaskOrderBy} from '@app/models/task';
@@ -79,8 +80,15 @@ function createComponent(): TasksGridComponent {
             {provide: BoardService, useValue: {getBoard: vi.fn().mockResolvedValue({statuses: []})}},
             {provide: FieldService, useValue: {listProjectFields: vi.fn().mockResolvedValue([])}},
             {provide: TagService, useValue: {loadWorkspaceTags: vi.fn().mockResolvedValue([])}},
-            {provide: WorkspaceService, useValue: {currentWorkspaceId: vi.fn(() => null)}},
-            {provide: CurrentUserService, useValue: {load: vi.fn().mockResolvedValue({currentWorkspaceId: null})}},
+            {provide: WorkspaceService, useValue: {
+                currentWorkspaceId: vi.fn(() => null),
+                currentMembers: signal([]),
+                loadCurrentMembers: vi.fn().mockResolvedValue([]),
+            }},
+            {provide: CurrentUserService, useValue: {
+                load: vi.fn().mockResolvedValue({currentWorkspaceId: null}),
+                currentUser: signal(null),
+            }},
             {provide: RealtimeService, useValue: {events$: new Subject()}},
         ],
     });

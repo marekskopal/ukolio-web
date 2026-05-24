@@ -264,6 +264,7 @@ final class TaskRelationProviderTest extends TestCase
 		$task = new Task(
 			project: $project,
 			status: $status,
+			assignee: null,
 			name: 'Task ' . $id,
 			description: null,
 			priority: TaskPriorityEnum::Medium,

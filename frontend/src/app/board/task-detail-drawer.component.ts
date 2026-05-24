@@ -10,6 +10,7 @@ import {Task, TaskListItem, TaskPriority} from '@app/models/task';
 import {TaskComment} from '@app/models/task-comment';
 import {TaskFile} from '@app/models/task-file';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
+import {WorkspaceMember} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
@@ -17,6 +18,7 @@ import {RealtimeService} from '@app/services/realtime.service';
 import {TaskService} from '@app/services/task.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
+import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {MarkdownEditorComponent} from '@app/shared/components/markdown-editor/markdown-editor.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
@@ -99,6 +101,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
     private readonly realtimeService = inject(RealtimeService);
+    private readonly workspaceService = inject(WorkspaceService);
 
     protected readonly saving = signal(false);
     protected readonly descriptionInitialTab = computed<'edit' | 'preview'>(() =>
@@ -116,6 +119,24 @@ export class TaskDetailDrawerComponent implements OnInit {
     protected readonly availableTags = computed<Tag[]>(() => {
         const ids = new Set(this.selectedTagIds());
         return this.workspaceTags().filter((t) => !ids.has(t.id));
+    });
+
+    protected readonly selectedAssigneeId = signal<number | null>(null);
+    protected readonly assigneePickerOpen = signal(false);
+
+    protected readonly sortedMembers = computed<WorkspaceMember[]>(() => {
+        const me = this.currentUserService.currentUser()?.id;
+        return [...this.workspaceService.currentMembers()].sort((a, b) => {
+            if (a.userId === me && b.userId !== me) return -1;
+            if (b.userId === me && a.userId !== me) return 1;
+            return a.name.localeCompare(b.name);
+        });
+    });
+
+    protected readonly selectedAssignee = computed<WorkspaceMember | null>(() => {
+        const id = this.selectedAssigneeId();
+        if (id === null) return null;
+        return this.workspaceService.currentMembers().find((m) => m.userId === id) ?? null;
     });
 
     protected readonly files = signal<TaskFile[]>([]);
@@ -224,6 +245,10 @@ export class TaskDetailDrawerComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        if (this.workspaceService.currentMembers().length === 0) {
+            void this.workspaceService.loadCurrentMembers();
+        }
+
         const existing = this.task();
         if (existing) {
             this.form.patchValue({
@@ -235,6 +260,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             });
             this.statusId.set(existing.statusId);
             this.selectedTagIds.set([...(existing.tagIds ?? [])]);
+            this.selectedAssigneeId.set(existing.assigneeId);
             void this.loadFiles(existing.id);
             void this.loadRelations(existing.id);
             void this.loadComments(existing.id);
@@ -242,6 +268,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             this.form.patchValue({statusId: fallbackStatusId});
             this.statusId.set(fallbackStatusId);
+            this.selectedAssigneeId.set(this.currentUserService.currentUser()?.id ?? null);
         }
 
         this.form.controls.statusId.valueChanges.subscribe((value) => {
@@ -281,6 +308,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             description: (this.form.value.description ?? '').trim() === '' ? null : this.form.value.description!,
             priority: this.form.value.priority as TaskPriority,
             dueDate: this.form.value.dueDate ? this.form.value.dueDate : null,
+            assigneeId: this.selectedAssigneeId(),
             fieldValues,
             tagIds: this.selectedTagIds(),
         };
@@ -341,6 +369,27 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected tagForeground(color: string): string {
         return pickReadableForeground(color);
+    }
+
+    protected toggleAssigneePicker(): void {
+        this.assigneePickerOpen.update((v) => !v);
+    }
+
+    protected assignMember(member: WorkspaceMember): void {
+        this.selectedAssigneeId.set(member.userId);
+        this.assigneePickerOpen.set(false);
+    }
+
+    protected clearAssignee(): void {
+        this.selectedAssigneeId.set(null);
+        this.assigneePickerOpen.set(false);
+    }
+
+    protected memberInitials(name: string): string {
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 0 || parts[0] === '') return '?';
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
 
     protected async onFileSelected(event: Event): Promise<void> {
@@ -480,6 +529,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                     position: 0,
                     type: 'Normal',
                 },
+                assigneeId: task.assigneeId,
                 name: task.name,
                 description: task.description,
                 priority: task.priority,

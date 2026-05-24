@@ -25,6 +25,7 @@ interface TaskProviderInterface
 	/**
 	 * @param list<int>|null $statusIds
 	 * @param list<int>|null $tagIds
+	 * @param list<int>|null $assigneeIds
 	 * @return Iterator<Task>
 	 */
 	public function getTasksInWorkspace(
@@ -37,11 +38,13 @@ interface TaskProviderInterface
 		?array $statusIds,
 		bool $onlyActive,
 		?array $tagIds = null,
+		?array $assigneeIds = null,
 	): Iterator;
 
 	/**
 	 * @param list<int>|null $statusIds
 	 * @param list<int>|null $tagIds
+	 * @param list<int>|null $assigneeIds
 	 */
 	public function countTasksInWorkspace(
 		Workspace $workspace,
@@ -49,6 +52,7 @@ interface TaskProviderInterface
 		?array $statusIds,
 		bool $onlyActive,
 		?array $tagIds = null,
+		?array $assigneeIds = null,
 	): int;
 
 	/**
@@ -63,6 +67,7 @@ interface TaskProviderInterface
 		?string $description,
 		TaskPriorityEnum $priority,
 		?DateTimeImmutable $dueDate,
+		?User $assignee = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): Task;
@@ -79,6 +84,7 @@ interface TaskProviderInterface
 		TaskPriorityEnum $priority,
 		?DateTimeImmutable $dueDate,
 		Status $status,
+		?User $assignee,
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): Task;
@@ -86,4 +92,6 @@ interface TaskProviderInterface
 	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition): Task;
 
 	public function deleteTask(User $author, Task $task): void;
+
+	public function unassignTasksForUserInWorkspace(User $user, Workspace $workspace): void;
 }

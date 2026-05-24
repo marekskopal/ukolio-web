@@ -7,6 +7,8 @@ namespace Ukolio\Tests\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\WorkspaceController;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
+use Ukolio\Model\Repository\StatusRepository;
+use Ukolio\Model\Repository\WorkflowRepository;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -131,5 +133,53 @@ final class WorkspaceControllerTest extends IntegrationTestCase
 
 		$response = $this->request('DELETE', '/api/workspaces/' . $workspace->id . '/members/' . $owner->id, authenticatedAs: $owner);
 		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testRemovingMemberUnassignsTheirTasks(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$member = Fixture::createUser(email: 'member@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$project = Fixture::createProject($owner, $workspace);
+
+		$create = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: [
+				'statusId' => $this->firstStatusId($project->id),
+				'name' => 'Member task',
+				'description' => null,
+				'priority' => 'Medium',
+				'assigneeId' => $member->id,
+			],
+			authenticatedAs: $owner,
+		);
+		self::assertSame(200, $create->getStatusCode());
+		$body = $this->jsonBody($create);
+		self::assertSame($member->id, $body['assigneeId']);
+		$code = self::stringField($body['code']);
+
+		$remove = $this->request('DELETE', '/api/workspaces/' . $workspace->id . '/members/' . $member->id, authenticatedAs: $owner);
+		self::assertSame(200, $remove->getStatusCode());
+
+		$get = $this->request('GET', '/api/tasks/' . $code, authenticatedAs: $owner);
+		self::assertSame(200, $get->getStatusCode());
+		self::assertNull($this->jsonBody($get)['assigneeId']);
+	}
+
+	private function firstStatusId(int $projectId): int
+	{
+		$workflowRepo = $this->container->get(WorkflowRepository::class);
+		assert($workflowRepo instanceof WorkflowRepository);
+		$workflow = $workflowRepo->findByProject($projectId);
+		assert($workflow !== null);
+
+		$statusRepo = $this->container->get(StatusRepository::class);
+		assert($statusRepo instanceof StatusRepository);
+		foreach ($statusRepo->findByWorkflow($workflow->id) as $status) {
+			return $status->id;
+		}
+		self::fail('No statuses found');
 	}
 }

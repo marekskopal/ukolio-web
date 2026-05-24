@@ -133,7 +133,7 @@ final readonly class AdminService implements AdminServiceInterface
 		}
 
 		foreach ($this->workspaceUserRepository->findByUser($target->id) as $membership) {
-			$this->workspaceUserRepository->delete($membership);
+			$this->workspaceProvider->removeMember($membership);
 		}
 
 		$this->eventProvider->recordWorkspaceEvent(

@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Mcp\Tool\TaskTools;
 use Ukolio\Mcp\Tool\WorkflowTools;
+use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Tests\Support\AppHarness;
@@ -118,6 +119,58 @@ final class TaskToolsTest extends IntegrationTestCase
 
 		$this->expectException(\RuntimeException::class);
 		$taskTools->getTask($task->id);
+	}
+
+	public function testCreateTaskDefaultsAssigneeToCurrentMcpUser(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+		$task = $taskTools->createTask(projectId: $project->id, name: 'Mine');
+
+		self::assertSame($user->id, $task->assigneeId);
+	}
+
+	public function testUpdateTaskAssigneeSetClearAndUnchanged(): void
+	{
+		$user = Fixture::createUser();
+		$member = Fixture::createUser(email: 'member@example.com');
+		$workspace = Fixture::createWorkspace($user);
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+		$task = $taskTools->createTask(projectId: $project->id, name: 'T');
+
+		// Default assignee = user.
+		self::assertSame($user->id, $task->assigneeId);
+
+		// Reassign to member.
+		$reassigned = $taskTools->updateTask(taskId: $task->id, assigneeId: $member->id);
+		self::assertSame($member->id, $reassigned->assigneeId);
+
+		// Update with no assignee* args leaves it unchanged.
+		$nameOnly = $taskTools->updateTask(taskId: $task->id, name: 'T2');
+		self::assertSame($member->id, $nameOnly->assigneeId);
+
+		// Clear via the clearAssignee flag.
+		$cleared = $taskTools->updateTask(taskId: $task->id, clearAssignee: true);
+		self::assertNull($cleared->assigneeId);
+	}
+
+	public function testCreateTaskWithNonMemberAssigneeFails(): void
+	{
+		$user = Fixture::createUser();
+		$outsider = Fixture::createUser(email: 'outsider@example.com');
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+
+		$this->expectException(\RuntimeException::class);
+		$taskTools->createTask(projectId: $project->id, name: 'Bad', assigneeId: $outsider->id);
 	}
 
 	/** @return array{0:TaskTools,1:WorkflowTools} */

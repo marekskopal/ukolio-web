@@ -60,7 +60,7 @@
                             (keydown.enter)="openEdit(task)"
                             (keydown.space)="openEdit(task)"
                         >
-                            <uk-task-card [task]="task" [workspaceTags]="workspaceTags()" />
+                            <uk-task-card [task]="task" [workspaceTags]="workspaceTags()" [members]="members()" />
                         </div>
                     }
                 </div>

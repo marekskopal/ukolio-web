@@ -6,6 +6,7 @@ namespace Ukolio\Tests\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\TaskController;
+use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\StatusRepository;
@@ -251,5 +252,152 @@ final class TaskControllerTest extends IntegrationTestCase
 	private function firstStatusId(int $projectId): int
 	{
 		return $this->statusIds($projectId)[0];
+	}
+
+	public function testCreateTaskDefaultsAssigneeToCreator(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'My task', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(200, $response->getStatusCode());
+		self::assertSame($owner->id, $this->jsonBody($response)['assigneeId']);
+	}
+
+	public function testCreateTaskWithExplicitAssigneeForWorkspaceMember(): void
+	{
+		$owner = Fixture::createUser();
+		$member = Fixture::createUser(email: 'member@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'Pair task', 'description' => null, 'priority' => 'Medium', 'assigneeId' => $member->id],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(200, $response->getStatusCode());
+		self::assertSame($member->id, $this->jsonBody($response)['assigneeId']);
+	}
+
+	public function testCreateTaskWithNonMemberAssigneeIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		$outsider = Fixture::createUser(email: 'outsider@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'Bad', 'description' => null, 'priority' => 'Medium', 'assigneeId' => $outsider->id],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testCreateTaskWithNullAssigneeIsAllowed(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'Unassigned', 'description' => null, 'priority' => 'Medium', 'assigneeId' => null],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(200, $response->getStatusCode());
+		self::assertNull($this->jsonBody($response)['assigneeId']);
+	}
+
+	public function testUpdateTaskClearsAndChangesAssignee(): void
+	{
+		$owner = Fixture::createUser();
+		$member = Fixture::createUser(email: 'm@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$create = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'T', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+		$code = self::stringField($this->jsonBody($create)['code']);
+
+		// Update without assigneeId leaves it unchanged (owner).
+		$noChange = $this->request(
+			'PUT',
+			'/api/tasks/' . $code,
+			body: ['statusId' => $todoId, 'name' => 'T2', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+		self::assertSame(200, $noChange->getStatusCode());
+		self::assertSame($owner->id, $this->jsonBody($noChange)['assigneeId']);
+
+		// Reassign.
+		$reassign = $this->request(
+			'PUT',
+			'/api/tasks/' . $code,
+			body: ['statusId' => $todoId, 'name' => 'T2', 'description' => null, 'priority' => 'Medium', 'assigneeId' => $member->id],
+			authenticatedAs: $owner,
+		);
+		self::assertSame($member->id, $this->jsonBody($reassign)['assigneeId']);
+
+		// Clear with null.
+		$clear = $this->request(
+			'PUT',
+			'/api/tasks/' . $code,
+			body: ['statusId' => $todoId, 'name' => 'T2', 'description' => null, 'priority' => 'Medium', 'assigneeId' => null],
+			authenticatedAs: $owner,
+		);
+		self::assertNull($this->jsonBody($clear)['assigneeId']);
+	}
+
+	public function testWorkspaceListFiltersByAssignee(): void
+	{
+		$owner = Fixture::createUser();
+		$member = Fixture::createUser(email: 'a@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'A', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+		$this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'B', 'description' => null, 'priority' => 'Medium', 'assigneeId' => $member->id],
+			authenticatedAs: $owner,
+		);
+
+		$list = $this->request('GET', '/api/tasks?assigneeIds=' . $member->id, authenticatedAs: $owner);
+		self::assertSame(200, $list->getStatusCode());
+		self::assertSame(1, $this->jsonBody($list)['count']);
 	}
 }

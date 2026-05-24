@@ -95,6 +95,49 @@
 
         <section class="drawer-section">
             <div class="drawer-section-head">
+                <span class="uk-overline">{{ 'app.board.drawer.assignee' | translate }}</span>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="toggleAssigneePicker()">
+                    {{ (selectedAssignee() ? 'app.board.drawer.assigneeChange' : 'app.board.drawer.assigneeAdd') | translate }}
+                </button>
+            </div>
+            <div class="assignee-row">
+                @if (selectedAssignee(); as a) {
+                    <span class="assignee-chip">
+                        <span class="assignee-avatar" aria-hidden="true">{{ memberInitials(a.name) }}</span>
+                        <span>{{ a.name }}</span>
+                        <button
+                            type="button"
+                            class="tag-chip-remove"
+                            (click)="clearAssignee()"
+                            [attr.aria-label]="'app.board.drawer.assigneeClear' | translate"
+                        >×</button>
+                    </span>
+                } @else {
+                    <span class="text-subtle">{{ 'app.board.drawer.assigneePlaceholder' | translate }}</span>
+                }
+            </div>
+            @if (assigneePickerOpen()) {
+                <div class="tag-picker">
+                    @if (sortedMembers().length === 0) {
+                        <span class="text-subtle">{{ 'app.board.drawer.assigneeNoMembers' | translate }}</span>
+                    } @else {
+                        @for (member of sortedMembers(); track member.userId) {
+                            <button
+                                type="button"
+                                class="assignee-option"
+                                (click)="assignMember(member)"
+                            >
+                                <span class="assignee-avatar" aria-hidden="true">{{ memberInitials(member.name) }}</span>
+                                <span>{{ member.name }}</span>
+                            </button>
+                        }
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="drawer-section">
+            <div class="drawer-section-head">
                 <span class="uk-overline">{{ 'app.taskTags.heading' | translate }}</span>
                 @if (workspaceTags().length > 0) {
                     <button type="button" class="btn btn-ghost btn-sm" (click)="toggleTagPicker()">

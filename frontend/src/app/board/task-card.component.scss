@@ -2,6 +2,7 @@
 @use 'mixins' as *;
 
 .task-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: $space-2;
@@ -141,4 +142,21 @@
     color: $color-text-muted;
     font-size: 10px;
     font-weight: 500;
+}
+
+.task-card-assignee {
+    position: absolute;
+    bottom: $space-2;
+    right: $space-2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: $color-accent;
+    color: $color-accent-fg;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }

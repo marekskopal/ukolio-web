@@ -18,10 +18,12 @@ use Ukolio\Dto\TaskListDto;
 use Ukolio\Dto\TaskListItemDto;
 use Ukolio\Dto\TaskMoveDto;
 use Ukolio\Dto\TaskUpdateDto;
+use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
+use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotFoundResponse;
 use Ukolio\Response\OkResponse;
@@ -47,6 +49,7 @@ final readonly class TaskController
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskTagProviderInterface $taskTagProvider,
 		private RequestServiceInterface $requestService,
+		private UserRepository $userRepository,
 	) {
 	}
 
@@ -76,6 +79,7 @@ final readonly class TaskController
 		$search = $this->stringParam($query, 'search');
 		$statusIds = $this->idsParam($query, 'statusIds');
 		$tagIds = $this->idsParam($query, 'tagIds');
+		$assigneeIds = $this->idsParam($query, 'assigneeIds');
 		$onlyActive = $this->boolParam($query, 'onlyActive');
 
 		$tasks = iterator_to_array(
@@ -89,11 +93,12 @@ final readonly class TaskController
 				$statusIds,
 				$onlyActive,
 				$tagIds,
+				$assigneeIds,
 			),
 			false,
 		);
 
-		$count = $this->taskProvider->countTasksInWorkspace($workspace, $search, $statusIds, $onlyActive, $tagIds);
+		$count = $this->taskProvider->countTasksInWorkspace($workspace, $search, $statusIds, $onlyActive, $tagIds, $assigneeIds);
 
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $tasks));
 
@@ -218,6 +223,14 @@ final readonly class TaskController
 		}
 
 		try {
+			$assignee = $dto->assigneeIdProvided
+				? $this->resolveAssignee($project, $dto->assigneeId)
+				: $user;
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		try {
 			$task = $this->taskProvider->createTask(
 				author: $user,
 				project: $project,
@@ -226,6 +239,7 @@ final readonly class TaskController
 				description: $dto->description,
 				priority: $dto->priority,
 				dueDate: $dto->dueDate,
+				assignee: $assignee,
 				fieldValues: $dto->fieldValues,
 				tagIds: $dto->tagIds,
 			);
@@ -269,6 +283,14 @@ final readonly class TaskController
 		}
 
 		try {
+			$assignee = $dto->assigneeIdProvided
+				? $this->resolveAssignee($task->project, $dto->assigneeId)
+				: $task->assignee;
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		try {
 			$task = $this->taskProvider->updateTask(
 				author: $user,
 				task: $task,
@@ -277,6 +299,7 @@ final readonly class TaskController
 				priority: $dto->priority,
 				dueDate: $dto->dueDate,
 				status: $status,
+				assignee: $assignee,
 				fieldValues: $dto->fieldValues,
 				tagIds: $dto->tagIds,
 			);
@@ -329,5 +352,19 @@ final readonly class TaskController
 	private function loadTaskInScope(User $user, int|string $taskId): ?Task
 	{
 		return $this->taskCodeResolver->resolveForUser($user, (string) $taskId);
+	}
+
+	private function resolveAssignee(Project $project, ?int $assigneeId): ?User
+	{
+		if ($assigneeId === null) {
+			return null;
+		}
+
+		$assignee = $this->userRepository->findUserById($assigneeId);
+		if ($assignee === null || !$this->workspaceProvider->isMember($assignee, $project->workspace)) {
+			throw new RuntimeException('Assignee must be a member of the project workspace.');
+		}
+
+		return $assignee;
 	}
 }

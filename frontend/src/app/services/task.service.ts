@@ -12,6 +12,7 @@ export interface TaskWritePayload {
     description: string | null;
     priority: TaskPriority;
     dueDate: string | null;
+    assigneeId?: number | null;
     fieldValues?: TaskFieldValue[];
     tagIds?: number[];
 }
@@ -24,6 +25,7 @@ export interface TaskListParams {
     search?: string;
     statusIds?: number[];
     tagIds?: number[];
+    assigneeIds?: number[];
     onlyActive?: boolean;
 }
 
@@ -45,6 +47,9 @@ export class TaskService {
         }
         if (params.tagIds && params.tagIds.length > 0) {
             httpParams = httpParams.set('tagIds', params.tagIds.join('|'));
+        }
+        if (params.assigneeIds && params.assigneeIds.length > 0) {
+            httpParams = httpParams.set('assigneeIds', params.assigneeIds.join('|'));
         }
         if (params.onlyActive) {
             httpParams = httpParams.set('onlyActive', '1');

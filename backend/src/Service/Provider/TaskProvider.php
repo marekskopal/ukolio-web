@@ -47,6 +47,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 	/**
 	 * @param list<int>|null $statusIds
 	 * @param list<int>|null $tagIds
+	 * @param list<int>|null $assigneeIds
 	 * @return Iterator<Task>
 	 */
 	public function getTasksInWorkspace(
@@ -59,6 +60,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $statusIds,
 		bool $onlyActive,
 		?array $tagIds = null,
+		?array $assigneeIds = null,
 	): Iterator {
 		return $this->taskRepository->findInWorkspace(
 			$workspace->id,
@@ -70,12 +72,14 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$statusIds,
 			$onlyActive,
 			$this->resolveTaskIdsByTags($tagIds),
+			$assigneeIds,
 		);
 	}
 
 	/**
 	 * @param list<int>|null $statusIds
 	 * @param list<int>|null $tagIds
+	 * @param list<int>|null $assigneeIds
 	 */
 	public function countTasksInWorkspace(
 		Workspace $workspace,
@@ -83,6 +87,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $statusIds,
 		bool $onlyActive,
 		?array $tagIds = null,
+		?array $assigneeIds = null,
 	): int {
 		return $this->taskRepository->countInWorkspace(
 			$workspace->id,
@@ -90,6 +95,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$statusIds,
 			$onlyActive,
 			$this->resolveTaskIdsByTags($tagIds),
+			$assigneeIds,
 		);
 	}
 
@@ -117,6 +123,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?string $description,
 		TaskPriorityEnum $priority,
 		?DateTimeImmutable $dueDate,
+		?User $assignee = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): Task {
@@ -131,6 +138,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$task = new Task(
 			project: $project,
 			status: $status,
+			assignee: $assignee,
 			name: $name,
 			description: $description,
 			priority: $priority,
@@ -184,6 +192,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		TaskPriorityEnum $priority,
 		?DateTimeImmutable $dueDate,
 		Status $status,
+		?User $assignee,
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): Task {
@@ -198,6 +207,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$task->description = $description;
 		$task->priority = $priority;
 		$task->dueDate = $dueDate;
+		$task->assignee = $assignee;
 		if ($statusChanged) {
 			$task->status = $status;
 			$task->position = $this->nextPosition($status);
@@ -267,6 +277,16 @@ final readonly class TaskProvider implements TaskProviderInterface
 		);
 
 		return $task;
+	}
+
+	public function unassignTasksForUserInWorkspace(User $user, Workspace $workspace): void
+	{
+		$now = new DateTimeImmutable();
+		foreach ($this->taskRepository->findByAssigneeInWorkspace($user->id, $workspace->id) as $task) {
+			$task->assignee = null;
+			$task->updatedAt = $now;
+			$this->taskRepository->persist($task);
+		}
 	}
 
 	public function deleteTask(User $author, Task $task): void

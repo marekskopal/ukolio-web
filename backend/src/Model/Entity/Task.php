@@ -21,6 +21,8 @@ class Task extends AEntity
 		public readonly Project $project,
 		#[ManyToOne(entityClass: Status::class)]
 		public Status $status,
+		#[ManyToOne(entityClass: User::class, nullable: true)]
+		public ?User $assignee,
 		#[Column(type: Type::String)]
 		public string $name,
 		#[Column(type: Type::Text, nullable: true)]
