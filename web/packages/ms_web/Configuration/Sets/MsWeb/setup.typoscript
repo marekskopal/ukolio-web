@@ -52,18 +52,14 @@ plugin.tx_msfaq_faq {
     }
 }
 
-# The vendor FAQ stylesheet collides with our design-system overrides
-# (it adds per-item borders + a "+" pseudo-element next to our chevron).
-# Drop it; our _uk-marketing.scss owns FAQ styling.
-page.includeCSS.msfaq >
-page.includeCSS.mspricing >
-
-
 page.includeCSS {
     print = {$page.includePath.css}print.min.css
     print.media = print
 
     lightGallery >
+    msfaq >
+    mspricing >
+    msfeatures >
 }
 
 page.includeJSFooter {
