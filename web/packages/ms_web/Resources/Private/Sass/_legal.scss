@@ -163,29 +163,6 @@
     }
 }
 
-.legal-meta {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-size: 12px;
-    color: var(--fg-subtle);
-    padding-bottom: 16px;
-    margin-bottom: 18px;
-    border-bottom: 1px solid var(--border);
-
-    strong {
-        color: var(--fg);
-        font-weight: 500;
-    }
-
-    @include breakpoint-up(md) {
-        gap: 14px;
-        font-size: 13px;
-        padding-bottom: 24px;
-        margin-bottom: 32px;
-    }
-}
-
 .legal-body {
     font-family: var(--font-sans);
     font-size: 14.5px;

@@ -23,17 +23,6 @@
                     <div class="legal-eyebrow">Legal</div>
                     <h1 class="legal-title">{data.title}</h1>
 
-                    <div class="legal-meta">
-                        <f:if condition="{data.lastUpdated}">
-                            <f:then>
-                                <span>Last updated <strong><f:format.date format="F j, Y">{data.lastUpdated}</f:format.date></strong></span>
-                            </f:then>
-                            <f:else>
-                                <span>Last updated <strong><f:format.date format="F j, Y" date="@{data.SYS_LASTCHANGED}" /></strong></span>
-                            </f:else>
-                        </f:if>
-                    </div>
-
                     <div class="legal-body">
                         <f:cObject typoscriptObjectPath="lib.dynamicContent" data="0" />
                     </div>
