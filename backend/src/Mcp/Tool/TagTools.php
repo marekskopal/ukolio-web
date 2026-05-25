@@ -10,10 +10,12 @@ use Ukolio\Mcp\Dto\McpTagDto;
 use Ukolio\Mcp\Dto\McpTagListDto;
 use Ukolio\Mcp\Dto\McpTaskDto;
 use Ukolio\Mcp\McpUserContextInterface;
+use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
+use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\TagProviderInterface;
 use Ukolio\Service\Provider\TaskFieldValueProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
@@ -30,6 +32,7 @@ final readonly class TagTools
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private PermissionCheckerInterface $permissionChecker,
+		private EventProviderInterface $eventProvider,
 	) {
 	}
 
@@ -138,7 +141,17 @@ final readonly class TagTools
 		$task = $this->requireTask($taskId);
 		$workspace = $task->project->workspace;
 
-		$this->taskTagProvider->setTagsForTask($workspace, $task, $tagIds);
+		$tagChanges = $this->taskTagProvider->setTagsForTask($workspace, $task, $tagIds);
+
+		if ($tagChanges['added'] !== [] || $tagChanges['removed'] !== []) {
+			$this->eventProvider->recordEvent(
+				$this->userContext->getUser(),
+				$task->project,
+				EventTypeEnum::TaskTagsUpdated,
+				['taskName' => $task->name, 'added' => $tagChanges['added'], 'removed' => $tagChanges['removed']],
+				$task->id,
+			);
+		}
 
 		return McpTaskDto::fromEntity(
 			$task,

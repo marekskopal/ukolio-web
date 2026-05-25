@@ -3,6 +3,7 @@ export type RealtimeEventType =
     | 'TaskUpdated'
     | 'TaskMoved'
     | 'TaskDeleted'
+    | 'TaskTagsUpdated'
     | 'TaskCommentAdded'
     | 'TaskCommentDeleted'
     | 'TaskFileAdded'
@@ -27,6 +28,7 @@ export const TASK_EVENT_TYPES: ReadonlySet<RealtimeEventType> = new Set<Realtime
     'TaskUpdated',
     'TaskMoved',
     'TaskDeleted',
+    'TaskTagsUpdated',
     'TaskFileAdded',
     'TaskFileDeleted',
     'TaskRelationCreated',
