@@ -240,14 +240,11 @@ volumes:
         name: ukolio_minio
     ukolio_redis:
         name: ukolio_redis
-<<<<<<< HEAD
+    ukolio_rabbitmq:
+        name: ukolio_rabbitmq
     ukolio_web_public:
         name: ukolio_web_public
     ukolio_web_var:
         name: ukolio_web_var
     ukolio_web_config:
         name: ukolio_web_config
-=======
-    ukolio_rabbitmq:
-        name: ukolio_rabbitmq
->>>>>>> refs/heads/public
