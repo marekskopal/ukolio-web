@@ -40,7 +40,9 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(200, $create->getStatusCode());
 		$task = $this->jsonBody($create);
 		self::assertSame('Write tests', $task['name']);
-		self::assertSame('High', $task['priority']);
+		$priority = $task['priority'];
+		assert(is_array($priority));
+		self::assertSame('High', $priority['name']);
 		self::assertNotEmpty($task['code']);
 		$taskId = self::intField($task['id']);
 		$taskCode = self::stringField($task['code']);

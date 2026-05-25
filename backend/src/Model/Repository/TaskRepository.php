@@ -21,6 +21,13 @@ final class TaskRepository extends AbstractRepository
 		return $this->findOne(['id' => $taskId]);
 	}
 
+	public function countByPriority(int $priorityId): int
+	{
+		return $this->select()
+			->where(['priority_id' => $priorityId])
+			->count();
+	}
+
 	public function findByProjectAndSequence(int $projectId, int $sequenceNumber): ?Task
 	{
 		return $this->findOne(['project_id' => $projectId, 'sequence_number' => $sequenceNumber]);

@@ -3,10 +3,11 @@ import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit, out
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ProjectField} from '@app/models/field';
+import {Priority} from '@app/models/priority';
 import {COMMENT_EVENT_TYPES, FILE_EVENT_TYPES, RealtimeEvent, RELATION_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
-import {Task, TaskListItem, TaskPriority} from '@app/models/task';
+import {Task, TaskListItem} from '@app/models/task';
 import {TaskComment} from '@app/models/task-comment';
 import {TaskFile} from '@app/models/task-file';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
@@ -86,6 +87,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     public readonly defaultStatusId = input<number | null>(null);
     public readonly projectFields = input<ProjectField[]>([]);
     public readonly workspaceTags = input<Tag[]>([]);
+    public readonly workspacePriorities = input<Priority[]>([]);
 
     public readonly saved = output<Task>();
     public readonly deleted = output<number>();
@@ -168,9 +170,19 @@ export class TaskDetailDrawerComponent implements OnInit {
         name: ['', Validators.required],
         description: [''],
         statusId: [0, Validators.required],
-        priority: ['Medium' as TaskPriority, Validators.required],
+        priorityId: [0, Validators.required],
         dueDate: [''],
     });
+
+    protected readonly currentPriorityColor = computed<string>(() => {
+        const id = Number(this.form.value.priorityId);
+        const match = this.workspacePriorities().find((p) => p.id === id);
+        return match?.color ?? '#f1f1f3';
+    });
+
+    protected priorityForeground(color: string): string {
+        return pickReadableForeground(color);
+    }
 
     private readonly statusId = signal<number>(0);
 
@@ -255,7 +267,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 name: existing.name,
                 description: existing.description ?? '',
                 statusId: existing.statusId,
-                priority: existing.priority,
+                priorityId: existing.priority.id,
                 dueDate: existing.dueDate ?? '',
             });
             this.statusId.set(existing.statusId);
@@ -266,7 +278,8 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadComments(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
-            this.form.patchValue({statusId: fallbackStatusId});
+            const defaultPriority = this.workspacePriorities().find((p) => p.isDefault) ?? this.workspacePriorities()[0];
+            this.form.patchValue({statusId: fallbackStatusId, priorityId: defaultPriority?.id ?? 0});
             this.statusId.set(fallbackStatusId);
             this.selectedAssigneeId.set(this.currentUserService.currentUser()?.id ?? null);
         }
@@ -306,7 +319,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             statusId: Number(this.form.value.statusId),
             name: this.form.value.name!,
             description: (this.form.value.description ?? '').trim() === '' ? null : this.form.value.description!,
-            priority: this.form.value.priority as TaskPriority,
+            priorityId: Number(this.form.value.priorityId),
             dueDate: this.form.value.dueDate ? this.form.value.dueDate : null,
             assigneeId: this.selectedAssigneeId(),
             fieldValues,

@@ -173,6 +173,55 @@ final class TaskToolsTest extends IntegrationTestCase
 		$taskTools->createTask(projectId: $project->id, name: 'Bad', assigneeId: $outsider->id);
 	}
 
+	public function testCreateTaskDefaultsToWorkspaceDefaultPriority(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+
+		$task = $taskTools->createTask(projectId: $project->id, name: 'No priority specified');
+
+		// Seeded default is "Medium".
+		self::assertSame('Medium', $task->priorityName);
+	}
+
+	public function testCreateTaskAcceptsLegacyPriorityString(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+
+		$task = $taskTools->createTask(projectId: $project->id, name: 'Crit', priorityName: 'high');
+		self::assertSame('High', $task->priorityName);
+	}
+
+	public function testCreateTaskAcceptsPriorityIdAndNameInterchangeably(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+
+		// Fetch the workspace's priorities through the HTTP endpoint to learn ids.
+		$list = $this->jsonList($this->request(
+			'GET',
+			'/api/workspaces/' . $workspace->id . '/priorities',
+			authenticatedAs: $user,
+		));
+		$highId = self::intField($list[0]['id']);
+
+		$byId = $taskTools->createTask(projectId: $project->id, name: 'By id', priorityId: $highId);
+		$byName = $taskTools->createTask(projectId: $project->id, name: 'By name', priorityName: 'High');
+
+		self::assertSame($highId, $byId->priorityId);
+		self::assertSame($highId, $byName->priorityId);
+	}
+
 	/** @return array{0:TaskTools,1:WorkflowTools} */
 	private function bootAs(User $user): array
 	{

@@ -7,7 +7,7 @@ namespace Ukolio\Service\Provider;
 use DateTimeImmutable;
 use Iterator;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
-use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
+use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
@@ -121,7 +121,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		Status $status,
 		string $name,
 		?string $description,
-		TaskPriorityEnum $priority,
+		Priority $priority,
 		?DateTimeImmutable $dueDate,
 		?User $assignee = null,
 		?array $fieldValues = null,
@@ -189,7 +189,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		Task $task,
 		string $name,
 		?string $description,
-		TaskPriorityEnum $priority,
+		Priority $priority,
 		?DateTimeImmutable $dueDate,
 		Status $status,
 		?User $assignee,

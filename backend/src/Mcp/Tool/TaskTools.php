@@ -10,10 +10,10 @@ use RuntimeException;
 use Ukolio\Mcp\Dto\McpTaskDto;
 use Ukolio\Mcp\Dto\McpTaskListDto;
 use Ukolio\Mcp\McpUserContextInterface;
+use Ukolio\Mcp\Tool\Helper\PriorityResolver;
+use Ukolio\Mcp\Tool\Helper\StatusResolver;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
-use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
 use Ukolio\Model\Entity\Project;
-use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
@@ -24,7 +24,6 @@ use Ukolio\Service\Provider\TaskCodeResolverInterface;
 use Ukolio\Service\Provider\TaskFieldValueProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
 use Ukolio\Service\Provider\TaskTagProviderInterface;
-use Ukolio\Service\Provider\WorkflowProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
 final readonly class TaskTools
@@ -32,13 +31,14 @@ final readonly class TaskTools
 	public function __construct(
 		private McpUserContextInterface $userContext,
 		private ProjectProviderInterface $projectProvider,
-		private WorkflowProviderInterface $workflowProvider,
 		private StatusProviderInterface $statusProvider,
 		private TaskProviderInterface $taskProvider,
 		private TaskCodeResolverInterface $taskCodeResolver,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskTagProviderInterface $taskTagProvider,
+		private PriorityResolver $priorityResolver,
+		private StatusResolver $statusResolver,
 		private UserRepository $userRepository,
 	) {
 	}
@@ -132,7 +132,8 @@ final readonly class TaskTools
 	 * @param int $projectId Project ID
 	 * @param string $name Task name
 	 * @param string|null $description Optional markdown description
-	 * @param string $priority Priority: Low, Medium (default), or High
+	 * @param int|null $priorityId Priority ID from the workspace's catalog (preferred). When omitted, the workspace's default priority is used.
+	 * @param string|null $priorityName Priority name lookup (case-insensitive). Accepts the legacy "Low"/"Medium"/"High" against seeded defaults.
 	 * @param int|null $statusId Optional explicit status ID
 	 * @param string|null $statusName Optional status name (case-insensitive); ignored if statusId is given
 	 * @param string|null $dueDate Optional due date (YYYY-MM-DD)
@@ -145,7 +146,8 @@ final readonly class TaskTools
 		int $projectId,
 		string $name,
 		?string $description = null,
-		string $priority = 'Medium',
+		?int $priorityId = null,
+		?string $priorityName = null,
 		?int $statusId = null,
 		?string $statusName = null,
 		?string $dueDate = null,
@@ -155,9 +157,12 @@ final readonly class TaskTools
 	): McpTaskDto {
 		$user = $this->userContext->getUser();
 		$project = $this->requireProject($projectId);
-		$priorityEnum = $this->parsePriority($priority);
-		$status = $this->resolveStatus($project, $statusId, $statusName)
-			?? $this->findStatusByType($project, StatusTypeEnum::Start)
+		$priority = $this->priorityResolver->resolve($project, $priorityId, $priorityName);
+		if ($priority === null) {
+			throw new RuntimeException('Workspace has no priorities configured.');
+		}
+		$status = $this->statusResolver->resolve($project, $statusId, $statusName)
+			?? $this->statusResolver->findByType($project, StatusTypeEnum::Start)
 			?? throw new RuntimeException(sprintf('No Start status found for project %d.', $projectId));
 
 		$assignee = $assigneeId !== null ? $this->resolveAssignee($project, $assigneeId) : $user;
@@ -168,7 +173,7 @@ final readonly class TaskTools
 			status: $status,
 			name: $name,
 			description: $description,
-			priority: $priorityEnum,
+			priority: $priority,
 			dueDate: $dueDate !== null ? new DateTimeImmutable($dueDate) : null,
 			assignee: $assignee,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
@@ -188,7 +193,8 @@ final readonly class TaskTools
 	 * @param int|string $taskId Task ID or code (e.g. "MP-3")
 	 * @param string|null $name New name
 	 * @param string|null $description New description
-	 * @param string|null $priority New priority: Low, Medium, or High
+	 * @param int|null $priorityId New priority ID from the workspace's catalog (preferred over priorityName).
+	 * @param string|null $priorityName New priority name (case-insensitive). Accepts the legacy "Low"/"Medium"/"High" against seeded defaults.
 	 * @param string|null $dueDate New due date (YYYY-MM-DD), or empty string to clear
 	 * @param int|null $assigneeId New assignee user ID. Pass null to clear (unassign). Omit the parameter to leave unchanged. Must be a member of the project's workspace.
 	 * @param bool $clearAssignee Pass true together with omitting assigneeId to explicitly unassign the task.
@@ -200,7 +206,8 @@ final readonly class TaskTools
 		int|string $taskId,
 		?string $name = null,
 		?string $description = null,
-		?string $priority = null,
+		?int $priorityId = null,
+		?string $priorityName = null,
 		?string $dueDate = null,
 		?int $assigneeId = null,
 		bool $clearAssignee = false,
@@ -212,13 +219,16 @@ final readonly class TaskTools
 
 		$newDueDate = $this->resolveNewDueDate($task->dueDate, $dueDate);
 		$assignee = $this->resolveAssigneeForUpdate($task, $assigneeId, $clearAssignee);
+		$priority = $priorityId !== null || $priorityName !== null
+			? ($this->priorityResolver->resolve($task->project, $priorityId, $priorityName) ?? $task->priority)
+			: $task->priority;
 
 		$updated = $this->taskProvider->updateTask(
 			author: $user,
 			task: $task,
 			name: $name ?? $task->name,
 			description: $description ?? $task->description,
-			priority: $priority !== null ? $this->parsePriority($priority) : $task->priority,
+			priority: $priority,
 			dueDate: $newDueDate,
 			status: $task->status,
 			assignee: $assignee,
@@ -246,7 +256,7 @@ final readonly class TaskTools
 	{
 		$user = $this->userContext->getUser();
 		$task = $this->requireTask($taskId);
-		$status = $this->resolveStatus($task->project, $statusId, $statusName);
+		$status = $this->statusResolver->resolve($task->project, $statusId, $statusName);
 		if ($status === null) {
 			throw new RuntimeException('Provide statusId or statusName to move the task.');
 		}
@@ -339,95 +349,21 @@ final readonly class TaskTools
 		return $dueDate === '' ? null : new DateTimeImmutable($dueDate);
 	}
 
-	private function parsePriority(string $priority): TaskPriorityEnum
-	{
-		$enum = TaskPriorityEnum::tryFrom($priority);
-		if ($enum === null) {
-			throw new RuntimeException(sprintf(
-				'Invalid priority "%s". Valid values: %s',
-				$priority,
-				implode(', ', array_column(TaskPriorityEnum::cases(), 'value')),
-			));
-		}
-
-		return $enum;
-	}
-
-	private function resolveStatus(Project $project, ?int $statusId, ?string $statusName): ?Status
-	{
-		if ($statusId !== null) {
-			return $this->resolveStatusById($project, $statusId);
-		}
-		if ($statusName !== null) {
-			return $this->resolveStatusByName($project, $statusName);
-		}
-		return null;
-	}
-
-	private function resolveStatusById(Project $project, int $statusId): Status
-	{
-		$status = $this->statusProvider->getStatus($statusId);
-		if ($status === null || $status->workflow->project->id !== $project->id) {
-			throw new RuntimeException(sprintf('Status %d not found in project %d.', $statusId, $project->id));
-		}
-		return $status;
-	}
-
-	private function resolveStatusByName(Project $project, string $statusName): Status
-	{
-		$workflow = $this->workflowProvider->getWorkflowByProject($project);
-		if ($workflow === null) {
-			throw new RuntimeException(sprintf('Workflow for project %d not found.', $project->id));
-		}
-		$needle = mb_strtolower($statusName);
-		foreach ($this->statusProvider->getStatuses($workflow) as $status) {
-			if (mb_strtolower($status->name) === $needle) {
-				return $status;
-			}
-		}
-
-		throw new RuntimeException(sprintf('Status "%s" not found in project %d.', $statusName, $project->id));
-	}
-
-	private function findStatusByType(Project $project, StatusTypeEnum $type): ?Status
-	{
-		$workflow = $this->workflowProvider->getWorkflowByProject($project);
-		if ($workflow === null) {
-			return null;
-		}
-
-		foreach ($this->statusProvider->getStatuses($workflow) as $status) {
-			if ($status->type === $type) {
-				return $status;
-			}
-		}
-
-		return null;
-	}
-
 	private function nextPositionInStatus(int $statusId): int
-	{
-		$max = -1;
-		foreach ($this->taskProvider->getTasksByProject($this->resolveAnyProjectForStatus($statusId)) as $task) {
-			if ($task->status->id !== $statusId) {
-				continue;
-			}
-			if ($task->position > $max) {
-				$max = $task->position;
-			}
-		}
-
-		return $max + 1;
-	}
-
-	private function resolveAnyProjectForStatus(int $statusId): Project
 	{
 		$status = $this->statusProvider->getStatus($statusId);
 		if ($status === null) {
 			throw new RuntimeException(sprintf('Status %d not found.', $statusId));
 		}
 
-		return $status->workflow->project;
+		$max = -1;
+		foreach ($this->taskProvider->getTasksByProject($status->workflow->project) as $task) {
+			if ($task->status->id === $statusId && $task->position > $max) {
+				$max = $task->position;
+			}
+		}
+
+		return $max + 1;
 	}
 
 	/**

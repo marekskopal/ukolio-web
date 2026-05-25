@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {TaskFieldValue} from '@app/models/field';
-import {OrderDirection, Task, TaskList, TaskOrderBy, TaskPriority} from '@app/models/task';
+import {OrderDirection, Task, TaskList, TaskOrderBy} from '@app/models/task';
 import {TaskFile} from '@app/models/task-file';
 import {environment} from '@environments/environment';
 import {firstValueFrom} from 'rxjs';
@@ -10,7 +10,7 @@ export interface TaskWritePayload {
     statusId: number;
     name: string;
     description: string | null;
-    priority: TaskPriority;
+    priorityId: number;
     dueDate: string | null;
     assigneeId?: number | null;
     fieldValues?: TaskFieldValue[];

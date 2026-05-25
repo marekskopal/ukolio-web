@@ -564,6 +564,24 @@
             "deleteConfirm": "Delete tag \"{{name}}\"? It will be removed from every task that uses it.",
             "noPermission": "Only Owners and Admins can manage workspace tags."
         },
+        "priorities": {
+            "title": "Priorities",
+            "description": "Workspace-configurable task priorities. Reorder with the arrows; the default is used for new tasks when none is specified.",
+            "addPriority": "Add priority",
+            "name": "Priority name",
+            "namePlaceholder": "e.g. Critical",
+            "color": "Color",
+            "default": "Default for new tasks",
+            "defaultMark": "default",
+            "preview": "preview",
+            "empty": "No priorities yet.",
+            "priorityCreated": "Priority created.",
+            "priorityUpdated": "Priority updated.",
+            "priorityDeleted": "Priority deleted.",
+            "deleteConfirm": "Delete priority \"{{name}}\"?",
+            "deleteBlocked": "Cannot delete — {{count}} task(s) still use this priority. Reassign them first.",
+            "deleteError": "Failed to delete priority."
+        },
         "taskTags": {
             "heading": "Tags",
             "add": "Add tag",

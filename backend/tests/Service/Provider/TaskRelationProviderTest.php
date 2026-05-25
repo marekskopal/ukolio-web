@@ -12,8 +12,8 @@ use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
-use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
 use Ukolio\Model\Entity\Enum\TaskRelationTypeEnum;
+use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
@@ -261,13 +261,18 @@ final class TaskRelationProviderTest extends TestCase
 		$status->createdAt = new DateTimeImmutable();
 		$status->updatedAt = new DateTimeImmutable();
 
+		$priority = new Priority(workspace: $project->workspace, name: 'Medium', color: '#fbf2dd', position: 1, isDefault: true);
+		$priority->id = $id * 1000;
+		$priority->createdAt = new DateTimeImmutable();
+		$priority->updatedAt = new DateTimeImmutable();
+
 		$task = new Task(
 			project: $project,
 			status: $status,
 			assignee: null,
 			name: 'Task ' . $id,
 			description: null,
-			priority: TaskPriorityEnum::Medium,
+			priority: $priority,
 			dueDate: null,
 			position: 0,
 			sequenceNumber: $id,

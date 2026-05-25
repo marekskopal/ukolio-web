@@ -6,13 +6,15 @@ import {TaskCardComponent} from '@app/board/task-card.component';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {Board} from '@app/models/board';
 import {ProjectField} from '@app/models/field';
+import {Priority} from '@app/models/priority';
 import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
-import {Task, TaskListItem, TaskPriority} from '@app/models/task';
+import {Task, TaskListItem} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {PriorityService} from '@app/services/priority.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {TagService} from '@app/services/tag.service';
 import {TaskService} from '@app/services/task.service';
@@ -39,6 +41,7 @@ export class BoardComponent implements OnInit {
     private readonly taskService = inject(TaskService);
     private readonly fieldService = inject(FieldService);
     private readonly tagService = inject(TagService);
+    private readonly priorityService = inject(PriorityService);
     private readonly workspaceService = inject(WorkspaceService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly realtimeService = inject(RealtimeService);
@@ -51,27 +54,25 @@ export class BoardComponent implements OnInit {
     protected readonly projectId = signal<number | null>(null);
     protected readonly projectFields = signal<ProjectField[]>([]);
     protected readonly workspaceTags = signal<Tag[]>([]);
+    protected readonly workspacePriorities = signal<Priority[]>([]);
     protected readonly members = this.workspaceService.currentMembers;
 
     protected readonly drawerOpen = signal(false);
     protected readonly editingTask = signal<Task | null>(null);
     protected readonly defaultStatusId = signal<number | null>(null);
 
-    private static readonly PRIORITY_ORDER: Record<TaskPriority, number> = {High: 0, Medium: 1, Low: 2};
-
     protected readonly columns = computed<Column[]>(() => {
         const board = this.board();
         if (!board) {
             return [];
         }
-        const priorityOrder = BoardComponent.PRIORITY_ORDER;
         return [...board.statuses]
             .sort((a, b) => a.position - b.position)
             .map((status) => ({
                 status,
                 tasks: board.tasks
                     .filter((t) => t.statusId === status.id)
-                    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority] || a.position - b.position),
+                    .sort((a, b) => a.priority.position - b.priority.position || a.position - b.position),
             }));
     });
 
@@ -82,6 +83,7 @@ export class BoardComponent implements OnInit {
             this.loadBoard(),
             this.loadProjectFields(),
             this.loadWorkspaceTags(),
+            this.loadWorkspacePriorities(),
             this.workspaceService.currentMembers().length === 0
                 ? this.workspaceService.loadCurrentMembers()
                 : Promise.resolve(),
@@ -143,6 +145,19 @@ export class BoardComponent implements OnInit {
             this.workspaceTags.set(await this.tagService.loadWorkspaceTags(workspaceId));
         } catch {
             this.workspaceTags.set([]);
+        }
+    }
+
+    private async loadWorkspacePriorities(): Promise<void> {
+        const workspaceId = this.workspaceService.currentWorkspaceId();
+        if (workspaceId === null) {
+            this.workspacePriorities.set([]);
+            return;
+        }
+        try {
+            this.workspacePriorities.set(await this.priorityService.loadWorkspacePriorities(workspaceId));
+        } catch {
+            this.workspacePriorities.set([]);
         }
     }
 

@@ -3,6 +3,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} fr
 import {FormsModule} from '@angular/forms';
 import {WorkspaceMcpClient} from '@app/models/event';
 import {Field, FieldType} from '@app/models/field';
+import {Priority} from '@app/models/priority';
 import {Tag} from '@app/models/tag';
 import {User} from '@app/models/user';
 import {Invitation, Workspace, WorkspaceMember, WorkspaceRole} from '@app/models/workspace';
@@ -11,6 +12,7 @@ import {CurrentUserService} from '@app/services/current-user.service';
 import {EventService} from '@app/services/event.service';
 import {FieldService} from '@app/services/field.service';
 import {PermissionsService} from '@app/services/permissions.service';
+import {PriorityService} from '@app/services/priority.service';
 import {TagService} from '@app/services/tag.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
@@ -31,9 +33,17 @@ interface TagEditorState {
     color: string;
 }
 
+interface PriorityEditorState {
+    id: number | null;
+    name: string;
+    color: string;
+    isDefault: boolean;
+}
+
 const FIELD_TYPES: FieldType[] = ['Text', 'Textarea', 'Select', 'Version'];
 
 const DEFAULT_TAG_COLOR = '#3b82f6';
+const DEFAULT_PRIORITY_COLOR = '#fbf2dd';
 
 @Component({
     selector: 'uk-workspaces',
@@ -51,6 +61,7 @@ export class WorkspacesComponent implements OnInit {
     private readonly translate = inject(TranslateService);
     private readonly fieldService = inject(FieldService);
     private readonly tagService = inject(TagService);
+    private readonly priorityService = inject(PriorityService);
     private readonly eventService = inject(EventService);
 
     protected readonly loading = signal(true);
@@ -69,12 +80,16 @@ export class WorkspacesComponent implements OnInit {
     protected readonly tags = signal<Tag[]>([]);
     protected readonly tagEditor = signal<TagEditorState | null>(null);
     protected readonly tagSaving = signal(false);
+    protected readonly priorities = signal<Priority[]>([]);
+    protected readonly priorityEditor = signal<PriorityEditorState | null>(null);
+    protected readonly prioritySaving = signal(false);
 
     protected readonly isSystemAdmin = this.permissionsService.isSystemAdmin;
     protected readonly canManageWorkspace = computed<boolean>(() => this.permissionsService.canManageWorkspace(this.members()));
     protected readonly canManageMembers = computed<boolean>(() => this.permissionsService.canManageMembers(this.members()));
     protected readonly canManageFields = computed<boolean>(() => this.permissionsService.canManageFields(this.members()));
     protected readonly canManageTags = computed<boolean>(() => this.permissionsService.canManageTags(this.members()));
+    protected readonly canManagePriorities = computed<boolean>(() => this.permissionsService.canManagePriorities(this.members()));
     protected readonly canTransferOwnership = computed<boolean>(() => this.permissionsService.canTransferOwnership(this.members()));
     protected readonly invitableRoles = computed<WorkspaceRole[]>(() => this.permissionsService.invitableRoles(this.members()));
     protected readonly editorHasOptions = computed<boolean>(() => {
@@ -109,17 +124,20 @@ export class WorkspacesComponent implements OnInit {
         this.selected.set(ws);
         this.fieldEditor.set(null);
         this.tagEditor.set(null);
-        const [members, invitations, fields, tags, mcpClients] = await Promise.all([
+        this.priorityEditor.set(null);
+        const [members, invitations, fields, tags, priorities, mcpClients] = await Promise.all([
             this.workspaceService.getMembers(ws.id),
             this.workspaceService.getInvitations(ws.id).catch(() => []),
             this.fieldService.listWorkspaceFields(ws.id).catch(() => [] as Field[]),
             this.tagService.loadWorkspaceTags(ws.id, true).catch(() => [] as Tag[]),
+            this.priorityService.loadWorkspacePriorities(ws.id, true).catch(() => [] as Priority[]),
             this.eventService.getWorkspaceMcpClients(ws.id).catch(() => [] as WorkspaceMcpClient[]),
         ]);
         this.members.set(members);
         this.invitations.set(invitations);
         this.fields.set(fields);
         this.tags.set(tags);
+        this.priorities.set(priorities);
         this.mcpClients.set(mcpClients);
         const allowed = this.permissionsService.invitableRoles(members);
         if (!allowed.includes(this.inviteRole())) {
@@ -465,5 +483,134 @@ export class WorkspacesComponent implements OnInit {
         } catch {
             // error interceptor
         }
+    }
+
+    protected openCreatePriority(): void {
+        this.priorityEditor.set({id: null, name: '', color: DEFAULT_PRIORITY_COLOR, isDefault: false});
+    }
+
+    protected openEditPriority(priority: Priority): void {
+        this.priorityEditor.set({
+            id: priority.id,
+            name: priority.name,
+            color: priority.color,
+            isDefault: priority.isDefault,
+        });
+    }
+
+    protected closePriorityEditor(): void {
+        this.priorityEditor.set(null);
+    }
+
+    protected updatePriorityEditor<K extends keyof PriorityEditorState>(key: K, value: PriorityEditorState[K]): void {
+        this.priorityEditor.update((ed) => (ed === null ? ed : {...ed, [key]: value}));
+    }
+
+    protected priorityForeground(color: string): string {
+        return pickReadableForeground(color);
+    }
+
+    protected async savePriority(): Promise<void> {
+        const ws = this.selected();
+        const ed = this.priorityEditor();
+        if (ws === null || ed === null || !this.canManagePriorities()) {
+            return;
+        }
+        const name = ed.name.trim();
+        if (name === '') {
+            return;
+        }
+        const payload = {name, color: ed.color, isDefault: ed.isDefault};
+
+        this.prioritySaving.set(true);
+        try {
+            const saved = ed.id === null
+                ? await this.priorityService.createPriority(ws.id, payload)
+                : await this.priorityService.updatePriority(ws.id, ed.id, payload);
+            // Re-fetch to keep the default flag + positions canonical.
+            const refreshed = await this.priorityService.loadWorkspacePriorities(ws.id, true);
+            this.priorities.set(refreshed);
+            void saved;
+            const messageKey = ed.id === null ? 'app.priorities.priorityCreated' : 'app.priorities.priorityUpdated';
+            this.alertService.success(await this.translate.instant(messageKey) as string);
+            this.priorityEditor.set(null);
+        } catch {
+            // error interceptor
+        } finally {
+            this.prioritySaving.set(false);
+        }
+    }
+
+    protected async deletePriority(priority: Priority): Promise<void> {
+        const ws = this.selected();
+        if (ws === null || !this.canManagePriorities()) {
+            return;
+        }
+        const confirmMessage = await this.translate.instant('app.priorities.deleteConfirm', {name: priority.name}) as string;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        try {
+            await this.priorityService.deletePriority(ws.id, priority.id);
+            this.priorities.update((all) => all.filter((p) => p.id !== priority.id));
+            if (this.priorityEditor()?.id === priority.id) {
+                this.priorityEditor.set(null);
+            }
+            this.alertService.success(await this.translate.instant('app.priorities.priorityDeleted') as string);
+        } catch (err: unknown) {
+            const message = this.extractPriorityDeleteError(err)
+                ?? await this.translate.instant('app.priorities.deleteError') as string;
+            this.alertService.error(message);
+        }
+    }
+
+    protected async movePriorityUp(priority: Priority): Promise<void> {
+        if (priority.position <= 0 || !this.canManagePriorities()) {
+            return;
+        }
+        await this.movePriorityTo(priority, priority.position - 1);
+    }
+
+    protected async movePriorityDown(priority: Priority): Promise<void> {
+        const all = this.priorities();
+        if (priority.position >= all.length - 1 || !this.canManagePriorities()) {
+            return;
+        }
+        await this.movePriorityTo(priority, priority.position + 1);
+    }
+
+    private async movePriorityTo(priority: Priority, newPosition: number): Promise<void> {
+        const ws = this.selected();
+        if (ws === null) {
+            return;
+        }
+        try {
+            await this.priorityService.movePriority(priority.id, newPosition);
+            const refreshed = await this.priorityService.loadWorkspacePriorities(ws.id, true);
+            this.priorities.set(refreshed);
+        } catch {
+            // error interceptor
+        }
+    }
+
+    private extractPriorityDeleteError(err: unknown): string | null {
+        if (typeof err !== 'object' || err === null || !('error' in err)) {
+            return null;
+        }
+        const inner = (err as {error: unknown}).error;
+        if (typeof inner !== 'object' || inner === null) {
+            return null;
+        }
+        const dependentRaw = (inner as {dependentTaskCount?: unknown}).dependentTaskCount;
+        const dependentCount = typeof dependentRaw === 'number' ? dependentRaw : null;
+        if (dependentCount !== null && dependentCount > 0) {
+            // We can't await inside a sync helper; build the localized message lazily.
+            const tpl = this.translate.instant('app.priorities.deleteBlocked', {count: dependentCount});
+            if (typeof tpl === 'string' && tpl !== '') {
+                return tpl;
+            }
+        }
+        const message = (inner as {message?: unknown}).message;
+        return typeof message === 'string' && message !== '' ? message : null;
     }
 }

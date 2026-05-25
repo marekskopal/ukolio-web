@@ -48,6 +48,12 @@ export class PermissionsService {
         return role === 'Owner' || role === 'Admin';
     }
 
+    public canManagePriorities(members: WorkspaceMember[] | null | undefined): boolean {
+        if (this.isSystemAdmin()) return true;
+        const role = this.roleForCurrentUser(members);
+        return role === 'Owner' || role === 'Admin';
+    }
+
     public canChangeRoleOf(members: WorkspaceMember[] | null | undefined, target: WorkspaceMember): boolean {
         if (target.role === 'Owner') return false;
         return this.canManageMembers(members);
