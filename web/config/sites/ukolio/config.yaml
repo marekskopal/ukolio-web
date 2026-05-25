@@ -8,13 +8,14 @@ baseVariants:
     condition: 'applicationContext == "Development"'
 dependencies:
   - typo3/fluid-styled-content
+  - typo3/seo-sitemap
   - tpwd/ke_search
   - marekskopal/typo3-features
   - marekskopal/typo3-google-font
-  - marekskopal/typo3-core
-  - marekskopal/typo3-web
   - marekskopal/typo3-pricing
   - marekskopal/typo3-faq
+  - marekskopal/typo3-core
+  - marekskopal/typo3-web
 errorHandling:
   -
     errorCode: 404
