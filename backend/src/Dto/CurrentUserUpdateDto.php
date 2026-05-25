@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Ukolio\Dto;
 
-/** @implements ArrayFactoryInterface<array{name?: string, locale?: string}> */
+/** @implements ArrayFactoryInterface<array{name?: string, locale?: string, theme?: string}> */
 final readonly class CurrentUserUpdateDto implements ArrayFactoryInterface
 {
-	public function __construct(public ?string $name, public ?string $locale)
+	public function __construct(public ?string $name, public ?string $locale, public ?string $theme)
 	{
 	}
 
 	public static function fromArray(array $data): static
 	{
-		return new self(name: $data['name'] ?? null, locale: $data['locale'] ?? null);
+		return new self(name: $data['name'] ?? null, locale: $data['locale'] ?? null, theme: $data['theme'] ?? null);
 	}
 }

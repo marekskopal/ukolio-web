@@ -101,6 +101,35 @@ final class CurrentUserControllerTest extends IntegrationTestCase
 		self::assertSame(422, $response->getStatusCode());
 	}
 
+	public function testPatchUpdatesTheme(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'PATCH',
+			'/api/current-user',
+			body: ['theme' => 'dark'],
+			authenticatedAs: $user,
+		);
+
+		self::assertSame(200, $response->getStatusCode());
+		self::assertSame('dark', $this->jsonBody($response)['theme']);
+	}
+
+	public function testPatchRejectsUnknownTheme(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'PATCH',
+			'/api/current-user',
+			body: ['theme' => 'mauve'],
+			authenticatedAs: $user,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
 	public function testChangePasswordRequiresCorrectCurrentPassword(): void
 	{
 		$user = Fixture::createUser(password: 'OldPass11');

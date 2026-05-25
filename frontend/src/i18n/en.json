@@ -470,6 +470,10 @@
             "languageEn": "English",
             "languageCs": "Čeština",
             "languageUpdated": "Language updated.",
+            "theme": "Theme",
+            "themeSystem": "System",
+            "themeLight": "Light",
+            "themeDark": "Dark",
             "changePassword": {
                 "title": "Change password",
                 "description": "Use a strong password with a mix of upper and lower case letters and at least one digit.",

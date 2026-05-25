@@ -17,6 +17,7 @@ use Ukolio\Dto\ChangePasswordDto;
 use Ukolio\Dto\CurrentUserUpdateDto;
 use Ukolio\Dto\UserDto;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
+use Ukolio\Model\Entity\Enum\ThemeEnum;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
@@ -63,12 +64,20 @@ final readonly class CurrentUserController
 			}
 		}
 
+		$theme = null;
+		if ($dto->theme !== null) {
+			$theme = ThemeEnum::tryFrom($dto->theme);
+			if ($theme === null) {
+				return new ErrorResponse('Unsupported theme.', 422);
+			}
+		}
+
 		$name = $dto->name !== null ? trim($dto->name) : null;
 		if ($name === '') {
 			$name = null;
 		}
 
-		$updated = $this->userProvider->updateUser($user, $name, $locale);
+		$updated = $this->userProvider->updateUser($user, $name, $locale, $theme);
 
 		return new JsonResponse(UserDto::fromEntity($updated));
 	}

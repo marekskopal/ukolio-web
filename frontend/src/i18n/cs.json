@@ -470,6 +470,10 @@
             "languageEn": "English",
             "languageCs": "Čeština",
             "languageUpdated": "Jazyk byl změněn.",
+            "theme": "Motiv",
+            "themeSystem": "Podle systému",
+            "themeLight": "Světlý",
+            "themeDark": "Tmavý",
             "changePassword": {
                 "title": "Změna hesla",
                 "description": "Použijte silné heslo s malými i velkými písmeny a alespoň jednou číslicí.",
