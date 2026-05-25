@@ -156,6 +156,21 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 			|| $membership->role === WorkspaceRoleEnum::Admin;
 	}
 
+	public function canManagePriorities(User $user, Workspace $workspace): bool
+	{
+		if ($this->isSystemAdmin($user)) {
+			return true;
+		}
+
+		$membership = $this->workspaceProvider->findMembership($user, $workspace);
+		if ($membership === null) {
+			return false;
+		}
+
+		return $membership->role === WorkspaceRoleEnum::Owner
+			|| $membership->role === WorkspaceRoleEnum::Admin;
+	}
+
 	public function canDeleteTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool
 	{
 		if ($this->isSystemAdmin($user)) {

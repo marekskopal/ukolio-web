@@ -66,4 +66,8 @@ export class TaskCardComponent {
     protected tagForeground(color: string): string {
         return pickReadableForeground(color);
     }
+
+    protected priorityForeground(color: string): string {
+        return pickReadableForeground(color);
+    }
 }

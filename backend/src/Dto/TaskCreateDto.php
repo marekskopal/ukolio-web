@@ -5,9 +5,20 @@ declare(strict_types=1);
 namespace Ukolio\Dto;
 
 use DateTimeImmutable;
-use Ukolio\Model\Entity\Enum\TaskPriorityEnum;
 
-/** @implements ArrayFactoryInterface<array{statusId: int, name: string, description?: ?string, priority?: string, dueDate?: ?string, assigneeId?: ?int, fieldValues?: ?list<array{fieldId: int, value: ?string}>, tagIds?: ?list<int>}> */
+/**
+ * @implements ArrayFactoryInterface<array{
+ *     statusId: int,
+ *     name: string,
+ *     description?: ?string,
+ *     priorityId?: ?int,
+ *     priority?: ?string,
+ *     dueDate?: ?string,
+ *     assigneeId?: ?int,
+ *     fieldValues?: ?list<array{fieldId: int, value: ?string}>,
+ *     tagIds?: ?list<int>,
+ * }>
+ */
 final readonly class TaskCreateDto implements ArrayFactoryInterface
 {
 	/**
@@ -18,7 +29,8 @@ final readonly class TaskCreateDto implements ArrayFactoryInterface
 		public int $statusId,
 		public string $name,
 		public ?string $description,
-		public TaskPriorityEnum $priority,
+		public ?int $priorityId,
+		public ?string $priorityName,
 		public ?DateTimeImmutable $dueDate,
 		public ?int $assigneeId,
 		public bool $assigneeIdProvided,
@@ -36,11 +48,15 @@ final readonly class TaskCreateDto implements ArrayFactoryInterface
 		$assigneeIdProvided = array_key_exists('assigneeId', $data);
 		$assigneeId = $assigneeIdProvided ? $data['assigneeId'] : null;
 
+		$priorityId = $data['priorityId'] ?? null;
+		$priorityName = isset($data['priority']) && $data['priority'] !== '' ? $data['priority'] : null;
+
 		return new self(
 			statusId: $data['statusId'],
 			name: $data['name'],
 			description: $data['description'] ?? null,
-			priority: TaskPriorityEnum::tryFrom($data['priority'] ?? '') ?? TaskPriorityEnum::Medium,
+			priorityId: $priorityId,
+			priorityName: $priorityName,
 			dueDate: $dueDate,
 			assigneeId: $assigneeId,
 			assigneeIdProvided: $assigneeIdProvided,

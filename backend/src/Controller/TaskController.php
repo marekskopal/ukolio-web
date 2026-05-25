@@ -18,6 +18,7 @@ use Ukolio\Dto\TaskListDto;
 use Ukolio\Dto\TaskListItemDto;
 use Ukolio\Dto\TaskMoveDto;
 use Ukolio\Dto\TaskUpdateDto;
+use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
@@ -28,6 +29,7 @@ use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotFoundResponse;
 use Ukolio\Response\OkResponse;
 use Ukolio\Route\Routes;
+use Ukolio\Service\Provider\PriorityProviderInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
@@ -48,6 +50,7 @@ final readonly class TaskController
 		private WorkspaceProviderInterface $workspaceProvider,
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskTagProviderInterface $taskTagProvider,
+		private PriorityProviderInterface $priorityProvider,
 		private RequestServiceInterface $requestService,
 		private UserRepository $userRepository,
 	) {
@@ -231,13 +234,23 @@ final readonly class TaskController
 		}
 
 		try {
+			$priority = $this->resolvePriority($project, $dto->priorityId, $dto->priorityName);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		if ($priority === null) {
+			return new ErrorResponse('Workspace has no priorities configured.', 422);
+		}
+
+		try {
 			$task = $this->taskProvider->createTask(
 				author: $user,
 				project: $project,
 				status: $status,
 				name: $dto->name,
 				description: $dto->description,
-				priority: $dto->priority,
+				priority: $priority,
 				dueDate: $dto->dueDate,
 				assignee: $assignee,
 				fieldValues: $dto->fieldValues,
@@ -291,12 +304,18 @@ final readonly class TaskController
 		}
 
 		try {
+			$priority = $this->resolvePriority($task->project, $dto->priorityId, $dto->priorityName) ?? $task->priority;
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		try {
 			$task = $this->taskProvider->updateTask(
 				author: $user,
 				task: $task,
 				name: $dto->name,
 				description: $dto->description,
-				priority: $dto->priority,
+				priority: $priority,
 				dueDate: $dto->dueDate,
 				status: $status,
 				assignee: $assignee,
@@ -366,5 +385,26 @@ final readonly class TaskController
 		}
 
 		return $assignee;
+	}
+
+	private function resolvePriority(Project $project, ?int $priorityId, ?string $priorityName): ?Priority
+	{
+		if ($priorityId !== null) {
+			$priority = $this->priorityProvider->getPriority($project->workspace, $priorityId);
+			if ($priority === null) {
+				throw new RuntimeException('Priority not found in this workspace.');
+			}
+			return $priority;
+		}
+
+		if ($priorityName !== null) {
+			$priority = $this->priorityProvider->findPriorityByName($project->workspace, $priorityName);
+			if ($priority === null) {
+				throw new RuntimeException('Priority "' . $priorityName . '" not found in this workspace.');
+			}
+			return $priority;
+		}
+
+		return $this->priorityProvider->getDefaultForWorkspace($project->workspace);
 	}
 }

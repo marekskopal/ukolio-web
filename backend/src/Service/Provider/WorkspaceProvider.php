@@ -24,6 +24,7 @@ final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 		private UserRepository $userRepository,
 		private EventProviderInterface $eventProvider,
 		private TaskProviderInterface $taskProvider,
+		private PriorityProviderInterface $priorityProvider,
 	) {
 	}
 
@@ -64,6 +65,11 @@ final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 		$this->workspaceRepository->persist($workspace);
 
 		$this->addMember($workspace, $owner, WorkspaceRoleEnum::Owner);
+
+		// Seed the default priority catalog so new tasks always have a default to fall back to.
+		$this->priorityProvider->createPriority($workspace, 'High', '#fdecea', false);
+		$this->priorityProvider->createPriority($workspace, 'Medium', '#fbf2dd', true);
+		$this->priorityProvider->createPriority($workspace, 'Low', '#f1f1f3', false);
 
 		if ($owner->currentWorkspaceId === null) {
 			$this->switchCurrentWorkspace($owner, $workspace);

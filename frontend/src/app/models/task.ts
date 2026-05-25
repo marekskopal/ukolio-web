@@ -1,7 +1,6 @@
 import {TaskFieldValue} from '@app/models/field';
+import {Priority} from '@app/models/priority';
 import {Status} from '@app/models/status';
-
-export type TaskPriority = 'Low' | 'Medium' | 'High';
 
 export interface Task {
     id: number;
@@ -11,7 +10,7 @@ export interface Task {
     assigneeId: number | null;
     name: string;
     description: string | null;
-    priority: TaskPriority;
+    priority: Priority;
     dueDate: string | null;
     position: number;
     sequenceNumber: number;
@@ -35,7 +34,7 @@ export interface TaskListItem {
     assigneeId: number | null;
     name: string;
     description: string | null;
-    priority: TaskPriority;
+    priority: Priority;
     dueDate: string | null;
     position: number;
     sequenceNumber: number;

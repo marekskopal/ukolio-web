@@ -1,5 +1,6 @@
 import {provideZonelessChangeDetection} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {Priority} from '@app/models/priority';
 import {Status} from '@app/models/status';
 import {Task} from '@app/models/task';
 import {AlertService} from '@app/services/alert.service';
@@ -39,6 +40,27 @@ interface ServiceStubs {
 const STATUS_TODO: Status = {id: 10, workflowId: 1, name: 'To Do', color: '#888', position: 1, type: 'Start'};
 const STATUS_DOING: Status = {id: 11, workflowId: 1, name: 'In Progress', color: '#369', position: 2, type: 'Normal'};
 
+const PRIORITY_HIGH: Priority = {
+    id: 1,
+    workspaceId: 1,
+    name: 'High',
+    color: '#fdecea',
+    position: 0,
+    isDefault: false,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+};
+const PRIORITY_MEDIUM: Priority = {
+    id: 2,
+    workspaceId: 1,
+    name: 'Medium',
+    color: '#fbf2dd',
+    position: 1,
+    isDefault: true,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+};
+
 function makeTask(overrides: Partial<Task> = {}): Task {
     return {
         id: 42,
@@ -47,7 +69,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
         statusId: STATUS_TODO.id,
         name: 'Existing task',
         description: 'A description',
-        priority: 'Medium',
+        priority: PRIORITY_MEDIUM,
         dueDate: null,
         position: 1,
         sequenceNumber: 42,
@@ -108,6 +130,7 @@ function createFixture(options: {task: Task | null}): {
     const fixture = TestBed.createComponent(TaskDetailDrawerComponent);
     fixture.componentRef.setInput('task', options.task);
     fixture.componentRef.setInput('statuses', [STATUS_TODO, STATUS_DOING]);
+    fixture.componentRef.setInput('workspacePriorities', [PRIORITY_HIGH, PRIORITY_MEDIUM]);
     fixture.componentRef.setInput('projectId', 1);
     fixture.componentInstance.ngOnInit();
     return {fixture, component: fixture.componentInstance, stubs};
@@ -147,7 +170,7 @@ describe('TaskDetailDrawerComponent', () => {
         expect(stubs.taskService.updateTask).toHaveBeenCalledWith(original.id, expect.objectContaining({
             name: original.name,
             statusId: original.statusId,
-            priority: original.priority,
+            priorityId: original.priority.id,
         }));
         expect(saved).toEqual([updated]);
     });

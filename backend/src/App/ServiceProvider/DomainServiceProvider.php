@@ -33,6 +33,8 @@ use Ukolio\Service\Provider\InvitationProvider;
 use Ukolio\Service\Provider\InvitationProviderInterface;
 use Ukolio\Service\Provider\PasswordResetProvider;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
+use Ukolio\Service\Provider\PriorityProvider;
+use Ukolio\Service\Provider\PriorityProviderInterface;
 use Ukolio\Service\Provider\ProjectFieldProvider;
 use Ukolio\Service\Provider\ProjectFieldProviderInterface;
 use Ukolio\Service\Provider\ProjectPrefixGenerator;
@@ -102,6 +104,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			ProjectFieldProviderInterface::class,
 			TagProviderInterface::class,
 			TaskTagProviderInterface::class,
+			PriorityProviderInterface::class,
 			EventProviderInterface::class,
 			McpUserContextInterface::class,
 			ActorContextInterface::class,
@@ -146,6 +149,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(ProjectFieldProviderInterface::class, ProjectFieldProvider::class);
 		$c->add(TagProviderInterface::class, TagProvider::class);
 		$c->add(TaskTagProviderInterface::class, TaskTagProvider::class);
+		$c->add(PriorityProviderInterface::class, PriorityProvider::class);
 		$c->add(McpUserContextInterface::class, McpUserContext::class);
 		$c->add(ActorContextInterface::class, ActorContext::class);
 		$c->add(UkolioServer::class, function () use ($c): UkolioServer {

@@ -564,6 +564,24 @@
             "deleteConfirm": "Smazat štítek „{{name}}“? Odstraní se ze všech úkolů, které jej používají.",
             "noPermission": "Spravovat štítky mohou pouze vlastník a admin."
         },
+        "priorities": {
+            "title": "Priority",
+            "description": "Konfigurovatelné priority úkolů v rámci workspace. Pořadí měníte šipkami; výchozí priorita se použije při vytvoření nového úkolu bez explicitní volby.",
+            "addPriority": "Přidat prioritu",
+            "name": "Název priority",
+            "namePlaceholder": "např. Kritická",
+            "color": "Barva",
+            "default": "Výchozí pro nové úkoly",
+            "defaultMark": "výchozí",
+            "preview": "náhled",
+            "empty": "Zatím žádné priority.",
+            "priorityCreated": "Priorita vytvořena.",
+            "priorityUpdated": "Priorita upravena.",
+            "priorityDeleted": "Priorita smazána.",
+            "deleteConfirm": "Smazat prioritu „{{name}}“?",
+            "deleteBlocked": "Nelze smazat — {{count}} úkol(ů) ji stále používá. Nejprve je přiřaďte jinam.",
+            "deleteError": "Smazání priority selhalo."
+        },
         "taskTags": {
             "heading": "Štítky",
             "add": "Přidat štítek",

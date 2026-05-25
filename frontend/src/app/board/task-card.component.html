@@ -16,9 +16,12 @@
                 {{ 'app.agent.agent' | translate }}
             </span>
         }
-        <span class="priority-chip" [class]="'priority-chip--' + task().priority.toLowerCase()">
-            {{ ('app.priority.' + task().priority) | translate }}
-        </span>
+        <span
+            class="priority-chip"
+            [style.background]="task().priority.color"
+            [style.color]="priorityForeground(task().priority.color)"
+            [title]="task().priority.name"
+        >{{ task().priority.name }}</span>
     </div>
     <p class="task-card-title">{{ task().name }}</p>
     @if (task().description) {

@@ -142,6 +142,92 @@
                         </section>
                     }
 
+                    @if (canManagePriorities()) {
+                        <section class="ws-section">
+                            <div class="ws-section-header">
+                                <h3>{{ 'app.priorities.title' | translate }}</h3>
+                                @if (priorityEditor() === null) {
+                                    <button type="button" class="btn btn-primary" (click)="openCreatePriority()">{{ 'app.priorities.addPriority' | translate }}</button>
+                                }
+                            </div>
+                            <p class="muted">{{ 'app.priorities.description' | translate }}</p>
+
+                            @if (priorityEditor(); as ed) {
+                                <form class="field-editor" (submit)="savePriority(); $event.preventDefault()">
+                                    <div class="field-row">
+                                        <label class="field-label">
+                                            <span>{{ 'app.priorities.name' | translate }}</span>
+                                            <input
+                                                type="text"
+                                                required
+                                                class="input"
+                                                [placeholder]="'app.priorities.namePlaceholder' | translate"
+                                                [value]="ed.name"
+                                                (input)="updatePriorityEditor('name', $any($event.target).value)"
+                                            />
+                                        </label>
+                                        <label class="field-label tag-color-label">
+                                            <span>{{ 'app.priorities.color' | translate }}</span>
+                                            <span class="tag-color-row">
+                                                <input
+                                                    type="color"
+                                                    class="tag-color-input"
+                                                    [value]="ed.color"
+                                                    (input)="updatePriorityEditor('color', $any($event.target).value)"
+                                                />
+                                                <span
+                                                    class="tag-chip"
+                                                    [style.background]="ed.color"
+                                                    [style.color]="priorityForeground(ed.color)"
+                                                >{{ ed.name || ('app.priorities.preview' | translate) }}</span>
+                                            </span>
+                                        </label>
+                                        <label class="field-label">
+                                            <span>&nbsp;</span>
+                                            <span class="checkbox-row">
+                                                <input
+                                                    type="checkbox"
+                                                    [checked]="ed.isDefault"
+                                                    (change)="updatePriorityEditor('isDefault', $any($event.target).checked)"
+                                                />
+                                                {{ 'app.priorities.default' | translate }}
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="field-actions">
+                                        <button type="submit" class="btn btn-primary" [disabled]="prioritySaving()">{{ 'app.actions.save' | translate }}</button>
+                                        <button type="button" class="btn btn-secondary" (click)="closePriorityEditor()">{{ 'app.actions.cancel' | translate }}</button>
+                                    </div>
+                                </form>
+                            }
+
+                            <ul class="field-list">
+                                @for (priority of priorities(); track priority.id; let i = $index; let last = $last) {
+                                    <li class="field-item">
+                                        <div class="field-meta">
+                                            <span
+                                                class="tag-chip"
+                                                [style.background]="priority.color"
+                                                [style.color]="priorityForeground(priority.color)"
+                                            >{{ priority.name }}</span>
+                                            @if (priority.isDefault) {
+                                                <span class="muted">{{ 'app.priorities.defaultMark' | translate }}</span>
+                                            }
+                                        </div>
+                                        <div class="field-actions-inline">
+                                            <button type="button" class="btn btn-ghost" [disabled]="i === 0" (click)="movePriorityUp(priority)">↑</button>
+                                            <button type="button" class="btn btn-ghost" [disabled]="last" (click)="movePriorityDown(priority)">↓</button>
+                                            <button type="button" class="btn btn-ghost" (click)="openEditPriority(priority)">{{ 'app.actions.edit' | translate }}</button>
+                                            <button type="button" class="btn btn-ghost" (click)="deletePriority(priority)">{{ 'app.actions.delete' | translate }}</button>
+                                        </div>
+                                    </li>
+                                } @empty {
+                                    <li class="muted">{{ 'app.priorities.empty' | translate }}</li>
+                                }
+                            </ul>
+                        </section>
+                    }
+
                     @if (canManageFields()) {
                         <section class="ws-section">
                             <div class="ws-section-header">

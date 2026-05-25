@@ -32,6 +32,9 @@ enum Routes: string
 	case WorkspaceField = '/api/workspaces/{workspaceId:number}/fields/{fieldId:number}';
 	case WorkspaceTags = '/api/workspaces/{workspaceId:number}/tags';
 	case WorkspaceTag = '/api/workspaces/{workspaceId:number}/tags/{tagId:number}';
+	case WorkspacePriorities = '/api/workspaces/{workspaceId:number}/priorities';
+	case WorkspacePriority = '/api/workspaces/{workspaceId:number}/priorities/{priorityId:number}';
+	case PriorityMove = '/api/priorities/{priorityId:number}/move';
 	case WorkspaceMcpClients = '/api/workspaces/{workspaceId:number}/mcp-clients';
 	case WorkspaceEvents = '/api/workspaces/{workspaceId:number}/events';
 	case WorkspaceAgentStats = '/api/workspaces/{workspaceId:number}/agent-stats';
