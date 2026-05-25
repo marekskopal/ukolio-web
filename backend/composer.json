@@ -8,7 +8,7 @@
         "ext-filter": "*",
         "ext-mbstring": "*",
         "ext-pdo": "*",
-        "async-aws/s3": "^2.0",
+        "async-aws/s3": "^3.3",
         "contributte/redis": "^0.6.0",
         "firebase/php-jwt": "^7.0",
         "laminas/laminas-diactoros": "^3.3",
