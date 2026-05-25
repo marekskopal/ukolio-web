@@ -3,9 +3,33 @@ name: Backend
 on:
     push:
         branches: [main]
+    pull_request:
+        paths:
+            - 'backend/**'
+            - '.github/workflows/backend.yml'
+    schedule:
+        - cron: '0 6 * * 1'
     workflow_dispatch:
 
 jobs:
+    audit:
+        name: Composer audit
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  coverage: none
+                  tools: composer
+
+            - name: Run composer audit
+              working-directory: backend
+              run: composer audit --no-dev --abandoned=report
+
     backend:
         name: Backend
         runs-on: ubuntu-latest
