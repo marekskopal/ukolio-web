@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Migrations;
 
-use MarekSkopal\ORM\Enum\ReferenceOptionEnum;
 use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Migration\Migration;
+use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
 
 final class AddPrioritiesAndConvertTaskPriorityMigration extends Migration
 {
