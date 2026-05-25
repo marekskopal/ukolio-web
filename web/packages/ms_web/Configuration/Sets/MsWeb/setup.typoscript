@@ -125,3 +125,26 @@ lib.languageNav {
 config.spamProtectEmailAddresses = 0
 config.spamProtectEmailAddresses_atSubst >
 config.spamProtectEmailAddresses_lastDotSubst >
+
+[tree.level == 0]
+    config.showWebsiteTitle = 0
+
+    page.headerData.100 = TEXT
+    page.headerData.100 {
+        value (
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"###URL####organization","name":"Ukolio","url":"###URL###","logo":"###URL###typo3conf/ext/ms_web/Resources/Public/Icons/favicon.svg","sameAs":["https://github.com/marekskopal/ukolio"]},{"@type":"WebSite","@id":"###URL####website","url":"###URL###","name":"Ukolio","publisher":{"@id":"###URL####organization"},"inLanguage":"###LANG###"},{"@type":"SoftwareApplication","@id":"###URL####app","name":"Ukolio","applicationCategory":"BusinessApplication","applicationSubCategory":"Task Management","operatingSystem":"Web, Self-hosted","url":"###URL###","description":"Multi-tenant Kanban task manager built around the Model Context Protocol. Humans and AI agents collaborate on the same board.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@id":"###URL####organization"}}]}</script>
+        )
+        replacement {
+            10 {
+                search = ###URL###
+                replace.typolink.parameter = 1
+                replace.typolink.forceAbsoluteUrl = 1
+                replace.typolink.returnLast = url
+            }
+            20 {
+                search = ###LANG###
+                replace.data = siteLanguage:twoLetterIsoCode
+            }
+        }
+    }
+[END]
