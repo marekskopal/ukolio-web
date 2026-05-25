@@ -7,6 +7,7 @@ namespace Ukolio\Service\Provider;
 use DateTimeImmutable;
 use SensitiveParameter;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
+use Ukolio\Model\Entity\Enum\ThemeEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\UserRepository;
 use const PASSWORD_BCRYPT;
@@ -48,13 +49,16 @@ final readonly class UserProvider implements UserProviderInterface
 		return $user;
 	}
 
-	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null): User
+	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null, ?ThemeEnum $theme = null): User
 	{
 		if ($name !== null) {
 			$user->name = $name;
 		}
 		if ($locale !== null) {
 			$user->locale = $locale;
+		}
+		if ($theme !== null) {
+			$user->theme = $theme;
 		}
 		$user->updatedAt = new DateTimeImmutable();
 		$this->userRepository->persist($user);

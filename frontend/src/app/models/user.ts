@@ -1,5 +1,7 @@
 export type Locale = 'en' | 'cs';
 
+export type Theme = 'system' | 'light' | 'dark';
+
 export type SystemRole = 'User' | 'SystemAdmin';
 
 export interface User {
@@ -7,6 +9,7 @@ export interface User {
     email: string;
     name: string;
     locale: Locale;
+    theme: Theme;
     currentWorkspaceId: number | null;
     systemRole: SystemRole;
     emailVerified: boolean;

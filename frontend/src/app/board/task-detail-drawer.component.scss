@@ -4,7 +4,7 @@
     position: fixed;
     inset: 0;
     z-index: $z-overlay;
-    background: rgba(24, 24, 27, 0.32);
+    background: $color-backdrop;
     cursor: pointer;
 }
 
@@ -514,7 +514,7 @@
     font-size: 14px;
 
     &:hover {
-        background: rgba(0, 0, 0, 0.15);
+        background: $color-surface-deep;
     }
 }
 

@@ -15,7 +15,7 @@ export class CurrentUserService {
         return user;
     }
 
-    public async update(changes: {name?: string; locale?: string}): Promise<User> {
+    public async update(changes: {name?: string; locale?: string; theme?: string}): Promise<User> {
         const user = await firstValueFrom(this.http.patch<User>(`${environment.apiUrl}/current-user`, changes));
         this.currentUser.set(user);
         return user;

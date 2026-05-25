@@ -1,7 +1,7 @@
 import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnInit, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
-import {Locale, User} from '@app/models/user';
+import {Locale, Theme, User} from '@app/models/user';
 import {Workspace} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
 import {AuthenticationService} from '@app/services/authentication.service';
@@ -9,6 +9,7 @@ import {CurrentUserService} from '@app/services/current-user.service';
 import {LanguageService} from '@app/services/language.service';
 import {PermissionsService} from '@app/services/permissions.service';
 import {RealtimeService} from '@app/services/realtime.service';
+import {ThemeService} from '@app/services/theme.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
@@ -25,6 +26,7 @@ export class LayoutComponent implements OnInit {
     private readonly currentUserService = inject(CurrentUserService);
     private readonly workspaceService = inject(WorkspaceService);
     private readonly languageService = inject(LanguageService);
+    private readonly themeService = inject(ThemeService);
     private readonly permissionsService = inject(PermissionsService);
     private readonly translate = inject(TranslateService);
     private readonly alertService = inject(AlertService);
@@ -60,6 +62,8 @@ export class LayoutComponent implements OnInit {
     protected readonly userMenuOpen = signal(false);
     protected readonly currentLang = this.languageService.currentLang;
     protected readonly supportedLangs = this.languageService.supportedLangs;
+    protected readonly currentTheme = this.themeService.currentTheme;
+    protected readonly supportedThemes = this.themeService.supportedThemes;
 
     public async ngOnInit(): Promise<void> {
         try {
@@ -109,6 +113,15 @@ export class LayoutComponent implements OnInit {
     protected async setLanguage(lang: Locale): Promise<void> {
         this.userMenuOpen.set(false);
         this.languageService.use(lang, {persist: true, sync: true});
+    }
+
+    protected setTheme(theme: Theme): void {
+        this.userMenuOpen.set(false);
+        this.themeService.use(theme, {persist: true, sync: true});
+    }
+
+    protected themeLabelKey(theme: Theme): string {
+        return 'app.settings.theme' + theme.charAt(0).toUpperCase() + theme.slice(1);
     }
 
     protected async switchTo(workspaceId: number): Promise<void> {

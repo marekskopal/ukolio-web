@@ -128,6 +128,19 @@
                         </button>
                     }
                     <div class="menu-divider" aria-hidden="true"></div>
+                    <div class="menu-section-title">{{ 'app.settings.theme' | translate }}</div>
+                    @for (theme of supportedThemes; track theme) {
+                        <button
+                            type="button"
+                            class="menu-item"
+                            [class.menu-item--active]="theme === currentTheme()"
+                            role="menuitem"
+                            (click)="setTheme(theme)"
+                        >
+                            {{ themeLabelKey(theme) | translate }}
+                        </button>
+                    }
+                    <div class="menu-divider" aria-hidden="true"></div>
                     <a class="menu-item" routerLink="/settings" role="menuitem" (click)="toggleUserMenu()">
                         {{ 'app.nav.settings' | translate }}
                     </a>

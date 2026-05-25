@@ -39,6 +39,7 @@ final readonly class UserDataExportService implements UserDataExportServiceInter
 				'email' => $user->email,
 				'name' => $user->name,
 				'locale' => $user->locale->value,
+				'theme' => $user->theme->value,
 				'systemRole' => $user->systemRole->value,
 				'emailVerified' => $user->emailVerified,
 				'currentWorkspaceId' => $user->currentWorkspaceId,
