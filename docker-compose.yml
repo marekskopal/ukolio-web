@@ -227,6 +227,22 @@ services:
         volumes:
             - ukolio_rabbitmq:/var/lib/rabbitmq
 
+    mariadb-backup-aws:
+        image: marekskopal/mariadb-backup-aws:0.2.0
+        environment:
+            DB_HOST: ${MYSQL_HOST}
+            DB_DATABASE: ${MYSQL_DATABASE}
+            DB_USER: ${MYSQL_USER}
+            DB_PASSWORD: ${MYSQL_PASSWORD}
+            AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+            AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+            AWS_REGION: ${AWS_REGION}
+            AWS_BUCKET: ${AWS_BUCKET}
+        networks:
+            - backend
+        volumes:
+            - ./log:/app/log
+
 networks:
     frontend:
         name: ukolio_frontend
