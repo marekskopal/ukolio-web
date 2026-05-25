@@ -25,6 +25,15 @@ $testEnv = [
 	'REDIS_HOST' => getenv('REDIS_HOST') !== false && getenv('REDIS_HOST') !== '' ? getenv('REDIS_HOST') : 'redis',
 	'REDIS_PORT' => getenv('REDIS_PORT') !== false && getenv('REDIS_PORT') !== '' ? getenv('REDIS_PORT') : '6379',
 	'REDIS_PASSWORD' => getenv('REDIS_PASSWORD') !== false && getenv('REDIS_PASSWORD') !== '' ? getenv('REDIS_PASSWORD') : 'ukolio',
+	'RABBITMQ_HOST' => getenv('RABBITMQ_HOST') !== false && getenv('RABBITMQ_HOST') !== '' ? getenv('RABBITMQ_HOST') : 'rabbitmq',
+	'RABBITMQ_PORT' => getenv('RABBITMQ_PORT') !== false && getenv('RABBITMQ_PORT') !== '' ? getenv('RABBITMQ_PORT') : '5672',
+	'RABBITMQ_USER' => getenv('RABBITMQ_USER') !== false && getenv('RABBITMQ_USER') !== '' ? getenv('RABBITMQ_USER') : 'ukolio',
+	'RABBITMQ_PASSWORD' => getenv('RABBITMQ_PASSWORD') !== false && getenv('RABBITMQ_PASSWORD') !== '' ? getenv(
+		'RABBITMQ_PASSWORD',
+	) : 'ukolio',
+	'BACKEND_AMQP_CONSUMER_PREFETCH' => getenv('BACKEND_AMQP_CONSUMER_PREFETCH') !== false && getenv(
+		'BACKEND_AMQP_CONSUMER_PREFETCH',
+	) !== '' ? getenv('BACKEND_AMQP_CONSUMER_PREFETCH') : '10',
 	'SMTP_HOST' => 'localhost',
 	'SMTP_PORT' => '2525',
 	'SMTP_USER' => '',

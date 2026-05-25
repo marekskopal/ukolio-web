@@ -107,11 +107,18 @@ services:
             MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY}
             MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY}
             MERCURE_PUBLISH_URL: ${MERCURE_PUBLISH_URL}
+            RABBITMQ_HOST: ${RABBITMQ_HOST}
+            RABBITMQ_PORT: ${RABBITMQ_PORT}
+            RABBITMQ_USER: ${RABBITMQ_USER}
+            RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+            BACKEND_AMQP_CONSUMER_PREFETCH: ${BACKEND_AMQP_CONSUMER_PREFETCH}
         depends_on:
             redis:
                 condition: service_healthy
             memcached:
                 condition: service_started
+            rabbitmq:
+                condition: service_healthy
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "-fsS", "http://127.0.0.1/api/health"]
@@ -203,6 +210,23 @@ services:
         volumes:
             - ukolio_redis:/data
 
+    rabbitmq:
+        image: rabbitmq:4.3.0-alpine
+        restart: unless-stopped
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+        healthcheck:
+            test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 20s
+        networks:
+            - backend
+        volumes:
+            - ukolio_rabbitmq:/var/lib/rabbitmq
+
 networks:
     frontend:
         name: ukolio_frontend
@@ -216,9 +240,14 @@ volumes:
         name: ukolio_minio
     ukolio_redis:
         name: ukolio_redis
+<<<<<<< HEAD
     ukolio_web_public:
         name: ukolio_web_public
     ukolio_web_var:
         name: ukolio_web_var
     ukolio_web_config:
         name: ukolio_web_config
+=======
+    ukolio_rabbitmq:
+        name: ukolio_rabbitmq
+>>>>>>> refs/heads/public

@@ -15,7 +15,7 @@ RUN install-php-extensions \
     igbinary \
     memcached
 
-RUN apk add --no-cache curl tzdata
+RUN apk add --no-cache curl tzdata supervisor
 
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
@@ -25,6 +25,7 @@ COPY ./src /app/src
 COPY ./translations /app/translations
 COPY ./Caddyfile /etc/frankenphp/Caddyfile
 COPY ./docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+COPY ./docker/supervisord.conf /etc/supervisord.conf
 COPY ./composer.json ./composer.lock* /app/
 
 WORKDIR /app/
@@ -32,3 +33,5 @@ WORKDIR /app/
 RUN rm -rf /app/vendor \
     && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-progress --classmap-authoritative -d /app/ \
     && composer clear-cache
+
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

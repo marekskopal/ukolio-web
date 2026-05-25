@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Ukolio\Dto\EmailVerificationQueueDto;
 use Ukolio\Model\Entity\EmailVerificationToken;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\EmailVerificationTokenRepository;
-use Ukolio\Service\Email\EmailFactory;
-use Ukolio\Service\Email\MailerFactory;
+use Ukolio\Service\Queue\Enum\QueueEnum;
+use Ukolio\Service\Queue\QueuePublisher;
 
 final readonly class EmailVerificationProvider implements EmailVerificationProviderInterface
 {
@@ -20,9 +20,7 @@ final readonly class EmailVerificationProvider implements EmailVerificationProvi
 	public function __construct(
 		private EmailVerificationTokenRepository $tokenRepository,
 		private UserProviderInterface $userProvider,
-		private EmailFactory $emailFactory,
-		private MailerFactory $mailerFactory,
-		private LoggerInterface $logger,
+		private QueuePublisher $queuePublisher,
 	) {
 	}
 
@@ -45,12 +43,10 @@ final readonly class EmailVerificationProvider implements EmailVerificationProvi
 
 		$this->tokenRepository->persist($verificationToken);
 
-		try {
-			$mailer = $this->mailerFactory->create();
-			$mailer->send($this->emailFactory->createEmailVerificationEmail($user, $token, $user->locale));
-		} catch (\Throwable $e) {
-			$this->logger->error('Failed to send email-verification email: ' . $e->getMessage());
-		}
+		$this->queuePublisher->publishMessage(
+			EmailVerificationQueueDto::fromUser($user, $token),
+			QueueEnum::EmailVerification,
+		);
 	}
 
 	public function findByToken(string $token): ?EmailVerificationToken

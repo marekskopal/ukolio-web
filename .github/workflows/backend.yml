@@ -37,8 +37,8 @@ jobs:
             - name: Docker compose build (smoke)
               run: docker compose --profile dev build backend db redis memcached
 
-            - name: Boot test services (db + redis + memcached + backend)
-              run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile dev up -d --wait db redis memcached backend
+            - name: Boot test services (db + redis + memcached + rabbitmq + backend)
+              run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile dev up -d --wait db redis memcached rabbitmq backend
 
             - name: Run PHPStan
               if: always()

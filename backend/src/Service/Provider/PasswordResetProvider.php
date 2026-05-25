@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
 use SensitiveParameter;
+use Ukolio\Dto\PasswordResetQueueDto;
 use Ukolio\Model\Entity\PasswordResetToken;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\PasswordResetTokenRepository;
-use Ukolio\Service\Email\EmailFactory;
-use Ukolio\Service\Email\MailerFactory;
+use Ukolio\Service\Queue\Enum\QueueEnum;
+use Ukolio\Service\Queue\QueuePublisher;
 use const FILTER_VALIDATE_EMAIL;
 
 final readonly class PasswordResetProvider implements PasswordResetProviderInterface
@@ -22,9 +22,7 @@ final readonly class PasswordResetProvider implements PasswordResetProviderInter
 	public function __construct(
 		private PasswordResetTokenRepository $tokenRepository,
 		private UserProviderInterface $userProvider,
-		private EmailFactory $emailFactory,
-		private MailerFactory $mailerFactory,
-		private LoggerInterface $logger,
+		private QueuePublisher $queuePublisher,
 	) {
 	}
 
@@ -53,12 +51,10 @@ final readonly class PasswordResetProvider implements PasswordResetProviderInter
 
 		$this->tokenRepository->persist($resetToken);
 
-		try {
-			$mailer = $this->mailerFactory->create();
-			$mailer->send($this->emailFactory->createPasswordResetEmail($user, $token, $user->locale));
-		} catch (\Throwable $e) {
-			$this->logger->error('Failed to send password reset email: ' . $e->getMessage());
-		}
+		$this->queuePublisher->publishMessage(
+			PasswordResetQueueDto::fromUser($user, $token),
+			QueueEnum::PasswordReset,
+		);
 	}
 
 	public function findByToken(string $token): ?PasswordResetToken

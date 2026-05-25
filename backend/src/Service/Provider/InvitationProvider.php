@@ -6,15 +6,15 @@ namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
 use Iterator;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Ukolio\Dto\InvitationQueueDto;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\Invitation;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\InvitationRepository;
-use Ukolio\Service\Email\EmailFactory;
-use Ukolio\Service\Email\MailerFactory;
+use Ukolio\Service\Queue\Enum\QueueEnum;
+use Ukolio\Service\Queue\QueuePublisher;
 use const FILTER_VALIDATE_EMAIL;
 
 final readonly class InvitationProvider implements InvitationProviderInterface
@@ -25,9 +25,7 @@ final readonly class InvitationProvider implements InvitationProviderInterface
 		private InvitationRepository $invitationRepository,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private UserProviderInterface $userProvider,
-		private EmailFactory $emailFactory,
-		private MailerFactory $mailerFactory,
-		private LoggerInterface $logger,
+		private QueuePublisher $queuePublisher,
 	) {
 	}
 
@@ -75,12 +73,10 @@ final readonly class InvitationProvider implements InvitationProviderInterface
 			$locale = $recipient->locale;
 		}
 
-		try {
-			$mailer = $this->mailerFactory->create();
-			$mailer->send($this->emailFactory->createInvitationEmail($invitation, $token, $locale));
-		} catch (\Throwable $e) {
-			$this->logger->error('Failed to send invitation email: ' . $e->getMessage());
-		}
+		$this->queuePublisher->publishMessage(
+			InvitationQueueDto::fromEntity($invitation, $token, $locale),
+			QueueEnum::Invitation,
+		);
 
 		return $invitation;
 	}

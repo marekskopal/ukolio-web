@@ -54,10 +54,36 @@ Required variables — see `.env.example` for the full list:
 | `AUTHORIZATION_TOKEN_KEY` | ≥ 32 chars; sign with `openssl rand -hex 32`. The boot guard rejects the placeholder value regardless of `APP_ENV` |
 | `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` | Mercure realtime hub JWT keys; also generate with `openssl rand -hex 32` |
 | `MYSQL_*` | Database host + credentials |
-| `SMTP_*`, `EMAIL_FROM` | Outbound mail (invitations, password resets) |
+| `SMTP_*`, `EMAIL_FROM` | Outbound mail (invitations, password resets) — sent via the async `amqp-consumer` worker, see "Async email delivery" below |
 | `APP_URL` | Embedded in email links |
 | `S3_*` | Object storage for task file attachments |
 | `REDIS_*` | Used by the MCP session store |
+| `RABBITMQ_*` | RabbitMQ host/port/user/password used by both the publisher (HTTP request path) and the supervisor-managed `amqp-consumer.php` worker |
+| `BACKEND_AMQP_CONSUMER_PREFETCH` | Per-channel `basic_qos` prefetch for the consumer (default `10`) — caps in-flight unacked messages |
+
+## Async email delivery
+
+Invitations, password-reset, and email-verification emails are published to
+RabbitMQ from the HTTP request and sent by a background worker, so SMTP
+latency / outages no longer block sign-up / invite flows.
+
+- **Publisher**: `Ukolio\Service\Queue\QueuePublisher` (`php-amqplib`), injected
+  into the three providers. Lazy-connects on first publish per worker.
+- **Queues**: `invitation`, `email-verification`, `password-reset` —
+  enumerated in `Ukolio\Service\Queue\Enum\QueueEnum`. Messages are durable
+  + persistent.
+- **Consumer**: `backend/src/amqp-consumer.php`, managed by supervisor inside
+  the `backend` container alongside FrankenPHP (see
+  `backend/docker/supervisord.conf`). One process consumes all three queues
+  via callbacks.
+- **Retry**: handler exceptions trigger `nack(requeue=true)` — the message
+  goes back to the queue and is retried indefinitely. There is no DLQ; rely
+  on alerting on the `[program:amqp-consumer]` log stream.
+- **Operations**:
+  - Tail the worker: `docker compose logs -f backend | grep amqp-consumer`
+  - Check queue depth: `docker compose exec rabbitmq rabbitmqctl list_queues`
+  - Restart just the worker without bouncing the web process:
+    `docker compose exec backend supervisorctl restart amqp-consumer`
 
 ## SSL termination
 

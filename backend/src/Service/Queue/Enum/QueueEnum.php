@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ukolio\Service\Queue\Enum;
+
+enum QueueEnum: string
+{
+	case Invitation = 'invitation';
+	case EmailVerification = 'email-verification';
+	case PasswordReset = 'password-reset';
+}

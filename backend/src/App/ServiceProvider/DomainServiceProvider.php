@@ -67,6 +67,8 @@ use Ukolio\Service\Provider\WorkspaceProvider;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestService;
 use Ukolio\Service\Request\RequestServiceInterface;
+use Ukolio\Service\Task\TaskService;
+use Ukolio\Service\Task\TaskServiceInterface;
 use Ukolio\Service\Translator\TranslatorService;
 use Ukolio\Service\Translator\TranslatorServiceInterface;
 
@@ -107,6 +109,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			ClientServiceInterface::class,
 			AuthorizationServiceInterface::class,
 			TranslatorServiceInterface::class,
+			TaskServiceInterface::class,
 		], true);
 	}
 
@@ -127,6 +130,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(InvitationProviderInterface::class, InvitationProvider::class);
 		$c->add(PasswordResetProviderInterface::class, PasswordResetProvider::class);
 		$c->add(EmailVerificationProviderInterface::class, EmailVerificationProvider::class);
+		$c->add(TaskServiceInterface::class, TaskService::class);
 		$c->add(EventProviderInterface::class, EventProvider::class);
 		$c->add(StatusProviderInterface::class, StatusProvider::class);
 		$c->add(WorkflowProviderInterface::class, WorkflowProvider::class);

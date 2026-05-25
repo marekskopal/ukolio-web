@@ -22,6 +22,7 @@
         "nette/caching": "^3.3",
         "nette/utils": "^4.0",
         "nyholm/psr7": "^1.8",
+        "php-amqplib/php-amqplib": "^3.7",
         "php-http/discovery": "^1.19",
         "predis/predis": "^2.3",
         "psr/container": "^2.0",
