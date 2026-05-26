@@ -15,7 +15,8 @@ final class EmailFactoryTest extends TestCase
 {
 	public function testInvitationEmailContainsTokenAcceptUrlAndIsLocalised(): void
 	{
-		putenv('APP_URL=https://app.ukolio.example');
+		putenv('PROXY_HOST=app.ukolio.example');
+		putenv('PROXY_PORT_SSL=443');
 		putenv('EMAIL_FROM=no-reply@ukolio.example');
 
 		$translator = new TranslatorService(__DIR__ . '/../../../translations');
@@ -43,7 +44,8 @@ final class EmailFactoryTest extends TestCase
 
 	public function testPasswordResetEmailIncludesUrlAndToken(): void
 	{
-		putenv('APP_URL=https://app.ukolio.example');
+		putenv('PROXY_HOST=app.ukolio.example');
+		putenv('PROXY_PORT_SSL=443');
 		putenv('EMAIL_FROM=no-reply@ukolio.example');
 
 		$translator = new TranslatorService(__DIR__ . '/../../../translations');
@@ -64,7 +66,8 @@ final class EmailFactoryTest extends TestCase
 
 	public function testEmailVerificationEmailIncludesUrlAndToken(): void
 	{
-		putenv('APP_URL=https://app.ukolio.example');
+		putenv('PROXY_HOST=app.ukolio.example');
+		putenv('PROXY_PORT_SSL=443');
 		putenv('EMAIL_FROM=no-reply@ukolio.example');
 
 		$translator = new TranslatorService(__DIR__ . '/../../../translations');
