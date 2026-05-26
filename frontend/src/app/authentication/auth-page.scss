@@ -79,6 +79,33 @@
     font-size: $font-size-12;
 }
 
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    margin: $space-6 0;
+    color: $color-text-muted;
+    font-size: $font-size-12;
+
+    &::before,
+    &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: $color-border;
+    }
+}
+
+.google-button {
+    display: flex;
+    justify-content: center;
+
+    &-loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+}
+
 // ─── Dark aside ─────────────────────────────────────────────
 .auth-aside {
     flex: 1;

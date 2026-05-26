@@ -88,7 +88,7 @@ final readonly class CurrentUserController
 		$user = $this->requestService->getUser($request);
 		$dto = $this->requestService->getRequestBodyDto($request, ChangePasswordDto::class);
 
-		if (!password_verify($dto->currentPassword, $user->password)) {
+		if ($user->password === null || !password_verify($dto->currentPassword, $user->password)) {
 			return new NotAuthorizedResponse('Current password is incorrect.');
 		}
 

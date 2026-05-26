@@ -14,6 +14,8 @@ enum Routes: string
 	case AuthenticationRequestPasswordReset = '/api/authentication/request-password-reset';
 	case AuthenticationConfirmPasswordReset = '/api/authentication/confirm-password-reset';
 	case AuthenticationVerifyEmail = '/api/authentication/verify-email';
+	case AuthenticationGoogleClientId = '/api/authentication/google-client-id';
+	case AuthenticationGoogleLogin = '/api/authentication/google-login';
 
 	case CurrentUser = '/api/current-user';
 	case CurrentUserPassword = '/api/current-user/password';

@@ -151,7 +151,8 @@
                 "submitting": "Přihlašuji…",
                 "noAccount": "Nemáte účet?",
                 "signUp": "Registrovat se",
-                "forgotPassword": "Zapomněli jste heslo?"
+                "forgotPassword": "Zapomněli jste heslo?",
+                "or": "nebo"
             },
             "signUp": {
                 "title": "Vytvořit účet",

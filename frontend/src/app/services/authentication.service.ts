@@ -33,6 +33,21 @@ export class AuthenticationService {
         return auth;
     }
 
+    public async googleClientId(): Promise<string> {
+        const response = await firstValueFrom(
+            this.http.get<{googleClientId: string}>(`${environment.apiUrl}/authentication/google-client-id`),
+        );
+        return response.googleClientId;
+    }
+
+    public async googleLogin(idToken: string, locale?: string): Promise<Authentication> {
+        const auth = await firstValueFrom(
+            this.http.post<Authentication>(`${environment.apiUrl}/authentication/google-login`, {idToken, locale}),
+        );
+        this.setAuthentication(auth);
+        return auth;
+    }
+
     public async refreshToken(): Promise<Authentication> {
         const current = this.authentication();
         if (current === null) {

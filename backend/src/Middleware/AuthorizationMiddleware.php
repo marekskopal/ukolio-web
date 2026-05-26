@@ -34,6 +34,8 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		Routes::AuthenticationRequestPasswordReset->value,
 		Routes::AuthenticationConfirmPasswordReset->value,
 		Routes::AuthenticationVerifyEmail->value,
+		Routes::AuthenticationGoogleClientId->value,
+		Routes::AuthenticationGoogleLogin->value,
 		Routes::InvitationLookup->value,
 		Routes::Mcp->value,
 		Routes::OAuthMetadata->value,

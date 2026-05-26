@@ -22,6 +22,11 @@ final class UserRepository extends AbstractRepository
 		return $this->findOne(['email' => $email]);
 	}
 
+	public function findUserByGoogleId(string $googleId): ?User
+	{
+		return $this->findOne(['googleId' => $googleId]);
+	}
+
 	/** @return Iterator<User> */
 	public function findAllUsers(): Iterator
 	{

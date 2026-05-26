@@ -8,12 +8,16 @@ use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Laminas\Diactoros\Response\JsonResponse;
+use MarekSkopal\Router\Attribute\RouteGet;
 use MarekSkopal\Router\Attribute\RoutePost;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Ukolio\Dto\ConfirmPasswordResetDto;
 use Ukolio\Dto\CredentialsDto;
+use Ukolio\Dto\GoogleClientIdDto;
+use Ukolio\Dto\GoogleLoginDto;
 use Ukolio\Dto\RefreshTokenDto;
 use Ukolio\Dto\RequestPasswordResetDto;
 use Ukolio\Dto\SignUpDto;
@@ -28,6 +32,8 @@ use Ukolio\Route\Routes;
 use Ukolio\Service\Authentication\AuthenticationServiceInterface;
 use Ukolio\Service\Authentication\Exception\AccountLockedException;
 use Ukolio\Service\Authentication\Exception\AuthenticationException;
+use Ukolio\Service\Authentication\Exception\GoogleAuthException;
+use Ukolio\Service\Authentication\GoogleAuthServiceInterface;
 use Ukolio\Service\Provider\EmailVerificationProviderInterface;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
@@ -45,8 +51,10 @@ final readonly class AuthenticationController
 		private WorkspaceProviderInterface $workspaceProvider,
 		private PasswordResetProviderInterface $passwordResetProvider,
 		private EmailVerificationProviderInterface $emailVerificationProvider,
+		private GoogleAuthServiceInterface $googleAuthService,
 		private RequestServiceInterface $requestService,
 		private MercureCookieIssuerInterface $mercureCookieIssuer,
+		private LoggerInterface $logger,
 	) {
 	}
 
@@ -157,6 +165,50 @@ final readonly class AuthenticationController
 			$user = $this->passwordResetProvider->confirmReset($token, $dto->password);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		return $this->withMercureCookie(
+			new JsonResponse($this->authenticationService->createAuthentication($user)),
+			$request,
+			$user,
+		);
+	}
+
+	#[RouteGet(Routes::AuthenticationGoogleClientId->value)]
+	public function actionGetGoogleClientId(): ResponseInterface
+	{
+		return new JsonResponse(new GoogleClientIdDto(googleClientId: (string) getenv('GOOGLE_CLIENT_ID')));
+	}
+
+	#[RoutePost(Routes::AuthenticationGoogleLogin->value)]
+	public function actionPostGoogleLogin(ServerRequestInterface $request): ResponseInterface
+	{
+		$dto = $this->requestService->getRequestBodyDto($request, GoogleLoginDto::class);
+
+		try {
+			$tokenInfo = $this->googleAuthService->verifyIdToken($dto->idToken);
+		} catch (GoogleAuthException $e) {
+			$this->logger->info('Google login failed: ' . $e->getMessage());
+
+			return new NotAuthorizedResponse('Invalid Google token.');
+		}
+
+		$locale = $dto->locale !== null ? LocaleEnum::tryFrom($dto->locale) ?? LocaleEnum::En : LocaleEnum::En;
+
+		$user = $this->userProvider->getUserByGoogleId($tokenInfo->sub);
+		if ($user === null) {
+			$user = $this->userProvider->getUserByEmail($tokenInfo->email);
+			if ($user !== null) {
+				$user = $this->userProvider->linkGoogleAccount($user, $tokenInfo->sub);
+			} else {
+				$user = $this->userProvider->createUserFromGoogle(
+					email: $tokenInfo->email,
+					name: $tokenInfo->name,
+					googleId: $tokenInfo->sub,
+					locale: $locale,
+				);
+				$this->workspaceProvider->createWorkspace($user, $tokenInfo->name . "'s Workspace");
+			}
 		}
 
 		return $this->withMercureCookie(

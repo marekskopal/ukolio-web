@@ -29,7 +29,7 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 
 		$this->loginAttempts->assertNotLocked($user);
 
-		if (!password_verify($credentials->password, $user->password)) {
+		if ($user->password === null || !password_verify($credentials->password, $user->password)) {
 			$this->loginAttempts->recordFailure($user);
 			// If this failure just tripped the lock, surface that to the caller as 429.
 			$this->loginAttempts->assertNotLocked($user);

@@ -14,7 +14,13 @@ interface UserProviderInterface
 
 	public function getUserByEmail(string $email): ?User;
 
+	public function getUserByGoogleId(string $googleId): ?User;
+
 	public function createUser(string $email, string $password, string $name, LocaleEnum $locale = LocaleEnum::En): User;
+
+	public function createUserFromGoogle(string $email, string $name, string $googleId, LocaleEnum $locale = LocaleEnum::En): User;
+
+	public function linkGoogleAccount(User $user, string $googleId): User;
 
 	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null, ?ThemeEnum $theme = null): User;
 

@@ -26,11 +26,14 @@ class User extends AEntity
 	#[Column(type: Type::Timestamp, nullable: true)]
 	public ?DateTimeImmutable $onboardingCompletedAt = null;
 
+	#[Column(type: Type::String, nullable: true, default: null)]
+	public ?string $googleId = null;
+
 	public function __construct(
 		#[Column(type: Type::String)]
 		public string $email,
-		#[Column(type: Type::String)]
-		public string $password,
+		#[Column(type: Type::String, nullable: true)]
+		public ?string $password,
 		#[Column(type: Type::String)]
 		public string $name,
 		#[ColumnEnum(enum: LocaleEnum::class, default: LocaleEnum::En)]

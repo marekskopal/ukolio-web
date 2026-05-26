@@ -23,6 +23,15 @@
                 </button>
             </form>
 
+            @if (googleEnabled()) {
+                <div class="auth-divider">
+                    <span>{{ 'app.auth.login.or' | translate }}</span>
+                </div>
+                <div class="google-button" [class.google-button-loading]="googleLoading()">
+                    <div id="googleButtonContainer"></div>
+                </div>
+            }
+
             <p class="auth-footer">
                 {{ 'app.auth.login.noAccount' | translate }}
                 <a routerLink="/sign-up" class="btn-link">{{ 'app.auth.login.signUp' | translate }}</a>

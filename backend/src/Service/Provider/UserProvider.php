@@ -28,6 +28,11 @@ final readonly class UserProvider implements UserProviderInterface
 		return $this->userRepository->findUserByEmail($email);
 	}
 
+	public function getUserByGoogleId(string $googleId): ?User
+	{
+		return $this->userRepository->findUserByGoogleId($googleId);
+	}
+
 	public function createUser(
 		#[SensitiveParameter] string $email,
 		#[SensitiveParameter] string $password,
@@ -44,6 +49,28 @@ final readonly class UserProvider implements UserProviderInterface
 		$user->createdAt = $now;
 		$user->updatedAt = $now;
 
+		$this->userRepository->persist($user);
+
+		return $user;
+	}
+
+	public function createUserFromGoogle(string $email, string $name, string $googleId, LocaleEnum $locale = LocaleEnum::En): User
+	{
+		$now = new DateTimeImmutable();
+		$user = new User(email: $email, password: null, name: $name, locale: $locale, emailVerified: true);
+		$user->googleId = $googleId;
+		$user->createdAt = $now;
+		$user->updatedAt = $now;
+
+		$this->userRepository->persist($user);
+
+		return $user;
+	}
+
+	public function linkGoogleAccount(User $user, string $googleId): User
+	{
+		$user->googleId = $googleId;
+		$user->updatedAt = new DateTimeImmutable();
 		$this->userRepository->persist($user);
 
 		return $user;

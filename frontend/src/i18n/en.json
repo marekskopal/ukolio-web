@@ -151,7 +151,8 @@
                 "submitting": "Signing in…",
                 "noAccount": "New here?",
                 "signUp": "Sign up",
-                "forgotPassword": "Forgot your password?"
+                "forgotPassword": "Forgot your password?",
+                "or": "or"
             },
             "signUp": {
                 "title": "Create your account",
