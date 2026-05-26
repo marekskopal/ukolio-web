@@ -201,7 +201,10 @@ final readonly class TaskTools
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values to replace
 	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply (replaces the full set)
 	 */
-	#[McpTool(name: 'update_task', description: 'Update a task. Use move_task to change status.')]
+	#[McpTool(
+		name: 'update_task',
+		description: 'Update a task. Use move_task for status, assigneeId for (re)assignment, or clearAssignee:true to unassign.',
+	)]
 	public function updateTask(
 		int|string $taskId,
 		?string $name = null,
