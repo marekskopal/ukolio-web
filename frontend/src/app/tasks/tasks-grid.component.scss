@@ -146,6 +146,147 @@
     font-size: $font-size-12;
 }
 
+// ─── Bulk toolbar ───────────────────────────────────────────
+.bulk-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: $z-overlay;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $space-3;
+    margin-bottom: $space-5;
+    padding: $space-3 $space-5;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface;
+    box-shadow: $shadow-md;
+
+    &[aria-busy='true'] {
+        opacity: 0.75;
+        pointer-events: none;
+    }
+}
+
+.bulk-toolbar-count {
+    font-size: $font-size-13;
+    font-weight: 600;
+    color: $color-text;
+}
+
+.bulk-action {
+    position: relative;
+
+    &[open] .bulk-action-summary {
+        border-color: $color-border-focus;
+        box-shadow: $ring;
+    }
+}
+
+.bulk-action-summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    height: $h-sm;
+    padding: 0 $space-3;
+    border: 1px solid $color-border-strong;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    color: $color-text;
+    font-size: $font-size-12;
+    user-select: none;
+    transition: border-color 80ms ease, color 80ms ease;
+
+    &::-webkit-details-marker { display: none; }
+
+    &:hover { border-color: $color-text-subtle; }
+
+    &[aria-disabled='true'] {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+.bulk-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 240px;
+    max-height: 360px;
+    overflow-y: auto;
+    padding: $space-1;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface;
+    box-shadow: $shadow-md;
+    z-index: $z-overlay;
+}
+
+.bulk-option {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    width: 100%;
+    padding: $space-1 $space-2;
+    border: 0;
+    border-radius: $radius-xs;
+    background: transparent;
+    color: $color-text;
+    font-size: $font-size-13;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover:not(:disabled) { background: $color-surface-muted; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.bulk-delete {
+    height: $h-sm;
+    padding: 0 $space-3;
+    border: 1px solid $color-danger;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    color: $color-danger;
+    font-size: $font-size-12;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: $color-danger;
+        color: $color-accent-fg;
+    }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.bulk-clear {
+    margin-left: auto;
+    font-size: $font-size-12;
+}
+
+.bulk-notice {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $space-3;
+    margin-bottom: $space-5;
+    padding: $space-3 $space-5;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface-muted;
+    font-size: $font-size-12;
+    color: $color-text;
+}
+
+.bulk-notice-details {
+    flex-basis: 100%;
+    margin: 0;
+    padding: $space-2 $space-5;
+    font-size: $font-size-11;
+    color: $color-text-muted;
+    list-style: disc;
+}
+
 // ─── Table ──────────────────────────────────────────────────
 .table-wrapper {
     border: 1px solid $color-border;
@@ -192,10 +333,22 @@
         color: $color-accent;
     }
 
+    .th-select   { width: 36px; }
     .th-created  { width: 140px; }
     .th-status   { width: 200px; }
     .th-assignee { width: 180px; }
 }
+
+.td-select,
+.th-select {
+    text-align: center;
+    padding-left: $space-3;
+    padding-right: $space-3;
+
+    input { cursor: pointer; }
+}
+
+.task-row-selected td { background: $color-surface-muted; }
 
 .task-row {
     cursor: pointer;

@@ -18,6 +18,8 @@ use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\UserRepository;
+use Ukolio\Service\Provider\BulkTaskProviderInterface;
+use Ukolio\Service\Provider\Enum\BulkOpEnum;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
@@ -40,6 +42,7 @@ final readonly class TaskTools
 		private PriorityResolver $priorityResolver,
 		private StatusResolver $statusResolver,
 		private UserRepository $userRepository,
+		private BulkTaskProviderInterface $bulkTaskProvider,
 	) {
 	}
 
@@ -288,6 +291,41 @@ final readonly class TaskTools
 		$this->taskProvider->deleteTask($user, $task);
 
 		return 'Task deleted.';
+	}
+
+	/**
+	 * Apply one operation to many tasks in the current workspace in a single batch.
+	 * Per-task failures (not found, out of workspace, status mismatch) are returned as `skipped` —
+	 * the call succeeds even if some ids could not be processed. Up to 200 ids per call.
+	 *
+	 * Operations and required `payload`:
+	 * - "move": `{statusId: int}` — moves each task to the given status, appended to end of column
+	 * - "tag": `{tagIds: int[]}` — adds these tag ids to each task's existing tags
+	 * - "untag": `{tagIds: int[]}` — removes these tag ids from each task's existing tags
+	 * - "assign": `{assigneeId: int|null}` — sets assignee; null unassigns
+	 * - "priority": `{priorityId: int}` — sets each task's priority
+	 * - "delete": no payload — deletes each task
+	 *
+	 * @param list<int> $ids Task IDs (1-200). Order is preserved (matters for "move").
+	 * @param string $op Operation name: move | tag | untag | assign | priority | delete
+	 * @param array<string, mixed>|null $payload Per-op payload (see above).
+	 * @return array{succeeded: list<int>, skipped: list<array{id: int, reason: string}>}
+	 */
+	#[McpTool(
+		name: 'bulk_update_tasks',
+		description: 'Apply one operation to many tasks (move|tag|untag|assign|priority|delete). Returns {succeeded, skipped}.',
+	)]
+	public function bulkUpdateTasks(array $ids, string $op, ?array $payload = null): array
+	{
+		$user = $this->userContext->getUser();
+		$workspace = $this->requireWorkspace();
+
+		$opEnum = BulkOpEnum::tryFrom($op);
+		if ($opEnum === null) {
+			throw new RuntimeException(sprintf('Unknown op "%s". Expected one of: move, tag, untag, assign, priority, delete.', $op));
+		}
+
+		return $this->bulkTaskProvider->execute($user, $workspace, $opEnum, $ids, $payload ?? []);
 	}
 
 	private function requireWorkspace(): Workspace

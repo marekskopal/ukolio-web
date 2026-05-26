@@ -130,6 +130,23 @@
                 "name": "Název",
                 "status": "Stav",
                 "assignee": "Řešitel"
+            },
+            "bulk": {
+                "selectedCount": "Vybráno: {{count}}",
+                "clear": "Zrušit výběr",
+                "toggleRow": "Přepnout výběr úkolu",
+                "toggleAll": "Přepnout výběr všech úkolů na stránce",
+                "move": "Přesunout do…",
+                "addTag": "Přidat štítek…",
+                "removeTag": "Odebrat štítek…",
+                "assign": "Přiřadit…",
+                "unassign": "Zrušit přiřazení",
+                "priority": "Nastavit prioritu…",
+                "delete": "Smazat",
+                "confirmDelete": "Smazat {{count}} úkol(y)? Tuto akci nelze vrátit.",
+                "partialSuccess": "{{succeeded}} aktualizováno, {{skipped}} přeskočeno.",
+                "showSkipped": "Zobrazit detail",
+                "hideSkipped": "Skrýt detail"
             }
         },
         "pagination": {

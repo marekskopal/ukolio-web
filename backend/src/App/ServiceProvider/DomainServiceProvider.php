@@ -23,6 +23,8 @@ use Ukolio\Service\Auth\PermissionChecker;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
 use Ukolio\Service\Auth\UserDataExportService;
 use Ukolio\Service\Auth\UserDataExportServiceInterface;
+use Ukolio\Service\Provider\BulkTaskProvider;
+use Ukolio\Service\Provider\BulkTaskProviderInterface;
 use Ukolio\Service\Provider\EmailVerificationProvider;
 use Ukolio\Service\Provider\EmailVerificationProviderInterface;
 use Ukolio\Service\Provider\EventProvider;
@@ -95,6 +97,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			WorkflowProviderInterface::class,
 			StatusProviderInterface::class,
 			TaskProviderInterface::class,
+			BulkTaskProviderInterface::class,
 			TaskCodeResolverInterface::class,
 			TaskCommentProviderInterface::class,
 			TaskFieldValueProviderInterface::class,
@@ -140,6 +143,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(ProjectProviderInterface::class, ProjectProvider::class);
 		$c->add(ProjectPrefixGeneratorInterface::class, ProjectPrefixGenerator::class);
 		$c->add(TaskProviderInterface::class, TaskProvider::class);
+		$c->add(BulkTaskProviderInterface::class, BulkTaskProvider::class);
 		$c->add(TaskCodeResolverInterface::class, TaskCodeResolver::class);
 		$c->add(TaskCommentProviderInterface::class, TaskCommentProvider::class);
 		$c->add(TaskFieldValueProviderInterface::class, TaskFieldValueProvider::class);

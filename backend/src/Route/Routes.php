@@ -58,14 +58,17 @@ enum Routes: string
 	case StatusMove = '/api/statuses/{statusId:number}/move';
 
 	case Tasks = '/api/tasks';
-	case Task = '/api/tasks/{taskId}';
-	case TaskMove = '/api/tasks/{taskId}/move';
-	case TaskFiles = '/api/tasks/{taskId}/files';
-	case TaskFile = '/api/tasks/{taskId}/files/{fileId:number}';
-	case TaskFileContent = '/api/tasks/{taskId}/files/{fileId:number}/content';
-	case TaskRelations = '/api/tasks/{taskId}/relations';
+	case TasksBulk = '/api/tasks/bulk';
+	// taskId pattern accepts numeric IDs and project-prefixed codes (uppercase + dash, e.g. MP-3).
+	// Lowercase is intentionally excluded so static sibling paths like /api/tasks/bulk don't collide.
+	case Task = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}';
+	case TaskMove = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/move';
+	case TaskFiles = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files';
+	case TaskFile = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files/{fileId:number}';
+	case TaskFileContent = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files/{fileId:number}/content';
+	case TaskRelations = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/relations';
 	case TaskRelation = '/api/task-relations/{relationId:number}';
-	case TaskComments = '/api/tasks/{taskId}/comments';
+	case TaskComments = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/comments';
 	case TaskComment = '/api/task-comments/{commentId:number}';
 
 	case AdminUsers = '/api/admin/users';

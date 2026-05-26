@@ -29,6 +29,18 @@ export interface TaskListParams {
     onlyActive?: boolean;
 }
 
+export type BulkOp = 'move' | 'tag' | 'untag' | 'assign' | 'priority' | 'delete';
+
+export interface BulkSkipped {
+    id: number;
+    reason: string;
+}
+
+export interface BulkResult {
+    succeeded: number[];
+    skipped: BulkSkipped[];
+}
+
 @Injectable({providedIn: 'root'})
 export class TaskService {
     private readonly http = inject(HttpClient);
@@ -75,6 +87,12 @@ export class TaskService {
 
     public deleteTask(taskId: number): Promise<void> {
         return firstValueFrom(this.http.delete<void>(`${environment.apiUrl}/tasks/${taskId}`));
+    }
+
+    public bulkUpdate(ids: number[], op: BulkOp, payload?: Record<string, unknown>): Promise<BulkResult> {
+        return firstValueFrom(
+            this.http.post<BulkResult>(`${environment.apiUrl}/tasks/bulk`, {ids, op, payload: payload ?? {}}),
+        );
     }
 
     public listTaskFiles(taskId: number): Promise<TaskFile[]> {

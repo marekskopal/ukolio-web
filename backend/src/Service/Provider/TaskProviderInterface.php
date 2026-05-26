@@ -87,11 +87,14 @@ interface TaskProviderInterface
 		?User $assignee,
 		?array $fieldValues = null,
 		?array $tagIds = null,
+		bool $recordEvent = true,
 	): Task;
 
-	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition): Task;
+	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition, bool $recordEvent = true): Task;
 
-	public function deleteTask(User $author, Task $task): void;
+	public function deleteTask(User $author, Task $task, bool $recordEvent = true): void;
+
+	public function nextPosition(Status $status): int;
 
 	public function unassignTasksForUserInWorkspace(User $user, Workspace $workspace): void;
 }

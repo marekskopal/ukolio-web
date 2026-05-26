@@ -30,6 +30,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskTagProviderInterface $taskTagProvider,
 		private TaskTagRepository $taskTagRepository,
 		private ActorContextInterface $actorContext,
+		private TaskPositionManager $positionManager,
 	) {
 	}
 
@@ -195,6 +196,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?User $assignee,
 		?array $fieldValues = null,
 		?array $tagIds = null,
+		bool $recordEvent = true,
 	): Task {
 		if ($fieldValues !== null) {
 			$this->taskFieldValueProvider->validateForProject($task->project, $fieldValues);
@@ -210,7 +212,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$task->assignee = $assignee;
 		if ($statusChanged) {
 			$task->status = $status;
-			$task->position = $this->nextPosition($status);
+			$task->position = $this->positionManager->nextPosition($status);
 		}
 		$task->updatedAt = new DateTimeImmutable();
 		$this->taskRepository->persist($task);
@@ -223,43 +225,77 @@ final readonly class TaskProvider implements TaskProviderInterface
 			? $this->taskTagProvider->setTagsForTask($task->project->workspace, $task, $tagIds)
 			: ['added' => [], 'removed' => []];
 
-		$metadata = ['name' => $name, 'oldName' => $oldName];
-		if ($fieldChanges !== []) {
-			$metadata['fieldChanges'] = $fieldChanges;
-		}
-
-		$this->eventProvider->recordEvent($author, $task->project, EventTypeEnum::TaskUpdated, $metadata, $task->id);
-
-		if ($tagChanges['added'] !== [] || $tagChanges['removed'] !== []) {
-			$this->eventProvider->recordEvent(
-				$author,
-				$task->project,
-				EventTypeEnum::TaskTagsUpdated,
-				['taskName' => $task->name, 'added' => $tagChanges['added'], 'removed' => $tagChanges['removed']],
-				$task->id,
-			);
+		if ($recordEvent) {
+			$this->recordUpdateEvents($author, $task, $name, $oldName, $fieldChanges, $tagChanges);
 		}
 
 		return $task;
 	}
 
-	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition): Task
+	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition, bool $recordEvent = true): Task
 	{
 		$fromStatus = $task->status;
 		$fromPosition = $task->position;
 		$sameColumn = $fromStatus->id === $newStatus->id;
 
 		if ($sameColumn) {
-			$this->reorderWithinColumn($task, $newPosition);
+			$this->positionManager->reorderWithinColumn($task, $newPosition);
 		} else {
-			$this->closeGapInOldColumn($task);
-			$this->openSlotInNewColumn($newStatus, $newPosition);
+			$this->positionManager->closeGapInOldColumn($task);
+			$this->positionManager->openSlotInNewColumn($newStatus, $newPosition);
 			$task->status = $newStatus;
 			$task->position = $newPosition;
 		}
 		$task->updatedAt = new DateTimeImmutable();
 		$this->taskRepository->persist($task);
 
+		if ($recordEvent) {
+			$this->recordMoveEvent($author, $task, $fromStatus, $newStatus, $fromPosition, $newPosition);
+		}
+
+		return $task;
+	}
+
+	/**
+	 * @param list<array{fieldId: int, from: ?string, to: ?string}> $fieldChanges
+	 * @param array{added: list<int>, removed: list<int>} $tagChanges
+	 */
+	private function recordUpdateEvents(
+		User $author,
+		Task $task,
+		string $name,
+		string $oldName,
+		array $fieldChanges,
+		array $tagChanges,
+	): void
+	{
+		$metadata = ['name' => $name, 'oldName' => $oldName];
+		if ($fieldChanges !== []) {
+			$metadata['fieldChanges'] = $fieldChanges;
+		}
+		$this->eventProvider->recordEvent($author, $task->project, EventTypeEnum::TaskUpdated, $metadata, $task->id);
+
+		if ($tagChanges['added'] === [] && $tagChanges['removed'] === []) {
+			return;
+		}
+		$this->eventProvider->recordEvent(
+			$author,
+			$task->project,
+			EventTypeEnum::TaskTagsUpdated,
+			['taskName' => $task->name, 'added' => $tagChanges['added'], 'removed' => $tagChanges['removed']],
+			$task->id,
+		);
+	}
+
+	private function recordMoveEvent(
+		User $author,
+		Task $task,
+		Status $fromStatus,
+		Status $newStatus,
+		int $fromPosition,
+		int $newPosition,
+	): void
+	{
 		$this->eventProvider->recordEvent(
 			$author,
 			$task->project,
@@ -275,8 +311,6 @@ final readonly class TaskProvider implements TaskProviderInterface
 			],
 			$task->id,
 		);
-
-		return $task;
 	}
 
 	public function unassignTasksForUserInWorkspace(User $user, Workspace $workspace): void
@@ -289,15 +323,17 @@ final readonly class TaskProvider implements TaskProviderInterface
 		}
 	}
 
-	public function deleteTask(User $author, Task $task): void
+	public function deleteTask(User $author, Task $task, bool $recordEvent = true): void
 	{
-		$this->eventProvider->recordEvent(
-			$author,
-			$task->project,
-			EventTypeEnum::TaskDeleted,
-			['name' => $task->name],
-			$task->id,
-		);
+		if ($recordEvent) {
+			$this->eventProvider->recordEvent(
+				$author,
+				$task->project,
+				EventTypeEnum::TaskDeleted,
+				['name' => $task->name],
+				$task->id,
+			);
+		}
 
 		$this->taskFieldValueProvider->deleteAllForTask($task);
 		$this->taskFileProvider->deleteAllForTask($author, $task);
@@ -306,75 +342,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$this->taskRepository->delete($task);
 	}
 
-	private function reorderWithinColumn(Task $task, int $newPosition): void
+	public function nextPosition(Status $status): int
 	{
-		$oldPosition = $task->position;
-		if ($oldPosition === $newPosition) {
-			return;
-		}
-
-		foreach ($this->taskRepository->findByStatus($task->status->id) as $sibling) {
-			if ($sibling->id === $task->id) {
-				continue;
-			}
-
-			if ($oldPosition < $newPosition) {
-				if ($sibling->position > $oldPosition && $sibling->position <= $newPosition) {
-					$sibling->position--;
-					$sibling->updatedAt = new DateTimeImmutable();
-					$this->taskRepository->persist($sibling);
-				}
-			} else {
-				if ($sibling->position >= $newPosition && $sibling->position < $oldPosition) {
-					$sibling->position++;
-					$sibling->updatedAt = new DateTimeImmutable();
-					$this->taskRepository->persist($sibling);
-				}
-			}
-		}
-
-		$task->position = $newPosition;
-	}
-
-	private function closeGapInOldColumn(Task $task): void
-	{
-		foreach ($this->taskRepository->findByStatus($task->status->id) as $sibling) {
-			if ($sibling->id === $task->id) {
-				continue;
-			}
-			if ($sibling->position <= $task->position) {
-				continue;
-			}
-
-			$sibling->position--;
-			$sibling->updatedAt = new DateTimeImmutable();
-			$this->taskRepository->persist($sibling);
-		}
-	}
-
-	private function openSlotInNewColumn(Status $newStatus, int $newPosition): void
-	{
-		foreach ($this->taskRepository->findByStatus($newStatus->id) as $sibling) {
-			if ($sibling->position >= $newPosition) {
-				$sibling->position++;
-				$sibling->updatedAt = new DateTimeImmutable();
-				$this->taskRepository->persist($sibling);
-			}
-		}
-	}
-
-	private function nextPosition(Status $status): int
-	{
-		$tasks = iterator_to_array($this->taskRepository->findByStatus($status->id), false);
-		if ($tasks === []) {
-			return 0;
-		}
-		$max = 0;
-		foreach ($tasks as $t) {
-			if ($t->position > $max) {
-				$max = $t->position;
-			}
-		}
-		return $max + 1;
+		return $this->positionManager->nextPosition($status);
 	}
 }

@@ -3,6 +3,7 @@ import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {ProjectField} from '@app/models/field';
+import {Priority} from '@app/models/priority';
 import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
@@ -12,14 +13,15 @@ import {WorkspaceMember} from '@app/models/workspace';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {PriorityService} from '@app/services/priority.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {TagService} from '@app/services/tag.service';
-import {TaskService} from '@app/services/task.service';
+import {BulkOp, BulkResult, TaskService} from '@app/services/task.service';
 import {WorkflowService} from '@app/services/workflow.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
 
 interface DrawerContext {
@@ -55,9 +57,11 @@ export class TasksGridComponent implements OnInit {
     private readonly boardService = inject(BoardService);
     private readonly fieldService = inject(FieldService);
     private readonly tagService = inject(TagService);
+    private readonly priorityService = inject(PriorityService);
     private readonly workspaceService = inject(WorkspaceService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly realtimeService = inject(RealtimeService);
+    private readonly translate = inject(TranslateService);
 
     private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -71,6 +75,7 @@ export class TasksGridComponent implements OnInit {
     protected readonly selectedTagIds = signal<number[]>([]);
     protected readonly selectedAssigneeIds = signal<number[]>([]);
     protected readonly workspaceTags = signal<Tag[]>([]);
+    protected readonly priorities = signal<Priority[]>([]);
     protected readonly members = this.workspaceService.currentMembers;
     protected readonly onlyActive = signal<boolean>(false);
     protected readonly sortBy = signal<TaskOrderBy>('created_at');
@@ -85,9 +90,20 @@ export class TasksGridComponent implements OnInit {
 
     protected readonly drawer = signal<DrawerContext | null>(null);
 
+    // Bulk-selection state. Kept as a plain Set for cheap membership tests; signal value is the set ref.
+    protected readonly selectedIds = signal<Set<number>>(new Set());
+    protected readonly bulkBusy = signal<boolean>(false);
+    protected readonly lastBulkResult = signal<BulkResult | null>(null);
+    protected readonly bulkDetailsOpen = signal<boolean>(false);
+
     private readonly statusDetails = viewChild<ElementRef<HTMLDetailsElement>>('statusDetails');
     private readonly tagDetails = viewChild<ElementRef<HTMLDetailsElement>>('tagDetails');
     private readonly assigneeDetails = viewChild<ElementRef<HTMLDetailsElement>>('assigneeDetails');
+    private readonly bulkMoveDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkMoveDetails');
+    private readonly bulkAddTagDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkAddTagDetails');
+    private readonly bulkRemoveTagDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkRemoveTagDetails');
+    private readonly bulkAssignDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkAssignDetails');
+    private readonly bulkPriorityDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkPriorityDetails');
 
     protected readonly tagById = computed<Map<number, Tag>>(() => {
         return new Map(this.workspaceTags().map((t) => [t.id, t]));
@@ -108,6 +124,24 @@ export class TasksGridComponent implements OnInit {
 
     protected readonly offset = computed<number>(() => (this.page() - 1) * this.pageSize());
 
+    protected readonly selectionCount = computed<number>(() => this.selectedIds().size);
+
+    protected readonly pageIds = computed<number[]>(() => this.tasks().map((t) => t.id));
+
+    protected readonly allOnPageSelected = computed<boolean>(() => {
+        const ids = this.pageIds();
+        if (ids.length === 0) return false;
+        const sel = this.selectedIds();
+        return ids.every((id) => sel.has(id));
+    });
+
+    protected readonly someOnPageSelected = computed<boolean>(() => {
+        const ids = this.pageIds();
+        if (ids.length === 0) return false;
+        const sel = this.selectedIds();
+        return ids.some((id) => sel.has(id)) && !this.allOnPageSelected();
+    });
+
     private readonly queryParams = computed<QueryParams>(() => ({
         limit: this.pageSize(),
         offset: this.offset(),
@@ -123,6 +157,7 @@ export class TasksGridComponent implements OnInit {
     public ngOnInit(): void {
         void this.loadWorkflows();
         void this.loadWorkspaceTags();
+        void this.loadWorkspacePriorities();
         if (this.workspaceService.currentMembers().length === 0) {
             void this.workspaceService.loadCurrentMembers();
         }
@@ -165,14 +200,7 @@ export class TasksGridComponent implements OnInit {
     }
 
     private async loadWorkspaceTags(): Promise<void> {
-        let workspaceId = this.workspaceService.currentWorkspaceId();
-        if (workspaceId === null) {
-            try {
-                workspaceId = (await this.currentUserService.load()).currentWorkspaceId;
-            } catch {
-                workspaceId = null;
-            }
-        }
+        const workspaceId = await this.resolveCurrentWorkspaceId();
         if (workspaceId === null) {
             this.workspaceTags.set([]);
             return;
@@ -182,6 +210,31 @@ export class TasksGridComponent implements OnInit {
         } catch {
             this.workspaceTags.set([]);
         }
+    }
+
+    private async loadWorkspacePriorities(): Promise<void> {
+        const workspaceId = await this.resolveCurrentWorkspaceId();
+        if (workspaceId === null) {
+            this.priorities.set([]);
+            return;
+        }
+        try {
+            this.priorities.set(await this.priorityService.loadWorkspacePriorities(workspaceId));
+        } catch {
+            this.priorities.set([]);
+        }
+    }
+
+    private async resolveCurrentWorkspaceId(): Promise<number | null> {
+        let workspaceId = this.workspaceService.currentWorkspaceId();
+        if (workspaceId === null) {
+            try {
+                workspaceId = (await this.currentUserService.load()).currentWorkspaceId;
+            } catch {
+                workspaceId = null;
+            }
+        }
+        return workspaceId;
     }
 
     private async fetchTasks(params: QueryParams): Promise<void> {
@@ -200,6 +253,7 @@ export class TasksGridComponent implements OnInit {
             });
             this.tasks.set(result.tasks);
             this.count.set(result.count);
+            this.pruneSelection();
         } catch {
             this.tasks.set([]);
             this.count.set(0);
@@ -208,22 +262,39 @@ export class TasksGridComponent implements OnInit {
         }
     }
 
+    private pruneSelection(): void {
+        const sel = this.selectedIds();
+        if (sel.size === 0) return;
+        const visible = new Set(this.tasks().map((t) => t.id));
+        let changed = false;
+        const next = new Set<number>();
+        for (const id of sel) {
+            if (visible.has(id)) {
+                next.add(id);
+            } else {
+                changed = true;
+            }
+        }
+        if (changed) {
+            this.selectedIds.set(next);
+        }
+    }
+
     @HostListener('document:click', ['$event.target'])
     protected onDocumentClick(target: EventTarget | null): void {
         if (!(target instanceof Node)) {
             return;
         }
-        const status = this.statusDetails()?.nativeElement;
-        if (status?.open && !status.contains(target)) {
-            status.open = false;
-        }
-        const tag = this.tagDetails()?.nativeElement;
-        if (tag?.open && !tag.contains(target)) {
-            tag.open = false;
-        }
-        const assignee = this.assigneeDetails()?.nativeElement;
-        if (assignee?.open && !assignee.contains(target)) {
-            assignee.open = false;
+        const refs = [
+            this.statusDetails(), this.tagDetails(), this.assigneeDetails(),
+            this.bulkMoveDetails(), this.bulkAddTagDetails(), this.bulkRemoveTagDetails(),
+            this.bulkAssignDetails(), this.bulkPriorityDetails(),
+        ];
+        for (const ref of refs) {
+            const el = ref?.nativeElement;
+            if (el?.open && !el.contains(target)) {
+                el.open = false;
+            }
         }
     }
 
@@ -340,6 +411,144 @@ export class TasksGridComponent implements OnInit {
         this.pageSize.set(size);
         this.page.set(1);
     }
+
+    // ─── Bulk selection ────────────────────────────────────────
+
+    protected isRowSelected(id: number): boolean {
+        return this.selectedIds().has(id);
+    }
+
+    protected toggleRow(id: number, event: Event): void {
+        event.stopPropagation();
+        const next = new Set(this.selectedIds());
+        if (next.has(id)) {
+            next.delete(id);
+        } else {
+            next.add(id);
+        }
+        this.selectedIds.set(next);
+    }
+
+    protected togglePage(event: Event): void {
+        const checked = (event.target as HTMLInputElement).checked;
+        const ids = this.pageIds();
+        const next = new Set(this.selectedIds());
+        if (checked) {
+            for (const id of ids) {
+                next.add(id);
+            }
+        } else {
+            for (const id of ids) {
+                next.delete(id);
+            }
+        }
+        this.selectedIds.set(next);
+    }
+
+    protected clearSelection(): void {
+        this.selectedIds.set(new Set());
+    }
+
+    private get selectedIdsArray(): number[] {
+        return Array.from(this.selectedIds());
+    }
+
+    protected async onBulkMove(statusId: number): Promise<void> {
+        this.closeBulkPopovers();
+        await this.runBulk('move', {statusId});
+    }
+
+    protected async onBulkAddTag(tagId: number): Promise<void> {
+        this.closeBulkPopovers();
+        await this.runBulk('tag', {tagIds: [tagId]});
+    }
+
+    protected async onBulkRemoveTag(tagId: number): Promise<void> {
+        this.closeBulkPopovers();
+        await this.runBulk('untag', {tagIds: [tagId]});
+    }
+
+    protected async onBulkAssign(userId: number | null): Promise<void> {
+        this.closeBulkPopovers();
+        await this.runBulk('assign', {assigneeId: userId});
+    }
+
+    protected async onBulkPriority(priorityId: number): Promise<void> {
+        this.closeBulkPopovers();
+        await this.runBulk('priority', {priorityId});
+    }
+
+    protected async onBulkDelete(): Promise<void> {
+        this.closeBulkPopovers();
+        const count = this.selectionCount();
+        const msg = await this.translate
+            .get('app.tasks.bulk.confirmDelete', {count})
+            .toPromise();
+        if (!confirm(typeof msg === 'string' ? msg : `Delete ${count} task(s)?`)) {
+            return;
+        }
+        await this.runBulk('delete');
+    }
+
+    private async runBulk(op: BulkOp, payload?: Record<string, unknown>): Promise<void> {
+        const ids = this.selectedIdsArray;
+        if (ids.length === 0) {
+            return;
+        }
+        this.bulkBusy.set(true);
+        try {
+            const result = await this.taskService.bulkUpdate(ids, op, payload);
+            this.lastBulkResult.set(result);
+
+            // If the drawer is open on a deleted task, close it.
+            if (op === 'delete') {
+                const drawerTaskId = this.drawer()?.task.id;
+                if (drawerTaskId !== undefined && result.succeeded.includes(drawerTaskId)) {
+                    this.closeDrawer();
+                }
+            }
+
+            // Remove succeeded-and-now-gone ids from selection optimistically; fetchTasks will prune the rest.
+            if (op === 'delete') {
+                const next = new Set(this.selectedIds());
+                for (const id of result.succeeded) {
+                    next.delete(id);
+                }
+                this.selectedIds.set(next);
+            }
+
+            await this.fetchTasks(this.queryParams());
+        } catch {
+            // error interceptor will surface failure
+        } finally {
+            this.bulkBusy.set(false);
+        }
+    }
+
+    protected dismissBulkResult(): void {
+        this.lastBulkResult.set(null);
+        this.bulkDetailsOpen.set(false);
+    }
+
+    protected toggleBulkDetails(): void {
+        this.bulkDetailsOpen.update((v) => !v);
+    }
+
+    private closeBulkPopovers(): void {
+        const refs = [
+            this.bulkMoveDetails(),
+            this.bulkAddTagDetails(),
+            this.bulkRemoveTagDetails(),
+            this.bulkAssignDetails(),
+            this.bulkPriorityDetails(),
+        ];
+        for (const ref of refs) {
+            const el = ref?.nativeElement;
+            if (el) el.open = false;
+        }
+    }
+
+    // ─── Drawer + rows ─────────────────────────────────────────
 
     protected async onRowClick(row: TaskListItem): Promise<void> {
         await this.openTaskById(row.id, row.projectId);

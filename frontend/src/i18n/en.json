@@ -130,6 +130,23 @@
                 "name": "Name",
                 "status": "Status",
                 "assignee": "Assignee"
+            },
+            "bulk": {
+                "selectedCount": "{{count}} selected",
+                "clear": "Clear selection",
+                "toggleRow": "Toggle selection for this task",
+                "toggleAll": "Toggle selection for all tasks on this page",
+                "move": "Move to…",
+                "addTag": "Add tag…",
+                "removeTag": "Remove tag…",
+                "assign": "Assign to…",
+                "unassign": "Unassign",
+                "priority": "Set priority…",
+                "delete": "Delete",
+                "confirmDelete": "Delete {{count}} task(s)? This cannot be undone.",
+                "partialSuccess": "{{succeeded}} updated, {{skipped}} skipped.",
+                "showSkipped": "Show details",
+                "hideSkipped": "Hide details"
             }
         },
         "pagination": {
