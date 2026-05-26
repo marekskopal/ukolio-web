@@ -9,7 +9,6 @@ use MarekSkopal\ORM\Migrations\Migration\Migration;
 
 final class AddTasksBulkUpdatedEventTypeMigration extends Migration
 {
-	/** @var list<string> */
 	private const array BASE_TYPES = [
 		'ProjectCreated',
 		'ProjectUpdated',

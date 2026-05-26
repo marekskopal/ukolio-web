@@ -25,7 +25,7 @@ final readonly class EmailFactory
 		$host = (string) getenv('PROXY_HOST');
 		$host = $host !== '' ? $host : 'localhost';
 		$portSsl = (string) getenv('PROXY_PORT_SSL');
-		$portSuffix = ($portSsl === '' || $portSsl === '443') ? '' : ':' . $portSsl;
+		$portSuffix = $portSsl === '' || $portSsl === '443' ? '' : ':' . $portSsl;
 		$this->appUrl = 'https://' . $host . $portSuffix;
 	}
 
