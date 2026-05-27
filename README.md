@@ -299,6 +299,11 @@ php bin/console migration:run
 `mailpit` is wired into `docker-compose.yml` so local invitations are captured
 at the SMTP layer instead of being sent.
 
+## Contributing
+
+PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, lint /
+test commands, code-style expectations, and the PR flow.
+
 ## License
 
 [MIT](LICENSE)
