@@ -11,11 +11,15 @@ use Ukolio\Model\Entity\TaskTag;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\TagRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
+use Ukolio\Service\Search\SearchIndexer;
 
 final readonly class TaskTagProvider implements TaskTagProviderInterface
 {
-	public function __construct(private TaskTagRepository $taskTagRepository, private TagRepository $tagRepository,)
-	{
+	public function __construct(
+		private TaskTagRepository $taskTagRepository,
+		private TagRepository $tagRepository,
+		private SearchIndexer $searchIndexer,
+	) {
 	}
 
 	/** @return list<int> */
@@ -93,6 +97,10 @@ final readonly class TaskTagProvider implements TaskTagProviderInterface
 			}
 			$this->taskTagRepository->delete($row);
 			$removed[] = $tagId;
+		}
+
+		if ($added !== [] || $removed !== []) {
+			$this->searchIndexer->queueUpsert($task->id);
 		}
 
 		return ['added' => $added, 'removed' => $removed];

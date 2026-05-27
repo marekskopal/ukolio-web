@@ -12,6 +12,7 @@ use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\TaskCommentRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Search\SearchIndexer;
 
 final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 {
@@ -21,6 +22,7 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 		private TaskCommentRepository $taskCommentRepository,
 		private EventProviderInterface $eventProvider,
 		private ActorContextInterface $actorContext,
+		private SearchIndexer $searchIndexer,
 	) {
 	}
 
@@ -71,6 +73,8 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 			$task->id,
 		);
 
+		$this->searchIndexer->queueUpsert($task->id);
+
 		return $comment;
 	}
 
@@ -86,5 +90,7 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 			['commentId' => $comment->id, 'taskId' => $task->id],
 			$task->id,
 		);
+
+		$this->searchIndexer->queueUpsert($task->id);
 	}
 }

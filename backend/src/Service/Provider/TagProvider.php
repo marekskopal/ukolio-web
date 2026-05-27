@@ -12,11 +12,17 @@ use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\TagRepository;
+use Ukolio\Model\Repository\TaskTagRepository;
+use Ukolio\Service\Search\SearchIndexer;
 
 final readonly class TagProvider implements TagProviderInterface
 {
-	public function __construct(private TagRepository $tagRepository, private EventProviderInterface $eventProvider,)
-	{
+	public function __construct(
+		private TagRepository $tagRepository,
+		private EventProviderInterface $eventProvider,
+		private TaskTagRepository $taskTagRepository,
+		private SearchIndexer $searchIndexer,
+	) {
 	}
 
 	/** @return Iterator<Tag> */
@@ -61,6 +67,8 @@ final readonly class TagProvider implements TagProviderInterface
 		$name = $this->validateName($tag->workspace->id, $name, $tag->id);
 		$color = $this->validateColor($color);
 
+		$nameChanged = $tag->name !== $name;
+
 		$tag->name = $name;
 		$tag->color = $color;
 		$tag->updatedAt = new DateTimeImmutable();
@@ -73,11 +81,17 @@ final readonly class TagProvider implements TagProviderInterface
 			['tagId' => $tag->id, 'name' => $tag->name, 'color' => $tag->color],
 		);
 
+		if ($nameChanged) {
+			$this->searchIndexer->queueUpsertMany($this->findTaskIdsByTag($tag->id));
+		}
+
 		return $tag;
 	}
 
 	public function deleteTag(User $author, Tag $tag): void
 	{
+		$affectedTaskIds = $this->findTaskIdsByTag($tag->id);
+
 		$this->eventProvider->recordWorkspaceEvent(
 			$author,
 			$tag->workspace,
@@ -87,6 +101,14 @@ final readonly class TagProvider implements TagProviderInterface
 
 		// task_tags rows cascade away via DB FK on delete.
 		$this->tagRepository->delete($tag);
+
+		$this->searchIndexer->queueUpsertMany($affectedTaskIds);
+	}
+
+	/** @return list<int> */
+	private function findTaskIdsByTag(int $tagId): array
+	{
+		return $this->taskTagRepository->findTaskIdsByTagIds([$tagId]);
 	}
 
 	private function validateName(int $workspaceId, string $name, ?int $excludeTagId): string

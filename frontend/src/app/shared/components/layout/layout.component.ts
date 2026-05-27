@@ -1,6 +1,7 @@
 import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnInit, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {SearchHit} from '@app/models/search';
 import {Locale, Theme, User} from '@app/models/user';
 import {Workspace} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
@@ -11,12 +12,13 @@ import {PermissionsService} from '@app/services/permissions.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {ThemeService} from '@app/services/theme.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {SearchPopoverComponent} from '@app/shared/components/search-popover/search-popover.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-layout',
     standalone: true,
-    imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
+    imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, SearchPopoverComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss',
@@ -60,6 +62,7 @@ export class LayoutComponent implements OnInit {
     });
     protected readonly switcherOpen = signal(false);
     protected readonly userMenuOpen = signal(false);
+    protected readonly searchOpen = signal(false);
     protected readonly currentLang = this.languageService.currentLang;
     protected readonly supportedLangs = this.languageService.supportedLangs;
     protected readonly currentTheme = this.themeService.currentTheme;
@@ -74,6 +77,18 @@ export class LayoutComponent implements OnInit {
             await this.workspaceService.loadCurrentMembers();
         } catch {
             // Interceptor handles 401 -> refresh / logout
+        }
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    protected onDocumentKeydown(event: KeyboardEvent): void {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            this.openSearch();
+            return;
+        }
+        if (event.key === 'Escape' && this.searchOpen()) {
+            this.closeSearch();
         }
     }
 
@@ -150,6 +165,21 @@ export class LayoutComponent implements OnInit {
         } catch {
             // error interceptor
         }
+    }
+
+    protected openSearch(): void {
+        this.searchOpen.set(true);
+        this.switcherOpen.set(false);
+        this.userMenuOpen.set(false);
+    }
+
+    protected closeSearch(): void {
+        this.searchOpen.set(false);
+    }
+
+    protected async onSearchHit(hit: SearchHit): Promise<void> {
+        this.searchOpen.set(false);
+        await this.router.navigate(['/tasks'], {queryParams: {open: hit.code}});
     }
 
     protected openCommandPalette(): void {

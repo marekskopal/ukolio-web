@@ -57,6 +57,22 @@
             "aiPalette": "Open agent command palette",
             "openUserMenu": "Open user menu"
         },
+        "search": {
+            "label": "Workspace search",
+            "placeholder": "Search tasks, descriptions, comments, tags…",
+            "hint": "Type at least 2 characters to search.",
+            "noResults": "No matching tasks.",
+            "error": "Search is temporarily unavailable. Try again in a moment.",
+            "searching": "Searching…",
+            "moreHits": "Showing {{shown}} of {{total}} matches.",
+            "matchedIn": {
+                "name": "name",
+                "description": "description",
+                "comments": "comments",
+                "fieldValues": "fields",
+                "tags": "tags"
+            }
+        },
         "agent": {
             "agent": "agent",
             "createdBy": "Created by an agent",

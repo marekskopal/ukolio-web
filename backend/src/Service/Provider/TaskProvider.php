@@ -18,6 +18,7 @@ use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Search\SearchIndexer;
 
 final readonly class TaskProvider implements TaskProviderInterface
 {
@@ -31,6 +32,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskTagRepository $taskTagRepository,
 		private ActorContextInterface $actorContext,
 		private TaskPositionManager $positionManager,
+		private SearchIndexer $searchIndexer,
 	) {
 	}
 
@@ -178,6 +180,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$task->id,
 		);
 
+		$this->searchIndexer->queueUpsert($task->id);
+
 		return $task;
 	}
 
@@ -229,6 +233,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$this->recordUpdateEvents($author, $task, $name, $oldName, $fieldChanges, $tagChanges);
 		}
 
+		$this->searchIndexer->queueUpsert($task->id);
+
 		return $task;
 	}
 
@@ -252,6 +258,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		if ($recordEvent) {
 			$this->recordMoveEvent($author, $task, $fromStatus, $newStatus, $fromPosition, $newPosition);
 		}
+
+		$this->searchIndexer->queueUpsert($task->id);
 
 		return $task;
 	}
@@ -320,6 +328,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$task->assignee = null;
 			$task->updatedAt = $now;
 			$this->taskRepository->persist($task);
+			$this->searchIndexer->queueUpsert($task->id);
 		}
 	}
 
@@ -335,11 +344,14 @@ final readonly class TaskProvider implements TaskProviderInterface
 			);
 		}
 
+		$taskId = $task->id;
 		$this->taskFieldValueProvider->deleteAllForTask($task);
 		$this->taskFileProvider->deleteAllForTask($author, $task);
 		$this->taskRelationProvider->deleteAllForTask($task);
 		$this->taskTagProvider->deleteAllForTask($task);
 		$this->taskRepository->delete($task);
+
+		$this->searchIndexer->queueDelete($taskId);
 	}
 
 	public function nextPosition(Status $status): int

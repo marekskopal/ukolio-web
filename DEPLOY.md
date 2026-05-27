@@ -60,6 +60,7 @@ Required variables — see `.env.example` for the full list:
 | `REDIS_*` | Used by the MCP session store |
 | `RABBITMQ_*` | RabbitMQ host/port/user/password used by both the publisher (HTTP request path) and the supervisor-managed `amqp-consumer.php` worker |
 | `BACKEND_AMQP_CONSUMER_PREFETCH` | Per-channel `basic_qos` prefetch for the consumer (default `10`) — caps in-flight unacked messages |
+| `MEILI_*` | Meilisearch host/port/master-key + index prefix powering `/api/search` and the `search_tasks` MCP tool. Rotate `MEILI_MASTER_KEY` in production |
 
 ## Async email delivery
 
@@ -84,6 +85,28 @@ latency / outages no longer block sign-up / invite flows.
   - Check queue depth: `docker compose exec rabbitmq rabbitmqctl list_queues`
   - Restart just the worker without bouncing the web process:
     `docker compose exec backend supervisorctl restart amqp-consumer`
+
+## Full-text search (Meilisearch)
+
+`/api/search` (and the `search_tasks` MCP tool) is backed by a Meilisearch
+sidecar. The `meilisearch` service in `docker-compose.yml` persists data to
+the `ukolio_meilisearch` volume. Reindex is driven by the same RabbitMQ
+worker as emails — every task mutation publishes a `search-reindex` message
+that `Ukolio\Jobs\Handler\SearchReindexHandler` consumes.
+
+After first deploy (and whenever the index settings change), populate the
+index with:
+
+```bash
+docker compose exec backend php bin/console search:reindex
+# Restrict to one workspace:
+docker compose exec backend php bin/console search:reindex --workspace=123
+# Drop everything and rebuild from scratch:
+docker compose exec backend php bin/console search:reindex --flush
+```
+
+The command ensures the index + settings exist before walking tasks, so it
+is safe to re-run.
 
 ## SSL termination
 
