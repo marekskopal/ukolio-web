@@ -57,6 +57,22 @@
             "aiPalette": "Otevřít paletu příkazů agenta",
             "openUserMenu": "Otevřít uživatelské menu"
         },
+        "search": {
+            "label": "Hledání v pracovním prostoru",
+            "placeholder": "Hledat úkoly, popisy, komentáře, štítky…",
+            "hint": "Zadejte alespoň 2 znaky.",
+            "noResults": "Žádné odpovídající úkoly.",
+            "error": "Hledání je dočasně nedostupné. Zkuste to za chvíli znovu.",
+            "searching": "Hledání…",
+            "moreHits": "Zobrazeno {{shown}} z {{total}} výsledků.",
+            "matchedIn": {
+                "name": "název",
+                "description": "popis",
+                "comments": "komentáře",
+                "fieldValues": "pole",
+                "tags": "štítky"
+            }
+        },
         "agent": {
             "agent": "agent",
             "createdBy": "Vytvořeno agentem",

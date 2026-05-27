@@ -71,6 +71,8 @@ enum Routes: string
 	case TaskComments = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/comments';
 	case TaskComment = '/api/task-comments/{commentId:number}';
 
+	case Search = '/api/search';
+
 	case AdminUsers = '/api/admin/users';
 	case AdminUser = '/api/admin/users/{userId:number}';
 	case AdminWorkspaces = '/api/admin/workspaces';

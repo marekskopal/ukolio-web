@@ -11,10 +11,18 @@ use Predis\Client;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Ukolio\Model\Repository\TaskCommentRepository;
+use Ukolio\Model\Repository\TaskFieldValueRepository;
+use Ukolio\Model\Repository\TaskRepository;
+use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Service\Cache\CacheFactory;
 use Ukolio\Service\Cache\CacheFactoryInterface;
 use Ukolio\Service\Cors\CorsPolicy;
 use Ukolio\Service\Logger\Logger;
+use Ukolio\Service\Queue\QueuePublisher;
+use Ukolio\Service\Search\MeiliClient;
+use Ukolio\Service\Search\SearchIndexer;
+use Ukolio\Service\Search\TaskDocumentBuilder;
 use Ukolio\Service\Storage\FileStorageInterface;
 use Ukolio\Service\Storage\S3Config;
 use Ukolio\Service\Storage\S3FileStorage;
@@ -32,6 +40,10 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			ClientInterface::class,
 			CacheFactoryInterface::class,
 			CorsPolicy::class,
+			QueuePublisher::class,
+			TaskDocumentBuilder::class,
+			MeiliClient::class,
+			SearchIndexer::class,
 		], true);
 	}
 
@@ -92,5 +104,35 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			CorsPolicy::class,
 			static fn (): CorsPolicy => CorsPolicy::fromEnvValue((string) getenv('BACKEND_CORS_ALLOWED_ORIGIN')),
 		);
+
+		$container->add(QueuePublisher::class, static fn (): QueuePublisher => new QueuePublisher());
+
+		$container->add(TaskDocumentBuilder::class, static function () use ($container): TaskDocumentBuilder {
+			$comments = $container->get(TaskCommentRepository::class);
+			assert($comments instanceof TaskCommentRepository);
+			$fieldValues = $container->get(TaskFieldValueRepository::class);
+			assert($fieldValues instanceof TaskFieldValueRepository);
+			$taskTags = $container->get(TaskTagRepository::class);
+			assert($taskTags instanceof TaskTagRepository);
+			return new TaskDocumentBuilder($comments, $fieldValues, $taskTags);
+		});
+
+		$container->add(MeiliClient::class, static function () use ($container): MeiliClient {
+			$builder = $container->get(TaskDocumentBuilder::class);
+			assert($builder instanceof TaskDocumentBuilder);
+			$tasks = $container->get(TaskRepository::class);
+			assert($tasks instanceof TaskRepository);
+			$logger = $container->get(LoggerInterface::class);
+			assert($logger instanceof LoggerInterface);
+			return new MeiliClient($builder, $tasks, $logger);
+		});
+
+		$container->add(SearchIndexer::class, static function () use ($container): SearchIndexer {
+			$publisher = $container->get(QueuePublisher::class);
+			assert($publisher instanceof QueuePublisher);
+			$logger = $container->get(LoggerInterface::class);
+			assert($logger instanceof LoggerInterface);
+			return new SearchIndexer($publisher, $logger);
+		});
 	}
 }

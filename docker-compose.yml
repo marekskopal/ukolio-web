@@ -81,6 +81,10 @@ services:
             RABBITMQ_USER: ${RABBITMQ_USER}
             RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
             BACKEND_AMQP_CONSUMER_PREFETCH: ${BACKEND_AMQP_CONSUMER_PREFETCH}
+            MEILI_HOST: ${MEILI_HOST}
+            MEILI_PORT: ${MEILI_PORT}
+            MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+            MEILI_INDEX_PREFIX: ${MEILI_INDEX_PREFIX}
         depends_on:
             db:
                 condition: service_healthy
@@ -91,6 +95,8 @@ services:
             minio:
                 condition: service_started
             rabbitmq:
+                condition: service_healthy
+            meilisearch:
                 condition: service_healthy
         restart: unless-stopped
         healthcheck:
@@ -196,6 +202,24 @@ services:
         volumes:
             - ukolio_rabbitmq:/var/lib/rabbitmq
 
+    meilisearch:
+        image: getmeili/meilisearch:v1.11
+        restart: unless-stopped
+        environment:
+            MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+            MEILI_ENV: production
+            MEILI_NO_ANALYTICS: "true"
+        healthcheck:
+            test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:7700/health | grep -q available"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
+        networks:
+            - backend
+        volumes:
+            - ukolio_meilisearch:/meili_data
+
 networks:
     frontend:
         name: ukolio_frontend
@@ -211,3 +235,5 @@ volumes:
         name: ukolio_redis
     ukolio_rabbitmq:
         name: ukolio_rabbitmq
+    ukolio_meilisearch:
+        name: ukolio_meilisearch

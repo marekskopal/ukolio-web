@@ -66,7 +66,7 @@
 
         <div class="topbar-spacer"></div>
 
-        <button type="button" class="topbar-search" (click)="openCommandPalette()" [attr.aria-label]="'app.nav.search' | translate">
+        <button type="button" class="topbar-search" (click)="openSearch()" [attr.aria-label]="'app.nav.search' | translate">
             <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
                 <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                 <path d="M10.5 10.5L14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
@@ -74,6 +74,8 @@
             <span class="topbar-search-placeholder">{{ 'app.nav.search' | translate }}</span>
             <span class="uk-kbd" aria-hidden="true">⌘K</span>
         </button>
+
+        <uk-search-popover [open]="searchOpen()" (selected)="onSearchHit($event)" (closed)="closeSearch()" />
 
         <button
             type="button"
