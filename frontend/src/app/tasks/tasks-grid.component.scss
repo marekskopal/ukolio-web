@@ -133,6 +133,73 @@
 
 .filter-option-name { @include truncate; }
 
+.saved-view-row {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    padding: 2px 0;
+}
+
+.saved-view-apply {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-1 $space-2;
+    border: 0;
+    background: transparent;
+    color: $color-text;
+    text-align: left;
+    font: inherit;
+    font-size: $font-size-12;
+    border-radius: $radius-sm;
+    cursor: pointer;
+
+    &:hover { background: $color-surface-hover; }
+
+    &--active {
+        background: $color-accent-soft;
+        color: $color-text;
+        font-weight: 500;
+    }
+}
+
+.saved-view-default {
+    color: $color-warn;
+}
+
+.saved-view-name { @include truncate; }
+
+.saved-view-action {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: $color-text-subtle;
+    font-size: $font-size-12;
+    cursor: pointer;
+    border-radius: $radius-sm;
+
+    &:hover { background: $color-surface-hover; color: $color-text; }
+
+    &--danger:hover { color: $color-danger; }
+}
+
+.saved-view-create {
+    display: flex;
+    gap: $space-1;
+    align-items: center;
+    padding: $space-2 $space-1 $space-1;
+    border-top: 1px solid $color-border;
+    margin-top: $space-1;
+
+    .input { flex: 1 1 auto; }
+}
+
 .filter-toggle {
     display: inline-flex;
     align-items: center;

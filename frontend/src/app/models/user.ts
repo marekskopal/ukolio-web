@@ -11,6 +11,7 @@ export interface User {
     locale: Locale;
     theme: Theme;
     currentWorkspaceId: number | null;
+    defaultSavedViewId: number | null;
     systemRole: SystemRole;
     emailVerified: boolean;
     onboardingCompletedAt: string | null;

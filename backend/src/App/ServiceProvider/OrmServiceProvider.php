@@ -19,6 +19,7 @@ use Ukolio\Model\Entity\PasswordResetToken;
 use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\ProjectField;
+use Ukolio\Model\Entity\SavedView;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\Task;
@@ -41,6 +42,7 @@ use Ukolio\Model\Repository\PasswordResetTokenRepository;
 use Ukolio\Model\Repository\PriorityRepository;
 use Ukolio\Model\Repository\ProjectFieldRepository;
 use Ukolio\Model\Repository\ProjectRepository;
+use Ukolio\Model\Repository\SavedViewRepository;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\TagRepository;
 use Ukolio\Model\Repository\TaskCommentRepository;
@@ -84,6 +86,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			ProjectFieldRepository::class,
 			TagRepository::class,
 			TaskTagRepository::class,
+			SavedViewRepository::class,
 			PriorityRepository::class,
 			EventRepository::class,
 			OAuthClientRepository::class,
@@ -119,6 +122,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, ProjectFieldRepository::class, ProjectField::class);
 		$this->addRepository($container, $orm, TagRepository::class, Tag::class);
 		$this->addRepository($container, $orm, TaskTagRepository::class, TaskTag::class);
+		$this->addRepository($container, $orm, SavedViewRepository::class, SavedView::class);
 		$this->addRepository($container, $orm, PriorityRepository::class, Priority::class);
 		$this->addRepository($container, $orm, EventRepository::class, Event::class);
 		$this->addRepository($container, $orm, OAuthClientRepository::class, OAuthClient::class);

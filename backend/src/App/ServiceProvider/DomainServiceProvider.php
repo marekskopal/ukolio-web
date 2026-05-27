@@ -43,6 +43,8 @@ use Ukolio\Service\Provider\ProjectPrefixGenerator;
 use Ukolio\Service\Provider\ProjectPrefixGeneratorInterface;
 use Ukolio\Service\Provider\ProjectProvider;
 use Ukolio\Service\Provider\ProjectProviderInterface;
+use Ukolio\Service\Provider\SavedViewProvider;
+use Ukolio\Service\Provider\SavedViewProviderInterface;
 use Ukolio\Service\Provider\StatusProvider;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TagProvider;
@@ -107,6 +109,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			ProjectFieldProviderInterface::class,
 			TagProviderInterface::class,
 			TaskTagProviderInterface::class,
+			SavedViewProviderInterface::class,
 			PriorityProviderInterface::class,
 			EventProviderInterface::class,
 			McpUserContextInterface::class,
@@ -153,6 +156,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(ProjectFieldProviderInterface::class, ProjectFieldProvider::class);
 		$c->add(TagProviderInterface::class, TagProvider::class);
 		$c->add(TaskTagProviderInterface::class, TaskTagProvider::class);
+		$c->add(SavedViewProviderInterface::class, SavedViewProvider::class);
 		$c->add(PriorityProviderInterface::class, PriorityProvider::class);
 		$c->add(McpUserContextInterface::class, McpUserContext::class);
 		$c->add(ActorContextInterface::class, ActorContext::class);

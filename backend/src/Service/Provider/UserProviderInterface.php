@@ -24,6 +24,8 @@ interface UserProviderInterface
 
 	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null, ?ThemeEnum $theme = null): User;
 
+	public function updateDefaultSavedViewId(User $user, ?int $defaultSavedViewId): User;
+
 	public function updateUserPassword(User $user, string $newPassword): User;
 
 	public function markEmailVerified(User $user): User;

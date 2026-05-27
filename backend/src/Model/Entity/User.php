@@ -29,6 +29,9 @@ class User extends AEntity
 	#[Column(type: Type::String, nullable: true, default: null)]
 	public ?string $googleId = null;
 
+	#[Column(type: Type::Int, nullable: true, default: null)]
+	public ?int $defaultSavedViewId = null;
+
 	public function __construct(
 		#[Column(type: Type::String)]
 		public string $email,

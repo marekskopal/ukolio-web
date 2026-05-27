@@ -165,6 +165,16 @@
                 "hideSkipped": "Hide details"
             }
         },
+        "savedViews": {
+            "picker": "Views",
+            "noViews": "No saved views yet.",
+            "saveAs": "Save current filters as view…",
+            "nameLabel": "View name",
+            "save": "Save",
+            "setDefault": "Set as default",
+            "delete": "Delete view",
+            "confirmDelete": "Delete the view \"{{name}}\"?"
+        },
         "pagination": {
             "showing": "Showing {{from}}–{{to}} of {{total}}",
             "none": "Nothing to show",

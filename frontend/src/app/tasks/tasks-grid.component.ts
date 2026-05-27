@@ -1,10 +1,12 @@
 import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, HostListener, inject, OnInit, signal, viewChild} from '@angular/core';
-import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {TaskDetailDrawerComponent} from '@app/board/task-detail-drawer.component';
 import {ProjectField} from '@app/models/field';
 import {Priority} from '@app/models/priority';
 import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
+import {SavedView, SavedViewFilters} from '@app/models/saved-view';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {OrderDirection, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
@@ -15,6 +17,7 @@ import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
 import {PriorityService} from '@app/services/priority.service';
 import {RealtimeService} from '@app/services/realtime.service';
+import {SavedViewService} from '@app/services/saved-view.service';
 import {TagService} from '@app/services/tag.service';
 import {BulkOp, BulkResult, TaskService} from '@app/services/task.service';
 import {WorkflowService} from '@app/services/workflow.service';
@@ -62,14 +65,14 @@ export class TasksGridComponent implements OnInit {
     private readonly currentUserService = inject(CurrentUserService);
     private readonly realtimeService = inject(RealtimeService);
     private readonly translate = inject(TranslateService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly savedViewService = inject(SavedViewService);
 
     private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
     protected readonly searchControl = new FormControl<string>('', {nonNullable: true});
-    protected readonly search = toSignal(
-        this.searchControl.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed()),
-        {initialValue: ''},
-    );
+    protected readonly search = signal<string>('');
 
     protected readonly selectedStatusIds = signal<number[]>([]);
     protected readonly selectedTagIds = signal<number[]>([]);
@@ -88,6 +91,19 @@ export class TasksGridComponent implements OnInit {
     protected readonly loading = signal<boolean>(false);
     protected readonly workflows = signal<WorkflowWithStatuses[]>([]);
 
+    protected readonly views = this.savedViewService.views;
+    protected readonly activeViewId = signal<number | null>(null);
+    protected readonly savingView = signal<boolean>(false);
+    protected readonly newViewName = signal<string>('');
+    protected readonly defaultViewId = computed<number | null>(
+        () => this.currentUserService.currentUser()?.defaultSavedViewId ?? null,
+    );
+    protected readonly activeViewName = computed<string | null>(() => {
+        const id = this.activeViewId();
+        if (id === null) return null;
+        return this.views().find((v) => v.id === id)?.name ?? null;
+    });
+
     protected readonly drawer = signal<DrawerContext | null>(null);
 
     // Bulk-selection state. Kept as a plain Set for cheap membership tests; signal value is the set ref.
@@ -99,6 +115,7 @@ export class TasksGridComponent implements OnInit {
     private readonly statusDetails = viewChild<ElementRef<HTMLDetailsElement>>('statusDetails');
     private readonly tagDetails = viewChild<ElementRef<HTMLDetailsElement>>('tagDetails');
     private readonly assigneeDetails = viewChild<ElementRef<HTMLDetailsElement>>('assigneeDetails');
+    private readonly viewsDetails = viewChild<ElementRef<HTMLDetailsElement>>('viewsDetails');
     private readonly bulkMoveDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkMoveDetails');
     private readonly bulkAddTagDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkAddTagDetails');
     private readonly bulkRemoveTagDetails = viewChild<ElementRef<HTMLDetailsElement>>('bulkRemoveTagDetails');
@@ -158,25 +175,117 @@ export class TasksGridComponent implements OnInit {
         void this.loadWorkflows();
         void this.loadWorkspaceTags();
         void this.loadWorkspacePriorities();
+        void this.loadSavedViews();
         if (this.workspaceService.currentMembers().length === 0) {
             void this.workspaceService.loadCurrentMembers();
         }
     }
 
     public constructor() {
+        // Hydrate filter / sort / page signals from URL query params before any effects run.
+        this.applyQueryParams(this.route.snapshot.queryParamMap);
+
         this.searchControl.valueChanges
             .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
-            .subscribe(() => this.page.set(1));
+            .subscribe((value) => {
+                this.search.set(value);
+                this.page.set(1);
+            });
 
         effect(() => {
             const params = this.queryParams();
             void this.fetchTasks(params);
         });
 
+        // Push the current filter state back to the URL on every change. Skip the first tick to
+        // avoid clobbering whatever the user landed on (the values we hydrated come from there).
+        let firstUrlPush = true;
+        effect(() => {
+            const urlParams = this.urlParams();
+            if (firstUrlPush) {
+                firstUrlPush = false;
+                return;
+            }
+            void this.router.navigate([], {relativeTo: this.route, queryParams: urlParams, replaceUrl: true});
+
+            // Clear active view tag when state diverges from the view's saved config.
+            const id = this.activeViewId();
+            if (id !== null) {
+                const view = this.views().find((v) => v.id === id);
+                if (view) {
+                    let savedFilters: SavedViewFilters | null;
+                    try {
+                        savedFilters = JSON.parse(view.filterConfig) as SavedViewFilters;
+                    } catch {
+                        savedFilters = null;
+                    }
+                    if (savedFilters === null || !this.currentMatchesFilters(savedFilters)) {
+                        this.activeViewId.set(null);
+                    }
+                }
+            }
+        });
+
         this.realtimeService.events$
             .pipe(takeUntilDestroyed())
             .subscribe((event) => this.onRealtimeEvent(event));
     }
+
+    private applyQueryParams(map: ParamMap): void {
+        const q = map.get('q') ?? '';
+        if (q !== '') {
+            this.searchControl.setValue(q, {emitEvent: false});
+            this.search.set(q);
+        }
+
+        const statusIds = parseIdList(map.get('statusIds'));
+        if (statusIds.length > 0) this.selectedStatusIds.set(statusIds);
+
+        const tagIds = parseIdList(map.get('tagIds'));
+        if (tagIds.length > 0) this.selectedTagIds.set(tagIds);
+
+        const assigneeIds = parseIdList(map.get('assigneeIds'));
+        if (assigneeIds.length > 0) this.selectedAssigneeIds.set(assigneeIds);
+
+        if (map.get('onlyActive') === '1') {
+            this.onlyActive.set(true);
+        }
+
+        const orderBy = map.get('orderBy');
+        if (orderBy === 'created_at' || orderBy === 'name' || orderBy === 'status_id') {
+            this.sortBy.set(orderBy);
+        }
+
+        const orderDirection = map.get('orderDirection');
+        if (orderDirection === 'ASC' || orderDirection === 'DESC') {
+            this.sortDirection.set(orderDirection);
+        }
+
+        const page = Number.parseInt(map.get('page') ?? '', 10);
+        if (Number.isFinite(page) && page > 0) {
+            this.page.set(page);
+        }
+
+        const pageSize = Number.parseInt(map.get('pageSize') ?? '', 10);
+        if (Number.isFinite(pageSize) && pageSize > 0) {
+            this.pageSize.set(pageSize);
+        }
+    }
+
+    private readonly urlParams = computed<Record<string, string>>(() => {
+        const out: Record<string, string> = {};
+        const s = this.search();
+        if (s !== '') out['q'] = s;
+        if (this.selectedStatusIds().length > 0) out['statusIds'] = this.selectedStatusIds().join('|');
+        if (this.selectedTagIds().length > 0) out['tagIds'] = this.selectedTagIds().join('|');
+        if (this.selectedAssigneeIds().length > 0) out['assigneeIds'] = this.selectedAssigneeIds().join('|');
+        if (this.onlyActive()) out['onlyActive'] = '1';
+        if (this.sortBy() !== 'created_at') out['orderBy'] = this.sortBy();
+        if (this.sortDirection() !== 'DESC') out['orderDirection'] = this.sortDirection();
+        if (this.page() !== 1) out['page'] = String(this.page());
+        if (this.pageSize() !== 50) out['pageSize'] = String(this.pageSize());
+        return out;
+    });
 
     private onRealtimeEvent(event: RealtimeEvent): void {
         if (event.type !== 'RealtimeReconnected' && !TASK_EVENT_TYPES.has(event.type)) {
@@ -223,6 +332,176 @@ export class TasksGridComponent implements OnInit {
         } catch {
             this.priorities.set([]);
         }
+    }
+
+    private async loadSavedViews(): Promise<void> {
+        const workspaceId = await this.resolveCurrentWorkspaceId();
+        if (workspaceId === null) {
+            this.savedViewService.clearCache();
+            return;
+        }
+        try {
+            const views = await this.savedViewService.loadForWorkspace(workspaceId);
+            // If the URL came in empty and the user has a default for this workspace, apply it.
+            if (this.isEmptyFilterState() && this.route.snapshot.queryParamMap.keys.length === 0) {
+                const defaultId = this.currentUserService.currentUser()?.defaultSavedViewId ?? null;
+                if (defaultId !== null) {
+                    const view = views.find((v) => v.id === defaultId);
+                    if (view) {
+                        this.applyView(view);
+                    }
+                }
+            }
+        } catch {
+            // ignore — picker just shows an empty state
+        }
+    }
+
+    private isEmptyFilterState(): boolean {
+        return this.search() === ''
+            && this.selectedStatusIds().length === 0
+            && this.selectedTagIds().length === 0
+            && this.selectedAssigneeIds().length === 0
+            && !this.onlyActive()
+            && this.page() === 1
+            && this.sortBy() === 'created_at'
+            && this.sortDirection() === 'DESC';
+    }
+
+    // ─── Saved views ──────────────────────────────────────────
+
+    protected applyView(view: SavedView): void {
+        let filters: SavedViewFilters;
+        try {
+            filters = JSON.parse(view.filterConfig) as SavedViewFilters;
+        } catch {
+            return;
+        }
+        this.clearFilters();
+        if (filters.q !== undefined && filters.q !== '') {
+            this.searchControl.setValue(filters.q, {emitEvent: false});
+            this.search.set(filters.q);
+        }
+        if (filters.statusIds && filters.statusIds.length > 0) {
+            this.selectedStatusIds.set([...filters.statusIds]);
+        }
+        if (filters.tagIds && filters.tagIds.length > 0) {
+            this.selectedTagIds.set([...filters.tagIds]);
+        }
+        if (filters.assigneeIds && filters.assigneeIds.length > 0) {
+            this.selectedAssigneeIds.set([...filters.assigneeIds]);
+        }
+        if (filters.onlyActive) {
+            this.onlyActive.set(true);
+        }
+        if (filters.orderBy) {
+            this.sortBy.set(filters.orderBy);
+        }
+        if (filters.orderDirection) {
+            this.sortDirection.set(filters.orderDirection);
+        }
+        if (filters.pageSize) {
+            this.pageSize.set(filters.pageSize);
+        }
+        this.activeViewId.set(view.id);
+        this.closeViewsDetails();
+    }
+
+    protected startSaveView(): void {
+        this.newViewName.set('');
+        this.savingView.set(true);
+    }
+
+    protected cancelSaveView(): void {
+        this.savingView.set(false);
+        this.newViewName.set('');
+    }
+
+    protected onNewViewNameInput(event: Event): void {
+        this.newViewName.set((event.target as HTMLInputElement).value);
+    }
+
+    protected async confirmSaveView(): Promise<void> {
+        const name = this.newViewName().trim();
+        if (name === '') return;
+        const workspaceId = await this.resolveCurrentWorkspaceId();
+        if (workspaceId === null) return;
+
+        const filters: SavedViewFilters = {};
+        if (this.search() !== '') filters.q = this.search();
+        if (this.selectedStatusIds().length > 0) filters.statusIds = [...this.selectedStatusIds()];
+        if (this.selectedTagIds().length > 0) filters.tagIds = [...this.selectedTagIds()];
+        if (this.selectedAssigneeIds().length > 0) filters.assigneeIds = [...this.selectedAssigneeIds()];
+        if (this.onlyActive()) filters.onlyActive = true;
+        if (this.sortBy() !== 'created_at') filters.orderBy = this.sortBy();
+        if (this.sortDirection() !== 'DESC') filters.orderDirection = this.sortDirection();
+        if (this.pageSize() !== 50) filters.pageSize = this.pageSize();
+
+        try {
+            const view = await this.savedViewService.create(workspaceId, {
+                name,
+                filterConfig: JSON.stringify(filters),
+            });
+            this.activeViewId.set(view.id);
+            this.savingView.set(false);
+            this.newViewName.set('');
+            this.closeViewsDetails();
+        } catch {
+            // error interceptor surfaces the failure
+        }
+    }
+
+    protected async setAsDefault(view: SavedView): Promise<void> {
+        try {
+            await this.currentUserService.update({defaultSavedViewId: view.id});
+        } catch {
+            // ignore
+        }
+    }
+
+    protected async deleteView(view: SavedView): Promise<void> {
+        const prompt = await this.translate.get('app.savedViews.confirmDelete', {name: view.name}).toPromise();
+        if (!confirm(typeof prompt === 'string' ? prompt : `Delete view "${view.name}"?`)) {
+            return;
+        }
+        try {
+            await this.savedViewService.delete(view.id);
+            if (this.activeViewId() === view.id) {
+                this.activeViewId.set(null);
+            }
+            // If we just deleted the local default, also reflect that locally — backend cleared it server-side.
+            if (this.currentUserService.currentUser()?.defaultSavedViewId === view.id) {
+                const u = this.currentUserService.currentUser();
+                if (u) {
+                    this.currentUserService.currentUser.set({...u, defaultSavedViewId: null});
+                }
+            }
+        } catch {
+            // ignore
+        }
+    }
+
+    private closeViewsDetails(): void {
+        const el = this.viewsDetails()?.nativeElement;
+        if (el) el.open = false;
+    }
+
+    private currentMatchesFilters(saved: SavedViewFilters): boolean {
+        const sameArray = (a: number[], b: number[] | undefined): boolean => {
+            const other = b ?? [];
+            if (a.length !== other.length) return false;
+            const sortedA = [...a].sort();
+            const sortedB = [...other].sort();
+            return sortedA.every((v, i) => v === sortedB[i]);
+        };
+        return this.search() === (saved.q ?? '')
+            && sameArray(this.selectedStatusIds(), saved.statusIds)
+            && sameArray(this.selectedTagIds(), saved.tagIds)
+            && sameArray(this.selectedAssigneeIds(), saved.assigneeIds)
+            && this.onlyActive() === (saved.onlyActive ?? false)
+            && this.sortBy() === (saved.orderBy ?? 'created_at')
+            && this.sortDirection() === (saved.orderDirection ?? 'DESC')
+            && this.pageSize() === (saved.pageSize ?? 50);
     }
 
     private async resolveCurrentWorkspaceId(): Promise<number | null> {
@@ -286,7 +565,7 @@ export class TasksGridComponent implements OnInit {
             return;
         }
         const refs = [
-            this.statusDetails(), this.tagDetails(), this.assigneeDetails(),
+            this.statusDetails(), this.tagDetails(), this.assigneeDetails(), this.viewsDetails(),
             this.bulkMoveDetails(), this.bulkAddTagDetails(), this.bulkRemoveTagDetails(),
             this.bulkAssignDetails(), this.bulkPriorityDetails(),
         ];
@@ -599,4 +878,18 @@ export class TasksGridComponent implements OnInit {
         }
         return date.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: '2-digit'});
     }
+}
+
+function parseIdList(raw: string | null): number[] {
+    if (raw === null || raw === '') {
+        return [];
+    }
+    const out: number[] = [];
+    for (const part of raw.split('|')) {
+        const n = Number.parseInt(part, 10);
+        if (Number.isFinite(n) && n > 0) {
+            out.push(n);
+        }
+    }
+    return out;
 }

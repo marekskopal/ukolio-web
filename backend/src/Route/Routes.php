@@ -73,6 +73,9 @@ enum Routes: string
 
 	case Search = '/api/search';
 
+	case WorkspaceSavedViews = '/api/workspaces/{workspaceId:number}/saved-views';
+	case SavedView = '/api/saved-views/{savedViewId:number}';
+
 	case AdminUsers = '/api/admin/users';
 	case AdminUser = '/api/admin/users/{userId:number}';
 	case AdminWorkspaces = '/api/admin/workspaces';

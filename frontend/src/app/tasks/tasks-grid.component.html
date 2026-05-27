@@ -104,6 +104,84 @@
         <span>{{ 'app.tasks.onlyActive' | translate }}</span>
     </label>
 
+    <details class="filter-statuses" #viewsDetails>
+        <summary class="filter-summary">
+            <span>{{ activeViewName() ?? ('app.savedViews.picker' | translate) }}</span>
+            @if (activeViewId() !== null) {
+                <span class="filter-summary-count" aria-hidden="true">★</span>
+            }
+        </summary>
+        <div class="filter-popover">
+            @if (views().length === 0) {
+                <p class="text-muted filter-empty">{{ 'app.savedViews.noViews' | translate }}</p>
+            } @else {
+                <div class="filter-group">
+                    @for (view of views(); track view.id) {
+                        <div class="saved-view-row">
+                            <button
+                                type="button"
+                                class="saved-view-apply"
+                                [class.saved-view-apply--active]="view.id === activeViewId()"
+                                (click)="applyView(view)"
+                            >
+                                @if (view.id === defaultViewId()) {
+                                    <span class="saved-view-default" aria-hidden="true">★</span>
+                                }
+                                <span class="saved-view-name">{{ view.name }}</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="saved-view-action"
+                                [attr.aria-label]="'app.savedViews.setDefault' | translate"
+                                [attr.title]="'app.savedViews.setDefault' | translate"
+                                (click)="setAsDefault(view)"
+                            >
+                                @if (view.id === defaultViewId()) {
+                                    ★
+                                } @else {
+                                    ☆
+                                }
+                            </button>
+                            <button
+                                type="button"
+                                class="saved-view-action saved-view-action--danger"
+                                [attr.aria-label]="'app.savedViews.delete' | translate"
+                                [attr.title]="'app.savedViews.delete' | translate"
+                                (click)="deleteView(view)"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            <div class="saved-view-create">
+                @if (savingView()) {
+                    <input
+                        type="text"
+                        class="input"
+                        [value]="newViewName()"
+                        (input)="onNewViewNameInput($event)"
+                        (keydown.enter)="confirmSaveView()"
+                        (keydown.escape)="cancelSaveView()"
+                        [placeholder]="'app.savedViews.nameLabel' | translate"
+                        autocomplete="off"
+                    />
+                    <button type="button" class="btn btn-primary btn-sm" (click)="confirmSaveView()">
+                        {{ 'app.savedViews.save' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="cancelSaveView()">
+                        {{ 'app.actions.cancel' | translate }}
+                    </button>
+                } @else {
+                    <button type="button" class="btn-link" (click)="startSaveView()">
+                        {{ 'app.savedViews.saveAs' | translate }}
+                    </button>
+                }
+            </div>
+        </div>
+    </details>
+
     @if (search() || selectedStatusIds().length > 0 || selectedTagIds().length > 0 || selectedAssigneeIds().length > 0 || onlyActive()) {
         <button type="button" class="btn-link filter-clear" (click)="clearFilters()">
             {{ 'app.tasks.clearFilters' | translate }}

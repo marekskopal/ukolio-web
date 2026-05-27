@@ -2,12 +2,14 @@ import {provideZonelessChangeDetection} from '@angular/core';
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
+import {provideRouter} from '@angular/router';
 import {OrderDirection, TaskListItem, TaskOrderBy} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
 import {PriorityService} from '@app/services/priority.service';
 import {RealtimeService} from '@app/services/realtime.service';
+import {SavedViewService} from '@app/services/saved-view.service';
 import {TagService} from '@app/services/tag.service';
 import {BulkResult, TaskService} from '@app/services/task.service';
 import {WorkflowService} from '@app/services/workflow.service';
@@ -103,6 +105,7 @@ function createComponent(options: CreateOptions = {}): TasksGridComponent {
     TestBed.configureTestingModule({
         providers: [
             provideZonelessChangeDetection(),
+            provideRouter([]),
             provideTranslateStub(),
             {provide: TaskService, useValue: {
                 getTasks: vi.fn().mockResolvedValue({tasks: [], count: 0}),
@@ -124,6 +127,14 @@ function createComponent(options: CreateOptions = {}): TasksGridComponent {
                 currentUser: signal(null),
             }},
             {provide: RealtimeService, useValue: {events$: new Subject()}},
+            {provide: SavedViewService, useValue: {
+                views: signal([]),
+                loadForWorkspace: vi.fn().mockResolvedValue([]),
+                create: vi.fn(),
+                update: vi.fn(),
+                delete: vi.fn().mockResolvedValue(undefined),
+                clearCache: vi.fn(),
+            }},
         ],
     });
     return TestBed.createComponent(TasksGridComponent).componentInstance;

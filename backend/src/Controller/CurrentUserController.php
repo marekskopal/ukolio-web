@@ -28,6 +28,7 @@ use Ukolio\Service\Auth\CurrentUserDeletionServiceInterface;
 use Ukolio\Service\Auth\SoleOwnerException;
 use Ukolio\Service\Auth\UserDataExportServiceInterface;
 use Ukolio\Service\Provider\EmailVerificationProviderInterface;
+use Ukolio\Service\Provider\SavedViewProviderInterface;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 use Ukolio\Validator\PasswordValidator;
@@ -39,6 +40,7 @@ final readonly class CurrentUserController
 		private EmailVerificationProviderInterface $emailVerificationProvider,
 		private CurrentUserDeletionServiceInterface $currentUserDeletionService,
 		private UserDataExportServiceInterface $userDataExportService,
+		private SavedViewProviderInterface $savedViewProvider,
 		private RequestServiceInterface $requestService,
 		private UserRepository $userRepository,
 	) {
@@ -78,6 +80,16 @@ final readonly class CurrentUserController
 		}
 
 		$updated = $this->userProvider->updateUser($user, $name, $locale, $theme);
+
+		if ($dto->defaultSavedViewIdProvided) {
+			if ($dto->defaultSavedViewId !== null) {
+				$view = $this->savedViewProvider->getViewForUser($dto->defaultSavedViewId, $updated);
+				if ($view === null) {
+					return new ErrorResponse('Saved view not found.', 422);
+				}
+			}
+			$updated = $this->userProvider->updateDefaultSavedViewId($updated, $dto->defaultSavedViewId);
+		}
 
 		return new JsonResponse(UserDto::fromEntity($updated));
 	}
