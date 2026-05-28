@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.ukolio.com">www.ukolio.com</a> · MCP endpoint: <code>https://www.ukolio.com/api/mcp</code>
+  <a href="https://www.ukolio.com">www.ukolio.com</a> · MCP endpoint: <code>https://www.ukolio.com/mcp</code>
 </p>
 
 ---
@@ -24,7 +24,8 @@
 - **OAuth 2.1 + PKCE for agents.** No shared API keys, no copy-paste tokens — each agent has its own credential.
 - **Human/Agent attribution.** Every event, comment, and task is tagged `Human` or `Agent`; append-only event log per workspace / project / task.
 - **Multi-tenant.** Workspaces with Owner / Admin / Member roles, invitations, and a separate SystemAdmin tier for global operations.
-- **Full Kanban kit.** Boards with drag-and-drop, workspace-wide task grid, custom fields, tags, comments, file attachments, task relations, realtime updates over Mercure.
+- **Full Kanban kit.** Boards with drag-and-drop, workspace-wide task grid with saved views, custom fields, custom priorities, tags, assignees, comments, file attachments, task relations, realtime updates over Mercure.
+- **Typo-tolerant search.** Meilisearch indexes task names, descriptions, comments, text custom-field values, and tags — exposed both on the web and as an MCP tool.
 
 ## Stack
 
@@ -34,10 +35,13 @@
 | Frontend | Angular 21 (standalone components + signals), SCSS, ngx-translate |
 | Backend  | FrankenPHP, PHP 8.5, [`marekskopal/orm`](https://github.com/marekskopal/orm), [`marekskopal/router`](https://github.com/marekskopal/router), Symfony Mailer |
 | Database | MariaDB 11.4 |
+| Cache    | Redis (sessions, rate limits, hot paths) + Memcached |
+| Queue    | RabbitMQ — async jobs (search indexing, email, etc.) |
+| Search   | Meilisearch — typo-tolerant full-text over tasks |
 | Storage  | S3-compatible (MinIO in dev) for task file attachments |
 | Realtime | Mercure hub for board / task push updates |
 | Mail     | Mailpit (dev) / any SMTP (prod) |
-| Auth     | JWT for web, OAuth 2.1 + PKCE for MCP |
+| Auth     | JWT + optional Google sign-in for web, OAuth 2.1 + PKCE for MCP |
 
 ## Quick start
 
@@ -63,29 +67,43 @@ rejects the dev defaults for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`,
 installs that previously shipped a default admin.
 
 Anyone can also sign up at `/sign-up`; the first registration auto-creates a
-personal workspace. New accounts go through an email-verification flow
+personal workspace and drops the user into a 3-step onboarding wizard
+(`/onboarding/step-1…3`). New accounts go through an email-verification flow
 (`POST /api/authentication/verify-email`), and the standard password-reset
-loop is wired (`request-password-reset` → `confirm-password-reset`).
+loop is wired (`request-password-reset` → `confirm-password-reset`). Setting
+`GOOGLE_CLIENT_ID` enables one-click Google sign-in alongside email/password.
 
 ## Domain
 
 - **Workspace** — top-level tenant; users belong to one or more workspaces.
 - **WorkspaceUser** — membership with a role (`Owner` / `Admin` / `Member`).
 - **Invitation** — pending email invite, signed token, expires after 7 days.
-- **User** — `email`, `password`, `name`, `currentWorkspaceId`, `systemRole`
-  (`User` / `SystemAdmin`). `currentWorkspaceId` scopes every web request.
-- **Project** — workspace-scoped; auto-seeds a `Workflow` of
-  `To Do → In Progress → Done` on creation.
+- **User** — `email`, `password` (nullable for Google-only accounts), `name`,
+  `locale`, `theme` (`System` / `Light` / `Dark`), `currentWorkspaceId`,
+  `systemRole` (`User` / `SystemAdmin`), `emailVerified`,
+  `onboardingCompletedAt`, optional `googleId`, `defaultSavedViewId`.
+  `currentWorkspaceId` scopes every web request.
+- **Project** — workspace-scoped, with a short `prefix` (e.g. `MP`) used to
+  mint task codes. Auto-seeds a `Workflow` of `To Do → In Progress → Done` on
+  creation.
 - **Workflow** → **Status** (`Start` / `Normal` / `Finish`, with name + color +
   position).
-- **Task** — project-scoped, lives in a Status, has name / Markdown
-  description / priority (`Low` / `Medium` / `High`) / due date / position.
-  `createdByAgent = true` when the row was created via MCP.
+- **Priority** — workspace-scoped catalog (name + color + position +
+  `isDefault`). Replaces the old hard-coded `Low` / `Medium` / `High` enum;
+  every task references one.
+- **Task** — project-scoped, lives in a Status, has name / Markdown description
+  / `Priority` / due date / position / optional assignee. `sequenceNumber`
+  combined with the project's `prefix` gives a stable public code (e.g.
+  `MP-3`) used in URLs and MCP `get_task`. `createdByAgent = true` when the
+  row was created via MCP.
 - **Field / ProjectField / TaskFieldValue** — per-workspace catalog of custom
   fields (`Text` / `Textarea` / `Select` / `Version` semver). Projects opt-in
   to fields; their values are persisted per task.
 - **Tag / TaskTag** — workspace-wide tag catalog with colors; tags attach to
   tasks many-to-many.
+- **SavedView** — per-user named filter set on the workspace-wide tasks grid
+  (search / status / assignee / tag / priority / project / sort / page size);
+  `User.defaultSavedViewId` selects the view loaded on entry.
 - **TaskComment** — Markdown comments attributed to the author and tagged
   `Human` or `Agent` (the MCP transport flips actor type via `ActorContext`).
 - **TaskFile** — file attachments stored in the configured S3-compatible
@@ -93,8 +111,8 @@ loop is wired (`request-password-reset` → `confirm-password-reset`).
 - **TaskRelation** — typed link between two tasks (`Related` / `Duplicates` /
   `Parent` / `DependsOn`).
 - **Event** — append-only audit log keyed to workspace / project / task; covers
-  task / project / workflow / status / field / tag / comment / file / relation
-  / membership / admin actions.
+  task / project / workflow / status / field / tag / priority / comment / file
+  / relation / membership / admin actions.
 
 ## Roles & permissions
 
@@ -109,9 +127,9 @@ mutating controller routes through it.
   workspace, manages all members, transfers ownership.
 - **Admin** — workspace-scoped. Manages members (Member ↔ Admin), invites
   Members, full CRUD on projects, workflows, statuses, custom fields, tags,
-  tasks.
+  priorities, tasks.
 - **Member** — workspace-scoped. Full CRUD on tasks (incl. comments, files,
-  relations, tag assignment); read-only on the rest.
+  relations, tag assignment, saved views); read-only on the rest.
 
 Ownership transfer (`POST /api/workspaces/{id}/transfer-ownership`) is atomic
 — the old Owner becomes Admin. Workspace owner removal is blocked; transfer
@@ -121,13 +139,17 @@ first.
 
 | Route | Purpose |
 |-------|---------|
-| `/login`, `/sign-up`, `/invitations/accept` | Public auth pages |
+| `/login`, `/sign-up`, `/forgot-password`, `/reset-password`, `/verify-email`, `/invitations/accept` | Public auth pages |
+| `/oauth/authorize` | MCP OAuth consent screen |
+| `/onboarding/step-1…3` | First-run wizard for new accounts |
 | `/projects` | Project list (workspace-scoped) |
 | `/projects/:id/board` | Kanban board with drag-and-drop and task drawer |
 | `/projects/:id/workflow` | Workflow editor |
 | `/projects/:id/events` | Project activity log |
-| `/tasks` | Workspace-wide task grid — search, multi-status filter, sortable columns, pagination |
-| `/workspaces` | Membership, invitations, tags, custom fields, MCP clients, agent stats, events |
+| `/tasks` | Workspace-wide task grid — full-text search (Meili), multi-status / assignee / tag / priority / project filters, saved views, sortable columns, pagination, URL-persisted state |
+| `/agents` | Agent-vs-human activity stats |
+| `/workspaces` | Membership, invitations, tags, priorities, custom fields, MCP clients, events |
+| `/settings` | User account settings (name, locale, theme, password, data export) |
 | `/admin/users`, `/admin/workspaces` | SystemAdmin tools |
 
 i18n: EN + CS, switchable from the topbar. Choice is persisted to the user via
@@ -137,17 +159,18 @@ language. Frontend uses `@ngx-translate/core`; backend renders emails via
 
 ## MCP server
 
-Exposed at `POST/GET/DELETE /api/mcp` over Streamable HTTP (using `mcp/sdk`).
-Sessions persist to `MCP_SESSION_DIR` (defaults to `<tmp>/ukolio-mcp-sessions`).
+Exposed at `POST/GET/DELETE /mcp` over Streamable HTTP (using `mcp/sdk`).
+Sessions persist to Redis with a TTL of `MCP_SESSION_TTL` seconds (default
+24 h).
 
 **Auth: OAuth 2.1 + PKCE.** Discovery endpoints:
 
-- `GET /.well-known/oauth-authorization-server/api/mcp`
-- `GET /.well-known/oauth-protected-resource/api/mcp`
-- `POST /api/mcp/oauth/register` — dynamic client registration (open)
-- `POST /api/mcp/oauth/authorize` — user approval (requires user JWT)
-- `POST /api/mcp/oauth/token` — code/refresh-token exchange (open)
-- `GET /api/mcp/oauth/client-info` — display name lookup (open)
+- `GET /.well-known/oauth-authorization-server/mcp`
+- `GET /.well-known/oauth-protected-resource/mcp`
+- `POST /mcp/oauth/register` — dynamic client registration (open)
+- `POST /mcp/oauth/authorize` — user approval (requires user JWT)
+- `POST /mcp/oauth/token` — code/refresh-token exchange (open)
+- `GET /mcp/oauth/client-info` — display name lookup (open)
 
 401 responses include `WWW-Authenticate: Bearer resource_metadata="…"` per
 RFC 9728. PKCE `S256` only; no client secret. Access token TTL 1 h, refresh
@@ -157,13 +180,21 @@ RFC 9728. PKCE `S256` only; no client secret. Access token TTL 1 h, refresh
 Auto-discovered tools (`backend/src/Mcp/Tool/`):
 
 - `ProjectTools` — list / find / get / create / delete projects.
-- `WorkflowTools` — list / find statuses for a project's workflow.
+- `WorkflowTools` — list / find / create / update / move / delete workflow
+  statuses.
 - `TaskTools` — list / find / get / create / update / move / delete tasks
-  (move accepts `statusId` *or* `statusName`).
+  (move accepts `statusId` *or* `statusName`), plus `bulk_update_tasks` for
+  batched move / tag / untag / assign / priority / delete operations.
 - `FieldTools` — manage the workspace's custom-field catalog and per-project
   attachments.
 - `TagTools` — list / find / create / update / delete tags, plus
   `set_task_tags` to replace the tag set on a task.
+- `PriorityTools` — list / find / create / update / delete workspace
+  priorities.
+- `MemberTools` — list / find workspace members, invite new ones.
+- `SearchTools` — `search_tasks`: typo-tolerant full-text search across task
+  names, descriptions, comments, text custom-field values, and tag names
+  (Meilisearch-backed).
 - `TaskCommentTools` — list & add comments (agent-tagged automatically).
 - `TaskFileTools` — list / attach (base64) / fetch / delete task files.
 - `TaskRelationTools` — list / link / unlink typed task relations.
@@ -182,17 +213,29 @@ Set `MERCURE_PUBLISHER_JWT_KEY` and `MERCURE_SUBSCRIBER_JWT_KEY` to enable —
 when either is unset the boot guard wires `NullMercureHub` and the rest of
 the app keeps working without push updates.
 
+## Search & async jobs
+
+Full-text search is powered by **Meilisearch**. `Service\Search\SearchIndexer`
+ships task documents (name, description, comments, text/textarea custom-field
+values, tag names) per workspace; `MeiliClient` exposes search both to the
+`/api/search` endpoint used by `/tasks` and to the `search_tasks` MCP tool.
+Reindex jobs flow through **RabbitMQ** via `Service\Queue\QueuePublisher` so
+writes don't block on the search hop. **Redis** holds rate-limit counters,
+MCP session state, and other hot caches; **Memcached** is wired in as a
+secondary backend (see `CacheFactory`).
+
 ## Project layout
 
 ```
-proxy/      nginx reverse proxy (/api/* → backend, /* → frontend)
+proxy/      nginx reverse proxy (/api/* → backend, /mcp → backend, /* → frontend)
 backend/    FrankenPHP + PHP 8.5
   src/
     Controller/       HTTP endpoints (attribute-routed via marekskopal/router)
     Dto/              Wire-level DTOs for requests / responses
     Model/Entity/     ORM entities + enums
     Model/Repository/ Repository classes (+ Enum/ for query enums)
-    Service/          Providers, auth, request, translator, realtime, storage, etc.
+    Service/          Auth, providers, request, translator, realtime, storage,
+                      search (Meili), queue (RabbitMQ), cache (Redis/Memcached), etc.
     Mcp/              MCP tools, DTOs, user context
     OAuth/            OAuth 2.1 + PKCE flow for MCP clients
     Middleware/       Authorization, CORS, error handler
@@ -202,13 +245,16 @@ backend/    FrankenPHP + PHP 8.5
   tests/              PHPUnit
 frontend/   Angular 21 SPA
   src/app/
-    authentication/   Login, sign-up, password reset, email verification
+    authentication/   Login, sign-up, password reset, email verification,
+                      Google sign-in
+    onboarding/       3-step first-run wizard
     projects/         Project list + CRUD
     board/            Kanban board + task drawer (tags, comments, files, relations)
     workflow-editor/  Workflow + status editing
-    tasks/            Workspace-wide tasks grid
+    tasks/            Workspace-wide tasks grid with saved views
     events/           Activity log
-    workspaces/       Workspace management, invitations, tags, MCP clients
+    workspaces/       Workspace management, invitations, tags, priorities,
+                      custom fields, MCP clients
     agents/           Agent activity stats
     admin/            SystemAdmin pages
     invitations/      Invitation accept flow
@@ -282,22 +328,31 @@ php bin/console migration:run
 
 | Variable | Purpose |
 |----------|---------|
-| `APP_ENV` | `development` (default) or `production`. `production` rejects default MYSQL/S3 credentials and short secrets at boot |
-| `PROXY_PORT` | Host port the nginx proxy binds to |
+| `APP_ENV` | `development` (default) or `production`. `production` rejects default MYSQL/S3/Meili credentials and short secrets at boot |
+| `PROXY_PORT` / `PROXY_PORT_SSL` / `PROXY_SSL_CERT` / `PROXY_SSL_KEY` | Host ports & optional TLS cert for the nginx proxy |
 | `MYSQL_*` | Database credentials (rotate from defaults before `APP_ENV=production`) |
 | `AUTHORIZATION_TOKEN_KEY` | 32-char secret used to sign JWTs. Generate with `openssl rand -hex 32`; boot fails on the placeholder |
-| `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` | Mercure realtime hub JWT keys. Generate with `openssl rand -hex 32` |
-| `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` | Object-storage credentials for task file attachments (rotate from `minioadmin` before `APP_ENV=production`) |
-| `MCP_SESSION_DIR` | Override directory for persisted MCP sessions (default `<tmp>/ukolio-mcp-sessions`) |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID for the "Sign in with Google" button (leave blank to disable) |
+| `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` / `MERCURE_PUBLISH_URL` | Mercure realtime hub. Generate keys with `openssl rand -hex 32`; unset keys disable realtime gracefully |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` / `S3_USE_PATH_STYLE` | Object-storage credentials for task file attachments (rotate from `minioadmin` before `APP_ENV=production`) |
+| `TASK_FILE_MAX_SIZE_MB` | Maximum per-file upload size for task attachments |
+| `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Redis used for sessions, rate limits, MCP session storage |
+| `MEMCACHED_HOST` / `MEMCACHED_PORT` | Memcached (secondary cache backend) |
+| `RABBITMQ_HOST` / `RABBITMQ_PORT` / `RABBITMQ_USER` / `RABBITMQ_PASSWORD` / `BACKEND_AMQP_CONSUMER_PREFETCH` | RabbitMQ broker for async jobs (search indexing, etc.) |
+| `MEILI_HOST` / `MEILI_PORT` / `MEILI_MASTER_KEY` / `MEILI_INDEX_PREFIX` | Meilisearch instance backing `/api/search` and the `search_tasks` MCP tool |
+| `MCP_SESSION_TTL` | TTL (seconds) for persisted MCP sessions in Redis (default 86400) |
+| `RATE_LIMIT_LOGIN_ATTEMPTS` / `RATE_LIMIT_LOGIN_BACKOFF_CAP_SECONDS` / `RATE_LIMIT_INVITATIONS_PER_HOUR` | Login + invitation throttling |
 | `BACKEND_FRANKENPHP_WORKERS` | FrankenPHP worker count |
 | `BACKEND_CORS_ALLOWED_ORIGIN` | Allowed Origin(s) for `/api/*` and Mercure. `*` for dev; with `APP_ENV=production` an explicit space- or comma-separated list is required |
 | `BACKEND_LOG_LEVEL` | `development` / `production` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` | Outbound mail |
 | `EMAIL_FROM` | Sender used by invitation, verification, and password-reset emails |
 | `APP_URL` | Base URL embedded in email links |
+| `ADMINER_USER` / `ADMINER_PASSWORD` | Basic-auth for the optional Adminer profile |
 
 `mailpit` is wired into `docker-compose.yml` so local invitations are captured
-at the SMTP layer instead of being sent.
+at the SMTP layer instead of being sent. The `dev` Compose profile additionally
+boots Adminer behind the proxy for ad-hoc DB inspection.
 
 ## Contributing
 
