@@ -102,6 +102,71 @@
     gap: $space-7;
 }
 
+// "Start from template" picker shown only when creating a task.
+.template-select {
+    align-self: flex-start;
+    max-width: 100%;
+}
+
+// ── Subtasks section ─────────────────────────────────────────
+.subtask-progress-track {
+    height: 6px;
+    border-radius: 3px;
+    background: $color-surface-deep;
+    overflow: hidden;
+}
+
+.subtask-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: $color-success;
+    transition: width 0.2s ease;
+}
+
+.subtask-rollup {
+    margin: $space-2 0 0;
+    font-size: $font-size-12;
+}
+
+.subtask-list {
+    list-style: none;
+    margin: $space-3 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+}
+
+.subtask-item {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+
+    .relation-link {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.subtask-check {
+    flex-shrink: 0;
+}
+
+.subtask-name--done {
+    text-decoration: line-through;
+    color: $color-text-subtle;
+}
+
+.subtask-add-row {
+    display: flex;
+    gap: $space-2;
+    margin-top: $space-3;
+
+    .subtask-add-input {
+        flex: 1;
+    }
+}
+
 // Inline-editable title — no border, just type.
 .drawer-title-input {
     width: 100%;

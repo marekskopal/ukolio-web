@@ -6,11 +6,13 @@ import {ProjectField} from '@app/models/field';
 import {Priority} from '@app/models/priority';
 import {COMMENT_EVENT_TYPES, FILE_EVENT_TYPES, RealtimeEvent, RELATION_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
+import {Subtask} from '@app/models/subtask';
 import {Tag} from '@app/models/tag';
 import {Task, TaskListItem} from '@app/models/task';
 import {TaskComment} from '@app/models/task-comment';
 import {TaskFile} from '@app/models/task-file';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
+import {TaskTemplate} from '@app/models/task-template';
 import {WorkspaceMember} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
@@ -19,6 +21,7 @@ import {RealtimeService} from '@app/services/realtime.service';
 import {TaskService} from '@app/services/task.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
+import {TaskTemplateService} from '@app/services/task-template.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {MarkdownEditorComponent} from '@app/shared/components/markdown-editor/markdown-editor.component';
@@ -99,6 +102,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly fieldService = inject(FieldService);
     private readonly taskRelationService = inject(TaskRelationService);
     private readonly taskCommentService = inject(TaskCommentService);
+    private readonly taskTemplateService = inject(TaskTemplateService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
@@ -106,6 +110,8 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly workspaceService = inject(WorkspaceService);
 
     protected readonly saving = signal(false);
+    protected readonly duplicating = signal(false);
+    protected readonly templates = signal<TaskTemplate[]>([]);
     protected readonly descriptionInitialTab = computed<'edit' | 'preview'>(() =>
         this.task() === null ? 'edit' : 'preview',
     );
@@ -151,6 +157,33 @@ export class TaskDetailDrawerComponent implements OnInit {
     protected readonly addRelationType = signal<TaskRelationType>('Related');
     protected readonly addRelationSaving = signal(false);
     protected readonly relationTypes = RELATION_TYPES;
+
+    protected readonly subtasks = signal<Subtask[]>([]);
+    protected readonly subtasksLoaded = signal(false);
+    protected readonly addingSubtask = signal(false);
+    protected readonly subtaskNameControl = new FormControl<string>('', {nonNullable: true});
+
+    protected readonly subtasksDone = computed<number>(() =>
+        this.subtasks().filter((s) => s.statusType === 'Finish').length,
+    );
+
+    protected readonly subtaskProgressPercent = computed<number>(() => {
+        const total = this.subtasks().length;
+        return total === 0 ? 0 : Math.round((this.subtasksDone() / total) * 100);
+    });
+
+    // Read-only rollup: earliest due date and highest priority (lowest position) across children.
+    protected readonly subtaskEarliestDue = computed<string | null>(() => {
+        const dues = this.subtasks().map((s) => s.dueDate).filter((d): d is string => d !== null).sort();
+        return dues[0] ?? null;
+    });
+
+    protected readonly subtaskHighestPriority = computed<string | null>(() => {
+        const subtasks = this.subtasks();
+        if (subtasks.length === 0) return null;
+        const highest = [...subtasks].sort((a, b) => a.priorityPosition - b.priorityPosition)[0];
+        return highest.priorityName;
+    });
 
     protected readonly comments = signal<TaskComment[]>([]);
     protected readonly commentsLoaded = signal(false);
@@ -208,7 +241,6 @@ export class TaskDetailDrawerComponent implements OnInit {
         const incoming = this.incomingRelations();
         const groups: RelationGroup[] = [
             {key: 'Parent', headerKey: 'app.taskRelations.groupHeader.Parent', items: incoming.filter((r) => r.type === 'Parent')},
-            {key: 'Subtasks', headerKey: 'app.taskRelations.groupHeader.Subtasks', items: outgoing.filter((r) => r.type === 'Parent')},
             {key: 'DependsOn', headerKey: 'app.taskRelations.groupHeader.DependsOn', items: outgoing.filter((r) => r.type === 'DependsOn')},
             {key: 'RequiredFor', headerKey: 'app.taskRelations.groupHeader.RequiredFor', items: incoming.filter((r) => r.type === 'DependsOn')},
             {
@@ -253,6 +285,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadFiles(current.id);
         } else if (RELATION_EVENT_TYPES.has(event.type)) {
             void this.loadRelations(current.id);
+            void this.loadSubtasks(current.id);
         }
     }
 
@@ -276,12 +309,14 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadFiles(existing.id);
             void this.loadRelations(existing.id);
             void this.loadComments(existing.id);
+            void this.loadSubtasks(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             const defaultPriority = this.workspacePriorities().find((p) => p.isDefault) ?? this.workspacePriorities()[0];
             this.form.patchValue({statusId: fallbackStatusId, priorityId: defaultPriority?.id ?? 0});
             this.statusId.set(fallbackStatusId);
             this.selectedAssigneeId.set(this.currentUserService.currentUser()?.id ?? null);
+            void this.loadTemplates();
         }
 
         this.form.controls.statusId.valueChanges.subscribe((value) => {
@@ -346,7 +381,13 @@ export class TaskDetailDrawerComponent implements OnInit {
         if (!existing) {
             return;
         }
-        const confirmMessage = await this.translate.instant('app.board.deleteTaskConfirm', {name: existing.name}) as string;
+        const subtaskCount = this.subtasks().length;
+        const confirmMessage = subtaskCount > 0
+            ? await this.translate.instant(
+                'app.board.deleteTaskWithSubtasksConfirm',
+                {name: existing.name, count: subtaskCount},
+            ) as string
+            : await this.translate.instant('app.board.deleteTaskConfirm', {name: existing.name}) as string;
         if (!confirm(confirmMessage)) {
             return;
         }
@@ -361,6 +402,81 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected onCancel(): void {
         this.cancelled.emit();
+    }
+
+    protected async onDuplicate(): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        this.duplicating.set(true);
+        try {
+            const copy = await this.taskService.duplicateTask(existing.id);
+            this.alertService.success(await this.translate.instant('app.taskTemplates.duplicated') as string);
+            this.saved.emit(copy);
+        } catch {
+            // error interceptor
+        } finally {
+            this.duplicating.set(false);
+        }
+    }
+
+    protected async onSaveAsTemplate(): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        const promptMessage = await this.translate.instant('app.taskTemplates.namePrompt') as string;
+        const name = prompt(promptMessage, existing.name);
+        if (name === null || name.trim() === '') {
+            return;
+        }
+        try {
+            await this.taskTemplateService.saveFromTask(existing.id, name.trim());
+            this.alertService.success(await this.translate.instant('app.taskTemplates.saved') as string);
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected onTemplateSelected(event: Event): void {
+        const id = Number((event.target as HTMLSelectElement).value);
+        const template = this.templates().find((t) => t.id === id);
+        if (template) {
+            this.applyTemplate(template);
+        }
+    }
+
+    private applyTemplate(template: TaskTemplate): void {
+        const payload = template.payload;
+        this.form.patchValue({name: payload.name, description: payload.description ?? ''});
+        if (payload.priorityId !== null && this.workspacePriorities().some((p) => p.id === payload.priorityId)) {
+            this.form.patchValue({priorityId: payload.priorityId});
+        }
+        const workspaceTagIds = new Set(this.workspaceTags().map((t) => t.id));
+        this.selectedTagIds.set(payload.tagIds.filter((tagId) => workspaceTagIds.has(tagId)));
+        for (const fv of payload.fieldValues) {
+            this.form.get('field_' + fv.fieldId)?.setValue(fv.value ?? '');
+        }
+    }
+
+    private async loadTemplates(): Promise<void> {
+        let workspaceId = this.workspaceService.currentWorkspaceId();
+        if (workspaceId === null) {
+            try {
+                workspaceId = (await this.currentUserService.load()).currentWorkspaceId;
+            } catch {
+                workspaceId = null;
+            }
+        }
+        if (workspaceId === null) {
+            return;
+        }
+        try {
+            this.templates.set(await this.taskTemplateService.loadWorkspaceTemplates(workspaceId));
+        } catch {
+            this.templates.set([]);
+        }
     }
 
     protected toggleTagPicker(): void {
@@ -460,6 +576,100 @@ export class TaskDetailDrawerComponent implements OnInit {
         try {
             await this.taskService.deleteTaskFile(existing.id, file.id);
             this.files.update((current) => current.filter((f) => f.id !== file.id));
+        } catch {
+            // error interceptor
+        }
+    }
+
+    private async loadSubtasks(taskId: number): Promise<void> {
+        try {
+            this.subtasks.set(await this.taskService.listSubtasks(taskId));
+        } catch {
+            this.subtasks.set([]);
+        } finally {
+            this.subtasksLoaded.set(true);
+        }
+    }
+
+    protected async onAddSubtask(): Promise<void> {
+        const existing = this.task();
+        const name = this.subtaskNameControl.value.trim();
+        if (!existing || name === '' || this.addingSubtask()) {
+            return;
+        }
+        this.addingSubtask.set(true);
+        try {
+            const created = await this.taskService.createSubtask(existing.id, name);
+            this.subtasks.update((list) => [...list, created]);
+            this.subtaskNameControl.setValue('');
+        } catch {
+            // error interceptor
+        } finally {
+            this.addingSubtask.set(false);
+        }
+    }
+
+    protected async onToggleSubtask(subtask: Subtask, event: Event): Promise<void> {
+        const checked = (event.target as HTMLInputElement).checked;
+        const targetStatusId = checked ? subtask.finishStatusId : subtask.startStatusId;
+        if (targetStatusId === null) {
+            return;
+        }
+        try {
+            await this.taskService.moveTask(subtask.taskId, targetStatusId, 0);
+            const parent = this.task();
+            if (parent) {
+                await this.loadSubtasks(parent.id);
+            }
+        } catch {
+            // error interceptor — restore the checkbox by re-rendering current state
+            this.subtasks.update((list) => [...list]);
+        }
+    }
+
+    protected async onRemoveSubtask(subtask: Subtask): Promise<void> {
+        const message = await this.translate.instant('app.subtasks.removeConfirm', {name: subtask.name}) as string;
+        if (!confirm(message)) {
+            return;
+        }
+        try {
+            await this.taskRelationService.delete(subtask.relationId);
+            this.subtasks.update((list) => list.filter((s) => s.relationId !== subtask.relationId));
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected async onOpenSubtask(subtask: Subtask): Promise<void> {
+        try {
+            const task = await this.taskService.getTask(subtask.taskId);
+            const item: TaskListItem = {
+                id: task.id,
+                code: task.code,
+                projectId: task.projectId,
+                projectName: '',
+                statusId: task.statusId,
+                status: {
+                    id: subtask.statusId,
+                    workflowId: 0,
+                    name: subtask.statusName,
+                    color: subtask.statusColor,
+                    position: 0,
+                    type: subtask.statusType,
+                },
+                assigneeId: task.assigneeId,
+                name: task.name,
+                description: task.description,
+                priority: task.priority,
+                dueDate: task.dueDate,
+                position: task.position,
+                sequenceNumber: task.sequenceNumber,
+                createdByAgent: task.createdByAgent,
+                createdAt: task.createdAt,
+                updatedAt: task.updatedAt,
+                tagIds: task.tagIds,
+            };
+            this.openTask.emit(item);
         } catch {
             // error interceptor
         }

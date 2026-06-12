@@ -9,8 +9,15 @@ RUN apk add --no-cache openssl && \
 	wget -q https://ssl-config.mozilla.org/ffdhe2048.txt -O /etc/ssl/dhparam.pem
 
 RUN \
-	HASH=$(printf '%s' "$ADMINER_PASSWORD" | openssl passwd -apr1 -stdin) && \
-	printf '%s:%s\n' "$ADMINER_USER" "$HASH" > /etc/nginx/conf.d/.htpasswd
+	# Fail closed: only emit a credential line when BOTH user and password are set.
+	# An empty/blank build arg would otherwise produce a ":<hash>" entry that grants
+	# /adminer access with empty credentials. An empty .htpasswd makes nginx deny all.
+	if [ -n "$ADMINER_USER" ] && [ -n "$ADMINER_PASSWORD" ]; then \
+		HASH=$(printf '%s' "$ADMINER_PASSWORD" | openssl passwd -apr1 -stdin) && \
+		printf '%s:%s\n' "$ADMINER_USER" "$HASH" > /etc/nginx/conf.d/.htpasswd; \
+	else \
+		: > /etc/nginx/conf.d/.htpasswd; \
+	fi
 
 FROM nginx:1.29.7-alpine
 

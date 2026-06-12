@@ -1,0 +1,38 @@
+# Dedicated worker for the low-code scripting sandbox (U-80). Built on the prebuilt
+# marekskopal/php-v8js image (PHP 8.5 CLI on Debian, with ext-v8js + libv8 + Composer), so the
+# V8 sandbox is available without an hours-long V8 compile. Runs only the script-run AMQP queue;
+# the main backend image (Alpine FrankenPHP, no v8js) skips that queue.
+#
+# NOTE: pin marekskopal/php-v8js to a digest in production for reproducible, tamper-evident builds.
+FROM composer:2.9.7 AS composer
+FROM mlocati/php-extension-installer:2.11.1 AS php-extension-installer
+FROM marekskopal/php-v8js:latest AS php
+
+COPY --from=php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+# Extensions the application bootstrap needs (DB, cache, queue, archives). v8js is already present.
+RUN install-php-extensions \
+    curl \
+    pdo_mysql \
+    opcache \
+    mbstring \
+    sockets \
+    zip \
+    igbinary \
+    memcached
+
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+COPY ./bin /app/bin
+COPY ./migrations /app/migrations
+COPY ./src /app/src
+COPY ./translations /app/translations
+COPY ./composer.json ./composer.lock* /app/
+
+WORKDIR /app/
+
+RUN rm -rf /app/vendor \
+    && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-progress --classmap-authoritative -d /app/ \
+    && composer clear-cache
+
+CMD ["php", "/app/src/script-worker.php"]

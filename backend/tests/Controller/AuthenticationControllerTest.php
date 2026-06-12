@@ -295,9 +295,11 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		$rawToken = bin2hex(random_bytes(16));
 		$pdo = AppHarness::pdo();
 		$now = new DateTimeImmutable();
+		// Distinct placeholders for created_at/updated_at: with ATTR_EMULATE_PREPARES=false
+		// (the ORM's MySQL default) a named placeholder must not be reused.
 		$stmt = $pdo->prepare(
 			'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, used_at, created_at, updated_at) '
-			. 'VALUES (:user_id, :hash, :expires, NULL, :now, :now)',
+			. 'VALUES (:user_id, :hash, :expires, NULL, :created, :updated)',
 		);
 		if ($stmt === false) {
 			self::fail('Failed to prepare INSERT statement');
@@ -306,7 +308,8 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 			'user_id' => $user->id,
 			'hash' => hash('sha256', $rawToken),
 			'expires' => $now->modify('+1 hour')->format('Y-m-d H:i:s'),
-			'now' => $now->format('Y-m-d H:i:s'),
+			'created' => $now->format('Y-m-d H:i:s'),
+			'updated' => $now->format('Y-m-d H:i:s'),
 		]);
 		return [$rawToken];
 	}

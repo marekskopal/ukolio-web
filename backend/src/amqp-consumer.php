@@ -45,12 +45,16 @@ if ($prefetch <= 0) {
 	$prefetch = 10;
 }
 
-foreach (QueueEnum::cases() as $queue) {
+// The script-run queue is consumed by the dedicated v8js worker (script-worker.php); this
+// Alpine worker has no ext-v8js and must not pick up those messages.
+$queues = array_filter(QueueEnum::cases(), static fn (QueueEnum $queue): bool => $queue !== QueueEnum::ScriptRun);
+
+foreach ($queues as $queue) {
 	$channel->queue_declare($queue->value, false, true, false, false);
 }
 $channel->basic_qos(0, $prefetch, false);
 
-foreach (QueueEnum::cases() as $queue) {
+foreach ($queues as $queue) {
 	$channel->basic_consume(
 		$queue->value,
 		'',

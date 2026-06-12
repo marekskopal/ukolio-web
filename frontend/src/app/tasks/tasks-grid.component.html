@@ -104,6 +104,17 @@
         <span>{{ 'app.tasks.onlyActive' | translate }}</span>
     </label>
 
+    <select
+        class="select filter-subtasks"
+        [value]="subtaskFilter()"
+        (change)="onSubtaskFilterChange($event)"
+        [attr.aria-label]="'app.tasks.subtaskFilter.label' | translate"
+    >
+        <option value="all">{{ 'app.tasks.subtaskFilter.all' | translate }}</option>
+        <option value="hideSubtasks">{{ 'app.tasks.subtaskFilter.hideSubtasks' | translate }}</option>
+        <option value="onlyParents">{{ 'app.tasks.subtaskFilter.onlyParents' | translate }}</option>
+    </select>
+
     <details class="filter-statuses" #viewsDetails>
         <summary class="filter-summary">
             <span>{{ activeViewName() ?? ('app.savedViews.picker' | translate) }}</span>
@@ -182,7 +193,7 @@
         </div>
     </details>
 
-    @if (search() || selectedStatusIds().length > 0 || selectedTagIds().length > 0 || selectedAssigneeIds().length > 0 || onlyActive()) {
+    @if (search() || selectedStatusIds().length > 0 || selectedTagIds().length > 0 || selectedAssigneeIds().length > 0 || onlyActive() || subtaskFilter() !== 'all') {
         <button type="button" class="btn-link filter-clear" (click)="clearFilters()">
             {{ 'app.tasks.clearFilters' | translate }}
         </button>
@@ -449,6 +460,18 @@
                                     </svg>
                                 }
                                 {{ task.name }}
+                                @if ((task.subtasksTotal ?? 0) > 0) {
+                                    <span
+                                        class="subtask-progress-chip"
+                                        [class.subtask-progress-chip--complete]="task.subtasksDone === task.subtasksTotal"
+                                        [attr.title]="'app.subtasks.progressTitle' | translate: {done: task.subtasksDone, total: task.subtasksTotal}"
+                                    >
+                                        <svg width="10" height="10" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M3 8.5l3.5 3.5L13 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        {{ task.subtasksDone }}/{{ task.subtasksTotal }}
+                                    </span>
+                                }
                             </span>
                             <span class="task-project">{{ task.projectName }}</span>
                         </td>
@@ -501,6 +524,7 @@
         [projectId]="ctx.projectId"
         [projectFields]="ctx.projectFields"
         [workspaceTags]="workspaceTags()"
+        [workspacePriorities]="priorities()"
         (saved)="onTaskSaved()"
         (deleted)="onTaskDeleted()"
         (cancelled)="closeDrawer()"

@@ -35,7 +35,12 @@
             "password": "Password",
             "language": "Language",
             "empty": "Nothing here yet.",
-            "required": "Required"
+            "required": "Required",
+            "loading": "Loading…",
+            "edit": "Edit",
+            "delete": "Delete",
+            "save": "Save",
+            "cancel": "Cancel"
         },
         "markdownEditor": {
             "edit": "Edit",
@@ -47,6 +52,7 @@
             "projects": "Projects",
             "tasks": "Tasks",
             "agents": "Agents",
+            "scripts": "Scripts",
             "workspaces": "Workspaces",
             "admin": "Admin",
             "signOut": "Sign out",
@@ -56,6 +62,76 @@
             "search": "Search or jump to…",
             "aiPalette": "Open agent command palette",
             "openUserMenu": "Open user menu"
+        },
+        "scripts": {
+            "title": "Scripts",
+            "subtitle": "Automate your workspace with sandboxed JavaScript.",
+            "new": "New script",
+            "edit": "Edit script",
+            "empty": "No scripts yet.",
+            "run": "Run",
+            "runQueued": "Run queued.",
+            "saved": "Script saved.",
+            "active": "Active",
+            "inactive": "Inactive",
+            "backToList": "Back to scripts",
+            "deleteConfirm": "Delete script \"{{name}}\"?",
+            "col": {
+                "name": "Name",
+                "trigger": "Trigger",
+                "status": "Status",
+                "lastRun": "Last run"
+            },
+            "trigger": {
+                "Manual": "Manual",
+                "Scheduled": "Scheduled",
+                "Event": "Event"
+            },
+            "status": {
+                "Running": "Running",
+                "Success": "Success",
+                "Error": "Error",
+                "Timeout": "Timeout"
+            },
+            "field": {
+                "name": "Name",
+                "trigger": "Trigger",
+                "cron": "Cron expression",
+                "cronHint": "Five-field cron, e.g. \"0 9 * * 1\" = every Monday at 09:00.",
+                "events": "Run when these events happen",
+                "active": "Active",
+                "source": "Source (JavaScript)"
+            },
+            "events": {
+                "TaskCreated": "Task created",
+                "TaskUpdated": "Task updated",
+                "TaskMoved": "Task moved",
+                "TaskDeleted": "Task deleted",
+                "TaskCommentAdded": "Comment added"
+            },
+            "runs": {
+                "title": "Run history",
+                "refresh": "Refresh",
+                "empty": "No runs yet.",
+                "col": {
+                    "status": "Status",
+                    "trigger": "Trigger",
+                    "started": "Started",
+                    "duration": "Duration",
+                    "output": "Output"
+                }
+            },
+            "variables": {
+                "title": "Script variables",
+                "subtitle": "Workspace key/value store available to scripts via ukolio.vars. Secrets are encrypted and never shown again.",
+                "manage": "Variables",
+                "key": "Key",
+                "value": "Value",
+                "secret": "Secret (encrypt and hide)",
+                "saved": "Variable saved.",
+                "empty": "No variables yet.",
+                "deleteConfirm": "Delete variable \"{{key}}\"?"
+            }
         },
         "search": {
             "label": "Workspace search",
@@ -163,6 +239,12 @@
                 "partialSuccess": "{{succeeded}} updated, {{skipped}} skipped.",
                 "showSkipped": "Show details",
                 "hideSkipped": "Hide details"
+            },
+            "subtaskFilter": {
+                "label": "Subtask filter",
+                "all": "All tasks",
+                "hideSubtasks": "Hide subtasks",
+                "onlyParents": "Only parents"
             }
         },
         "savedViews": {
@@ -312,7 +394,8 @@
                     "uploadedBy": "by {{name}}",
                     "uploadedByAgent": "by agent"
                 }
-            }
+            },
+            "deleteTaskWithSubtasksConfirm": "Delete task \"{{name}}\"? Its {{count}} subtask(s) will be kept and unlinked."
         },
         "workflow": {
             "title": "Workflow",
@@ -634,6 +717,24 @@
             "filterTitle": "Filter by tag",
             "noTagsAvailable": "No more tags to add."
         },
+        "taskTemplates": {
+            "duplicate": "Duplicate",
+            "duplicated": "Task duplicated.",
+            "saveAsTemplate": "Save as template",
+            "namePrompt": "Template name:",
+            "saved": "Template saved.",
+            "startFromTemplate": "Start from template…"
+        },
+        "subtasks": {
+            "heading": "Subtasks",
+            "add": "Add",
+            "addPlaceholder": "Add a subtask…",
+            "toggle": "Toggle subtask \"{{name}}\"",
+            "removeConfirm": "Remove subtask link to \"{{name}}\"? The task itself is kept.",
+            "earliestDue": "Earliest due",
+            "highestPriority": "Highest priority",
+            "progressTitle": "{{done}} of {{total}} subtasks done"
+        },
         "onboarding": {
             "shell": {
                 "gettingStarted": "Getting started",
@@ -649,9 +750,18 @@
                 "openWorkspace": "Open workspace"
             },
             "steps": {
-                "step1": {"label": "Project & workflow", "hint": "Where work lives"},
-                "step2": {"label": "Invite teammates", "hint": "Bring your team in"},
-                "step3": {"label": "Connect agents", "hint": "Optional · MCP"}
+                "step1": {
+                    "label": "Project & workflow",
+                    "hint": "Where work lives"
+                },
+                "step2": {
+                    "label": "Invite teammates",
+                    "hint": "Bring your team in"
+                },
+                "step3": {
+                    "label": "Connect agents",
+                    "hint": "Optional · MCP"
+                }
             },
             "step1": {
                 "overline": "Step 01",
@@ -666,10 +776,22 @@
                 "workflowSub": "The statuses tasks move through. Pick a template — you can edit it after.",
                 "errorCreate": "Could not create project. Please try again.",
                 "templates": {
-                    "kanban": {"name": "Kanban", "sub": "Classic 4-stage flow"},
-                    "engineering": {"name": "Engineering", "sub": "Backlog → Spec → Build → Ship"},
-                    "simple": {"name": "Simple", "sub": "Just open / closed"},
-                    "blank": {"name": "Start blank", "sub": "Define your own columns"}
+                    "kanban": {
+                        "name": "Kanban",
+                        "sub": "Classic 4-stage flow"
+                    },
+                    "engineering": {
+                        "name": "Engineering",
+                        "sub": "Backlog → Spec → Build → Ship"
+                    },
+                    "simple": {
+                        "name": "Simple",
+                        "sub": "Just open / closed"
+                    },
+                    "blank": {
+                        "name": "Start blank",
+                        "sub": "Define your own columns"
+                    }
                 }
             },
             "step2": {

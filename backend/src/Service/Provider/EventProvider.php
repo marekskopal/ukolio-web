@@ -15,6 +15,7 @@ use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\EventRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Service\Realtime\RealtimePublisherInterface;
+use Ukolio\Service\Script\Trigger\ScriptEventTriggerInterface;
 use const JSON_THROW_ON_ERROR;
 
 final readonly class EventProvider implements EventProviderInterface
@@ -23,6 +24,7 @@ final readonly class EventProvider implements EventProviderInterface
 		private EventRepository $eventRepository,
 		private ActorContextInterface $actorContext,
 		private RealtimePublisherInterface $realtimePublisher,
+		private ScriptEventTriggerInterface $scriptEventTrigger,
 	) {
 	}
 
@@ -55,6 +57,8 @@ final readonly class EventProvider implements EventProviderInterface
 			fileId: $this->intFromMetadata($metadata, 'fileId'),
 			relationId: $this->intFromMetadata($metadata, 'relationId'),
 		);
+
+		$this->scriptEventTrigger->onEvent($event);
 
 		return $event;
 	}

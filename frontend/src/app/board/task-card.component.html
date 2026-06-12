@@ -41,6 +41,18 @@
             }
         </div>
     }
+    @if ((task().subtasksTotal ?? 0) > 0) {
+        <div
+            class="task-card-meta task-card-subtasks"
+            [class.task-card-subtasks--complete]="task().subtasksDone === task().subtasksTotal"
+            [attr.title]="'app.subtasks.progressTitle' | translate: {done: task().subtasksDone, total: task().subtasksTotal}"
+        >
+            <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 8.5l3.5 3.5L13 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>{{ task().subtasksDone }}/{{ task().subtasksTotal }}</span>
+        </div>
+    }
     @if (task().dueDate) {
         <div class="task-card-meta" [class.task-card-meta--overdue]="isOverdue(task().dueDate!)">
             <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">

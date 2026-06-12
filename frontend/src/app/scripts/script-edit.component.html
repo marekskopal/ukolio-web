@@ -1,0 +1,95 @@
+<section class="script-edit">
+    <a class="script-edit-back" routerLink="/settings/scripts">← {{ 'app.scripts.backToList' | translate }}</a>
+    <h1>{{ (isEdit() ? 'app.scripts.edit' : 'app.scripts.new') | translate }}</h1>
+
+    <form class="script-form" [formGroup]="form" (ngSubmit)="save()">
+        <label class="field">
+            <span class="field-label">{{ 'app.scripts.field.name' | translate }}</span>
+            <input type="text" formControlName="name" autocomplete="off" />
+        </label>
+
+        <label class="field">
+            <span class="field-label">{{ 'app.scripts.field.trigger' | translate }}</span>
+            <select [value]="trigger()" (change)="onTriggerChange($any($event.target).value)">
+                @for (t of triggers; track t) {
+                    <option [value]="t">{{ 'app.scripts.trigger.' + t | translate }}</option>
+                }
+            </select>
+        </label>
+
+        @if (trigger() === 'Scheduled') {
+            <label class="field">
+                <span class="field-label">{{ 'app.scripts.field.cron' | translate }}</span>
+                <input type="text" formControlName="cron" placeholder="0 9 * * 1" autocomplete="off" />
+                <span class="field-hint">{{ 'app.scripts.field.cronHint' | translate }}</span>
+            </label>
+        }
+
+        @if (trigger() === 'Event') {
+            <fieldset class="field">
+                <legend class="field-label">{{ 'app.scripts.field.events' | translate }}</legend>
+                <div class="event-options">
+                    @for (option of eventOptions; track option.type) {
+                        <label class="event-option">
+                            <input type="checkbox" [checked]="isEventSelected(option.type)" (change)="toggleEvent(option.type)" />
+                            {{ option.labelKey | translate }}
+                        </label>
+                    }
+                </div>
+            </fieldset>
+        }
+
+        <label class="field field--inline">
+            <input type="checkbox" formControlName="active" />
+            <span>{{ 'app.scripts.field.active' | translate }}</span>
+        </label>
+
+        <label class="field">
+            <span class="field-label">{{ 'app.scripts.field.source' | translate }}</span>
+            <textarea class="source-editor" formControlName="source" spellcheck="false" rows="16"></textarea>
+        </label>
+
+        <div class="script-form-actions">
+            <button type="submit" class="uk-btn uk-btn--primary" [disabled]="saving()">{{ 'app.common.save' | translate }}</button>
+            @if (isEdit()) {
+                <button type="button" class="uk-btn" [disabled]="running()" (click)="runNow()">{{ 'app.scripts.run' | translate }}</button>
+            }
+        </div>
+    </form>
+
+    @if (isEdit()) {
+        <section class="script-runs">
+            <header class="script-runs-header">
+                <h2>{{ 'app.scripts.runs.title' | translate }}</h2>
+                <button type="button" class="uk-btn uk-btn--sm" (click)="refreshRuns()">{{ 'app.scripts.runs.refresh' | translate }}</button>
+            </header>
+
+            @if (runs().length === 0) {
+                <p class="scripts-empty">{{ 'app.scripts.runs.empty' | translate }}</p>
+            } @else {
+                <table class="scripts-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'app.scripts.runs.col.status' | translate }}</th>
+                            <th>{{ 'app.scripts.runs.col.trigger' | translate }}</th>
+                            <th>{{ 'app.scripts.runs.col.started' | translate }}</th>
+                            <th>{{ 'app.scripts.runs.col.duration' | translate }}</th>
+                            <th>{{ 'app.scripts.runs.col.output' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (run of runs(); track run.id) {
+                            <tr>
+                                <td>{{ 'app.scripts.status.' + run.status | translate }}</td>
+                                <td>{{ 'app.scripts.trigger.' + run.triggerType | translate }}</td>
+                                <td>{{ run.startedAt ? (run.startedAt | date: 'short') : '—' }}</td>
+                                <td>{{ run.durationMs !== null ? run.durationMs + ' ms' : '—' }}</td>
+                                <td><pre class="run-output">{{ run.error ?? run.logs ?? '' }}</pre></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+    }
+</section>

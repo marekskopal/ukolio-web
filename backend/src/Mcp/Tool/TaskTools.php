@@ -278,6 +278,31 @@ final readonly class TaskTools
 	}
 
 	/**
+	 * Duplicate a task within its project and status. Clones the description, priority, due date,
+	 * assignee, custom-field values, and tags. Comments, files, events, and relations are not cloned.
+	 *
+	 * @param int|string $taskId Task ID or code (e.g. "MP-3")
+	 * @param string|null $name Optional name for the copy. Defaults to the source name with a " (copy)" suffix.
+	 */
+	#[McpTool(
+		name: 'duplicate_task',
+		description: 'Duplicate a task (clones content, fields, and tags — not comments, files, or relations).',
+	)]
+	public function duplicateTask(int|string $taskId, ?string $name = null): McpTaskDto
+	{
+		$user = $this->userContext->getUser();
+		$task = $this->requireTask($taskId);
+
+		$duplicate = $this->taskProvider->duplicateTask($user, $task, $name);
+
+		return McpTaskDto::fromEntity(
+			$duplicate,
+			$this->taskFieldValueProvider->findByTask($duplicate),
+			$this->taskTagProvider->getTagIdsForTask($duplicate),
+		);
+	}
+
+	/**
 	 * Delete a task.
 	 *
 	 * @param int|string $taskId Task ID or code (e.g. "MP-3")

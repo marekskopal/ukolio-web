@@ -13,6 +13,7 @@ use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
+use Ukolio\Model\Repository\Enum\SubtaskFilterEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
 
 interface TaskProviderInterface
@@ -39,6 +40,7 @@ interface TaskProviderInterface
 		bool $onlyActive,
 		?array $tagIds = null,
 		?array $assigneeIds = null,
+		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 	): Iterator;
 
 	/**
@@ -53,6 +55,7 @@ interface TaskProviderInterface
 		bool $onlyActive,
 		?array $tagIds = null,
 		?array $assigneeIds = null,
+		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 	): int;
 
 	/**
@@ -71,6 +74,8 @@ interface TaskProviderInterface
 		?array $fieldValues = null,
 		?array $tagIds = null,
 	): Task;
+
+	public function duplicateTask(User $author, Task $task, ?string $name = null): Task;
 
 	/**
 	 * @param array<int, ?string>|null $fieldValues

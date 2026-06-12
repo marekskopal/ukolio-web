@@ -10,4 +10,5 @@ enum QueueEnum: string
 	case EmailVerification = 'email-verification';
 	case PasswordReset = 'password-reset';
 	case SearchReindex = 'search-reindex';
+	case ScriptRun = 'script-run';
 }

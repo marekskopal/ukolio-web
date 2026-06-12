@@ -100,6 +100,37 @@ final class OAuthControllerTest extends IntegrationTestCase
 		self::assertSame('invalid_grant', $body['error']);
 	}
 
+	public function testAuthorizeRejectsForeignResourceIndicator(): void
+	{
+		$user = Fixture::createUser();
+
+		$register = $this->request(
+			'POST',
+			'/mcp/oauth/register',
+			body: ['client_name' => 'Test Client', 'redirect_uris' => ['http://localhost/cb']],
+		);
+		$clientId = self::stringField($this->jsonBody($register)['client_id']);
+
+		[, $challenge] = $this->pkcePair();
+
+		// A resource indicator naming a different server must be rejected (RFC 8707):
+		// this AS only issues tokens for its own MCP resource.
+		$authorize = $this->request(
+			'POST',
+			'/mcp/oauth/authorize',
+			body: [
+				'clientId' => $clientId,
+				'redirectUri' => 'http://localhost/cb',
+				'codeChallenge' => $challenge,
+				'codeChallengeMethod' => 'S256',
+				'resource' => 'https://attacker.example/mcp',
+			],
+			authenticatedAs: $user,
+		);
+
+		self::assertSame(400, $authorize->getStatusCode());
+	}
+
 	/** @return array{0:string,1:string} [verifier, S256 challenge] */
 	private function pkcePair(): array
 	{

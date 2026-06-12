@@ -35,7 +35,12 @@
             "password": "Heslo",
             "language": "Jazyk",
             "empty": "Zatím tu nic není.",
-            "required": "Povinné"
+            "required": "Povinné",
+            "loading": "Načítání…",
+            "edit": "Upravit",
+            "delete": "Smazat",
+            "save": "Uložit",
+            "cancel": "Zrušit"
         },
         "markdownEditor": {
             "edit": "Editor",
@@ -47,6 +52,7 @@
             "projects": "Projekty",
             "tasks": "Úkoly",
             "agents": "Agenti",
+            "scripts": "Skripty",
             "workspaces": "Pracovní prostory",
             "admin": "Správa",
             "signOut": "Odhlásit se",
@@ -56,6 +62,76 @@
             "search": "Hledat nebo přejít…",
             "aiPalette": "Otevřít paletu příkazů agenta",
             "openUserMenu": "Otevřít uživatelské menu"
+        },
+        "scripts": {
+            "title": "Skripty",
+            "subtitle": "Automatizujte svůj pracovní prostor pomocí izolovaného JavaScriptu.",
+            "new": "Nový skript",
+            "edit": "Upravit skript",
+            "empty": "Zatím žádné skripty.",
+            "run": "Spustit",
+            "runQueued": "Spuštění zařazeno do fronty.",
+            "saved": "Skript uložen.",
+            "active": "Aktivní",
+            "inactive": "Neaktivní",
+            "backToList": "Zpět na skripty",
+            "deleteConfirm": "Smazat skript „{{name}}“?",
+            "col": {
+                "name": "Název",
+                "trigger": "Spouštěč",
+                "status": "Stav",
+                "lastRun": "Poslední spuštění"
+            },
+            "trigger": {
+                "Manual": "Ruční",
+                "Scheduled": "Plánovaný",
+                "Event": "Událost"
+            },
+            "status": {
+                "Running": "Probíhá",
+                "Success": "Úspěch",
+                "Error": "Chyba",
+                "Timeout": "Vypršel čas"
+            },
+            "field": {
+                "name": "Název",
+                "trigger": "Spouštěč",
+                "cron": "Cron výraz",
+                "cronHint": "Pětipoložkový cron, např. „0 9 * * 1“ = každé pondělí v 09:00.",
+                "events": "Spustit při těchto událostech",
+                "active": "Aktivní",
+                "source": "Zdrojový kód (JavaScript)"
+            },
+            "events": {
+                "TaskCreated": "Úkol vytvořen",
+                "TaskUpdated": "Úkol upraven",
+                "TaskMoved": "Úkol přesunut",
+                "TaskDeleted": "Úkol smazán",
+                "TaskCommentAdded": "Přidán komentář"
+            },
+            "runs": {
+                "title": "Historie spuštění",
+                "refresh": "Obnovit",
+                "empty": "Zatím žádná spuštění.",
+                "col": {
+                    "status": "Stav",
+                    "trigger": "Spouštěč",
+                    "started": "Začátek",
+                    "duration": "Doba",
+                    "output": "Výstup"
+                }
+            },
+            "variables": {
+                "title": "Proměnné skriptů",
+                "subtitle": "Úložiště klíč/hodnota pro pracovní prostor dostupné skriptům přes ukolio.vars. Tajné hodnoty jsou šifrovány a už se nezobrazí.",
+                "manage": "Proměnné",
+                "key": "Klíč",
+                "value": "Hodnota",
+                "secret": "Tajné (šifrovat a skrýt)",
+                "saved": "Proměnná uložena.",
+                "empty": "Zatím žádné proměnné.",
+                "deleteConfirm": "Smazat proměnnou „{{key}}“?"
+            }
         },
         "search": {
             "label": "Hledání v pracovním prostoru",
@@ -163,6 +239,12 @@
                 "partialSuccess": "{{succeeded}} aktualizováno, {{skipped}} přeskočeno.",
                 "showSkipped": "Zobrazit detail",
                 "hideSkipped": "Skrýt detail"
+            },
+            "subtaskFilter": {
+                "label": "Filtr podúkolů",
+                "all": "Všechny úkoly",
+                "hideSubtasks": "Skrýt podúkoly",
+                "onlyParents": "Jen rodičovské"
             }
         },
         "savedViews": {
@@ -312,7 +394,8 @@
                     "uploadedBy": "od {{name}}",
                     "uploadedByAgent": "od agenta"
                 }
-            }
+            },
+            "deleteTaskWithSubtasksConfirm": "Smazat úkol \"{{name}}\"? Jeho podúkoly ({{count}}) zůstanou zachovány a budou odpojeny."
         },
         "workflow": {
             "title": "Pracovní postup",
@@ -634,6 +717,24 @@
             "filterTitle": "Filtrovat podle štítku",
             "noTagsAvailable": "Žádné další štítky k přidání."
         },
+        "taskTemplates": {
+            "duplicate": "Duplikovat",
+            "duplicated": "Úkol zduplikován.",
+            "saveAsTemplate": "Uložit jako šablonu",
+            "namePrompt": "Název šablony:",
+            "saved": "Šablona uložena.",
+            "startFromTemplate": "Začít ze šablony…"
+        },
+        "subtasks": {
+            "heading": "Podúkoly",
+            "add": "Přidat",
+            "addPlaceholder": "Přidat podúkol…",
+            "toggle": "Přepnout podúkol \"{{name}}\"",
+            "removeConfirm": "Odebrat vazbu na podúkol \"{{name}}\"? Úkol samotný zůstane zachován.",
+            "earliestDue": "Nejbližší termín",
+            "highestPriority": "Nejvyšší priorita",
+            "progressTitle": "Hotovo {{done}} z {{total}} podúkolů"
+        },
         "onboarding": {
             "shell": {
                 "gettingStarted": "Začínáme",
@@ -649,9 +750,18 @@
                 "openWorkspace": "Otevřít workspace"
             },
             "steps": {
-                "step1": {"label": "Projekt a workflow", "hint": "Kde žijí úkoly"},
-                "step2": {"label": "Pozvat kolegy", "hint": "Přiveďte tým"},
-                "step3": {"label": "Připojit agenty", "hint": "Volitelné · MCP"}
+                "step1": {
+                    "label": "Projekt a workflow",
+                    "hint": "Kde žijí úkoly"
+                },
+                "step2": {
+                    "label": "Pozvat kolegy",
+                    "hint": "Přiveďte tým"
+                },
+                "step3": {
+                    "label": "Připojit agenty",
+                    "hint": "Volitelné · MCP"
+                }
             },
             "step1": {
                 "overline": "Krok 01",
@@ -666,10 +776,22 @@
                 "workflowSub": "Stavy, kterými úkoly procházejí. Vyberte šablonu — později ji můžete upravit.",
                 "errorCreate": "Projekt se nepodařilo vytvořit. Zkuste to znovu.",
                 "templates": {
-                    "kanban": {"name": "Kanban", "sub": "Klasický 4-stavový tok"},
-                    "engineering": {"name": "Engineering", "sub": "Backlog → Spec → Build → Ship"},
-                    "simple": {"name": "Jednoduchý", "sub": "Jen otevřené / zavřené"},
-                    "blank": {"name": "Začít prázdné", "sub": "Vlastní sloupce"}
+                    "kanban": {
+                        "name": "Kanban",
+                        "sub": "Klasický 4-stavový tok"
+                    },
+                    "engineering": {
+                        "name": "Engineering",
+                        "sub": "Backlog → Spec → Build → Ship"
+                    },
+                    "simple": {
+                        "name": "Jednoduchý",
+                        "sub": "Jen otevřené / zavřené"
+                    },
+                    "blank": {
+                        "name": "Začít prázdné",
+                        "sub": "Vlastní sloupce"
+                    }
                 }
             },
             "step2": {

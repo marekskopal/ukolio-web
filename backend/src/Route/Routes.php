@@ -63,10 +63,13 @@ enum Routes: string
 	// Lowercase is intentionally excluded so static sibling paths like /api/tasks/bulk don't collide.
 	case Task = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}';
 	case TaskMove = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/move';
+	case TaskDuplicate = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/duplicate';
+	case TaskSaveAsTemplate = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/save-as-template';
 	case TaskFiles = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files';
 	case TaskFile = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files/{fileId:number}';
 	case TaskFileContent = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files/{fileId:number}/content';
 	case TaskRelations = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/relations';
+	case TaskSubtasks = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/subtasks';
 	case TaskRelation = '/api/task-relations/{relationId:number}';
 	case TaskComments = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/comments';
 	case TaskComment = '/api/task-comments/{commentId:number}';
@@ -75,6 +78,16 @@ enum Routes: string
 
 	case WorkspaceSavedViews = '/api/workspaces/{workspaceId:number}/saved-views';
 	case SavedView = '/api/saved-views/{savedViewId:number}';
+
+	case WorkspaceTaskTemplates = '/api/workspaces/{workspaceId:number}/task-templates';
+	case TaskTemplate = '/api/task-templates/{taskTemplateId:number}';
+
+	case WorkspaceScripts = '/api/workspaces/{workspaceId:number}/scripts';
+	case Script = '/api/scripts/{scriptId:number}';
+	case ScriptRunNow = '/api/scripts/{scriptId:number}/run';
+	case ScriptRuns = '/api/scripts/{scriptId:number}/runs';
+	case WorkspaceScriptVariables = '/api/workspaces/{workspaceId:number}/script-variables';
+	case WorkspaceScriptVariable = '/api/workspaces/{workspaceId:number}/script-variables/{variableId:number}';
 
 	case AdminUsers = '/api/admin/users';
 	case AdminUser = '/api/admin/users/{userId:number}';

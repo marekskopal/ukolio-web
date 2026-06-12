@@ -1,7 +1,8 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {TaskFieldValue} from '@app/models/field';
-import {OrderDirection, Task, TaskList, TaskOrderBy} from '@app/models/task';
+import {Subtask} from '@app/models/subtask';
+import {OrderDirection, SubtaskFilter, Task, TaskList, TaskOrderBy} from '@app/models/task';
 import {TaskFile} from '@app/models/task-file';
 import {environment} from '@environments/environment';
 import {firstValueFrom} from 'rxjs';
@@ -27,6 +28,7 @@ export interface TaskListParams {
     tagIds?: number[];
     assigneeIds?: number[];
     onlyActive?: boolean;
+    subtaskFilter?: SubtaskFilter;
 }
 
 export type BulkOp = 'move' | 'tag' | 'untag' | 'assign' | 'priority' | 'delete';
@@ -66,6 +68,9 @@ export class TaskService {
         if (params.onlyActive) {
             httpParams = httpParams.set('onlyActive', '1');
         }
+        if (params.subtaskFilter && params.subtaskFilter !== 'all') {
+            httpParams = httpParams.set('subtaskFilter', params.subtaskFilter);
+        }
         return firstValueFrom(this.http.get<TaskList>(`${environment.apiUrl}/tasks`, {params: httpParams}));
     }
 
@@ -83,6 +88,18 @@ export class TaskService {
 
     public moveTask(taskId: number, statusId: number, position: number): Promise<Task> {
         return firstValueFrom(this.http.put<Task>(`${environment.apiUrl}/tasks/${taskId}/move`, {statusId, position}));
+    }
+
+    public duplicateTask(taskId: number): Promise<Task> {
+        return firstValueFrom(this.http.post<Task>(`${environment.apiUrl}/tasks/${taskId}/duplicate`, {}));
+    }
+
+    public listSubtasks(taskId: number): Promise<Subtask[]> {
+        return firstValueFrom(this.http.get<Subtask[]>(`${environment.apiUrl}/tasks/${taskId}/subtasks`));
+    }
+
+    public createSubtask(taskId: number, name: string): Promise<Subtask> {
+        return firstValueFrom(this.http.post<Subtask>(`${environment.apiUrl}/tasks/${taskId}/subtasks`, {name}));
     }
 
     public deleteTask(taskId: number): Promise<void> {

@@ -1,5 +1,4 @@
 import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, OnDestroy, output, signal, ViewChild} from '@angular/core';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {SearchHit} from '@app/models/search';
 import {SearchService} from '@app/services/search.service';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -17,7 +16,6 @@ const MinQueryLength = 2;
 })
 export class SearchPopoverComponent implements OnDestroy {
     private readonly searchService = inject(SearchService);
-    private readonly sanitizer = inject(DomSanitizer);
 
     public readonly open = input.required<boolean>();
 
@@ -102,11 +100,16 @@ export class SearchPopoverComponent implements OnDestroy {
         this.activeIndex.set(index);
     }
 
-    protected renderSnippet(snippet: string | null): SafeHtml | null {
+    protected renderSnippet(snippet: string | null): string | null {
+        // The snippet is Meilisearch highlight output: raw, unescaped task/comment/field
+        // content with <mark> markers around matches. Returning it as a plain string lets
+        // Angular's [innerHTML] sanitizer strip any scripts/event handlers from the
+        // user-controlled content while preserving the <mark> highlights. Never wrap this
+        // in bypassSecurityTrustHtml — that would reintroduce stored XSS.
         if (snippet === null || snippet === '') {
             return null;
         }
-        return this.sanitizer.bypassSecurityTrustHtml(snippet);
+        return snippet;
     }
 
     private moveActive(delta: number): void {

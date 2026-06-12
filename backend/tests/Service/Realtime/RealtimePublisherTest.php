@@ -29,6 +29,9 @@ final class RealtimePublisherTest extends TestCase
 
 		self::assertCount(1, $hub->updates);
 		self::assertSame(['ukolio/workspaces/42'], $hub->updates[0]->getTopics());
+		// Updates MUST be private so Mercure enforces the per-workspace subscriber-JWT
+		// authorization; a public update leaks to any (even anonymous) subscriber.
+		self::assertTrue($hub->updates[0]->isPrivate());
 
 		$payload = json_decode($hub->updates[0]->getData(), associative: true, flags: JSON_THROW_ON_ERROR);
 		self::assertIsArray($payload);

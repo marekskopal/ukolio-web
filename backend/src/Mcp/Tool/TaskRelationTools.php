@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace Ukolio\Mcp\Tool;
 
+use DateTimeImmutable;
 use Mcp\Capability\Attribute\McpTool;
 use RuntimeException;
+use Ukolio\Mcp\Dto\McpTaskDto;
 use Ukolio\Mcp\Dto\McpTaskRelationDto;
 use Ukolio\Mcp\Dto\McpTaskRelationListDto;
 use Ukolio\Mcp\McpUserContextInterface;
+use Ukolio\Mcp\Tool\Helper\PriorityResolver;
 use Ukolio\Model\Entity\Enum\TaskRelationTypeEnum;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\TaskRelation;
+use Ukolio\Model\Entity\User;
+use Ukolio\Model\Repository\UserRepository;
+use Ukolio\Service\Provider\SubtaskProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
 use Ukolio\Service\Provider\TaskRelationProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
@@ -23,6 +29,9 @@ final readonly class TaskRelationTools
 		private TaskProviderInterface $taskProvider,
 		private TaskRelationProviderInterface $taskRelationProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
+		private SubtaskProviderInterface $subtaskProvider,
+		private PriorityResolver $priorityResolver,
+		private UserRepository $userRepository,
 	) {
 	}
 
@@ -97,6 +106,56 @@ final readonly class TaskRelationTools
 		return 'Relation deleted.';
 	}
 
+	/**
+	 * Create a subtask: a new task in the parent's project (Start status) linked with a Parent
+	 * relation in one call. Convenience over create_task + link_tasks(type=Parent).
+	 *
+	 * @param int $parentTaskId Parent task ID
+	 * @param string $name Subtask name
+	 * @param string|null $description Optional markdown description
+	 * @param int|null $priorityId Priority ID from the workspace's catalog. Defaults to the workspace default.
+	 * @param string|null $priorityName Priority name lookup (case-insensitive); ignored if priorityId is given
+	 * @param string|null $dueDate Optional due date (YYYY-MM-DD)
+	 * @param int|null $assigneeId Optional assignee user ID. Defaults to the current MCP user.
+	 */
+	#[McpTool(
+		name: 'create_subtask',
+		description: 'Create a new task in the parent\'s project and link it as a subtask (Parent relation) in one call.',
+	)]
+	public function createSubtask(
+		int $parentTaskId,
+		string $name,
+		?string $description = null,
+		?int $priorityId = null,
+		?string $priorityName = null,
+		?string $dueDate = null,
+		?int $assigneeId = null,
+	): McpTaskDto {
+		$user = $this->userContext->getUser();
+		$parent = $this->requireTask($parentTaskId);
+
+		$priority = $priorityId !== null || $priorityName !== null
+			? $this->priorityResolver->resolve($parent->project, $priorityId, $priorityName)
+			: null;
+
+		$assignee = null;
+		if ($assigneeId !== null) {
+			$assignee = $this->requireWorkspaceMember($parent, $assigneeId);
+		}
+
+		$relation = $this->subtaskProvider->createSubtask(
+			author: $user,
+			parent: $parent,
+			name: $name,
+			description: $description,
+			priority: $priority,
+			dueDate: $dueDate !== null ? new DateTimeImmutable($dueDate) : null,
+			assignee: $assignee,
+		);
+
+		return McpTaskDto::fromEntity($relation->targetTask);
+	}
+
 	private function requireTask(int $taskId): Task
 	{
 		$task = $this->taskProvider->getTask($taskId);
@@ -104,6 +163,16 @@ final readonly class TaskRelationTools
 			throw new RuntimeException(sprintf('Task %d not found.', $taskId));
 		}
 		return $task;
+	}
+
+	private function requireWorkspaceMember(Task $task, int $userId): User
+	{
+		$member = $this->userRepository->findUserById($userId);
+		if ($member === null || !$this->workspaceProvider->isMember($member, $task->project->workspace)) {
+			throw new RuntimeException(sprintf('Assignee user %d must be a member of the project\'s workspace.', $userId));
+		}
+
+		return $member;
 	}
 
 	private function parseType(string $type): TaskRelationTypeEnum

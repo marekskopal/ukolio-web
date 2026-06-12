@@ -2,6 +2,7 @@ import {provideZonelessChangeDetection} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Priority} from '@app/models/priority';
 import {Status} from '@app/models/status';
+import {Subtask} from '@app/models/subtask';
 import {Task} from '@app/models/task';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
@@ -10,6 +11,7 @@ import {RealtimeService} from '@app/services/realtime.service';
 import {TaskService} from '@app/services/task.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
+import {TaskTemplateService} from '@app/services/task-template.service';
 import {TranslateService} from '@ngx-translate/core';
 import {Subject} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -20,6 +22,12 @@ interface DrawerInternals {
     onSubmit: () => Promise<void>;
     onDelete: () => Promise<void>;
     onCancel: () => void;
+    onDuplicate: () => Promise<void>;
+    onSaveAsTemplate: () => Promise<void>;
+    onAddSubtask: () => Promise<void>;
+    onToggleSubtask: (subtask: Subtask, event: Event) => Promise<void>;
+    subtaskNameControl: {setValue: (v: string) => void};
+    subtasks: {(): Subtask[]; set: (v: Subtask[]) => void};
 }
 
 function internals(component: TaskDetailDrawerComponent): DrawerInternals {
@@ -31,9 +39,17 @@ interface ServiceStubs {
         updateTask: ReturnType<typeof vi.fn>;
         createTask: ReturnType<typeof vi.fn>;
         deleteTask: ReturnType<typeof vi.fn>;
+        duplicateTask: ReturnType<typeof vi.fn>;
+        moveTask: ReturnType<typeof vi.fn>;
+        listSubtasks: ReturnType<typeof vi.fn>;
+        createSubtask: ReturnType<typeof vi.fn>;
         listTaskFiles: ReturnType<typeof vi.fn>;
         getTasks: ReturnType<typeof vi.fn>;
         getTask: ReturnType<typeof vi.fn>;
+    };
+    taskTemplateService: {
+        loadWorkspaceTemplates: ReturnType<typeof vi.fn>;
+        saveFromTask: ReturnType<typeof vi.fn>;
     };
 }
 
@@ -82,6 +98,29 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     };
 }
 
+
+function makeSubtask(overrides: Partial<Subtask> = {}): Subtask {
+    return {
+        taskId: 100,
+        relationId: 1,
+        code: 'U-100',
+        name: 'Subtask',
+        projectId: 1,
+        statusId: 10,
+        statusName: 'To Do',
+        statusColor: '#888',
+        statusType: 'Start',
+        priorityId: 2,
+        priorityName: 'Medium',
+        priorityPosition: 1,
+        dueDate: null,
+        assigneeId: null,
+        startStatusId: 10,
+        finishStatusId: 12,
+        ...overrides,
+    };
+}
+
 function createFixture(options: {task: Task | null}): {
     fixture: ComponentFixture<TaskDetailDrawerComponent>;
     component: TaskDetailDrawerComponent;
@@ -92,9 +131,17 @@ function createFixture(options: {task: Task | null}): {
             updateTask: vi.fn(),
             createTask: vi.fn(),
             deleteTask: vi.fn().mockResolvedValue(undefined),
+            duplicateTask: vi.fn(),
+            moveTask: vi.fn().mockResolvedValue({}),
+            listSubtasks: vi.fn().mockResolvedValue([]),
+            createSubtask: vi.fn(),
             listTaskFiles: vi.fn().mockResolvedValue([]),
             getTasks: vi.fn().mockResolvedValue({tasks: [], count: 0}),
             getTask: vi.fn().mockResolvedValue(null),
+        },
+        taskTemplateService: {
+            loadWorkspaceTemplates: vi.fn().mockResolvedValue([]),
+            saveFromTask: vi.fn().mockResolvedValue({}),
         },
     };
 
@@ -102,6 +149,7 @@ function createFixture(options: {task: Task | null}): {
         providers: [
             provideZonelessChangeDetection(),
             {provide: TaskService, useValue: stubs.taskService},
+            {provide: TaskTemplateService, useValue: stubs.taskTemplateService},
             {provide: FieldService, useValue: {sortVersionsDescending: (xs: string[]): string[] => xs}},
             {provide: TaskRelationService, useValue: {
                 list: vi.fn().mockResolvedValue({outgoing: [], incoming: []}),
@@ -204,6 +252,64 @@ describe('TaskDetailDrawerComponent', () => {
         expect(confirmSpy).toHaveBeenCalledTimes(1);
         expect(stubs.taskService.deleteTask).toHaveBeenCalledWith(77);
         expect(deleted).toEqual([77]);
+    });
+
+    it('onDuplicate calls duplicateTask and emits saved with the copy', async () => {
+        const original = makeTask();
+        const copy = makeTask({id: 43, name: 'Existing task (copy)'});
+        const {component, stubs} = createFixture({task: original});
+        stubs.taskService.duplicateTask.mockResolvedValue(copy);
+
+        const saved: Task[] = [];
+        component.saved.subscribe((task) => saved.push(task));
+
+        await internals(component).onDuplicate();
+
+        expect(stubs.taskService.duplicateTask).toHaveBeenCalledWith(original.id);
+        expect(saved).toEqual([copy]);
+    });
+
+    it('onSaveAsTemplate prompts for a name and saves the template', async () => {
+        vi.spyOn(window, 'prompt').mockReturnValue('My template');
+        const original = makeTask();
+        const {component, stubs} = createFixture({task: original});
+
+        await internals(component).onSaveAsTemplate();
+
+        expect(stubs.taskTemplateService.saveFromTask).toHaveBeenCalledWith(original.id, 'My template');
+    });
+
+    it('onSaveAsTemplate does nothing when the prompt is cancelled', async () => {
+        vi.spyOn(window, 'prompt').mockReturnValue(null);
+        const {component, stubs} = createFixture({task: makeTask()});
+
+        await internals(component).onSaveAsTemplate();
+
+        expect(stubs.taskTemplateService.saveFromTask).not.toHaveBeenCalled();
+    });
+
+    it('onAddSubtask creates the subtask and appends it to the list', async () => {
+        const parent = makeTask();
+        const {component, stubs} = createFixture({task: parent});
+        const created = makeSubtask({taskId: 101, name: 'Child'});
+        stubs.taskService.createSubtask.mockResolvedValue(created);
+
+        internals(component).subtaskNameControl.setValue('Child');
+        await internals(component).onAddSubtask();
+
+        expect(stubs.taskService.createSubtask).toHaveBeenCalledWith(parent.id, 'Child');
+        expect(internals(component).subtasks()).toEqual([created]);
+    });
+
+    it('onToggleSubtask moves the child to its finish status when checked', async () => {
+        const {component, stubs} = createFixture({task: makeTask()});
+        const subtask = makeSubtask({taskId: 7, startStatusId: 10, finishStatusId: 12});
+        stubs.taskService.listSubtasks.mockResolvedValue([{...subtask, statusType: 'Finish'}]);
+
+        const event = {target: {checked: true}} as unknown as Event;
+        await internals(component).onToggleSubtask(subtask, event);
+
+        expect(stubs.taskService.moveTask).toHaveBeenCalledWith(7, 12, 0);
     });
 
     it('onDelete does not emit when the confirmation dialog is cancelled', async () => {

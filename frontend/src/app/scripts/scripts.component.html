@@ -1,0 +1,57 @@
+<section class="scripts">
+    <header class="scripts-header">
+        <div>
+            <h1>{{ 'app.scripts.title' | translate }}</h1>
+            <p class="scripts-subtitle">{{ 'app.scripts.subtitle' | translate }}</p>
+        </div>
+        @if (canManage()) {
+            <div class="scripts-actions">
+                <a class="uk-btn uk-btn--ghost" routerLink="/settings/variables">{{ 'app.scripts.variables.manage' | translate }}</a>
+                <a class="uk-btn uk-btn--primary" routerLink="/settings/scripts/new">{{ 'app.scripts.new' | translate }}</a>
+            </div>
+        }
+    </header>
+
+    @if (loading()) {
+        <p class="scripts-empty">{{ 'app.common.loading' | translate }}</p>
+    } @else if (scripts().length === 0) {
+        <p class="scripts-empty">{{ 'app.scripts.empty' | translate }}</p>
+    } @else {
+        <table class="scripts-table">
+            <thead>
+                <tr>
+                    <th>{{ 'app.scripts.col.name' | translate }}</th>
+                    <th>{{ 'app.scripts.col.trigger' | translate }}</th>
+                    <th>{{ 'app.scripts.col.status' | translate }}</th>
+                    <th>{{ 'app.scripts.col.lastRun' | translate }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (script of scripts(); track script.id) {
+                    <tr>
+                        <td><a [routerLink]="['/settings/scripts', script.id]">{{ script.name }}</a></td>
+                        <td>{{ 'app.scripts.trigger.' + script.trigger | translate }}</td>
+                        <td>
+                            <span class="badge" [class.badge--on]="script.active" [class.badge--off]="!script.active">
+                                {{ (script.active ? 'app.scripts.active' : 'app.scripts.inactive') | translate }}
+                            </span>
+                        </td>
+                        <td>{{ script.lastRunAt ? (script.lastRunAt | date: 'short') : '—' }}</td>
+                        <td class="scripts-row-actions">
+                            @if (canManage()) {
+                                <button type="button" class="uk-btn uk-btn--sm" [disabled]="running() === script.id" (click)="run(script)">
+                                    {{ 'app.scripts.run' | translate }}
+                                </button>
+                                <a class="uk-btn uk-btn--sm" [routerLink]="['/settings/scripts', script.id]">{{ 'app.common.edit' | translate }}</a>
+                                <button type="button" class="uk-btn uk-btn--sm uk-btn--danger" (click)="remove(script)">
+                                    {{ 'app.common.delete' | translate }}
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

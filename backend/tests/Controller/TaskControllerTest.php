@@ -234,6 +234,74 @@ final class TaskControllerTest extends IntegrationTestCase
 		return [$projectInA, $intruder, $todoIdInA, $taskCode];
 	}
 
+	public function testDuplicateTaskClonesContentTagsAndStatus(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		[, $inProgressId] = $this->statusIds($project->id);
+
+		$tag = $this->jsonBody($this->request(
+			'POST',
+			'/api/workspaces/' . $workspace->id . '/tags',
+			body: ['name' => 'bug', 'color' => '#ff0000'],
+			authenticatedAs: $owner,
+		));
+		$tagId = self::intField($tag['id']);
+
+		$create = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: [
+				'statusId' => $inProgressId,
+				'name' => 'Original',
+				'description' => 'Body text',
+				'priority' => 'High',
+				'dueDate' => '2026-07-01',
+				'tagIds' => [$tagId],
+			],
+			authenticatedAs: $owner,
+		);
+		$original = $this->jsonBody($create);
+		$originalId = self::intField($original['id']);
+
+		$duplicate = $this->request('POST', '/api/tasks/' . $originalId . '/duplicate', authenticatedAs: $owner);
+		self::assertSame(200, $duplicate->getStatusCode());
+		$copy = $this->jsonBody($duplicate);
+
+		self::assertNotSame($originalId, self::intField($copy['id']));
+		self::assertSame('Original (copy)', $copy['name']);
+		self::assertSame('Body text', $copy['description']);
+		self::assertSame($inProgressId, $copy['statusId']);
+		self::assertSame('2026-07-01', $copy['dueDate']);
+		self::assertSame([$tagId], $copy['tagIds']);
+		$priority = $copy['priority'];
+		assert(is_array($priority));
+		self::assertSame('High', $priority['name']);
+	}
+
+	public function testDuplicateTaskOutsideWorkspaceIsNotFound(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$create = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'Private', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+		$taskId = self::intField($this->jsonBody($create)['id']);
+
+		$outsider = Fixture::createUser();
+		Fixture::createWorkspace($outsider);
+
+		$response = $this->request('POST', '/api/tasks/' . $taskId . '/duplicate', authenticatedAs: $outsider);
+		self::assertSame(404, $response->getStatusCode());
+	}
+
 	/** @return array{0:int,1:int} */
 	private function statusIds(int $projectId): array
 	{

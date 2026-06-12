@@ -47,6 +47,8 @@ use Ukolio\Service\Provider\SavedViewProvider;
 use Ukolio\Service\Provider\SavedViewProviderInterface;
 use Ukolio\Service\Provider\StatusProvider;
 use Ukolio\Service\Provider\StatusProviderInterface;
+use Ukolio\Service\Provider\SubtaskProvider;
+use Ukolio\Service\Provider\SubtaskProviderInterface;
 use Ukolio\Service\Provider\TagProvider;
 use Ukolio\Service\Provider\TagProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolver;
@@ -63,6 +65,8 @@ use Ukolio\Service\Provider\TaskRelationProvider;
 use Ukolio\Service\Provider\TaskRelationProviderInterface;
 use Ukolio\Service\Provider\TaskTagProvider;
 use Ukolio\Service\Provider\TaskTagProviderInterface;
+use Ukolio\Service\Provider\TaskTemplateProvider;
+use Ukolio\Service\Provider\TaskTemplateProviderInterface;
 use Ukolio\Service\Provider\UserProvider;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Provider\WorkflowProvider;
@@ -73,6 +77,20 @@ use Ukolio\Service\Provider\WorkspaceProvider;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Request\RequestService;
 use Ukolio\Service\Request\RequestServiceInterface;
+use Ukolio\Service\Script\Engine\ScriptEngineInterface;
+use Ukolio\Service\Script\Engine\V8JsScriptEngine;
+use Ukolio\Service\Script\ScriptProvider;
+use Ukolio\Service\Script\ScriptProviderInterface;
+use Ukolio\Service\Script\ScriptRunDispatcher;
+use Ukolio\Service\Script\ScriptRunDispatcherInterface;
+use Ukolio\Service\Script\ScriptVariableProvider;
+use Ukolio\Service\Script\ScriptVariableProviderInterface;
+use Ukolio\Service\Script\SecretCipher;
+use Ukolio\Service\Script\SecretCipherInterface;
+use Ukolio\Service\Script\Trigger\CronEvaluator;
+use Ukolio\Service\Script\Trigger\CronEvaluatorInterface;
+use Ukolio\Service\Script\Trigger\ScriptEventTrigger;
+use Ukolio\Service\Script\Trigger\ScriptEventTriggerInterface;
 use Ukolio\Service\Task\TaskService;
 use Ukolio\Service\Task\TaskServiceInterface;
 use Ukolio\Service\Translator\TranslatorService;
@@ -109,6 +127,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			ProjectFieldProviderInterface::class,
 			TagProviderInterface::class,
 			TaskTagProviderInterface::class,
+			SubtaskProviderInterface::class,
+			TaskTemplateProviderInterface::class,
 			SavedViewProviderInterface::class,
 			PriorityProviderInterface::class,
 			EventProviderInterface::class,
@@ -119,6 +139,13 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			AuthorizationServiceInterface::class,
 			TranslatorServiceInterface::class,
 			TaskServiceInterface::class,
+			SecretCipherInterface::class,
+			ScriptEngineInterface::class,
+			ScriptVariableProviderInterface::class,
+			ScriptProviderInterface::class,
+			ScriptRunDispatcherInterface::class,
+			CronEvaluatorInterface::class,
+			ScriptEventTriggerInterface::class,
 		], true);
 	}
 
@@ -156,6 +183,8 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(ProjectFieldProviderInterface::class, ProjectFieldProvider::class);
 		$c->add(TagProviderInterface::class, TagProvider::class);
 		$c->add(TaskTagProviderInterface::class, TaskTagProvider::class);
+		$c->add(SubtaskProviderInterface::class, SubtaskProvider::class);
+		$c->add(TaskTemplateProviderInterface::class, TaskTemplateProvider::class);
 		$c->add(SavedViewProviderInterface::class, SavedViewProvider::class);
 		$c->add(PriorityProviderInterface::class, PriorityProvider::class);
 		$c->add(McpUserContextInterface::class, McpUserContext::class);
@@ -167,5 +196,13 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		});
 		$c->add(ClientServiceInterface::class, ClientService::class);
 		$c->add(AuthorizationServiceInterface::class, AuthorizationService::class);
+
+		$c->add(SecretCipherInterface::class, static fn (): SecretCipher => new SecretCipher((string) getenv('AUTHORIZATION_TOKEN_KEY')));
+		$c->add(ScriptEngineInterface::class, V8JsScriptEngine::class);
+		$c->add(ScriptVariableProviderInterface::class, ScriptVariableProvider::class);
+		$c->add(ScriptProviderInterface::class, ScriptProvider::class);
+		$c->add(ScriptRunDispatcherInterface::class, ScriptRunDispatcher::class);
+		$c->add(CronEvaluatorInterface::class, CronEvaluator::class);
+		$c->add(ScriptEventTriggerInterface::class, ScriptEventTrigger::class);
 	}
 }
