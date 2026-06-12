@@ -239,6 +239,12 @@
                 "partialSuccess": "{{succeeded}} aktualizováno, {{skipped}} přeskočeno.",
                 "showSkipped": "Zobrazit detail",
                 "hideSkipped": "Skrýt detail"
+            },
+            "subtaskFilter": {
+                "label": "Filtr podúkolů",
+                "all": "Všechny úkoly",
+                "hideSubtasks": "Skrýt podúkoly",
+                "onlyParents": "Jen rodičovské"
             }
         },
         "savedViews": {
@@ -388,7 +394,8 @@
                     "uploadedBy": "od {{name}}",
                     "uploadedByAgent": "od agenta"
                 }
-            }
+            },
+            "deleteTaskWithSubtasksConfirm": "Smazat úkol \"{{name}}\"? Jeho podúkoly ({{count}}) zůstanou zachovány a budou odpojeny."
         },
         "workflow": {
             "title": "Pracovní postup",
@@ -718,6 +725,16 @@
             "saved": "Šablona uložena.",
             "startFromTemplate": "Začít ze šablony…"
         },
+        "subtasks": {
+            "heading": "Podúkoly",
+            "add": "Přidat",
+            "addPlaceholder": "Přidat podúkol…",
+            "toggle": "Přepnout podúkol \"{{name}}\"",
+            "removeConfirm": "Odebrat vazbu na podúkol \"{{name}}\"? Úkol samotný zůstane zachován.",
+            "earliestDue": "Nejbližší termín",
+            "highestPriority": "Nejvyšší priorita",
+            "progressTitle": "Hotovo {{done}} z {{total}} podúkolů"
+        },
         "onboarding": {
             "shell": {
                 "gettingStarted": "Začínáme",
@@ -733,9 +750,18 @@
                 "openWorkspace": "Otevřít workspace"
             },
             "steps": {
-                "step1": {"label": "Projekt a workflow", "hint": "Kde žijí úkoly"},
-                "step2": {"label": "Pozvat kolegy", "hint": "Přiveďte tým"},
-                "step3": {"label": "Připojit agenty", "hint": "Volitelné · MCP"}
+                "step1": {
+                    "label": "Projekt a workflow",
+                    "hint": "Kde žijí úkoly"
+                },
+                "step2": {
+                    "label": "Pozvat kolegy",
+                    "hint": "Přiveďte tým"
+                },
+                "step3": {
+                    "label": "Připojit agenty",
+                    "hint": "Volitelné · MCP"
+                }
             },
             "step1": {
                 "overline": "Krok 01",
@@ -750,10 +776,22 @@
                 "workflowSub": "Stavy, kterými úkoly procházejí. Vyberte šablonu — později ji můžete upravit.",
                 "errorCreate": "Projekt se nepodařilo vytvořit. Zkuste to znovu.",
                 "templates": {
-                    "kanban": {"name": "Kanban", "sub": "Klasický 4-stavový tok"},
-                    "engineering": {"name": "Engineering", "sub": "Backlog → Spec → Build → Ship"},
-                    "simple": {"name": "Jednoduchý", "sub": "Jen otevřené / zavřené"},
-                    "blank": {"name": "Začít prázdné", "sub": "Vlastní sloupce"}
+                    "kanban": {
+                        "name": "Kanban",
+                        "sub": "Klasický 4-stavový tok"
+                    },
+                    "engineering": {
+                        "name": "Engineering",
+                        "sub": "Backlog → Spec → Build → Ship"
+                    },
+                    "simple": {
+                        "name": "Jednoduchý",
+                        "sub": "Jen otevřené / zavřené"
+                    },
+                    "blank": {
+                        "name": "Začít prázdné",
+                        "sub": "Vlastní sloupce"
+                    }
                 }
             },
             "step2": {

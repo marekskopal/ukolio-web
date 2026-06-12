@@ -47,6 +47,8 @@ use Ukolio\Service\Provider\SavedViewProvider;
 use Ukolio\Service\Provider\SavedViewProviderInterface;
 use Ukolio\Service\Provider\StatusProvider;
 use Ukolio\Service\Provider\StatusProviderInterface;
+use Ukolio\Service\Provider\SubtaskProvider;
+use Ukolio\Service\Provider\SubtaskProviderInterface;
 use Ukolio\Service\Provider\TagProvider;
 use Ukolio\Service\Provider\TagProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolver;
@@ -125,6 +127,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			ProjectFieldProviderInterface::class,
 			TagProviderInterface::class,
 			TaskTagProviderInterface::class,
+			SubtaskProviderInterface::class,
 			TaskTemplateProviderInterface::class,
 			SavedViewProviderInterface::class,
 			PriorityProviderInterface::class,
@@ -180,6 +183,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(ProjectFieldProviderInterface::class, ProjectFieldProvider::class);
 		$c->add(TagProviderInterface::class, TagProvider::class);
 		$c->add(TaskTagProviderInterface::class, TaskTagProvider::class);
+		$c->add(SubtaskProviderInterface::class, SubtaskProvider::class);
 		$c->add(TaskTemplateProviderInterface::class, TaskTemplateProvider::class);
 		$c->add(SavedViewProviderInterface::class, SavedViewProvider::class);
 		$c->add(PriorityProviderInterface::class, PriorityProvider::class);

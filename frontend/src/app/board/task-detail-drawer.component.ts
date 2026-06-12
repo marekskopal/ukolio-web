@@ -6,6 +6,7 @@ import {ProjectField} from '@app/models/field';
 import {Priority} from '@app/models/priority';
 import {COMMENT_EVENT_TYPES, FILE_EVENT_TYPES, RealtimeEvent, RELATION_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
+import {Subtask} from '@app/models/subtask';
 import {Tag} from '@app/models/tag';
 import {Task, TaskListItem} from '@app/models/task';
 import {TaskComment} from '@app/models/task-comment';
@@ -157,6 +158,33 @@ export class TaskDetailDrawerComponent implements OnInit {
     protected readonly addRelationSaving = signal(false);
     protected readonly relationTypes = RELATION_TYPES;
 
+    protected readonly subtasks = signal<Subtask[]>([]);
+    protected readonly subtasksLoaded = signal(false);
+    protected readonly addingSubtask = signal(false);
+    protected readonly subtaskNameControl = new FormControl<string>('', {nonNullable: true});
+
+    protected readonly subtasksDone = computed<number>(() =>
+        this.subtasks().filter((s) => s.statusType === 'Finish').length,
+    );
+
+    protected readonly subtaskProgressPercent = computed<number>(() => {
+        const total = this.subtasks().length;
+        return total === 0 ? 0 : Math.round((this.subtasksDone() / total) * 100);
+    });
+
+    // Read-only rollup: earliest due date and highest priority (lowest position) across children.
+    protected readonly subtaskEarliestDue = computed<string | null>(() => {
+        const dues = this.subtasks().map((s) => s.dueDate).filter((d): d is string => d !== null).sort();
+        return dues[0] ?? null;
+    });
+
+    protected readonly subtaskHighestPriority = computed<string | null>(() => {
+        const subtasks = this.subtasks();
+        if (subtasks.length === 0) return null;
+        const highest = [...subtasks].sort((a, b) => a.priorityPosition - b.priorityPosition)[0];
+        return highest.priorityName;
+    });
+
     protected readonly comments = signal<TaskComment[]>([]);
     protected readonly commentsLoaded = signal(false);
     protected readonly commentForm = this.fb.nonNullable.group({
@@ -213,7 +241,6 @@ export class TaskDetailDrawerComponent implements OnInit {
         const incoming = this.incomingRelations();
         const groups: RelationGroup[] = [
             {key: 'Parent', headerKey: 'app.taskRelations.groupHeader.Parent', items: incoming.filter((r) => r.type === 'Parent')},
-            {key: 'Subtasks', headerKey: 'app.taskRelations.groupHeader.Subtasks', items: outgoing.filter((r) => r.type === 'Parent')},
             {key: 'DependsOn', headerKey: 'app.taskRelations.groupHeader.DependsOn', items: outgoing.filter((r) => r.type === 'DependsOn')},
             {key: 'RequiredFor', headerKey: 'app.taskRelations.groupHeader.RequiredFor', items: incoming.filter((r) => r.type === 'DependsOn')},
             {
@@ -258,6 +285,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadFiles(current.id);
         } else if (RELATION_EVENT_TYPES.has(event.type)) {
             void this.loadRelations(current.id);
+            void this.loadSubtasks(current.id);
         }
     }
 
@@ -281,6 +309,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadFiles(existing.id);
             void this.loadRelations(existing.id);
             void this.loadComments(existing.id);
+            void this.loadSubtasks(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             const defaultPriority = this.workspacePriorities().find((p) => p.isDefault) ?? this.workspacePriorities()[0];
@@ -352,7 +381,13 @@ export class TaskDetailDrawerComponent implements OnInit {
         if (!existing) {
             return;
         }
-        const confirmMessage = await this.translate.instant('app.board.deleteTaskConfirm', {name: existing.name}) as string;
+        const subtaskCount = this.subtasks().length;
+        const confirmMessage = subtaskCount > 0
+            ? await this.translate.instant(
+                'app.board.deleteTaskWithSubtasksConfirm',
+                {name: existing.name, count: subtaskCount},
+            ) as string
+            : await this.translate.instant('app.board.deleteTaskConfirm', {name: existing.name}) as string;
         if (!confirm(confirmMessage)) {
             return;
         }
@@ -541,6 +576,100 @@ export class TaskDetailDrawerComponent implements OnInit {
         try {
             await this.taskService.deleteTaskFile(existing.id, file.id);
             this.files.update((current) => current.filter((f) => f.id !== file.id));
+        } catch {
+            // error interceptor
+        }
+    }
+
+    private async loadSubtasks(taskId: number): Promise<void> {
+        try {
+            this.subtasks.set(await this.taskService.listSubtasks(taskId));
+        } catch {
+            this.subtasks.set([]);
+        } finally {
+            this.subtasksLoaded.set(true);
+        }
+    }
+
+    protected async onAddSubtask(): Promise<void> {
+        const existing = this.task();
+        const name = this.subtaskNameControl.value.trim();
+        if (!existing || name === '' || this.addingSubtask()) {
+            return;
+        }
+        this.addingSubtask.set(true);
+        try {
+            const created = await this.taskService.createSubtask(existing.id, name);
+            this.subtasks.update((list) => [...list, created]);
+            this.subtaskNameControl.setValue('');
+        } catch {
+            // error interceptor
+        } finally {
+            this.addingSubtask.set(false);
+        }
+    }
+
+    protected async onToggleSubtask(subtask: Subtask, event: Event): Promise<void> {
+        const checked = (event.target as HTMLInputElement).checked;
+        const targetStatusId = checked ? subtask.finishStatusId : subtask.startStatusId;
+        if (targetStatusId === null) {
+            return;
+        }
+        try {
+            await this.taskService.moveTask(subtask.taskId, targetStatusId, 0);
+            const parent = this.task();
+            if (parent) {
+                await this.loadSubtasks(parent.id);
+            }
+        } catch {
+            // error interceptor — restore the checkbox by re-rendering current state
+            this.subtasks.update((list) => [...list]);
+        }
+    }
+
+    protected async onRemoveSubtask(subtask: Subtask): Promise<void> {
+        const message = await this.translate.instant('app.subtasks.removeConfirm', {name: subtask.name}) as string;
+        if (!confirm(message)) {
+            return;
+        }
+        try {
+            await this.taskRelationService.delete(subtask.relationId);
+            this.subtasks.update((list) => list.filter((s) => s.relationId !== subtask.relationId));
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected async onOpenSubtask(subtask: Subtask): Promise<void> {
+        try {
+            const task = await this.taskService.getTask(subtask.taskId);
+            const item: TaskListItem = {
+                id: task.id,
+                code: task.code,
+                projectId: task.projectId,
+                projectName: '',
+                statusId: task.statusId,
+                status: {
+                    id: subtask.statusId,
+                    workflowId: 0,
+                    name: subtask.statusName,
+                    color: subtask.statusColor,
+                    position: 0,
+                    type: subtask.statusType,
+                },
+                assigneeId: task.assigneeId,
+                name: task.name,
+                description: task.description,
+                priority: task.priority,
+                dueDate: task.dueDate,
+                position: task.position,
+                sequenceNumber: task.sequenceNumber,
+                createdByAgent: task.createdByAgent,
+                createdAt: task.createdAt,
+                updatedAt: task.updatedAt,
+                tagIds: task.tagIds,
+            };
+            this.openTask.emit(item);
         } catch {
             // error interceptor
         }

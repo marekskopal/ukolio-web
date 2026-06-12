@@ -534,3 +534,25 @@
     gap: 3px;
     max-width: 100%;
 }
+
+.subtask-progress-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: $color-surface-deep;
+    color: $color-text-subtle;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+
+    &--complete {
+        background: $color-success-soft;
+        color: $color-success;
+    }
+}
+
+.filter-subtasks {
+    width: auto;
+}

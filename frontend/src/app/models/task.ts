@@ -19,10 +19,13 @@ export interface Task {
     updatedAt: string;
     fieldValues: TaskFieldValue[];
     tagIds: number[];
+    subtasksTotal?: number;
+    subtasksDone?: number;
 }
 
 export type TaskOrderBy = 'created_at' | 'name' | 'status_id';
 export type OrderDirection = 'ASC' | 'DESC';
+export type SubtaskFilter = 'all' | 'hideSubtasks' | 'onlyParents';
 
 export interface TaskListItem {
     id: number;
@@ -42,6 +45,8 @@ export interface TaskListItem {
     createdAt: string;
     updatedAt: string;
     tagIds: number[];
+    subtasksTotal?: number;
+    subtasksDone?: number;
 }
 
 export interface TaskList {

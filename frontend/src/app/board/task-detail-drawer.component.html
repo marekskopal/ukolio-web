@@ -284,6 +284,94 @@
         @if (task()) {
             <section class="drawer-section">
                 <div class="drawer-section-head">
+                    <span class="uk-overline">{{ 'app.subtasks.heading' | translate }}</span>
+                    @if (subtasksLoaded() && subtasks().length > 0) {
+                        <span class="section-count">{{ subtasksDone() }}/{{ subtasks().length }}</span>
+                    }
+                </div>
+
+                @if (subtasksLoaded() && subtasks().length > 0) {
+                    <div
+                        class="subtask-progress-track"
+                        role="progressbar"
+                        [attr.aria-valuenow]="subtaskProgressPercent()"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                    >
+                        <div class="subtask-progress-fill" [style.width.%]="subtaskProgressPercent()"></div>
+                    </div>
+                    @if (subtaskEarliestDue() || subtaskHighestPriority()) {
+                        <p class="text-subtle subtask-rollup">
+                            @if (subtaskEarliestDue(); as due) {
+                                <span>{{ 'app.subtasks.earliestDue' | translate }}: {{ due | date }}</span>
+                            }
+                            @if (subtaskEarliestDue() && subtaskHighestPriority()) {
+                                <span aria-hidden="true"> · </span>
+                            }
+                            @if (subtaskHighestPriority(); as prio) {
+                                <span>{{ 'app.subtasks.highestPriority' | translate }}: {{ prio }}</span>
+                            }
+                        </p>
+                    }
+                    <ul class="subtask-list">
+                        @for (sub of subtasks(); track sub.relationId) {
+                            <li class="subtask-item">
+                                <input
+                                    type="checkbox"
+                                    class="subtask-check"
+                                    [checked]="sub.statusType === 'Finish'"
+                                    [disabled]="sub.finishStatusId === null || sub.startStatusId === null"
+                                    (change)="onToggleSubtask(sub, $event)"
+                                    [attr.aria-label]="'app.subtasks.toggle' | translate: {name: sub.name}"
+                                />
+                                <button type="button" class="relation-link" (click)="onOpenSubtask(sub)">
+                                    <span class="relation-status-dot" [style.background]="sub.statusColor"></span>
+                                    <span class="relation-id uk-mono">{{ sub.code }}</span>
+                                    <span
+                                        class="relation-task-name"
+                                        [class.subtask-name--done]="sub.statusType === 'Finish'"
+                                    >{{ sub.name }}</span>
+                                    @if (sub.dueDate) {
+                                        <span class="relation-task-meta">{{ sub.dueDate | date }}</span>
+                                    }
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger-ghost btn-icon btn-sm"
+                                    (click)="onRemoveSubtask(sub)"
+                                    [attr.aria-label]="'app.actions.remove' | translate"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                                        <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <div class="subtask-add-row">
+                    <input
+                        type="text"
+                        class="input subtask-add-input"
+                        [formControl]="subtaskNameControl"
+                        (keydown.enter)="$event.preventDefault(); onAddSubtask()"
+                        [placeholder]="'app.subtasks.addPlaceholder' | translate"
+                        autocomplete="off"
+                    />
+                    <button
+                        type="button"
+                        class="btn btn-ghost btn-sm"
+                        [disabled]="addingSubtask() || subtaskNameControl.value.trim() === ''"
+                        (click)="onAddSubtask()"
+                    >
+                        {{ (addingSubtask() ? 'app.actions.loading' : 'app.subtasks.add') | translate }}
+                    </button>
+                </div>
+            </section>
+
+            <section class="drawer-section">
+                <div class="drawer-section-head">
                     <span class="uk-overline">{{ 'app.taskRelations.section' | translate }}</span>
                     @if (relationsLoaded() && totalRelationCount() > 0) {
                         <span class="section-count">{{ totalRelationCount() }}</span>

@@ -9,7 +9,7 @@ import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {SavedView, SavedViewFilters} from '@app/models/saved-view';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
-import {OrderDirection, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
+import {OrderDirection, SubtaskFilter, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
 import {WorkflowWithStatuses} from '@app/models/workflow';
 import {WorkspaceMember} from '@app/models/workspace';
 import {BoardService} from '@app/services/board.service';
@@ -44,6 +44,7 @@ interface QueryParams {
     tagIds: number[] | undefined;
     assigneeIds: number[] | undefined;
     onlyActive: boolean | undefined;
+    subtaskFilter: SubtaskFilter | undefined;
 }
 
 @Component({
@@ -81,6 +82,7 @@ export class TasksGridComponent implements OnInit {
     protected readonly priorities = signal<Priority[]>([]);
     protected readonly members = this.workspaceService.currentMembers;
     protected readonly onlyActive = signal<boolean>(false);
+    protected readonly subtaskFilter = signal<SubtaskFilter>('all');
     protected readonly sortBy = signal<TaskOrderBy>('created_at');
     protected readonly sortDirection = signal<OrderDirection>('DESC');
     protected readonly page = signal<number>(1);
@@ -169,6 +171,7 @@ export class TasksGridComponent implements OnInit {
         tagIds: this.selectedTagIds().length > 0 ? this.selectedTagIds() : undefined,
         assigneeIds: this.selectedAssigneeIds().length > 0 ? this.selectedAssigneeIds() : undefined,
         onlyActive: this.onlyActive() ? true : undefined,
+        subtaskFilter: this.subtaskFilter() === 'all' ? undefined : this.subtaskFilter(),
     }));
 
     public ngOnInit(): void {
@@ -251,6 +254,11 @@ export class TasksGridComponent implements OnInit {
             this.onlyActive.set(true);
         }
 
+        const subtaskFilter = map.get('subtaskFilter');
+        if (subtaskFilter === 'hideSubtasks' || subtaskFilter === 'onlyParents') {
+            this.subtaskFilter.set(subtaskFilter);
+        }
+
         const orderBy = map.get('orderBy');
         if (orderBy === 'created_at' || orderBy === 'name' || orderBy === 'status_id') {
             this.sortBy.set(orderBy);
@@ -280,6 +288,7 @@ export class TasksGridComponent implements OnInit {
         if (this.selectedTagIds().length > 0) out['tagIds'] = this.selectedTagIds().join('|');
         if (this.selectedAssigneeIds().length > 0) out['assigneeIds'] = this.selectedAssigneeIds().join('|');
         if (this.onlyActive()) out['onlyActive'] = '1';
+        if (this.subtaskFilter() !== 'all') out['subtaskFilter'] = this.subtaskFilter();
         if (this.sortBy() !== 'created_at') out['orderBy'] = this.sortBy();
         if (this.sortDirection() !== 'DESC') out['orderDirection'] = this.sortDirection();
         if (this.page() !== 1) out['page'] = String(this.page());
@@ -363,6 +372,7 @@ export class TasksGridComponent implements OnInit {
             && this.selectedTagIds().length === 0
             && this.selectedAssigneeIds().length === 0
             && !this.onlyActive()
+            && this.subtaskFilter() === 'all'
             && this.page() === 1
             && this.sortBy() === 'created_at'
             && this.sortDirection() === 'DESC';
@@ -393,6 +403,9 @@ export class TasksGridComponent implements OnInit {
         }
         if (filters.onlyActive) {
             this.onlyActive.set(true);
+        }
+        if (filters.subtaskFilter === 'hideSubtasks' || filters.subtaskFilter === 'onlyParents') {
+            this.subtaskFilter.set(filters.subtaskFilter);
         }
         if (filters.orderBy) {
             this.sortBy.set(filters.orderBy);
@@ -433,6 +446,7 @@ export class TasksGridComponent implements OnInit {
         if (this.selectedTagIds().length > 0) filters.tagIds = [...this.selectedTagIds()];
         if (this.selectedAssigneeIds().length > 0) filters.assigneeIds = [...this.selectedAssigneeIds()];
         if (this.onlyActive()) filters.onlyActive = true;
+        if (this.subtaskFilter() !== 'all') filters.subtaskFilter = this.subtaskFilter();
         if (this.sortBy() !== 'created_at') filters.orderBy = this.sortBy();
         if (this.sortDirection() !== 'DESC') filters.orderDirection = this.sortDirection();
         if (this.pageSize() !== 50) filters.pageSize = this.pageSize();
@@ -499,6 +513,7 @@ export class TasksGridComponent implements OnInit {
             && sameArray(this.selectedTagIds(), saved.tagIds)
             && sameArray(this.selectedAssigneeIds(), saved.assigneeIds)
             && this.onlyActive() === (saved.onlyActive ?? false)
+            && this.subtaskFilter() === (saved.subtaskFilter ?? 'all')
             && this.sortBy() === (saved.orderBy ?? 'created_at')
             && this.sortDirection() === (saved.orderDirection ?? 'DESC')
             && this.pageSize() === (saved.pageSize ?? 50);
@@ -529,6 +544,7 @@ export class TasksGridComponent implements OnInit {
                 tagIds: params.tagIds,
                 assigneeIds: params.assigneeIds,
                 onlyActive: params.onlyActive,
+                subtaskFilter: params.subtaskFilter,
             });
             this.tasks.set(result.tasks);
             this.count.set(result.count);
@@ -644,12 +660,19 @@ export class TasksGridComponent implements OnInit {
         this.page.set(1);
     }
 
+    protected onSubtaskFilterChange(event: Event): void {
+        const value = (event.target as HTMLSelectElement).value;
+        this.subtaskFilter.set(value === 'hideSubtasks' || value === 'onlyParents' ? value : 'all');
+        this.page.set(1);
+    }
+
     protected clearFilters(): void {
         this.searchControl.setValue('');
         this.selectedStatusIds.set([]);
         this.selectedTagIds.set([]);
         this.selectedAssigneeIds.set([]);
         this.onlyActive.set(false);
+        this.subtaskFilter.set('all');
         this.page.set(1);
     }
 

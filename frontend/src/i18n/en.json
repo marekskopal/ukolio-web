@@ -239,6 +239,12 @@
                 "partialSuccess": "{{succeeded}} updated, {{skipped}} skipped.",
                 "showSkipped": "Show details",
                 "hideSkipped": "Hide details"
+            },
+            "subtaskFilter": {
+                "label": "Subtask filter",
+                "all": "All tasks",
+                "hideSubtasks": "Hide subtasks",
+                "onlyParents": "Only parents"
             }
         },
         "savedViews": {
@@ -388,7 +394,8 @@
                     "uploadedBy": "by {{name}}",
                     "uploadedByAgent": "by agent"
                 }
-            }
+            },
+            "deleteTaskWithSubtasksConfirm": "Delete task \"{{name}}\"? Its {{count}} subtask(s) will be kept and unlinked."
         },
         "workflow": {
             "title": "Workflow",
@@ -718,6 +725,16 @@
             "saved": "Template saved.",
             "startFromTemplate": "Start from template…"
         },
+        "subtasks": {
+            "heading": "Subtasks",
+            "add": "Add",
+            "addPlaceholder": "Add a subtask…",
+            "toggle": "Toggle subtask \"{{name}}\"",
+            "removeConfirm": "Remove subtask link to \"{{name}}\"? The task itself is kept.",
+            "earliestDue": "Earliest due",
+            "highestPriority": "Highest priority",
+            "progressTitle": "{{done}} of {{total}} subtasks done"
+        },
         "onboarding": {
             "shell": {
                 "gettingStarted": "Getting started",
@@ -733,9 +750,18 @@
                 "openWorkspace": "Open workspace"
             },
             "steps": {
-                "step1": {"label": "Project & workflow", "hint": "Where work lives"},
-                "step2": {"label": "Invite teammates", "hint": "Bring your team in"},
-                "step3": {"label": "Connect agents", "hint": "Optional · MCP"}
+                "step1": {
+                    "label": "Project & workflow",
+                    "hint": "Where work lives"
+                },
+                "step2": {
+                    "label": "Invite teammates",
+                    "hint": "Bring your team in"
+                },
+                "step3": {
+                    "label": "Connect agents",
+                    "hint": "Optional · MCP"
+                }
             },
             "step1": {
                 "overline": "Step 01",
@@ -750,10 +776,22 @@
                 "workflowSub": "The statuses tasks move through. Pick a template — you can edit it after.",
                 "errorCreate": "Could not create project. Please try again.",
                 "templates": {
-                    "kanban": {"name": "Kanban", "sub": "Classic 4-stage flow"},
-                    "engineering": {"name": "Engineering", "sub": "Backlog → Spec → Build → Ship"},
-                    "simple": {"name": "Simple", "sub": "Just open / closed"},
-                    "blank": {"name": "Start blank", "sub": "Define your own columns"}
+                    "kanban": {
+                        "name": "Kanban",
+                        "sub": "Classic 4-stage flow"
+                    },
+                    "engineering": {
+                        "name": "Engineering",
+                        "sub": "Backlog → Spec → Build → Ship"
+                    },
+                    "simple": {
+                        "name": "Simple",
+                        "sub": "Just open / closed"
+                    },
+                    "blank": {
+                        "name": "Start blank",
+                        "sub": "Define your own columns"
+                    }
                 }
             },
             "step2": {

@@ -28,11 +28,13 @@ final readonly class TaskListItemDto
 		public string $createdAt,
 		public string $updatedAt,
 		public array $tagIds,
+		public int $subtasksTotal,
+		public int $subtasksDone,
 	) {
 	}
 
 	/** @param list<int> $tagIds */
-	public static function fromEntity(Task $task, array $tagIds = []): self
+	public static function fromEntity(Task $task, array $tagIds = [], int $subtasksTotal = 0, int $subtasksDone = 0): self
 	{
 		return new self(
 			id: $task->id,
@@ -52,6 +54,8 @@ final readonly class TaskListItemDto
 			createdAt: $task->createdAt->format(DATE_ATOM),
 			updatedAt: $task->updatedAt->format(DATE_ATOM),
 			tagIds: $tagIds,
+			subtasksTotal: $subtasksTotal,
+			subtasksDone: $subtasksDone,
 		);
 	}
 }

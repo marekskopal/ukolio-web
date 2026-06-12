@@ -19,6 +19,7 @@ use Ukolio\Response\NotFoundResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
+use Ukolio\Service\Provider\SubtaskProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
 use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
@@ -33,6 +34,7 @@ final readonly class BoardController
 		private StatusProviderInterface $statusProvider,
 		private TaskProviderInterface $taskProvider,
 		private TaskTagProviderInterface $taskTagProvider,
+		private SubtaskProviderInterface $subtaskProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
@@ -62,9 +64,17 @@ final readonly class BoardController
 		);
 
 		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project), false);
-		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $projectTasks));
+		$taskIds = array_map(static fn (Task $t): int => $t->id, $projectTasks);
+		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds($taskIds);
+		$subtaskCounts = $this->subtaskProvider->getSubtaskCounts($taskIds);
 		$tasks = array_map(
-			fn (Task $t): TaskDto => TaskDto::fromEntity($t, [], $tagsByTaskId[$t->id] ?? []),
+			fn (Task $t): TaskDto => TaskDto::fromEntity(
+				$t,
+				[],
+				$tagsByTaskId[$t->id] ?? [],
+				$subtaskCounts[$t->id]['total'] ?? 0,
+				$subtaskCounts[$t->id]['done'] ?? 0,
+			),
 			$projectTasks,
 		);
 

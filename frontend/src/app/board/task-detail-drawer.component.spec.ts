@@ -2,6 +2,7 @@ import {provideZonelessChangeDetection} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Priority} from '@app/models/priority';
 import {Status} from '@app/models/status';
+import {Subtask} from '@app/models/subtask';
 import {Task} from '@app/models/task';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
@@ -23,6 +24,10 @@ interface DrawerInternals {
     onCancel: () => void;
     onDuplicate: () => Promise<void>;
     onSaveAsTemplate: () => Promise<void>;
+    onAddSubtask: () => Promise<void>;
+    onToggleSubtask: (subtask: Subtask, event: Event) => Promise<void>;
+    subtaskNameControl: {setValue: (v: string) => void};
+    subtasks: {(): Subtask[]; set: (v: Subtask[]) => void};
 }
 
 function internals(component: TaskDetailDrawerComponent): DrawerInternals {
@@ -35,6 +40,9 @@ interface ServiceStubs {
         createTask: ReturnType<typeof vi.fn>;
         deleteTask: ReturnType<typeof vi.fn>;
         duplicateTask: ReturnType<typeof vi.fn>;
+        moveTask: ReturnType<typeof vi.fn>;
+        listSubtasks: ReturnType<typeof vi.fn>;
+        createSubtask: ReturnType<typeof vi.fn>;
         listTaskFiles: ReturnType<typeof vi.fn>;
         getTasks: ReturnType<typeof vi.fn>;
         getTask: ReturnType<typeof vi.fn>;
@@ -90,6 +98,29 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     };
 }
 
+
+function makeSubtask(overrides: Partial<Subtask> = {}): Subtask {
+    return {
+        taskId: 100,
+        relationId: 1,
+        code: 'U-100',
+        name: 'Subtask',
+        projectId: 1,
+        statusId: 10,
+        statusName: 'To Do',
+        statusColor: '#888',
+        statusType: 'Start',
+        priorityId: 2,
+        priorityName: 'Medium',
+        priorityPosition: 1,
+        dueDate: null,
+        assigneeId: null,
+        startStatusId: 10,
+        finishStatusId: 12,
+        ...overrides,
+    };
+}
+
 function createFixture(options: {task: Task | null}): {
     fixture: ComponentFixture<TaskDetailDrawerComponent>;
     component: TaskDetailDrawerComponent;
@@ -101,6 +132,9 @@ function createFixture(options: {task: Task | null}): {
             createTask: vi.fn(),
             deleteTask: vi.fn().mockResolvedValue(undefined),
             duplicateTask: vi.fn(),
+            moveTask: vi.fn().mockResolvedValue({}),
+            listSubtasks: vi.fn().mockResolvedValue([]),
+            createSubtask: vi.fn(),
             listTaskFiles: vi.fn().mockResolvedValue([]),
             getTasks: vi.fn().mockResolvedValue({tasks: [], count: 0}),
             getTask: vi.fn().mockResolvedValue(null),
@@ -252,6 +286,30 @@ describe('TaskDetailDrawerComponent', () => {
         await internals(component).onSaveAsTemplate();
 
         expect(stubs.taskTemplateService.saveFromTask).not.toHaveBeenCalled();
+    });
+
+    it('onAddSubtask creates the subtask and appends it to the list', async () => {
+        const parent = makeTask();
+        const {component, stubs} = createFixture({task: parent});
+        const created = makeSubtask({taskId: 101, name: 'Child'});
+        stubs.taskService.createSubtask.mockResolvedValue(created);
+
+        internals(component).subtaskNameControl.setValue('Child');
+        await internals(component).onAddSubtask();
+
+        expect(stubs.taskService.createSubtask).toHaveBeenCalledWith(parent.id, 'Child');
+        expect(internals(component).subtasks()).toEqual([created]);
+    });
+
+    it('onToggleSubtask moves the child to its finish status when checked', async () => {
+        const {component, stubs} = createFixture({task: makeTask()});
+        const subtask = makeSubtask({taskId: 7, startStatusId: 10, finishStatusId: 12});
+        stubs.taskService.listSubtasks.mockResolvedValue([{...subtask, statusType: 'Finish'}]);
+
+        const event = {target: {checked: true}} as unknown as Event;
+        await internals(component).onToggleSubtask(subtask, event);
+
+        expect(stubs.taskService.moveTask).toHaveBeenCalledWith(7, 12, 0);
     });
 
     it('onDelete does not emit when the confirmation dialog is cancelled', async () => {

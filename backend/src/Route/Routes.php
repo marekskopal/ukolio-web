@@ -69,6 +69,7 @@ enum Routes: string
 	case TaskFile = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files/{fileId:number}';
 	case TaskFileContent = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files/{fileId:number}/content';
 	case TaskRelations = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/relations';
+	case TaskSubtasks = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/subtasks';
 	case TaskRelation = '/api/task-relations/{relationId:number}';
 	case TaskComments = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/comments';
 	case TaskComment = '/api/task-comments/{commentId:number}';

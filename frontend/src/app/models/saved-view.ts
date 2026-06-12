@@ -1,4 +1,4 @@
-import {OrderDirection, TaskOrderBy} from '@app/models/task';
+import {OrderDirection, SubtaskFilter, TaskOrderBy} from '@app/models/task';
 
 export interface SavedViewFilters {
     q?: string;
@@ -6,6 +6,7 @@ export interface SavedViewFilters {
     tagIds?: number[];
     assigneeIds?: number[];
     onlyActive?: boolean;
+    subtaskFilter?: SubtaskFilter;
     orderBy?: TaskOrderBy;
     orderDirection?: OrderDirection;
     pageSize?: number;

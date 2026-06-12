@@ -30,6 +30,8 @@ final readonly class TaskDto
 		public string $updatedAt,
 		public array $fieldValues,
 		public array $tagIds,
+		public int $subtasksTotal,
+		public int $subtasksDone,
 	) {
 	}
 
@@ -37,7 +39,13 @@ final readonly class TaskDto
 	 * @param array<int, ?string> $fieldValues
 	 * @param list<int> $tagIds
 	 */
-	public static function fromEntity(Task $task, array $fieldValues = [], array $tagIds = []): self
+	public static function fromEntity(
+		Task $task,
+		array $fieldValues = [],
+		array $tagIds = [],
+		int $subtasksTotal = 0,
+		int $subtasksDone = 0,
+	): self
 	{
 		$values = [];
 		foreach ($fieldValues as $fieldId => $value) {
@@ -61,6 +69,8 @@ final readonly class TaskDto
 			updatedAt: $task->updatedAt->format(DATE_ATOM),
 			fieldValues: $values,
 			tagIds: $tagIds,
+			subtasksTotal: $subtasksTotal,
+			subtasksDone: $subtasksDone,
 		);
 	}
 }

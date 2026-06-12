@@ -14,7 +14,9 @@ use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
+use Ukolio\Model\Repository\Enum\SubtaskFilterEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
+use Ukolio\Model\Repository\TaskRelationRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
@@ -30,6 +32,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskRelationProviderInterface $taskRelationProvider,
 		private TaskTagProviderInterface $taskTagProvider,
 		private TaskTagRepository $taskTagRepository,
+		private TaskRelationRepository $taskRelationRepository,
 		private ActorContextInterface $actorContext,
 		private TaskPositionManager $positionManager,
 		private SearchIndexer $searchIndexer,
@@ -64,7 +67,10 @@ final readonly class TaskProvider implements TaskProviderInterface
 		bool $onlyActive,
 		?array $tagIds = null,
 		?array $assigneeIds = null,
+		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 	): Iterator {
+		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
+
 		return $this->taskRepository->findInWorkspace(
 			$workspace->id,
 			$limit,
@@ -74,8 +80,9 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$search,
 			$statusIds,
 			$onlyActive,
-			$this->resolveTaskIdsByTags($tagIds),
+			$includeIds,
 			$assigneeIds,
+			$excludeIds,
 		);
 	}
 
@@ -91,14 +98,18 @@ final readonly class TaskProvider implements TaskProviderInterface
 		bool $onlyActive,
 		?array $tagIds = null,
 		?array $assigneeIds = null,
+		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 	): int {
+		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
+
 		return $this->taskRepository->countInWorkspace(
 			$workspace->id,
 			$search,
 			$statusIds,
 			$onlyActive,
-			$this->resolveTaskIdsByTags($tagIds),
+			$includeIds,
 			$assigneeIds,
+			$excludeIds,
 		);
 	}
 
@@ -112,6 +123,30 @@ final readonly class TaskProvider implements TaskProviderInterface
 			return null;
 		}
 		return $this->taskTagRepository->findTaskIdsByTagIds($tagIds);
+	}
+
+	/**
+	 * Combines the tag-based include list with the subtask hierarchy filter.
+	 *
+	 * @param list<int>|null $tagTaskIds
+	 * @return array{0: list<int>|null, 1: list<int>|null} [includeIds, excludeIds]
+	 */
+	private function resolveSubtaskFilter(Workspace $workspace, SubtaskFilterEnum $filter, ?array $tagTaskIds): array
+	{
+		if ($filter === SubtaskFilterEnum::All) {
+			return [$tagTaskIds, null];
+		}
+
+		$hierarchy = $this->taskRelationRepository->findParentChildIdsInWorkspace($workspace->id);
+
+		if ($filter === SubtaskFilterEnum::HideSubtasks) {
+			return [$tagTaskIds, $hierarchy['children']];
+		}
+
+		$parentIds = $hierarchy['parents'];
+		$includeIds = $tagTaskIds === null ? $parentIds : array_values(array_intersect($tagTaskIds, $parentIds));
+
+		return [$includeIds, null];
 	}
 
 	/**
