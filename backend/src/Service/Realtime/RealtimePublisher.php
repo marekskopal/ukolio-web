@@ -44,7 +44,10 @@ final readonly class RealtimePublisher implements RealtimePublisherInterface
 		], JSON_THROW_ON_ERROR);
 
 		try {
-			$this->hub->publish(new Update($topic, $data));
+			// Private updates are delivered only to subscribers whose JWT authorizes this
+			// exact topic (see MercureCookieIssuer). Without this flag every update is
+			// public and the per-workspace topic authorization is bypassed entirely.
+			$this->hub->publish(new Update($topic, $data, private: true));
 		} catch (Throwable $e) {
 			// Realtime is best-effort: a hub outage must never break the mutation that triggered it.
 			$this->logger->warning('Mercure publish failed: ' . $e->getMessage(), ['exception' => $e]);
