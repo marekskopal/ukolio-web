@@ -20,7 +20,7 @@ jobs:
 
             - name: Run composer audit
               working-directory: backend
-              run: composer audit --no-dev --abandoned=report
+              run: composer audit --locked --no-dev --abandoned=report
 
     backend:
         name: Backend
