@@ -16,10 +16,10 @@ use Ukolio\Jobs\Message\AmqpReceivedMessage;
 use Ukolio\Service\Queue\Enum\QueueEnum;
 
 /**
- * Dedicated consumer for the script-run queue. Runs in the marekskopal/php-v8js container so the
- * sandbox (ext-v8js) is available; the main amqp-consumer (Alpine, no v8js) deliberately skips
- * this queue. Keeping script execution in its own process also isolates the heavyweight V8 runtime
- * from the rest of the job workers.
+ * Dedicated consumer for the script-run queue. Runs as its own supervisord program in the backend
+ * container, launched with `php -d extension=v8js.so` (see docker/supervisord.conf) so the sandbox
+ * (ext-v8js) is loaded only for this process — the heavyweight V8/libnode runtime stays out of
+ * FrankenPHP and the main amqp-consumer, which deliberately skips this queue.
  */
 $application = ApplicationFactory::create();
 
