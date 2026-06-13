@@ -45,8 +45,8 @@ if ($prefetch <= 0) {
 	$prefetch = 10;
 }
 
-// The script-run queue is consumed by the dedicated v8js worker (script-worker.php); this
-// Alpine worker has no ext-v8js and must not pick up those messages.
+// The script-run queue is consumed by the dedicated script-worker (script-worker.php), which
+// loads ext-v8js; this process runs without it and must not pick up those messages.
 $queues = array_filter(QueueEnum::cases(), static fn (QueueEnum $queue): bool => $queue !== QueueEnum::ScriptRun);
 
 foreach ($queues as $queue) {
