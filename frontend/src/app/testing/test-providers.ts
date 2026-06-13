@@ -1,6 +1,6 @@
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
-import {type Provider, provideZonelessChangeDetection} from '@angular/core';
+import {type Provider, provideZonelessChangeDetection, signal} from '@angular/core';
 import {provideRouter} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
 import {of, Subject} from 'rxjs';
@@ -21,6 +21,8 @@ export function provideTranslateStub(): Provider {
 export function createTranslateStub(): Partial<TranslateService> {
     return {
         instant: (key: string | string[]) => key as string,
+        // ngx-translate v18: TranslatePipe consumes this signal-returning method.
+        translate: (key: string | string[]) => signal(key as string),
         get: (key: string | string[]) => of(key as string),
         stream: (key: string | string[]) => of(key as string),
         use: () => of(undefined as unknown as Record<string, string>),
