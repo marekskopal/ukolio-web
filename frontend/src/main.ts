@@ -1,4 +1,4 @@
-import {provideHttpClient, withInterceptors} from '@angular/common/http';
+import {provideHttpClient, withInterceptors, withXhr} from '@angular/common/http';
 import {enableProdMode, provideZonelessChangeDetection, SecurityContext} from '@angular/core';
 import {bootstrapApplication} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
@@ -19,7 +19,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
     providers: [
         provideRouter(appRoutes),
-        provideHttpClient(withInterceptors([realtimeOriginInterceptor, jwtInterceptor, errorInterceptor])),
+        provideHttpClient(withXhr(), withInterceptors([realtimeOriginInterceptor, jwtInterceptor, errorInterceptor])),
         provideTranslateService({
             loader: provideTranslateHttpLoader({
                 prefix: environment.i18nPath,

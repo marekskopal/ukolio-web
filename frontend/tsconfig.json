@@ -1,7 +1,7 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": "./",
+        "esModuleInterop": true,
         "outDir": "./dist/out-tsc",
         "forceConsistentCasingInFileNames": true,
         "strict": true,
@@ -19,8 +19,8 @@
         "useDefineForClassFields": false,
         "lib": ["ES2022", "dom"],
         "paths": {
-            "@app/*": ["src/app/*"],
-            "@environments/*": ["src/environments/*"]
+            "@app/*": ["./src/app/*"],
+            "@environments/*": ["./src/environments/*"]
         }
     },
     "angularCompilerOptions": {

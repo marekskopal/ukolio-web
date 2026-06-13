@@ -16,11 +16,20 @@ class MarkdownHost {
     public data = '';
 }
 
+// ngx-markdown v22 parses asynchronously and writes innerHTML from a floating
+// promise that Angular's whenStable() doesn't track, so let microtasks settle
+// and run change detection once more before reading the DOM.
+async function flushMarkdown(): Promise<void> {
+    await new Promise<void>((resolve) => setTimeout(resolve));
+}
+
 async function renderMarkdown(source: string): Promise<HTMLElement> {
     const fixture = TestBed.createComponent(MarkdownHost);
     fixture.componentInstance.data = source;
     fixture.detectChanges();
     await fixture.whenStable();
+    await flushMarkdown();
+    fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
 }
 
@@ -105,6 +114,7 @@ describe('MarkdownEditorComponent — preview tab sanitization', () => {
         fixture.componentInstance.ngOnInit();
         fixture.detectChanges();
         await fixture.whenStable();
+        await flushMarkdown();
         fixture.detectChanges();
 
         const host = fixture.nativeElement as HTMLElement;

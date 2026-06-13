@@ -8,7 +8,7 @@ as the primary actor; the web UI is for human overview.
 - `proxy/` — nginx reverse proxy (`/api/*` → backend, `/` → frontend)
 - `backend/` — FrankenPHP + PHP 8.5 + `marekskopal/orm` +
   `marekskopal/router` + MariaDB
-- `frontend/` — Angular 21 (standalone components + signals), SCSS design
+- `frontend/` — Angular 22 (standalone components + signals), SCSS design
   tokens (`frontend/src/styles/_variables.scss` + `_mixins.scss`). No Tailwind.
 
 ## Domain
@@ -181,6 +181,12 @@ The app is zoneless, so specs **must not** import `zone.js/testing` — use
 - Shared TestBed boilerplate lives in `frontend/src/app/testing/test-providers.ts` —
   prefer `commonTestProviders()` (zoneless + router + HTTP testing) and
   `provideTranslateStub()` (covers any component whose template uses `TranslatePipe`).
+  The stub mirrors the ngx-translate v18 API, where `TranslatePipe` consumes a
+  signal-returning `translate(key, params)` method (not just `instant`/`get`).
+- ngx-markdown v22 parses asynchronously and writes `innerHTML` from a floating
+  promise that `whenStable()` doesn't track. Specs that read rendered markdown
+  must flush microtasks (`await new Promise(r => setTimeout(r))`) and re-run
+  `detectChanges()` before asserting — see `markdown-editor.component.spec.ts`.
 - Run: `pnpm run test` (single run) or `pnpm run test:watch`. `make test-frontend`
   is the equivalent from the repo root.
 

@@ -32,7 +32,7 @@
 | Layer    | Tech |
 |----------|------|
 | Proxy    | nginx |
-| Frontend | Angular 21 (standalone components + signals), SCSS, ngx-translate |
+| Frontend | Angular 22 (standalone components + signals), SCSS, ngx-translate |
 | Backend  | FrankenPHP, PHP 8.5, [`marekskopal/orm`](https://github.com/marekskopal/orm), [`marekskopal/router`](https://github.com/marekskopal/router), Symfony Mailer |
 | Database | MariaDB 11.4 |
 | Cache    | Redis (sessions, rate limits, hot paths) + Memcached |
@@ -243,7 +243,7 @@ backend/    FrankenPHP + PHP 8.5
   migrations/         marekskopal/orm-migrations
   translations/       en.json, cs.json — backend (email) strings
   tests/              PHPUnit
-frontend/   Angular 21 SPA
+frontend/   Angular 22 SPA
   src/app/
     authentication/   Login, sign-up, password reset, email verification,
                       Google sign-in
