@@ -19,5 +19,35 @@
 				<target>Jazyk</target>
 			</segment>
 		</unit>
+		<unit id="hero.cta.primary">
+			<segment state="final">
+				<source>Start a free workspace</source>
+				<target>Vytvořit workspace zdarma</target>
+			</segment>
+		</unit>
+		<unit id="hero.cta.secondary">
+			<segment state="final">
+				<source>See how agents use it</source>
+				<target>Jak ho používají agenti</target>
+			</segment>
+		</unit>
+		<unit id="hero.badge.selfHostable">
+			<segment state="final">
+				<source>Self-hostable</source>
+				<target>Možnost self-hostingu</target>
+			</segment>
+		</unit>
+		<unit id="hero.badge.mitLicensed">
+			<segment state="final">
+				<source>MIT licensed</source>
+				<target>Licence MIT</target>
+			</segment>
+		</unit>
+		<unit id="hero.badge.multiTenant">
+			<segment state="final">
+				<source>Multi-tenant from day one</source>
+				<target>Multi-tenant od prvního dne</target>
+			</segment>
+		</unit>
 	</file>
 </xliff>

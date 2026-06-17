@@ -16,5 +16,30 @@
 				<source>Language</source>
 			</segment>
 		</unit>
+		<unit id="hero.cta.primary">
+			<segment>
+				<source>Start a free workspace</source>
+			</segment>
+		</unit>
+		<unit id="hero.cta.secondary">
+			<segment>
+				<source>See how agents use it</source>
+			</segment>
+		</unit>
+		<unit id="hero.badge.selfHostable">
+			<segment>
+				<source>Self-hostable</source>
+			</segment>
+		</unit>
+		<unit id="hero.badge.mitLicensed">
+			<segment>
+				<source>MIT licensed</source>
+			</segment>
+		</unit>
+		<unit id="hero.badge.multiTenant">
+			<segment>
+				<source>Multi-tenant from day one</source>
+			</segment>
+		</unit>
 	</file>
 </xliff>
