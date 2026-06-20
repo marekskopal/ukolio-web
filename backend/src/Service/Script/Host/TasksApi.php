@@ -8,16 +8,19 @@ use DateTimeImmutable;
 use RuntimeException;
 use Ukolio\Mcp\Tool\Helper\PriorityResolver;
 use Ukolio\Mcp\Tool\Helper\StatusResolver;
+use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
+use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
 use Ukolio\Service\Provider\TaskCommentProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskTagProviderInterface;
 
 /**
  * Exposed to JS as `ukolio.tasks`. Every call is authorised as the script's owner and scoped to
@@ -37,6 +40,8 @@ final readonly class TasksApi
 		private PriorityResolver $priorityResolver,
 		private StatusResolver $statusResolver,
 		private TaskCommentProviderInterface $commentProvider,
+		private TaskTagProviderInterface $taskTagProvider,
+		private EventProviderInterface $eventProvider,
 	) {
 	}
 
@@ -132,6 +137,80 @@ final readonly class TasksApi
 		$moved = $this->taskProvider->moveTask($this->context->owner, $task, $status, $this->taskProvider->nextPosition($status));
 
 		return HostSerializer::task($moved);
+	}
+
+	/** @return array<string, mixed> */
+	public function update(int|string $id, mixed $input): array
+	{
+		$this->context->recordTaskApiCall();
+		$task = $this->resolve($id) ?? throw new RuntimeException(sprintf('Task "%s" not found.', (string) $id));
+		$data = JsValue::toAssoc($input);
+		$project = $task->project;
+
+		$name = JsValue::string($data['name'] ?? null) ?? $task->name;
+		$description = array_key_exists('description', $data) ? JsValue::string($data['description']) : $task->description;
+		$priority = $this->priorityResolver->resolve(
+			$project,
+			JsValue::int($data['priorityId'] ?? null),
+			JsValue::string($data['priorityName'] ?? null),
+		) ?? $task->priority;
+		$status = $this->statusResolver->resolve(
+			$project,
+			JsValue::int($data['statusId'] ?? null),
+			JsValue::string($data['statusName'] ?? null),
+		) ?? $task->status;
+
+		$dueDate = $task->dueDate;
+		if (array_key_exists('dueDate', $data)) {
+			$raw = JsValue::string($data['dueDate']);
+			$dueDate = $raw !== null && $raw !== '' ? new DateTimeImmutable($raw) : null;
+		}
+
+		$updated = $this->taskProvider->updateTask(
+			author: $this->context->owner,
+			task: $task,
+			name: $name,
+			description: $description,
+			priority: $priority,
+			dueDate: $dueDate,
+			status: $status,
+			assignee: $task->assignee,
+		);
+
+		return HostSerializer::task($updated);
+	}
+
+	/** @return array{id: int, deleted: true} */
+	public function delete(int|string $id): array
+	{
+		$this->context->recordTaskApiCall();
+		$task = $this->resolve($id) ?? throw new RuntimeException(sprintf('Task "%s" not found.', (string) $id));
+		$taskId = $task->id;
+
+		$this->taskProvider->deleteTask($this->context->owner, $task);
+
+		return ['id' => $taskId, 'deleted' => true];
+	}
+
+	/** @return array<string, mixed> */
+	public function setTags(int|string $id, mixed $tagIds): array
+	{
+		$this->context->recordTaskApiCall();
+		$task = $this->resolve($id) ?? throw new RuntimeException(sprintf('Task "%s" not found.', (string) $id));
+		$ids = JsValue::intList($tagIds);
+
+		$changes = $this->taskTagProvider->setTagsForTask($this->context->workspace, $task, $ids);
+		if ($changes['added'] !== [] || $changes['removed'] !== []) {
+			$this->eventProvider->recordEvent(
+				$this->context->owner,
+				$task->project,
+				EventTypeEnum::TaskTagsUpdated,
+				['taskName' => $task->name, 'added' => $changes['added'], 'removed' => $changes['removed']],
+				$task->id,
+			);
+		}
+
+		return [...HostSerializer::task($task), 'tagIds' => $this->taskTagProvider->getTagIdsForTask($task)];
 	}
 
 	/** @return array<string, mixed> */

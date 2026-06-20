@@ -50,5 +50,10 @@ enum EventTypeEnum: string
 	case TaskCommentAdded = 'TaskCommentAdded';
 	case TaskCommentDeleted = 'TaskCommentDeleted';
 
+	case ScriptCreated = 'ScriptCreated';
+	case ScriptUpdated = 'ScriptUpdated';
+	case ScriptDeleted = 'ScriptDeleted';
+	case ScriptRun = 'ScriptRun';
+
 	case UserSelfDeleted = 'UserSelfDeleted';
 }

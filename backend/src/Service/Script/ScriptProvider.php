@@ -7,6 +7,7 @@ namespace Ukolio\Service\Script;
 use DateTimeImmutable;
 use Iterator;
 use RuntimeException;
+use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
 use Ukolio\Model\Entity\Script;
 use Ukolio\Model\Entity\ScriptRun;
@@ -14,6 +15,7 @@ use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\ScriptRepository;
 use Ukolio\Model\Repository\ScriptRunRepository;
+use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Script\Trigger\CronEvaluatorInterface;
 
 final readonly class ScriptProvider implements ScriptProviderInterface
@@ -27,6 +29,7 @@ final readonly class ScriptProvider implements ScriptProviderInterface
 		private ScriptRepository $scriptRepository,
 		private ScriptRunRepository $scriptRunRepository,
 		private CronEvaluatorInterface $cronEvaluator,
+		private EventProviderInterface $eventProvider,
 	) {
 	}
 
@@ -78,10 +81,17 @@ final readonly class ScriptProvider implements ScriptProviderInterface
 		$script->updatedAt = $now;
 		$this->scriptRepository->persist($script);
 
+		$this->eventProvider->recordWorkspaceEvent($author, $workspace, EventTypeEnum::ScriptCreated, [
+			'scriptId' => $script->id,
+			'scriptName' => $script->name,
+			'trigger' => $trigger->value,
+		]);
+
 		return $script;
 	}
 
 	public function update(
+		User $author,
 		Script $script,
 		string $name,
 		string $source,
@@ -100,12 +110,23 @@ final readonly class ScriptProvider implements ScriptProviderInterface
 		$script->updatedAt = new DateTimeImmutable();
 		$this->scriptRepository->persist($script);
 
+		$this->eventProvider->recordWorkspaceEvent($author, $script->workspace, EventTypeEnum::ScriptUpdated, [
+			'scriptId' => $script->id,
+			'scriptName' => $script->name,
+			'trigger' => $trigger->value,
+		]);
+
 		return $script;
 	}
 
-	public function delete(Script $script): void
+	public function delete(User $author, Script $script): void
 	{
+		$workspace = $script->workspace;
+		$metadata = ['scriptId' => $script->id, 'scriptName' => $script->name];
+
 		$this->scriptRepository->delete($script);
+
+		$this->eventProvider->recordWorkspaceEvent($author, $workspace, EventTypeEnum::ScriptDeleted, $metadata);
 	}
 
 	/** @return Iterator<ScriptRun> */

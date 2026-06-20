@@ -12,6 +12,7 @@ use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
 use Ukolio\Service\Provider\TaskCommentProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
 use Ukolio\Service\Script\ScriptVariableProviderInterface;
 
@@ -30,6 +31,7 @@ final readonly class ScriptHostApiFactory
 		private PriorityResolver $priorityResolver,
 		private StatusResolver $statusResolver,
 		private TaskCommentProviderInterface $commentProvider,
+		private TaskTagProviderInterface $taskTagProvider,
 		private ScriptVariableProviderInterface $variableProvider,
 		private EventProviderInterface $eventProvider,
 		private HttpFetcher $fetcher,
@@ -46,6 +48,8 @@ final readonly class ScriptHostApiFactory
 			$this->priorityResolver,
 			$this->statusResolver,
 			$this->commentProvider,
+			$this->taskTagProvider,
+			$this->eventProvider,
 		);
 
 		return new ScriptHostApi(

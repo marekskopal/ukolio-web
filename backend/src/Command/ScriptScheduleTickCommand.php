@@ -11,6 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Ukolio\App\ApplicationFactory;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
 use Ukolio\Model\Repository\ScriptRepository;
+use Ukolio\Service\Cache\CacheFactory;
 use Ukolio\Service\Script\ScriptRunDispatcherInterface;
 use Ukolio\Service\Script\Trigger\CronEvaluatorInterface;
 use const DATE_ATOM;
@@ -40,7 +41,13 @@ final class ScriptScheduleTickCommand extends AbstractCommand
 		$dispatcher = $application->container->get(ScriptRunDispatcherInterface::class);
 		assert($dispatcher instanceof ScriptRunDispatcherInterface);
 
+		// Per-(script, minute) guard so a script is dispatched at most once per minute even if the
+		// cron fires scripts:tick more than once in the same minute. Best-effort (not atomic);
+		// the once-a-minute cron makes overlap unlikely.
+		$cache = CacheFactory::createPsrCache(namespace: 'ScriptTick');
+
 		$now = new DateTimeImmutable();
+		$minuteKey = $now->format('YmdHi');
 		$dispatched = 0;
 
 		foreach ($scriptRepository->findActiveByTrigger(ScriptTriggerEnum::Scheduled) as $script) {
@@ -48,6 +55,12 @@ final class ScriptScheduleTickCommand extends AbstractCommand
 			if ($expression === null || !$cronEvaluator->isDue($expression, $now)) {
 				continue;
 			}
+
+			$lockKey = $script->id . ':' . $minuteKey;
+			if ($cache->has($lockKey)) {
+				continue;
+			}
+			$cache->set($lockKey, true, 120);
 
 			$dispatcher->dispatch($script, ScriptTriggerEnum::Scheduled, null, $now->format(DATE_ATOM));
 			$dispatched++;

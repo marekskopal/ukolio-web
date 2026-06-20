@@ -15,6 +15,7 @@ use const CURLOPT_POSTFIELDS;
 use const CURLOPT_RETURNTRANSFER;
 use const CURLOPT_TIMEOUT_MS;
 use const CURLOPT_URL;
+use const PHP_URL_HOST;
 
 /**
  * Outbound HTTP for `ukolio.fetch`. Stateless; per-run caps are enforced by the caller via
@@ -26,12 +27,17 @@ final readonly class HttpFetcher
 	private const int MaxTimeoutMs = 30000;
 	private const int MaxBodyBytes = 5242880;
 
-	/** @param array<string, mixed> $options */
-	public function fetch(string $url, array $options): HttpResponse
+	/**
+	 * @param array<string, mixed> $options
+	 * @param list<string> $allowedHosts lowercase host patterns; empty means no restriction
+	 */
+	public function fetch(string $url, array $options, array $allowedHosts = []): HttpResponse
 	{
 		if (preg_match('#^https?://#i', $url) !== 1) {
 			throw new RuntimeException('ukolio.fetch only supports http(s) URLs.');
 		}
+
+		$this->assertHostAllowed($url, $allowedHosts);
 
 		$method = strtoupper(JsValue::string($options['method'] ?? null) ?? 'GET');
 		$timeoutMs = min(max(JsValue::int($options['timeoutMs'] ?? null) ?? self::DefaultTimeoutMs, 1), self::MaxTimeoutMs);
@@ -77,6 +83,32 @@ final readonly class HttpFetcher
 		}
 
 		return new HttpResponse($status, $responseHeaders, $text);
+	}
+
+	/**
+	 * Enforce the optional per-workspace outbound-fetch allowlist. A pattern matches the URL host
+	 * exactly, or as a parent domain (`example.com` allows `api.example.com`).
+	 *
+	 * @param list<string> $allowedHosts
+	 */
+	private function assertHostAllowed(string $url, array $allowedHosts): void
+	{
+		if ($allowedHosts === []) {
+			return;
+		}
+
+		$host = strtolower((string) parse_url($url, PHP_URL_HOST));
+		if ($host === '') {
+			throw new RuntimeException('ukolio.fetch could not determine the request host.');
+		}
+
+		foreach ($allowedHosts as $pattern) {
+			if ($host === $pattern || str_ends_with($host, '.' . $pattern)) {
+				return;
+			}
+		}
+
+		throw new RuntimeException(sprintf('ukolio.fetch host "%s" is not in this workspace\'s allowlist.', $host));
 	}
 
 	/**
