@@ -11,6 +11,31 @@ as the primary actor; the web UI is for human overview.
 - `frontend/` — Angular 22 (standalone components + signals), SCSS design
   tokens (`frontend/src/styles/_variables.scss` + `_mixins.scss`). No Tailwind.
 
+## Repository & branches (this clone has two remotes)
+
+> This section lives on `main` only — do not copy it to the `public` branch.
+
+- `origin` → `git@github.com:marekskopal/ukolio-web.git` — **private**. Holds the
+  full SaaS: the open-source core **plus** the private bits — `web/` (marketing
+  site), the SaaS proxy, and anything not meant to be public.
+- `public` (remote) → `git@github.com:marekskopal/ukolio.git` — the
+  **open-source** repo (`backend/`, `frontend/`, `proxy/`, docs).
+- `main` (branch, tracks `origin/main`) — the private SaaS branch. Deploys the
+  app under `/app` with the marketing site at `/`; its proxy is a single
+  `proxy/conf/default.conf.template`.
+- `public` (local branch, tracks `public/main`) — the open-source branch. Serves
+  the app at `/`; its proxy uses `proxy/conf/{http,ssl}.conf.template` selected
+  by `proxy/docker-entrypoint.d/10-select-template.sh`.
+
+**Flow:** commit public-shareable work on the `public` branch (push to the
+`public` remote), then `git merge public` into `main`. `main` = `public` + the
+private additions. The `proxy/` config diverges by branch: `main` **renamed**
+`ssl.conf.template` → `default.conf.template` and dropped `http.conf.template` +
+the entrypoint selector, so merges from `public` raise a rename/modify conflict
+on that file — resolve it on the `main` side (keep the `/app` SaaS layout).
+Frontend code is base-href-agnostic (e.g. asset URLs resolve via
+`document.baseURI`), so the same build works under `/` and `/app/`.
+
 ## Domain
 
 - `Workspace` (owner, name) — top-level tenant; users belong to one or more workspaces.
