@@ -26,6 +26,7 @@
 - **Multi-tenant.** Workspaces with Owner / Admin / Member roles, invitations, and a separate SystemAdmin tier for global operations.
 - **Full Kanban kit.** Boards with drag-and-drop, workspace-wide task grid with saved views, custom fields, custom priorities, tags, assignees, comments, file attachments, task relations, realtime updates over Mercure.
 - **Typo-tolerant search.** Meilisearch indexes task names, descriptions, comments, text custom-field values, and tags — exposed both on the web and as an MCP tool.
+- **Scriptable automations.** Per-workspace JavaScript that runs in a hardened V8 sandbox (`ext-v8js`) — on a schedule, on workspace events, or on demand — with a typed `ukolio.*` host API, encrypted variables, and an in-app Monaco editor.
 
 ## Stack
 
@@ -34,6 +35,7 @@
 | Proxy    | nginx |
 | Frontend | Angular 22 (standalone components + signals), SCSS, ngx-translate |
 | Backend  | FrankenPHP, PHP 8.5, [`marekskopal/orm`](https://github.com/marekskopal/orm), [`marekskopal/router`](https://github.com/marekskopal/router), Symfony Mailer |
+| Scripting | Google V8 via [`ext-v8js`](https://github.com/phpv8/v8js) (ZTS build), isolated in a dedicated script-worker process |
 | Database | MariaDB 11.4 |
 | Cache    | Redis (sessions, rate limits, hot paths) + Memcached |
 | Queue    | RabbitMQ — async jobs (search indexing, email, etc.) |
@@ -149,6 +151,7 @@ first.
 | `/tasks` | Workspace-wide task grid — full-text search (Meili), multi-status / assignee / tag / priority / project filters, saved views, sortable columns, pagination, URL-persisted state |
 | `/agents` | Agent-vs-human activity stats |
 | `/workspaces` | Membership, invitations, tags, priorities, custom fields, MCP clients, events |
+| `/settings/scripts`, `/settings/variables` | Sandboxed automation scripts (Monaco editor + run history) and the workspace variable store |
 | `/settings` | User account settings (name, locale, theme, password, data export) |
 | `/admin/users`, `/admin/workspaces` | SystemAdmin tools |
 
@@ -198,6 +201,8 @@ Auto-discovered tools (`backend/src/Mcp/Tool/`):
 - `TaskCommentTools` — list & add comments (agent-tagged automatically).
 - `TaskFileTools` — list / attach (base64) / fetch / delete task files.
 - `TaskRelationTools` — list / link / unlink typed task relations.
+- `ScriptTools` — list / get / create / update / delete / run sandboxed
+  automation scripts and read their run history.
 
 All MCP tools are scoped to the calling user's `currentWorkspace`. SystemAdmins
 must use the web admin UI for cross-workspace work. Per-workspace MCP-client
@@ -223,6 +228,38 @@ Reindex jobs flow through **RabbitMQ** via `Service\Queue\QueuePublisher` so
 writes don't block on the search hop. **Redis** holds rate-limit counters,
 MCP session state, and other hot caches; **Memcached** is wired in as a
 secondary backend (see `CacheFactory`).
+
+## Scripts (sandboxed automations)
+
+Workspaces can run custom JavaScript to automate task flows. Scripts execute in
+a hardened **V8 sandbox** — the PHP **`ext-v8js`** extension — inside a dedicated
+**script-worker** process, never in the web tier, so the heavyweight V8 runtime
+stays out of FrankenPHP and the main AMQP consumer.
+
+- **Triggers.** `Manual` (run button / API), `Scheduled` (5-field cron, ticked
+  by `php bin/console scripts:tick`), or `Event` (subscribe to task events; the
+  payload is exposed as `ukolio.context.event`).
+- **Host API.** A typed `ukolio.*` global: `tasks` (list / get / create / move /
+  addComment), `projects`, `workflow(projectId)`, `vars` (workspace key/value
+  store; secrets encrypted at rest with AES-256-GCM and redacted from logs),
+  `log`, `fetch`, and `context`.
+- **Per-run limits.** 5 s CPU, 64 MB memory, 20 `fetch` calls, 200 task-API
+  calls, no filesystem. Every run records status, duration, logs, error, and
+  fetch / task-API call counts in the run history.
+- **Editor.** In-app Monaco editor at `/settings/scripts` with `ukolio.*`
+  autocomplete, an API reference panel, trigger config, and an output /
+  problems / run-history console. Managing scripts requires workspace Admin
+  (`canManageScripts`); the same surface is available to agents via `ScriptTools`.
+
+### v8js dependency
+
+`ext-v8js` is a thread-safe (ZTS) extension matching FrankenPHP's embedded ZTS
+PHP. The prebuilt `.so` is pulled from the
+[`marekskopal/php-v8js`](https://hub.docker.com/r/marekskopal/php-v8js) image in
+`backend/Dockerfile` and loaded **only** by the script-worker (via
+`php -d extension=v8js.so` in supervisord) — the web and queue processes never
+load V8. Self-hosters get it automatically from the published image; no host
+install is required.
 
 ## Project layout
 
@@ -256,6 +293,7 @@ frontend/   Angular 22 SPA
     workspaces/       Workspace management, invitations, tags, priorities,
                       custom fields, MCP clients
     agents/           Agent activity stats
+    scripts/          Sandboxed automation scripts (Monaco editor, variables, runs)
     admin/            SystemAdmin pages
     invitations/      Invitation accept flow
     oauth/            MCP OAuth consent screen
