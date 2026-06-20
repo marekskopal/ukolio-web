@@ -7,12 +7,14 @@ namespace Ukolio\Service\Script;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\ScriptRunStatusEnum;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
 use Ukolio\Model\Entity\Script;
 use Ukolio\Model\Entity\ScriptRun;
 use Ukolio\Model\Repository\ScriptRepository;
 use Ukolio\Model\Repository\ScriptRunRepository;
+use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Script\Engine\ScriptEngineInterface;
 use Ukolio\Service\Script\Host\ScriptHostApiFactory;
 use Ukolio\Service\Script\Host\ScriptRunContext;
@@ -28,11 +30,16 @@ final readonly class ScriptRunner
 	private const int MaxHttpCalls = 20;
 	private const int MaxTaskApiCalls = 200;
 
+	/** Reserved workspace variable holding an optional comma/whitespace-separated outbound-fetch host allowlist. */
+	private const string FetchAllowlistKey = 'UKOLIO_FETCH_ALLOWLIST';
+
 	public function __construct(
 		private ScriptEngineInterface $engine,
 		private ScriptHostApiFactory $hostApiFactory,
 		private ScriptRunRepository $scriptRunRepository,
 		private ScriptRepository $scriptRepository,
+		private ScriptVariableProviderInterface $variableProvider,
+		private EventProviderInterface $eventProvider,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -54,6 +61,7 @@ final readonly class ScriptRunner
 			scheduledAt: $scheduledAt,
 			maxHttpCalls: self::MaxHttpCalls,
 			maxTaskApiCalls: self::MaxTaskApiCalls,
+			allowedFetchHosts: $this->resolveFetchAllowlist($script),
 		);
 
 		ScriptExecutionGuard::enter();
@@ -84,6 +92,30 @@ final readonly class ScriptRunner
 		$script->updatedAt = $finishedAt;
 		$this->scriptRepository->persist($script);
 
+		// Audit the run on the workspace event log. Recorded after the execution guard is
+		// released; ScriptRun is not a subscribable trigger type, so it cannot re-dispatch.
+		$this->eventProvider->recordWorkspaceEvent($script->createdBy, $script->workspace, EventTypeEnum::ScriptRun, [
+			'scriptId' => $script->id,
+			'scriptName' => $script->name,
+			'runId' => $run->id,
+			'triggerType' => $triggerType->value,
+			'status' => $run->status->value,
+		]);
+
 		return $run;
+	}
+
+	/** @return list<string> lowercase host patterns; empty means "no restriction". */
+	private function resolveFetchAllowlist(Script $script): array
+	{
+		$variable = $this->variableProvider->get($script->workspace, self::FetchAllowlistKey);
+		if ($variable === null) {
+			return [];
+		}
+
+		$parts = preg_split('/[\s,]+/', strtolower(trim($this->variableProvider->decrypt($variable))));
+		$hosts = $parts === false ? [] : $parts;
+
+		return array_values(array_filter($hosts, static fn (string $h): bool => $h !== ''));
 	}
 }

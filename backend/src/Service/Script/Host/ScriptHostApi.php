@@ -41,7 +41,7 @@ final readonly class ScriptHostApi
 	{
 		$this->runContext->recordHttpCall();
 
-		return $this->fetcher->fetch($url, JsValue::toAssoc($options));
+		return $this->fetcher->fetch($url, JsValue::toAssoc($options), $this->runContext->getAllowedFetchHosts());
 	}
 
 	public function workflow(int $projectId): WorkflowApi

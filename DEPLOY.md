@@ -86,6 +86,36 @@ latency / outages no longer block sign-up / invite flows.
   - Restart just the worker without bouncing the web process:
     `docker compose exec backend supervisorctl restart amqp-consumer`
 
+## Scripting (sandboxed automations)
+
+Workspace scripts run in a V8 sandbox (`ext-v8js`) executed by a dedicated
+**script-worker** process — managed by supervisor inside the `backend` container
+(`backend/docker/supervisord.conf`), separate from FrankenPHP and the
+amqp-consumer so V8 never loads in the web tier. Manual and event-triggered runs
+are enqueued automatically; **scheduled** triggers require a once-a-minute cron.
+
+- **Scheduled-trigger cron (required for `Scheduled` scripts).** Run on the host
+  (or a sidecar) every minute:
+
+  ```cron
+  * * * * * docker compose exec -T backend php /app/bin/console scripts:tick
+  ```
+
+  `scripts:tick` dispatches every active scheduled script whose cron is due. It
+  is safe to run more than once per minute — a per-(script, minute) cache guard
+  de-dupes dispatch. Without this cron, `Manual` and `Event` scripts still work;
+  only `Scheduled` ones won't fire.
+- **Operations.**
+  - Tail the worker: `docker compose logs -f backend | grep script-worker`
+  - Restart just the worker: `docker compose exec backend supervisorctl restart script-worker`
+- **Outbound-fetch allowlist (optional hardening).** Set a workspace script
+  variable named `UKOLIO_FETCH_ALLOWLIST` to a comma/whitespace-separated list of
+  hosts (e.g. `hooks.slack.com, api.github.com`). When present, `ukolio.fetch`
+  is restricted to those hosts (and their subdomains); when unset, any http(s)
+  host is allowed.
+- **Resource limits per run** (fixed): 5 s CPU, 64 MB memory, 20 `fetch` calls,
+  200 task-API calls, no filesystem.
+
 ## Full-text search (Meilisearch)
 
 `/api/search` (and the `search_tasks` MCP tool) is backed by a Meilisearch

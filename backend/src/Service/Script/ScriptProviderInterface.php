@@ -32,6 +32,7 @@ interface ScriptProviderInterface
 	): Script;
 
 	public function update(
+		User $author,
 		Script $script,
 		string $name,
 		string $source,
@@ -40,7 +41,7 @@ interface ScriptProviderInterface
 		bool $active,
 	): Script;
 
-	public function delete(Script $script): void;
+	public function delete(User $author, Script $script): void;
 
 	/** @return Iterator<ScriptRun> */
 	public function runHistory(Script $script, int $limit, int $offset): Iterator;

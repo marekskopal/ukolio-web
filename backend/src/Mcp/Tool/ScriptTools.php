@@ -130,6 +130,7 @@ final readonly class ScriptTools
 		$script = $this->require($workspace, $scriptId);
 
 		$updated = $this->scriptProvider->update(
+			$this->userContext->getUser(),
 			$script,
 			$name ?? $script->name,
 			$source ?? $script->source,
@@ -152,7 +153,7 @@ final readonly class ScriptTools
 		$workspace = $this->requireWorkspace();
 		$this->requireManage($workspace);
 
-		$this->scriptProvider->delete($this->require($workspace, $scriptId));
+		$this->scriptProvider->delete($this->userContext->getUser(), $this->require($workspace, $scriptId));
 
 		return 'Script deleted.';
 	}

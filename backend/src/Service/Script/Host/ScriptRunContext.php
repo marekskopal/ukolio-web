@@ -27,7 +27,10 @@ final class ScriptRunContext
 
 	private int $taskApiCalls = 0;
 
-	/** @param array<string, mixed>|null $event */
+	/**
+	 * @param array<string, mixed>|null $event
+	 * @param list<string> $allowedFetchHosts lowercase host patterns; empty means no restriction
+	 */
 	public function __construct(
 		public readonly User $owner,
 		public readonly Workspace $workspace,
@@ -36,7 +39,14 @@ final class ScriptRunContext
 		private readonly ?string $scheduledAt = null,
 		private readonly int $maxHttpCalls = 20,
 		private readonly int $maxTaskApiCalls = 200,
+		private readonly array $allowedFetchHosts = [],
 	) {
+	}
+
+	/** @return list<string> */
+	public function getAllowedFetchHosts(): array
+	{
+		return $this->allowedFetchHosts;
 	}
 
 	public function log(string $line): void

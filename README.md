@@ -239,8 +239,9 @@ stays out of FrankenPHP and the main AMQP consumer.
 - **Triggers.** `Manual` (run button / API), `Scheduled` (5-field cron, ticked
   by `php bin/console scripts:tick`), or `Event` (subscribe to task events; the
   payload is exposed as `ukolio.context.event`).
-- **Host API.** A typed `ukolio.*` global: `tasks` (list / get / create / move /
-  addComment), `projects`, `workflow(projectId)`, `vars` (workspace key/value
+- **Host API.** A typed `ukolio.*` global: `tasks` (list / get / create / update /
+  move / delete / setTags / addComment), `projects`, `workflow(projectId)`,
+  `vars` (workspace key/value
   store; secrets encrypted at rest with AES-256-GCM and redacted from logs),
   `log`, `fetch`, and `context`.
 - **Per-run limits.** 5 s CPU, 64 MB memory, 20 `fetch` calls, 200 task-API

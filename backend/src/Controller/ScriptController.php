@@ -123,7 +123,8 @@ final readonly class ScriptController
 		if ($script === null) {
 			return new NotFoundResponse('Script not found.');
 		}
-		if (!$this->permissionChecker->canManageScripts($this->requestService->getUser($request), $script->workspace)) {
+		$user = $this->requestService->getUser($request);
+		if (!$this->permissionChecker->canManageScripts($user, $script->workspace)) {
 			return new NotAuthorizedResponse('Only workspace admins can manage scripts.');
 		}
 
@@ -134,7 +135,7 @@ final readonly class ScriptController
 		}
 
 		try {
-			$script = $this->scriptProvider->update($script, $dto->name, $dto->source, $trigger, $dto->triggerConfig, $dto->active);
+			$script = $this->scriptProvider->update($user, $script, $dto->name, $dto->source, $trigger, $dto->triggerConfig, $dto->active);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);
 		}
@@ -149,11 +150,12 @@ final readonly class ScriptController
 		if ($script === null) {
 			return new NotFoundResponse('Script not found.');
 		}
-		if (!$this->permissionChecker->canManageScripts($this->requestService->getUser($request), $script->workspace)) {
+		$user = $this->requestService->getUser($request);
+		if (!$this->permissionChecker->canManageScripts($user, $script->workspace)) {
 			return new NotAuthorizedResponse('Only workspace admins can manage scripts.');
 		}
 
-		$this->scriptProvider->delete($script);
+		$this->scriptProvider->delete($user, $script);
 
 		return new OkResponse();
 	}

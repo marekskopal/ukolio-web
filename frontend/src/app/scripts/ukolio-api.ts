@@ -47,6 +47,24 @@ export const UKOLIO_API_GROUPS: readonly ApiGroup[] = [
                 snippet: 'ukolio.tasks.move(task.id, "In Progress");',
             },
             {
+                signature: 'ukolio.tasks.update(id, input)',
+                description: 'Update a task; omitted fields keep their value. Accepts name, description, priorityId/Name, statusId/Name, dueDate.',
+                returns: 'Task',
+                snippet: 'ukolio.tasks.update(task.id, { description: "Updated by script" });',
+            },
+            {
+                signature: 'ukolio.tasks.delete(id)',
+                description: 'Delete a task. Subtasks are orphaned (kept as top-level), not deleted.',
+                returns: '{ id, deleted }',
+                snippet: 'ukolio.tasks.delete(task.id);',
+            },
+            {
+                signature: 'ukolio.tasks.setTags(id, tagIds)',
+                description: 'Replace the full tag set on a task with the given workspace tag ids.',
+                returns: 'Task',
+                snippet: 'ukolio.tasks.setTags(task.id, [1, 2]);',
+            },
+            {
                 signature: 'ukolio.tasks.addComment(id, body)',
                 description: 'Append a markdown comment to a task.',
                 returns: '{ id, body }',
@@ -160,11 +178,24 @@ interface UkolioFetchOptions {
   body?: string;
 }
 
+interface UkolioTaskUpdateInput {
+  name?: string;
+  description?: string;
+  statusName?: string;
+  statusId?: number;
+  priorityId?: number;
+  priorityName?: string;
+  dueDate?: string;
+}
+
 interface UkolioTasksApi {
   list(filters?: UkolioTaskFilters): UkolioTask[];
   get(idOrCode: number | string): UkolioTask | null;
   create(input: UkolioTaskCreateInput): UkolioTask;
   move(id: number, statusName: string): UkolioTask;
+  update(id: number | string, input: UkolioTaskUpdateInput): UkolioTask;
+  delete(id: number | string): { id: number; deleted: true };
+  setTags(id: number | string, tagIds: number[]): UkolioTask;
   addComment(id: number, body: string): { id: number; body: string };
 }
 
