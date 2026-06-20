@@ -41,7 +41,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.4"
+            "php": "8.5"
         },
         "allow-plugins": {
             "typo3/class-alias-loader": true,
