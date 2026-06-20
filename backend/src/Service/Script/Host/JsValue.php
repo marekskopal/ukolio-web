@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Script\Host;
 
-use stdClass;
-
 /**
- * Normalises values that cross the JS→PHP boundary. V8Js hands plain JS objects to PHP as
- * stdClass (or arrays depending on flags), so host methods accept `mixed` and funnel through here.
+ * Normalises values that cross the JS→PHP boundary. Depending on the ext-v8js build, V8Js hands
+ * plain JS objects to PHP as `stdClass` or as a `V8Object` instance; both expose their members via
+ * `get_object_vars()`, so we accept any object here. JS arrays arrive as PHP arrays. Host methods
+ * accept `mixed` and funnel through here.
  */
 final class JsValue
 {
@@ -16,7 +16,7 @@ final class JsValue
 	public static function toAssoc(mixed $value): array
 	{
 		$source = match (true) {
-			$value instanceof stdClass => get_object_vars($value),
+			is_object($value) => get_object_vars($value),
 			is_array($value) => $value,
 			default => [],
 		};
@@ -62,7 +62,7 @@ final class JsValue
 	/** @return list<int> */
 	public static function intList(mixed $value): array
 	{
-		$source = $value instanceof stdClass ? get_object_vars($value) : $value;
+		$source = is_object($value) ? get_object_vars($value) : $value;
 		if (!is_array($source)) {
 			return [];
 		}
