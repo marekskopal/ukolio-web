@@ -2,7 +2,7 @@ export type EventType =
     | 'ProjectCreated' | 'ProjectUpdated' | 'ProjectDeleted'
     | 'WorkflowUpdated'
     | 'StatusCreated' | 'StatusUpdated' | 'StatusDeleted' | 'StatusMoved'
-    | 'TaskCreated' | 'TaskUpdated' | 'TaskDeleted' | 'TaskMoved'
+    | 'TaskCreated' | 'TaskUpdated' | 'TaskDeleted' | 'TaskMoved' | 'TaskArchived' | 'TaskUnarchived'
     | 'MemberRoleChanged' | 'OwnershipTransferred'
     | 'AdminDeletedWorkspace' | 'AdminDeletedUser' | 'AdminChangedSystemRole'
     | 'FieldCreated' | 'FieldUpdated' | 'FieldDeleted' | 'ProjectFieldsUpdated'

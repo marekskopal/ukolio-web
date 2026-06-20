@@ -9,7 +9,7 @@ import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {SavedView, SavedViewFilters} from '@app/models/saved-view';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
-import {OrderDirection, SubtaskFilter, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
+import {ArchivedFilter, OrderDirection, SubtaskFilter, Task, TaskListItem, TaskOrderBy} from '@app/models/task';
 import {WorkflowWithStatuses} from '@app/models/workflow';
 import {WorkspaceMember} from '@app/models/workspace';
 import {BoardService} from '@app/services/board.service';
@@ -45,6 +45,7 @@ interface QueryParams {
     assigneeIds: number[] | undefined;
     onlyActive: boolean | undefined;
     subtaskFilter: SubtaskFilter | undefined;
+    archived: ArchivedFilter | undefined;
 }
 
 @Component({
@@ -83,6 +84,7 @@ export class TasksGridComponent implements OnInit {
     protected readonly members = this.workspaceService.currentMembers;
     protected readonly onlyActive = signal<boolean>(false);
     protected readonly subtaskFilter = signal<SubtaskFilter>('all');
+    protected readonly archived = signal<ArchivedFilter>('active');
     protected readonly sortBy = signal<TaskOrderBy>('created_at');
     protected readonly sortDirection = signal<OrderDirection>('DESC');
     protected readonly page = signal<number>(1);
@@ -172,6 +174,7 @@ export class TasksGridComponent implements OnInit {
         assigneeIds: this.selectedAssigneeIds().length > 0 ? this.selectedAssigneeIds() : undefined,
         onlyActive: this.onlyActive() ? true : undefined,
         subtaskFilter: this.subtaskFilter() === 'all' ? undefined : this.subtaskFilter(),
+        archived: this.archived() === 'active' ? undefined : this.archived(),
     }));
 
     public ngOnInit(): void {
@@ -259,6 +262,11 @@ export class TasksGridComponent implements OnInit {
             this.subtaskFilter.set(subtaskFilter);
         }
 
+        const archived = map.get('archived');
+        if (archived === 'archived' || archived === 'all') {
+            this.archived.set(archived);
+        }
+
         const orderBy = map.get('orderBy');
         if (orderBy === 'created_at' || orderBy === 'name' || orderBy === 'status_id') {
             this.sortBy.set(orderBy);
@@ -289,6 +297,7 @@ export class TasksGridComponent implements OnInit {
         if (this.selectedAssigneeIds().length > 0) out['assigneeIds'] = this.selectedAssigneeIds().join('|');
         if (this.onlyActive()) out['onlyActive'] = '1';
         if (this.subtaskFilter() !== 'all') out['subtaskFilter'] = this.subtaskFilter();
+        if (this.archived() !== 'active') out['archived'] = this.archived();
         if (this.sortBy() !== 'created_at') out['orderBy'] = this.sortBy();
         if (this.sortDirection() !== 'DESC') out['orderDirection'] = this.sortDirection();
         if (this.page() !== 1) out['page'] = String(this.page());
@@ -373,6 +382,7 @@ export class TasksGridComponent implements OnInit {
             && this.selectedAssigneeIds().length === 0
             && !this.onlyActive()
             && this.subtaskFilter() === 'all'
+            && this.archived() === 'active'
             && this.page() === 1
             && this.sortBy() === 'created_at'
             && this.sortDirection() === 'DESC';
@@ -406,6 +416,9 @@ export class TasksGridComponent implements OnInit {
         }
         if (filters.subtaskFilter === 'hideSubtasks' || filters.subtaskFilter === 'onlyParents') {
             this.subtaskFilter.set(filters.subtaskFilter);
+        }
+        if (filters.archived === 'archived' || filters.archived === 'all') {
+            this.archived.set(filters.archived);
         }
         if (filters.orderBy) {
             this.sortBy.set(filters.orderBy);
@@ -447,6 +460,7 @@ export class TasksGridComponent implements OnInit {
         if (this.selectedAssigneeIds().length > 0) filters.assigneeIds = [...this.selectedAssigneeIds()];
         if (this.onlyActive()) filters.onlyActive = true;
         if (this.subtaskFilter() !== 'all') filters.subtaskFilter = this.subtaskFilter();
+        if (this.archived() !== 'active') filters.archived = this.archived();
         if (this.sortBy() !== 'created_at') filters.orderBy = this.sortBy();
         if (this.sortDirection() !== 'DESC') filters.orderDirection = this.sortDirection();
         if (this.pageSize() !== 50) filters.pageSize = this.pageSize();
@@ -514,6 +528,7 @@ export class TasksGridComponent implements OnInit {
             && sameArray(this.selectedAssigneeIds(), saved.assigneeIds)
             && this.onlyActive() === (saved.onlyActive ?? false)
             && this.subtaskFilter() === (saved.subtaskFilter ?? 'all')
+            && this.archived() === (saved.archived ?? 'active')
             && this.sortBy() === (saved.orderBy ?? 'created_at')
             && this.sortDirection() === (saved.orderDirection ?? 'DESC')
             && this.pageSize() === (saved.pageSize ?? 50);
@@ -545,6 +560,7 @@ export class TasksGridComponent implements OnInit {
                 assigneeIds: params.assigneeIds,
                 onlyActive: params.onlyActive,
                 subtaskFilter: params.subtaskFilter,
+                archived: params.archived,
             });
             this.tasks.set(result.tasks);
             this.count.set(result.count);
@@ -666,6 +682,12 @@ export class TasksGridComponent implements OnInit {
         this.page.set(1);
     }
 
+    protected onArchivedFilterChange(event: Event): void {
+        const value = (event.target as HTMLSelectElement).value;
+        this.archived.set(value === 'archived' || value === 'all' ? value : 'active');
+        this.page.set(1);
+    }
+
     protected clearFilters(): void {
         this.searchControl.setValue('');
         this.selectedStatusIds.set([]);
@@ -673,6 +695,7 @@ export class TasksGridComponent implements OnInit {
         this.selectedAssigneeIds.set([]);
         this.onlyActive.set(false);
         this.subtaskFilter.set('all');
+        this.archived.set('active');
         this.page.set(1);
     }
 

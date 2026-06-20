@@ -20,7 +20,7 @@ as the primary actor; the web UI is for human overview.
 - `Project` (workspace, name, description) → has one `Workflow`, many `Tasks`, many `ProjectField` attachments.
 - `Workflow` (project, name) → has many `Status`.
 - `Status` (workflow, name, color, position, type ∈ Start/Normal/Finish).
-- `Task` (project, status, name, description [markdown], priority, dueDate, position, createdByAgent) → has many `TaskFieldValue`. `createdByAgent = true` when the row was created via the MCP transport.
+- `Task` (project, status, name, description [markdown], priority, dueDate, position, createdByAgent, archivedAt?) → has many `TaskFieldValue`. `createdByAgent = true` when the row was created via the MCP transport. `archivedAt` (nullable timestamp) is set when the task is archived; archived tasks are hidden from boards and from the default task list/MCP `list_tasks` but remain editable and can be unarchived.
 - `Field` (workspace, name, type ∈ Text/Textarea/Select/Version, required, defaultValue, options) — per-workspace custom-field catalog.
 - `ProjectField` (project, field, position, required) — attaches a workspace field to a project and orders it in the task drawer.
 - `TaskFieldValue` (task, field, value) — concrete value per task.
@@ -69,8 +69,8 @@ All routes live in `Ukolio\Route\Routes` (single enum). Highlights:
 - `GET/POST/PUT/DELETE /api/projects[/{id}]`, plus `/board`, `/events`, `/workflow`, `/tasks`, `/fields`.
 - `GET /api/workflows` — workspace-wide list of workflows with nested statuses + `projectName` (used by the Tasks grid's status filter).
 - `GET/POST/PUT/DELETE /api/workflows/{id}/statuses`, `/api/statuses/{id}`, `/api/statuses/{id}/move`.
-- `GET /api/tasks` — workspace-wide paginated list. Query params: `limit` (default 50, max 200), `offset`, `orderBy` (`created_at|name|status_id`), `orderDirection` (`ASC|DESC`), `search`, `statusIds` (pipe-delimited), `onlyActive` (status type ≠ Finish), `subtaskFilter` (`all|hideSubtasks|onlyParents`; param parsing lives in `TaskListQueryDto`). Response shape: `{ tasks: TaskListItemDto[], count: int }`. List items carry `subtasksTotal`/`subtasksDone` (also on board tasks) for the N-of-M progress chips.
-- `GET/PUT/DELETE /api/tasks/{id}`, `PUT /api/tasks/{id}/move`, `POST /api/projects/{id}/tasks`.
+- `GET /api/tasks` — workspace-wide paginated list. Query params: `limit` (default 50, max 200), `offset`, `orderBy` (`created_at|name|status_id`), `orderDirection` (`ASC|DESC`), `search`, `statusIds` (pipe-delimited), `onlyActive` (status type ≠ Finish), `subtaskFilter` (`all|hideSubtasks|onlyParents`), `archived` (`active` (default)|`archived`|`all`; param parsing lives in `TaskListQueryDto`). Response shape: `{ tasks: TaskListItemDto[], count: int }`. List items carry `subtasksTotal`/`subtasksDone` (also on board tasks) for the N-of-M progress chips.
+- `GET/PUT/DELETE /api/tasks/{id}`, `PUT /api/tasks/{id}/move`, `POST /api/tasks/{id}/archive`, `POST /api/tasks/{id}/unarchive`, `POST /api/projects/{id}/tasks`. Archiving records a `TaskArchived` event (unarchiving a `TaskUnarchived` event).
 - `POST /api/tasks/{id}/duplicate` — clones name (+" (copy)"), description, priority, due date, assignee, field values, tags; not comments/files/events/relations.
 - Subtasks (= `TaskRelation` of type `Parent`, source is the parent): `GET /api/tasks/{id}/subtasks` (children incl. `relationId`, `statusType`, and the child project's `startStatusId`/`finishStatusId` so the UI toggles done/undone via the plain move endpoint), `POST /api/tasks/{id}/subtasks` (`{name}` quick-add: creates the child in the parent's project Start status and links it). Cascade rule: deleting a parent **orphans** its children — relations are removed, child tasks survive as top-level (`TaskProvider::deleteTask` → `deleteAllForTask`).
 - Templates: `GET /api/workspaces/{id}/task-templates`, `POST /api/tasks/{id}/save-as-template` (`{name}`), `DELETE /api/task-templates/{id}`. The UI "Create from template" prefills the new-task drawer client-side and goes through the normal create endpoint.
@@ -145,7 +145,7 @@ Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 
 - `ProjectTools` — list/find/get/create/delete projects
 - `WorkflowTools` — list/find statuses for a project's workflow
-- `TaskTools` — list/find/get/create/update/move/duplicate/delete tasks (move accepts `statusId` or `statusName`)
+- `TaskTools` — list/find/get/create/update/move/archive/unarchive/duplicate/delete tasks (move accepts `statusId` or `statusName`; `list_tasks` hides archived unless `includeArchived: true`)
 - `TaskRelationTools` — `list_task_relations`, `link_tasks`, `unlink_tasks`, `create_subtask` (create + Parent-link in one call)
 - `TaskTemplateTools` — `list_task_templates`, `save_task_as_template`, `create_task_from_template` (defaults to Start status; accepts name/status overrides)
 - `FieldTools` — manage the workspace's custom-field catalog and per-project attachments

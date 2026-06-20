@@ -35,6 +35,8 @@ class Task extends AEntity
 		public int $sequenceNumber,
 		#[Column(type: Type::Boolean, default: false)]
 		public bool $createdByAgent = false,
+		#[Column(type: Type::Timestamp, nullable: true)]
+		public ?DateTimeImmutable $archivedAt = null,
 	) {
 	}
 }

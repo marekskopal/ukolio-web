@@ -12,6 +12,7 @@ use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\SubtaskFilterEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
@@ -21,7 +22,7 @@ interface TaskProviderInterface
 	public function getTask(int $taskId): ?Task;
 
 	/** @return Iterator<Task> */
-	public function getTasksByProject(Project $project): Iterator;
+	public function getTasksByProject(Project $project, bool $includeArchived = true): Iterator;
 
 	/**
 	 * @param list<int>|null $statusIds
@@ -41,6 +42,7 @@ interface TaskProviderInterface
 		?array $tagIds = null,
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): Iterator;
 
 	/**
@@ -56,6 +58,7 @@ interface TaskProviderInterface
 		?array $tagIds = null,
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): int;
 
 	/**
@@ -96,6 +99,10 @@ interface TaskProviderInterface
 	): Task;
 
 	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition, bool $recordEvent = true): Task;
+
+	public function archiveTask(User $author, Task $task): Task;
+
+	public function unarchiveTask(User $author, Task $task): Task;
 
 	public function deleteTask(User $author, Task $task, bool $recordEvent = true): void;
 

@@ -13,6 +13,7 @@ use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\SubtaskFilterEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
@@ -45,9 +46,9 @@ final readonly class TaskProvider implements TaskProviderInterface
 	}
 
 	/** @return Iterator<Task> */
-	public function getTasksByProject(Project $project): Iterator
+	public function getTasksByProject(Project $project, bool $includeArchived = true): Iterator
 	{
-		return $this->taskRepository->findByProject($project->id);
+		return $this->taskRepository->findByProject($project->id, $includeArchived);
 	}
 
 	/**
@@ -68,6 +69,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $tagIds = null,
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): Iterator {
 		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
 
@@ -83,6 +85,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$includeIds,
 			$assigneeIds,
 			$excludeIds,
+			$archived,
 		);
 	}
 
@@ -99,6 +102,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $tagIds = null,
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): int {
 		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
 
@@ -110,6 +114,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$includeIds,
 			$assigneeIds,
 			$excludeIds,
+			$archived,
 		);
 	}
 
@@ -370,6 +375,52 @@ final readonly class TaskProvider implements TaskProviderInterface
 			],
 			$task->id,
 		);
+	}
+
+	public function archiveTask(User $author, Task $task): Task
+	{
+		if ($task->archivedAt !== null) {
+			return $task;
+		}
+
+		$task->archivedAt = new DateTimeImmutable();
+		$task->updatedAt = new DateTimeImmutable();
+		$this->taskRepository->persist($task);
+
+		$this->eventProvider->recordEvent(
+			$author,
+			$task->project,
+			EventTypeEnum::TaskArchived,
+			['name' => $task->name, 'statusId' => $task->status->id, 'statusName' => $task->status->name],
+			$task->id,
+		);
+
+		$this->searchIndexer->queueUpsert($task->id);
+
+		return $task;
+	}
+
+	public function unarchiveTask(User $author, Task $task): Task
+	{
+		if ($task->archivedAt === null) {
+			return $task;
+		}
+
+		$task->archivedAt = null;
+		$task->updatedAt = new DateTimeImmutable();
+		$this->taskRepository->persist($task);
+
+		$this->eventProvider->recordEvent(
+			$author,
+			$task->project,
+			EventTypeEnum::TaskUnarchived,
+			['name' => $task->name, 'statusId' => $task->status->id, 'statusName' => $task->status->name],
+			$task->id,
+		);
+
+		$this->searchIndexer->queueUpsert($task->id);
+
+		return $task;
 	}
 
 	public function unassignTasksForUserInWorkspace(User $user, Workspace $workspace): void

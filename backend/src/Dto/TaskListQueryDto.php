@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\Dto;
 
 use RuntimeException;
+use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\SubtaskFilterEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
@@ -22,6 +23,7 @@ final readonly class TaskListQueryDto
 		public TaskOrderByEnum $orderBy,
 		public OrderDirectionEnum $direction,
 		public SubtaskFilterEnum $subtaskFilter,
+		public ArchivedFilterEnum $archived,
 		public int $limit,
 		public int $offset,
 		public ?string $search,
@@ -43,6 +45,7 @@ final readonly class TaskListQueryDto
 			orderBy: self::parseOrderBy($query),
 			direction: self::parseDirection($query),
 			subtaskFilter: self::parseSubtaskFilter($query),
+			archived: self::parseArchivedFilter($query),
 			limit: self::intParam($query, 'limit', 50, 1, 200),
 			offset: self::intParam($query, 'offset', 0, 0, PHP_INT_MAX),
 			search: self::stringParam($query, 'search'),
@@ -79,6 +82,15 @@ final readonly class TaskListQueryDto
 			return SubtaskFilterEnum::All;
 		}
 		return SubtaskFilterEnum::tryFrom($query['subtaskFilter']) ?? throw new RuntimeException('Invalid subtaskFilter value.');
+	}
+
+	/** @param array<array-key, mixed> $query */
+	private static function parseArchivedFilter(array $query): ArchivedFilterEnum
+	{
+		if (!isset($query['archived']) || !is_string($query['archived'])) {
+			return ArchivedFilterEnum::Active;
+		}
+		return ArchivedFilterEnum::tryFrom($query['archived']) ?? throw new RuntimeException('Invalid archived value.');
 	}
 
 	/** @param array<array-key, mixed> $query */

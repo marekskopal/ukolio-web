@@ -470,4 +470,49 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(200, $list->getStatusCode());
 		self::assertSame(1, $this->jsonBody($list)['count']);
 	}
+
+	public function testArchiveAndUnarchiveTaskRoundTrip(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		$created = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $todoId, 'name' => 'Archive me', 'description' => null, 'priority' => 'Medium'],
+			authenticatedAs: $owner,
+		);
+		$taskId = self::intField($this->jsonBody($created)['id']);
+
+		// Archiving stamps archivedAt and the task drops out of the default workspace list.
+		$archive = $this->request('POST', '/api/tasks/' . $taskId . '/archive', authenticatedAs: $owner);
+		self::assertSame(200, $archive->getStatusCode());
+		self::assertNotNull($this->jsonBody($archive)['archivedAt']);
+
+		$activeList = $this->request('GET', '/api/tasks', authenticatedAs: $owner);
+		self::assertSame(0, $this->jsonBody($activeList)['count']);
+
+		// archived=archived returns only archived; archived=all returns both.
+		$archivedList = $this->request('GET', '/api/tasks?archived=archived', authenticatedAs: $owner);
+		self::assertSame(1, $this->jsonBody($archivedList)['count']);
+
+		$allList = $this->request('GET', '/api/tasks?archived=all', authenticatedAs: $owner);
+		self::assertSame(1, $this->jsonBody($allList)['count']);
+
+		// Archived tasks are hidden from the board.
+		$board = $this->request('GET', '/api/projects/' . $project->id . '/board', authenticatedAs: $owner);
+		$boardTasks = $this->jsonBody($board)['tasks'];
+		self::assertIsArray($boardTasks);
+		self::assertCount(0, $boardTasks);
+
+		// Unarchiving restores it everywhere.
+		$unarchive = $this->request('POST', '/api/tasks/' . $taskId . '/unarchive', authenticatedAs: $owner);
+		self::assertSame(200, $unarchive->getStatusCode());
+		self::assertNull($this->jsonBody($unarchive)['archivedAt']);
+
+		$restored = $this->request('GET', '/api/tasks', authenticatedAs: $owner);
+		self::assertSame(1, $this->jsonBody($restored)['count']);
+	}
 }

@@ -564,6 +564,15 @@
                 <button type="button" class="btn btn-ghost btn-sm" [disabled]="duplicating()" (click)="onDuplicate()">
                     {{ (duplicating() ? 'app.actions.loading' : 'app.taskTemplates.duplicate') | translate }}
                 </button>
+                @if (isArchived()) {
+                    <button type="button" class="btn btn-ghost btn-sm" [disabled]="archiving()" (click)="onUnarchive()">
+                        {{ (archiving() ? 'app.actions.loading' : 'app.board.drawer.unarchive') | translate }}
+                    </button>
+                } @else {
+                    <button type="button" class="btn btn-ghost btn-sm" [disabled]="archiving()" (click)="onArchive()">
+                        {{ (archiving() ? 'app.actions.loading' : 'app.board.drawer.archive') | translate }}
+                    </button>
+                }
                 <button type="button" class="btn btn-ghost btn-sm" (click)="onSaveAsTemplate()">
                     {{ 'app.taskTemplates.saveAsTemplate' | translate }}
                 </button>

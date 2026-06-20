@@ -106,6 +106,8 @@
                 "TaskCreated": "Task created",
                 "TaskUpdated": "Task updated",
                 "TaskMoved": "Task moved",
+                "TaskArchived": "Task archived",
+                "TaskUnarchived": "Task unarchived",
                 "TaskDeleted": "Task deleted",
                 "TaskCommentAdded": "Comment added"
             },
@@ -190,6 +192,8 @@
                 "TaskUpdated": "updated task",
                 "TaskDeleted": "deleted task",
                 "TaskMoved": "moved task",
+                "TaskArchived": "archived task",
+                "TaskUnarchived": "unarchived task",
                 "MemberRoleChanged": "changed member role",
                 "OwnershipTransferred": "transferred ownership",
                 "AdminDeletedWorkspace": "(admin) deleted workspace",
@@ -245,7 +249,14 @@
                 "all": "All tasks",
                 "hideSubtasks": "Hide subtasks",
                 "onlyParents": "Only parents"
-            }
+            },
+            "archivedFilter": {
+                "label": "Archived filter",
+                "active": "Active tasks",
+                "archived": "Archived only",
+                "all": "All (incl. archived)"
+            },
+            "archivedBadge": "Archived"
         },
         "savedViews": {
             "picker": "Views",
@@ -369,6 +380,10 @@
                 "preview": "Preview",
                 "edit": "Edit",
                 "saveChanges": "Save changes",
+                "archive": "Archive",
+                "unarchive": "Unarchive",
+                "archived": "Task archived",
+                "unarchived": "Task unarchived",
                 "titlePlaceholder": "Task title",
                 "descriptionPlaceholder": "Markdown supported…",
                 "nothingToPreview": "Nothing to preview.",
@@ -432,6 +447,8 @@
                 "TaskUpdated": "updated task \"{{name}}\"",
                 "TaskDeleted": "deleted task \"{{name}}\"",
                 "TaskMoved": "moved \"{{name}}\" from {{from}} → {{to}}",
+                "TaskArchived": "archived task \"{{name}}\"",
+                "TaskUnarchived": "unarchived task \"{{name}}\"",
                 "FieldCreated": "added custom field \"{{name}}\"",
                 "FieldUpdated": "updated custom field \"{{name}}\"",
                 "FieldDeleted": "deleted custom field \"{{name}}\"",

@@ -84,6 +84,7 @@ final readonly class TaskController
 				$listQuery->tagIds,
 				$listQuery->assigneeIds,
 				$listQuery->subtaskFilter,
+				$listQuery->archived,
 			),
 			false,
 		);
@@ -96,6 +97,7 @@ final readonly class TaskController
 			$listQuery->tagIds,
 			$listQuery->assigneeIds,
 			$listQuery->subtaskFilter,
+			$listQuery->archived,
 		);
 
 		$taskIds = array_map(static fn (Task $t): int => $t->id, $tasks);
@@ -130,7 +132,7 @@ final readonly class TaskController
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
 
-		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project), false);
+		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project, includeArchived: false), false);
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $projectTasks));
 
 		$tasks = array_map(
@@ -289,6 +291,38 @@ final readonly class TaskController
 		}
 
 		$task = $this->taskProvider->moveTask($user, $task, $newStatus, $dto->position);
+
+		return new JsonResponse(
+			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),
+		);
+	}
+
+	#[RoutePost(Routes::TaskArchive->value)]
+	public function actionPostTaskArchive(ServerRequestInterface $request, int|string $taskId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$task = $this->taskProvider->archiveTask($user, $task);
+
+		return new JsonResponse(
+			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),
+		);
+	}
+
+	#[RoutePost(Routes::TaskUnarchive->value)]
+	public function actionPostTaskUnarchive(ServerRequestInterface $request, int|string $taskId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$task = $this->loadTaskInScope($user, $taskId);
+		if ($task === null) {
+			return new NotFoundResponse('Task not found.');
+		}
+
+		$task = $this->taskProvider->unarchiveTask($user, $task);
 
 		return new JsonResponse(
 			TaskDto::fromEntity($task, $this->taskFieldValueProvider->findByTask($task), $this->taskTagProvider->getTagIdsForTask($task)),

@@ -26,6 +26,8 @@ final readonly class McpTaskDto
 		public ?string $dueDate,
 		public int $position,
 		public int $sequenceNumber,
+		public bool $archived,
+		public ?string $archivedAt,
 		public array $fieldValues,
 		public array $tagIds,
 	) {
@@ -56,6 +58,8 @@ final readonly class McpTaskDto
 			dueDate: $task->dueDate?->format('Y-m-d'),
 			position: $task->position,
 			sequenceNumber: $task->sequenceNumber,
+			archived: $task->archivedAt !== null,
+			archivedAt: $task->archivedAt?->format('Y-m-d H:i:s'),
 			fieldValues: $values,
 			tagIds: $tagIds,
 		);
