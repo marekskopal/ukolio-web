@@ -114,7 +114,7 @@ final class MemberToolsTest extends IntegrationTestCase
 		$tools = $this->bootAs($admin);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('cannot invite a member with this role');
+		$this->expectExceptionMessageIsOrContains('cannot invite a member with this role');
 		$tools->inviteMember('another-admin@example.com', 'Admin');
 	}
 
@@ -131,7 +131,7 @@ final class MemberToolsTest extends IntegrationTestCase
 		$tools = $this->bootAs($member);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('do not have permission');
+		$this->expectExceptionMessageIsOrContains('do not have permission');
 		$tools->inviteMember('someone@example.com');
 	}
 

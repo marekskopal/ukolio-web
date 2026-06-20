@@ -55,7 +55,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider(new FakeTaskRelationRepository(), new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('cannot relate to itself');
+		$this->expectExceptionMessageIsOrContains('cannot relate to itself');
 		$provider->createRelation($this->makeUser(1), $task, $task, TaskRelationTypeEnum::Related);
 	}
 
@@ -68,7 +68,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider(new FakeTaskRelationRepository(), new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('same workspace');
+		$this->expectExceptionMessageIsOrContains('same workspace');
 		$provider->createRelation($this->makeUser(1), $source, $target, TaskRelationTypeEnum::Related);
 	}
 
@@ -85,7 +85,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider($repo, new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('already exists');
+		$this->expectExceptionMessageIsOrContains('already exists');
 		$provider->createRelation($this->makeUser(1), $source, $target, TaskRelationTypeEnum::DependsOn);
 	}
 
@@ -102,7 +102,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider($repo, new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('already exists');
+		$this->expectExceptionMessageIsOrContains('already exists');
 		$provider->createRelation($this->makeUser(1), $source, $target, TaskRelationTypeEnum::Related);
 	}
 
@@ -119,7 +119,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider($repo, new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('cycle');
+		$this->expectExceptionMessageIsOrContains('cycle');
 		$provider->createRelation($this->makeUser(1), $b, $a, TaskRelationTypeEnum::Parent);
 	}
 
@@ -138,7 +138,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider($repo, new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('cycle');
+		$this->expectExceptionMessageIsOrContains('cycle');
 		$provider->createRelation($this->makeUser(1), $c, $a, TaskRelationTypeEnum::Parent);
 	}
 
@@ -157,7 +157,7 @@ final class TaskRelationProviderTest extends TestCase
 		$provider = new TaskRelationProvider($repo, new FakeEventProvider());
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('cycle');
+		$this->expectExceptionMessageIsOrContains('cycle');
 		$provider->createRelation($this->makeUser(1), $c, $a, TaskRelationTypeEnum::DependsOn);
 	}
 

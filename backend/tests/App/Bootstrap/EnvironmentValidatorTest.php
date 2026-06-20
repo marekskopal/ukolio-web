@@ -54,7 +54,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('Required environment variables are not set: MYSQL_HOST');
+		$this->expectExceptionMessageIsOrContains('Required environment variables are not set: MYSQL_HOST');
 
 		$validator->validate();
 	}
@@ -67,7 +67,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('AUTHORIZATION_TOKEN_KEY is set to the .env.example placeholder');
+		$this->expectExceptionMessageIsOrContains('AUTHORIZATION_TOKEN_KEY is set to the .env.example placeholder');
 
 		$validator->validate();
 	}
@@ -80,7 +80,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('AUTHORIZATION_TOKEN_KEY must be at least 32 characters');
+		$this->expectExceptionMessageIsOrContains('AUTHORIZATION_TOKEN_KEY must be at least 32 characters');
 
 		$validator->validate();
 	}
@@ -94,8 +94,8 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('Refusing to boot with default or short secrets while APP_ENV=production');
-		$this->expectExceptionMessage('MYSQL_PASSWORD');
+		$this->expectExceptionMessageIsOrContains('Refusing to boot with default or short secrets while APP_ENV=production');
+		$this->expectExceptionMessageIsOrContains('MYSQL_PASSWORD');
 
 		$validator->validate();
 	}
@@ -131,7 +131,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('MYSQL_PASSWORD');
+		$this->expectExceptionMessageIsOrContains('MYSQL_PASSWORD');
 
 		$validator->validate();
 	}
@@ -156,7 +156,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('MYSQL_ROOT_PASSWORD');
+		$this->expectExceptionMessageIsOrContains('MYSQL_ROOT_PASSWORD');
 
 		$validator->validate();
 	}
@@ -185,7 +185,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('BACKEND_CORS_ALLOWED_ORIGIN must not include `*` when APP_ENV=production');
+		$this->expectExceptionMessageIsOrContains('BACKEND_CORS_ALLOWED_ORIGIN must not include `*` when APP_ENV=production');
 
 		$validator->validate();
 	}
@@ -199,7 +199,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('BACKEND_CORS_ALLOWED_ORIGIN must not include `*`');
+		$this->expectExceptionMessageIsOrContains('BACKEND_CORS_ALLOWED_ORIGIN must not include `*`');
 
 		$validator->validate();
 	}
@@ -213,7 +213,7 @@ final class EnvironmentValidatorTest extends TestCase
 		$validator = new EnvironmentValidator($env);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('BACKEND_CORS_ALLOWED_ORIGIN must list at least one origin');
+		$this->expectExceptionMessageIsOrContains('BACKEND_CORS_ALLOWED_ORIGIN must list at least one origin');
 
 		$validator->validate();
 	}

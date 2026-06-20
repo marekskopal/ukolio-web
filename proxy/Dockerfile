@@ -1,4 +1,4 @@
-FROM nginx:1.30.0-alpine AS build
+FROM nginx:1.30.3-alpine AS build
 
 ARG ADMINER_USER
 ARG ADMINER_PASSWORD
@@ -19,7 +19,7 @@ RUN \
 		: > /etc/nginx/conf.d/.htpasswd; \
 	fi
 
-FROM nginx:1.29.7-alpine
+FROM nginx:1.30.3-alpine
 
 COPY --from=build /etc/ssl/dhparam.pem /etc/ssl/dhparam.pem
 COPY --from=build /etc/nginx/conf.d/.htpasswd /etc/nginx/conf.d/.htpasswd

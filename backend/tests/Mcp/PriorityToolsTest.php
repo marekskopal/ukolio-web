@@ -194,7 +194,7 @@ final class PriorityToolsTest extends IntegrationTestCase
 		);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('1 task(s) still reference it');
+		$this->expectExceptionMessageIsOrContains('1 task(s) still reference it');
 		$tools->deletePriority($medium->id);
 	}
 
@@ -212,7 +212,7 @@ final class PriorityToolsTest extends IntegrationTestCase
 		$tools = $this->bootAs($member);
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('do not have permission');
+		$this->expectExceptionMessageIsOrContains('do not have permission');
 		$tools->createPriority(name: 'Spam', color: '#000000');
 	}
 
