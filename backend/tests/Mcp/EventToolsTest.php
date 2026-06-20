@@ -78,6 +78,23 @@ final class EventToolsTest extends IntegrationTestCase
 		}
 	}
 
+	public function testArchivingRecordsTaskArchivedEvent(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools, $eventTools] = $this->bootAs($user);
+
+		$task = $taskTools->createTask(projectId: $project->id, name: 'Archive me');
+		// Exercises the events.type ENUM accepting TaskArchived (see AddTaskArchivedEventTypes migration).
+		$taskTools->archiveTask(taskId: $task->id);
+
+		$events = $eventTools->listEvents(taskId: $task->id, type: 'TaskArchived')->events;
+		self::assertCount(1, $events);
+		self::assertSame($task->id, $events[0]->taskId);
+	}
+
 	public function testUnknownEventTypeThrows(): void
 	{
 		$user = Fixture::createUser();
