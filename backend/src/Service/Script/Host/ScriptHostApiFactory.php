@@ -6,6 +6,7 @@ namespace Ukolio\Service\Script\Host;
 
 use Ukolio\Mcp\Tool\Helper\PriorityResolver;
 use Ukolio\Mcp\Tool\Helper\StatusResolver;
+use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
@@ -30,6 +31,7 @@ final readonly class ScriptHostApiFactory
 		private StatusResolver $statusResolver,
 		private TaskCommentProviderInterface $commentProvider,
 		private ScriptVariableProviderInterface $variableProvider,
+		private EventProviderInterface $eventProvider,
 		private HttpFetcher $fetcher,
 	) {
 	}
@@ -49,6 +51,7 @@ final readonly class ScriptHostApiFactory
 		return new ScriptHostApi(
 			tasks: $tasks,
 			projects: new ProjectsApi($context, $this->projectProvider),
+			events: new EventsApi($context, $this->eventProvider),
 			vars: new VarsApi($context, $this->variableProvider),
 			context: $context->contextArray(),
 			runContext: $context,

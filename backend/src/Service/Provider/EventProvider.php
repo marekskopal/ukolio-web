@@ -108,6 +108,18 @@ final readonly class EventProvider implements EventProviderInterface
 		return $this->eventRepository->findByWorkspace($workspace->id, $actorType, $limit, $offset);
 	}
 
+	/** @return Iterator<Event> */
+	public function getWorkspaceEventsFiltered(
+		Workspace $workspace,
+		?int $projectId,
+		?int $taskId,
+		?EventTypeEnum $type,
+		int $limit,
+		int $offset,
+	): Iterator {
+		return $this->eventRepository->findByWorkspaceFiltered($workspace->id, $projectId, $taskId, $type, $limit, $offset);
+	}
+
 	public function countWorkspaceEventsSince(Workspace $workspace, int $sinceTimestamp): int
 	{
 		return $this->eventRepository->countByWorkspaceSince($workspace->id, $sinceTimestamp);

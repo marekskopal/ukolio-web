@@ -26,6 +26,20 @@ interface EventProviderInterface
 	/** @return Iterator<Event> */
 	public function getWorkspaceEvents(Workspace $workspace, ?ActorTypeEnum $actorType, int $limit, int $offset): Iterator;
 
+	/**
+	 * Workspace-scoped events with optional project/task/type filters (newest first).
+	 *
+	 * @return Iterator<Event>
+	 */
+	public function getWorkspaceEventsFiltered(
+		Workspace $workspace,
+		?int $projectId,
+		?int $taskId,
+		?EventTypeEnum $type,
+		int $limit,
+		int $offset,
+	): Iterator;
+
 	public function countWorkspaceEventsSince(Workspace $workspace, int $sinceTimestamp): int;
 
 	public function countWorkspaceEventsOfTypeSince(Workspace $workspace, EventTypeEnum $type, int $sinceTimestamp): int;
