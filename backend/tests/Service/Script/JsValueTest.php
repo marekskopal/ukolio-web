@@ -24,6 +24,30 @@ final class JsValueTest extends TestCase
 		self::assertSame([], JsValue::toAssoc(null));
 	}
 
+	public function testToAssocHandlesNonStdClassObjects(): void
+	{
+		// Some ext-v8js builds marshal JS objects as a V8Object instance rather than stdClass;
+		// any object with public members must still be read via get_object_vars().
+		$jsLike = new class {
+			public int $statusId = 6;
+
+			public int $limit = 200;
+		};
+
+		self::assertSame(['statusId' => 6, 'limit' => 200], JsValue::toAssoc($jsLike));
+	}
+
+	public function testIntListHandlesNonStdClassObjects(): void
+	{
+		$jsArrayLike = new class {
+			public int $a = 1;
+
+			public string $b = '2';
+		};
+
+		self::assertSame([1, 2], JsValue::intList($jsArrayLike));
+	}
+
 	public function testStringCoercion(): void
 	{
 		self::assertSame('hi', JsValue::string('hi'));
