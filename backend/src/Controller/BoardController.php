@@ -63,7 +63,7 @@ final readonly class BoardController
 			iterator_to_array($this->statusProvider->getStatuses($workflow), false),
 		);
 
-		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project), false);
+		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project, includeArchived: false), false);
 		$taskIds = array_map(static fn (Task $t): int => $t->id, $projectTasks);
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds($taskIds);
 		$subtaskCounts = $this->subtaskProvider->getSubtaskCounts($taskIds);

@@ -48,17 +48,19 @@ final readonly class TaskTools
 
 	/**
 	 * List all tasks in a project, ordered by status then position. Optionally filter by status.
+	 * Archived tasks are hidden by default; pass includeArchived=true to include them.
 	 *
 	 * @param int $projectId Project ID
 	 * @param int|null $statusId Optional: only return tasks in this status
+	 * @param bool $includeArchived Include archived tasks (default false)
 	 */
-	#[McpTool(name: 'list_tasks', description: 'List tasks in a project, optionally filtered by status')]
-	public function listTasks(int $projectId, ?int $statusId = null): McpTaskListDto
+	#[McpTool(name: 'list_tasks', description: 'List tasks in a project, optionally filtered by status. Hides archived tasks by default.')]
+	public function listTasks(int $projectId, ?int $statusId = null, bool $includeArchived = false): McpTaskListDto
 	{
 		$project = $this->requireProject($projectId);
 
 		$tasks = [];
-		foreach ($this->taskProvider->getTasksByProject($project) as $task) {
+		foreach ($this->taskProvider->getTasksByProject($project, $includeArchived) as $task) {
 			if ($statusId !== null && $task->status->id !== $statusId) {
 				continue;
 			}
@@ -274,6 +276,48 @@ final readonly class TaskTools
 			$moved,
 			$this->taskFieldValueProvider->findByTask($moved),
 			$this->taskTagProvider->getTagIdsForTask($moved),
+		);
+	}
+
+	/**
+	 * Archive a task. Archived tasks are hidden from boards and from the default task lists, but
+	 * remain editable and can be unarchived. Records a TaskArchived event.
+	 *
+	 * @param int|string $taskId Task ID or code (e.g. "MP-3")
+	 */
+	#[McpTool(name: 'archive_task', description: 'Archive a task (hides it from boards and default lists; reversible).')]
+	public function archiveTask(int|string $taskId): McpTaskDto
+	{
+		$user = $this->userContext->getUser();
+		$task = $this->requireTask($taskId);
+
+		$archived = $this->taskProvider->archiveTask($user, $task);
+
+		return McpTaskDto::fromEntity(
+			$archived,
+			$this->taskFieldValueProvider->findByTask($archived),
+			$this->taskTagProvider->getTagIdsForTask($archived),
+		);
+	}
+
+	/**
+	 * Unarchive a previously archived task, restoring it to boards and default lists.
+	 * Records a TaskUnarchived event.
+	 *
+	 * @param int|string $taskId Task ID or code (e.g. "MP-3")
+	 */
+	#[McpTool(name: 'unarchive_task', description: 'Unarchive a task, restoring it to boards and default lists.')]
+	public function unarchiveTask(int|string $taskId): McpTaskDto
+	{
+		$user = $this->userContext->getUser();
+		$task = $this->requireTask($taskId);
+
+		$unarchived = $this->taskProvider->unarchiveTask($user, $task);
+
+		return McpTaskDto::fromEntity(
+			$unarchived,
+			$this->taskFieldValueProvider->findByTask($unarchived),
+			$this->taskTagProvider->getTagIdsForTask($unarchived),
 		);
 	}
 

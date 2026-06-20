@@ -6,10 +6,12 @@ namespace Ukolio\Model\Repository;
 
 use EmptyIterator;
 use Iterator;
+use MarekSkopal\ORM\Query\Expression\RawExpression;
 use MarekSkopal\ORM\Query\Select;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
 
@@ -59,10 +61,16 @@ final class TaskRepository extends AbstractRepository
 	}
 
 	/** @return Iterator<Task> */
-	public function findByProject(int $projectId): Iterator
+	public function findByProject(int $projectId, bool $includeArchived = true): Iterator
 	{
-		return $this->select()
-			->where(['project_id' => $projectId])
+		$select = $this->select()
+			->where(['project_id' => $projectId]);
+
+		if (!$includeArchived) {
+			$this->applyArchivedFilter($select, ArchivedFilterEnum::Active);
+		}
+
+		return $select
 			->orderBy('status_id', 'ASC')
 			->orderBy('position', 'ASC')
 			->fetchAll();
@@ -96,6 +104,7 @@ final class TaskRepository extends AbstractRepository
 		?array $taskIdsFilter = null,
 		?array $assigneeIds = null,
 		?array $excludeTaskIds = null,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): Iterator {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
 			return new EmptyIterator();
@@ -109,6 +118,7 @@ final class TaskRepository extends AbstractRepository
 			$taskIdsFilter,
 			$assigneeIds,
 			$excludeTaskIds,
+			$archived,
 		);
 
 		$select->orderBy($orderBy->value, $direction->value);
@@ -139,11 +149,21 @@ final class TaskRepository extends AbstractRepository
 		?array $taskIdsFilter = null,
 		?array $assigneeIds = null,
 		?array $excludeTaskIds = null,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): int {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
 			return 0;
 		}
-		return $this->buildWorkspaceSelect($workspaceId, $search, $statusIds, $onlyActive, $taskIdsFilter, $assigneeIds, $excludeTaskIds)
+		return $this->buildWorkspaceSelect(
+			$workspaceId,
+			$search,
+			$statusIds,
+			$onlyActive,
+			$taskIdsFilter,
+			$assigneeIds,
+			$excludeTaskIds,
+			$archived,
+		)
 			->count();
 	}
 
@@ -171,9 +191,12 @@ final class TaskRepository extends AbstractRepository
 		?array $taskIdsFilter = null,
 		?array $assigneeIds = null,
 		?array $excludeTaskIds = null,
+		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 	): Select {
 		$select = $this->select()
 			->where(['project.workspace_id' => $workspaceId]);
+
+		$this->applyArchivedFilter($select, $archived);
 
 		if ($search !== null && $search !== '') {
 			$select->where(['name', 'LIKE', '%' . $search . '%']);
@@ -195,5 +218,26 @@ final class TaskRepository extends AbstractRepository
 		}
 
 		return $select;
+	}
+
+	/**
+	 * The ORM's where-builder has no IS NULL operator (a null value binds as `col = ?`, which never
+	 * matches), so the archived filter is expressed as a parenthesised raw predicate compared to 1.
+	 * `archived_at` exists only on the tasks table, so the unqualified reference is unambiguous even
+	 * when project/status are joined.
+	 *
+	 * @param Select<Task> $select
+	 */
+	private function applyArchivedFilter(Select $select, ArchivedFilterEnum $archived): void
+	{
+		if ($archived === ArchivedFilterEnum::All) {
+			return;
+		}
+
+		$predicate = $archived === ArchivedFilterEnum::Active
+			? 'archived_at IS NULL'
+			: 'archived_at IS NOT NULL';
+
+		$select->where([new RawExpression('(' . $predicate . ')'), '=', 1]);
 	}
 }

@@ -55,6 +55,8 @@ export class ScriptEditComponent implements OnInit {
         {type: 'TaskCreated', labelKey: 'app.scripts.events.TaskCreated'},
         {type: 'TaskUpdated', labelKey: 'app.scripts.events.TaskUpdated'},
         {type: 'TaskMoved', labelKey: 'app.scripts.events.TaskMoved'},
+        {type: 'TaskArchived', labelKey: 'app.scripts.events.TaskArchived'},
+        {type: 'TaskUnarchived', labelKey: 'app.scripts.events.TaskUnarchived'},
         {type: 'TaskDeleted', labelKey: 'app.scripts.events.TaskDeleted'},
         {type: 'TaskCommentAdded', labelKey: 'app.scripts.events.TaskCommentAdded'},
     ];

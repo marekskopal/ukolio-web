@@ -63,6 +63,8 @@ enum Routes: string
 	// Lowercase is intentionally excluded so static sibling paths like /api/tasks/bulk don't collide.
 	case Task = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}';
 	case TaskMove = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/move';
+	case TaskArchive = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/archive';
+	case TaskUnarchive = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/unarchive';
 	case TaskDuplicate = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/duplicate';
 	case TaskSaveAsTemplate = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/save-as-template';
 	case TaskFiles = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/files';

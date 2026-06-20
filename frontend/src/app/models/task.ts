@@ -15,6 +15,7 @@ export interface Task {
     position: number;
     sequenceNumber: number;
     createdByAgent: boolean;
+    archivedAt: string | null;
     createdAt: string;
     updatedAt: string;
     fieldValues: TaskFieldValue[];
@@ -26,6 +27,7 @@ export interface Task {
 export type TaskOrderBy = 'created_at' | 'name' | 'status_id';
 export type OrderDirection = 'ASC' | 'DESC';
 export type SubtaskFilter = 'all' | 'hideSubtasks' | 'onlyParents';
+export type ArchivedFilter = 'active' | 'archived' | 'all';
 
 export interface TaskListItem {
     id: number;
@@ -42,6 +44,7 @@ export interface TaskListItem {
     position: number;
     sequenceNumber: number;
     createdByAgent: boolean;
+    archivedAt: string | null;
     createdAt: string;
     updatedAt: string;
     tagIds: number[];

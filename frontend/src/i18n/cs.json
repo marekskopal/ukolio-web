@@ -106,6 +106,8 @@
                 "TaskCreated": "Úkol vytvořen",
                 "TaskUpdated": "Úkol upraven",
                 "TaskMoved": "Úkol přesunut",
+                "TaskArchived": "Úkol archivován",
+                "TaskUnarchived": "Úkol obnoven z archivu",
                 "TaskDeleted": "Úkol smazán",
                 "TaskCommentAdded": "Přidán komentář"
             },
@@ -190,6 +192,8 @@
                 "TaskUpdated": "upravil(a) úkol",
                 "TaskDeleted": "smazal(a) úkol",
                 "TaskMoved": "přesunul(a) úkol",
+                "TaskArchived": "archivoval(a) úkol",
+                "TaskUnarchived": "obnovil(a) úkol z archivu",
                 "MemberRoleChanged": "změnil(a) roli člena",
                 "OwnershipTransferred": "převedl(a) vlastnictví",
                 "AdminDeletedWorkspace": "(admin) smazal pracovní prostor",
@@ -245,7 +249,14 @@
                 "all": "Všechny úkoly",
                 "hideSubtasks": "Skrýt podúkoly",
                 "onlyParents": "Jen rodičovské"
-            }
+            },
+            "archivedFilter": {
+                "label": "Filtr archivace",
+                "active": "Aktivní úkoly",
+                "archived": "Jen archivované",
+                "all": "Vše (vč. archivu)"
+            },
+            "archivedBadge": "Archivováno"
         },
         "savedViews": {
             "picker": "Pohledy",
@@ -369,6 +380,10 @@
                 "preview": "Náhled",
                 "edit": "Editor",
                 "saveChanges": "Uložit změny",
+                "archive": "Archivovat",
+                "unarchive": "Obnovit z archivu",
+                "archived": "Úkol archivován",
+                "unarchived": "Úkol obnoven z archivu",
                 "titlePlaceholder": "Název úkolu",
                 "descriptionPlaceholder": "Podporuje Markdown…",
                 "nothingToPreview": "Není co zobrazit.",
@@ -432,6 +447,8 @@
                 "TaskUpdated": "upravil(a) úkol „{{name}}\"",
                 "TaskDeleted": "smazal(a) úkol „{{name}}\"",
                 "TaskMoved": "přesunul(a) „{{name}}\" z {{from}} → {{to}}",
+                "TaskArchived": "archivoval(a) úkol „{{name}}\"",
+                "TaskUnarchived": "obnovil(a) úkol „{{name}}\" z archivu",
                 "FieldCreated": "přidal(a) vlastní pole „{{name}}\"",
                 "FieldUpdated": "upravil(a) vlastní pole „{{name}}\"",
                 "FieldDeleted": "smazal(a) vlastní pole „{{name}}\"",

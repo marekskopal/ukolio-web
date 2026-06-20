@@ -11,6 +11,7 @@ use Ukolio\Mcp\Tool\Helper\StatusResolver;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
 use Ukolio\Service\Provider\ProjectProviderInterface;
@@ -48,6 +49,7 @@ final readonly class TasksApi
 		$limit = min(max(JsValue::int($f['limit'] ?? null) ?? self::DefaultLimit, 1), self::MaxLimit);
 		$offset = max(JsValue::int($f['offset'] ?? null) ?? 0, 0);
 		$statusIds = array_key_exists('statusIds', $f) ? JsValue::intList($f['statusIds']) : null;
+		$archived = (bool) ($f['includeArchived'] ?? false) ? ArchivedFilterEnum::All : ArchivedFilterEnum::Active;
 
 		$out = [];
 		$tasks = $this->taskProvider->getTasksInWorkspace(
@@ -59,6 +61,7 @@ final readonly class TasksApi
 			JsValue::string($f['search'] ?? null),
 			$statusIds,
 			(bool) ($f['onlyActive'] ?? false),
+			archived: $archived,
 		);
 		foreach ($tasks as $task) {
 			$out[] = HostSerializer::task($task);
@@ -129,6 +132,28 @@ final readonly class TasksApi
 		$moved = $this->taskProvider->moveTask($this->context->owner, $task, $status, $this->taskProvider->nextPosition($status));
 
 		return HostSerializer::task($moved);
+	}
+
+	/** @return array<string, mixed> */
+	public function archive(int|string $id): array
+	{
+		$this->context->recordTaskApiCall();
+		$task = $this->resolve($id) ?? throw new RuntimeException(sprintf('Task "%s" not found.', (string) $id));
+
+		$archived = $this->taskProvider->archiveTask($this->context->owner, $task);
+
+		return HostSerializer::task($archived);
+	}
+
+	/** @return array<string, mixed> */
+	public function unarchive(int|string $id): array
+	{
+		$this->context->recordTaskApiCall();
+		$task = $this->resolve($id) ?? throw new RuntimeException(sprintf('Task "%s" not found.', (string) $id));
+
+		$unarchived = $this->taskProvider->unarchiveTask($this->context->owner, $task);
+
+		return HostSerializer::task($unarchived);
 	}
 
 	/** @return array{id: int, body: string} */

@@ -111,6 +111,8 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     protected readonly saving = signal(false);
     protected readonly duplicating = signal(false);
+    protected readonly archiving = signal(false);
+    protected readonly isArchived = computed<boolean>(() => this.task()?.archivedAt != null);
     protected readonly templates = signal<TaskTemplate[]>([]);
     protected readonly descriptionInitialTab = computed<'edit' | 'preview'>(() =>
         this.task() === null ? 'edit' : 'preview',
@@ -421,6 +423,40 @@ export class TaskDetailDrawerComponent implements OnInit {
         }
     }
 
+    protected async onArchive(): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        this.archiving.set(true);
+        try {
+            const updated = await this.taskService.archiveTask(existing.id);
+            this.alertService.success(await this.translate.instant('app.board.drawer.archived') as string);
+            this.saved.emit(updated);
+        } catch {
+            // error interceptor
+        } finally {
+            this.archiving.set(false);
+        }
+    }
+
+    protected async onUnarchive(): Promise<void> {
+        const existing = this.task();
+        if (!existing) {
+            return;
+        }
+        this.archiving.set(true);
+        try {
+            const updated = await this.taskService.unarchiveTask(existing.id);
+            this.alertService.success(await this.translate.instant('app.board.drawer.unarchived') as string);
+            this.saved.emit(updated);
+        } catch {
+            // error interceptor
+        } finally {
+            this.archiving.set(false);
+        }
+    }
+
     protected async onSaveAsTemplate(): Promise<void> {
         const existing = this.task();
         if (!existing) {
@@ -665,6 +701,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 position: task.position,
                 sequenceNumber: task.sequenceNumber,
                 createdByAgent: task.createdByAgent,
+                archivedAt: task.archivedAt,
                 createdAt: task.createdAt,
                 updatedAt: task.updatedAt,
                 tagIds: task.tagIds,
@@ -760,6 +797,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 position: task.position,
                 sequenceNumber: task.sequenceNumber,
                 createdByAgent: task.createdByAgent,
+                archivedAt: task.archivedAt,
                 createdAt: task.createdAt,
                 updatedAt: task.updatedAt,
                 tagIds: task.tagIds,

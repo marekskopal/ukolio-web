@@ -222,6 +222,29 @@ final class TaskToolsTest extends IntegrationTestCase
 		self::assertSame($highId, $byName->priorityId);
 	}
 
+	public function testArchiveHidesTaskFromListByDefault(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+
+		$task = $taskTools->createTask(projectId: $project->id, name: 'Archive me');
+
+		$archived = $taskTools->archiveTask($task->id);
+		self::assertTrue($archived->archived);
+		self::assertNotNull($archived->archivedAt);
+
+		// Default list_tasks hides archived; includeArchived=true brings it back.
+		self::assertCount(0, $taskTools->listTasks($project->id)->tasks);
+		self::assertCount(1, $taskTools->listTasks($project->id, includeArchived: true)->tasks);
+
+		$unarchived = $taskTools->unarchiveTask($task->id);
+		self::assertFalse($unarchived->archived);
+		self::assertCount(1, $taskTools->listTasks($project->id)->tasks);
+	}
+
 	/** @return array{0:TaskTools,1:WorkflowTools} */
 	private function bootAs(User $user): array
 	{

@@ -2,7 +2,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {TaskFieldValue} from '@app/models/field';
 import {Subtask} from '@app/models/subtask';
-import {OrderDirection, SubtaskFilter, Task, TaskList, TaskOrderBy} from '@app/models/task';
+import {ArchivedFilter, OrderDirection, SubtaskFilter, Task, TaskList, TaskOrderBy} from '@app/models/task';
 import {TaskFile} from '@app/models/task-file';
 import {environment} from '@environments/environment';
 import {firstValueFrom} from 'rxjs';
@@ -29,6 +29,7 @@ export interface TaskListParams {
     assigneeIds?: number[];
     onlyActive?: boolean;
     subtaskFilter?: SubtaskFilter;
+    archived?: ArchivedFilter;
 }
 
 export type BulkOp = 'move' | 'tag' | 'untag' | 'assign' | 'priority' | 'delete';
@@ -71,6 +72,9 @@ export class TaskService {
         if (params.subtaskFilter && params.subtaskFilter !== 'all') {
             httpParams = httpParams.set('subtaskFilter', params.subtaskFilter);
         }
+        if (params.archived && params.archived !== 'active') {
+            httpParams = httpParams.set('archived', params.archived);
+        }
         return firstValueFrom(this.http.get<TaskList>(`${environment.apiUrl}/tasks`, {params: httpParams}));
     }
 
@@ -92,6 +96,14 @@ export class TaskService {
 
     public duplicateTask(taskId: number): Promise<Task> {
         return firstValueFrom(this.http.post<Task>(`${environment.apiUrl}/tasks/${taskId}/duplicate`, {}));
+    }
+
+    public archiveTask(taskId: number): Promise<Task> {
+        return firstValueFrom(this.http.post<Task>(`${environment.apiUrl}/tasks/${taskId}/archive`, {}));
+    }
+
+    public unarchiveTask(taskId: number): Promise<Task> {
+        return firstValueFrom(this.http.post<Task>(`${environment.apiUrl}/tasks/${taskId}/unarchive`, {}));
     }
 
     public listSubtasks(taskId: number): Promise<Subtask[]> {

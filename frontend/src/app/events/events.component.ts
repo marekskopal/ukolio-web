@@ -48,6 +48,8 @@ export class EventsComponent implements OnInit {
             case 'TaskCreated': return t('app.events.types.TaskCreated', {name: String(md['name'] ?? '')});
             case 'TaskUpdated': return t('app.events.types.TaskUpdated', {name: String(md['name'] ?? '')});
             case 'TaskDeleted': return t('app.events.types.TaskDeleted', {name: String(md['name'] ?? '')});
+            case 'TaskArchived': return t('app.events.types.TaskArchived', {name: String(md['name'] ?? '')});
+            case 'TaskUnarchived': return t('app.events.types.TaskUnarchived', {name: String(md['name'] ?? '')});
             case 'TaskMoved':
                 return t('app.events.types.TaskMoved', {
                     name: String(md['taskName'] ?? ''),

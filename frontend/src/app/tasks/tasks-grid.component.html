@@ -115,6 +115,17 @@
         <option value="onlyParents">{{ 'app.tasks.subtaskFilter.onlyParents' | translate }}</option>
     </select>
 
+    <select
+        class="select filter-archived"
+        [value]="archived()"
+        (change)="onArchivedFilterChange($event)"
+        [attr.aria-label]="'app.tasks.archivedFilter.label' | translate"
+    >
+        <option value="active">{{ 'app.tasks.archivedFilter.active' | translate }}</option>
+        <option value="archived">{{ 'app.tasks.archivedFilter.archived' | translate }}</option>
+        <option value="all">{{ 'app.tasks.archivedFilter.all' | translate }}</option>
+    </select>
+
     <details class="filter-statuses" #viewsDetails>
         <summary class="filter-summary">
             <span>{{ activeViewName() ?? ('app.savedViews.picker' | translate) }}</span>
@@ -193,7 +204,7 @@
         </div>
     </details>
 
-    @if (search() || selectedStatusIds().length > 0 || selectedTagIds().length > 0 || selectedAssigneeIds().length > 0 || onlyActive() || subtaskFilter() !== 'all') {
+    @if (search() || selectedStatusIds().length > 0 || selectedTagIds().length > 0 || selectedAssigneeIds().length > 0 || onlyActive() || subtaskFilter() !== 'all' || archived() !== 'active') {
         <button type="button" class="btn-link filter-clear" (click)="clearFilters()">
             {{ 'app.tasks.clearFilters' | translate }}
         </button>
@@ -471,6 +482,9 @@
                                         </svg>
                                         {{ task.subtasksDone }}/{{ task.subtasksTotal }}
                                     </span>
+                                }
+                                @if (task.archivedAt) {
+                                    <span class="archived-badge">{{ 'app.tasks.archivedBadge' | translate }}</span>
                                 }
                             </span>
                             <span class="task-project">{{ task.projectName }}</span>
