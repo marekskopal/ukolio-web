@@ -149,6 +149,7 @@ Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 - `TaskRelationTools` — `list_task_relations`, `link_tasks`, `unlink_tasks`, `create_subtask` (create + Parent-link in one call)
 - `TaskTemplateTools` — `list_task_templates`, `save_task_as_template`, `create_task_from_template` (defaults to Start status; accepts name/status overrides)
 - `FieldTools` — manage the workspace's custom-field catalog and per-project attachments
+- `EventTools` — `list_events` (workspace audit log, filter by `projectId`/`taskId`/`type`), `list_task_events` (by task id or code). Event `createdAt` is ISO 8601; `TaskMoved` metadata carries `toStatusId`/`toStatusName`, so a script/agent can tell when a task entered a status.
 
 Designed for AI-agent-driven flows; the frontend stays for human overview.
 

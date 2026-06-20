@@ -58,6 +58,18 @@ final class FakeEventProvider implements EventProviderInterface
 		return new ArrayIterator([]);
 	}
 
+	/** @return Iterator<Event> */
+	public function getWorkspaceEventsFiltered(
+		Workspace $workspace,
+		?int $projectId,
+		?int $taskId,
+		?EventTypeEnum $type,
+		int $limit,
+		int $offset,
+	): Iterator {
+		return new ArrayIterator([]);
+	}
+
 	public function countWorkspaceEventsSince(Workspace $workspace, int $sinceTimestamp): int
 	{
 		return 0;

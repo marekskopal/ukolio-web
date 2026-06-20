@@ -58,6 +58,41 @@ final class EventRepository extends AbstractRepository
 			->count();
 	}
 
+	/**
+	 * Workspace-scoped event lookup with optional project/task/type narrowing, newest first.
+	 *
+	 * @return Iterator<Event>
+	 */
+	public function findByWorkspaceFiltered(
+		int $workspaceId,
+		?int $projectId,
+		?int $taskId,
+		?EventTypeEnum $type,
+		int $limit,
+		int $offset,
+	): Iterator {
+		$select = $this->select()
+			->where(['workspace_id' => $workspaceId]);
+
+		if ($projectId !== null) {
+			$select->where(['project_id' => $projectId]);
+		}
+
+		if ($taskId !== null) {
+			$select->where(['task_id' => $taskId]);
+		}
+
+		if ($type !== null) {
+			$select->where(['type' => $type->value]);
+		}
+
+		return $select
+			->orderBy('id', 'DESC')
+			->limit($limit)
+			->offset($offset)
+			->fetchAll();
+	}
+
 	/** @return Iterator<Event> */
 	public function findByAuthor(int $userId): Iterator
 	{

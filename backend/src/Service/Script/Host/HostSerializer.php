@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Script\Host;
 
+use Ukolio\Mcp\Dto\McpEventDto;
 use Ukolio\Mcp\Dto\McpProjectDto;
 use Ukolio\Mcp\Dto\McpStatusDto;
 use Ukolio\Mcp\Dto\McpTaskDto;
+use Ukolio\Model\Entity\Event;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
@@ -34,6 +36,12 @@ final class HostSerializer
 	public static function status(Status $status): array
 	{
 		return self::toArray(McpStatusDto::fromEntity($status));
+	}
+
+	/** @return array<string, mixed> */
+	public static function event(Event $event): array
+	{
+		return self::toArray(McpEventDto::fromEntity($event));
 	}
 
 	/** @return array<string, mixed> */

@@ -11,7 +11,7 @@ use Ukolio\Service\Provider\WorkflowProviderInterface;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * The object graph bound to the JS global `ukolio`. Public properties (tasks/projects/vars/context)
+ * The object graph bound to the JS global `ukolio`. Public properties (tasks/projects/events/vars/context)
  * and public methods (log/fetch/workflow) are what V8Js surfaces to the script; private dependencies
  * stay hidden from the sandbox.
  */
@@ -21,6 +21,7 @@ final readonly class ScriptHostApi
 	public function __construct(
 		public TasksApi $tasks,
 		public ProjectsApi $projects,
+		public EventsApi $events,
 		public VarsApi $vars,
 		public array $context,
 		private ScriptRunContext $runContext,
