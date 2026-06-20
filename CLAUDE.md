@@ -150,6 +150,7 @@ Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 - `TaskTemplateTools` — `list_task_templates`, `save_task_as_template`, `create_task_from_template` (defaults to Start status; accepts name/status overrides)
 - `FieldTools` — manage the workspace's custom-field catalog and per-project attachments
 - `EventTools` — `list_events` (workspace audit log, filter by `projectId`/`taskId`/`type`), `list_task_events` (by task id or code). Event `createdAt` is ISO 8601; `TaskMoved` metadata carries `toStatusId`/`toStatusName`, so a script/agent can tell when a task entered a status.
+- `ScriptTools` — `list_scripts`, `get_script`, `create_script`, `update_script`, `delete_script`, `run_script` (async one-off), `list_script_runs`. Mutations require workspace admin (`canManageScripts`). Scheduled triggers take a 5-field cron in `triggerConfig`.
 
 Designed for AI-agent-driven flows; the frontend stays for human overview.
 
