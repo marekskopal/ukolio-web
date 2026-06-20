@@ -19,8 +19,10 @@ use V8JsTimeLimitException;
  */
 final readonly class V8JsScriptEngine implements ScriptEngineInterface
 {
-	// V8Js exposes the constructor's `variables` map as properties of a single global object. We
-	// pass the host API as `host.api` and alias it to `ukolio` so user code uses the documented name.
+	// V8Js exposes properties assigned on the instance (`$v8->api = …`) under a single global object
+	// named here. We expose the host API as `host.api` and alias it to `ukolio` so user code uses the
+	// documented name. (This build's constructor is (object_name, variables, snapshot_blob) and does
+	// not surface the `variables` map, so property assignment is the portable mechanism.)
 	private const string GlobalObject = 'host';
 	private const string Prelude = 'var ukolio = host.api;';
 
@@ -35,9 +37,10 @@ final readonly class V8JsScriptEngine implements ScriptEngineInterface
 			return ScriptExecutionResult::error('Sandbox unavailable: ext-v8js is not loaded in this runtime.');
 		}
 
-		// report_uncaught_exceptions = true so uncaught JS errors propagate as V8JsScriptException
-		// and are recorded as failed runs rather than silently swallowed.
-		$v8 = new V8Js(self::GlobalObject, ['api' => $hostApi], [], true);
+		// Uncaught JS errors propagate as V8JsScriptException by default in this build, so they are
+		// recorded as failed runs rather than silently swallowed.
+		$v8 = new V8Js(self::GlobalObject);
+		$v8->api = $hostApi;
 		$v8->setTimeLimit($timeLimitMs);
 		$v8->setMemoryLimit($memoryLimitBytes);
 

@@ -14,6 +14,11 @@ parameters:
 	cognitive_complexity:
 		function: 15
 
+	# ext-v8js exposes the sandbox host API via arbitrary dynamic properties ($v8->api = …),
+	# like stdClass. Treat it as a universal object crate so those assignments type-check.
+	universalObjectCratesClasses:
+		- V8Js
+
 	checkImplicitMixed: true
 	checkBenevolentUnionTypes: true
 	checkUninitializedProperties: true
