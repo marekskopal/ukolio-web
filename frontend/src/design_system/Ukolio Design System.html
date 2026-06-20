@@ -8,6 +8,43 @@
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #ebebed; font-family: 'Inter', sans-serif; }
   #root { height: 100%; }
+
+  /* ===== Scripts feature — code editor ===== */
+  .ce { display: flex; height: 100%; background: var(--uk-surface); }
+  .ce-dark { background: #161619; }
+  .ce-gutter { width: 50px; flex-shrink: 0; overflow: hidden; padding: 14px 0; border-right: 1px solid var(--uk-border); background: var(--uk-bg); }
+  .ce-dark .ce-gutter { background: #1b1b20; border-color: #2a2a31; }
+  .ce-ln { height: 20px; font: 12px/20px var(--uk-font-mono); color: var(--uk-fg-faint); text-align: right; padding-right: 12px; }
+  .ce-dark .ce-ln { color: #565660; }
+  .ce-ln-err { color: var(--uk-danger); font-weight: 600; }
+  .ce-dark .ce-ln-err { color: #f87171; }
+  .ce-main { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+  .ce-hl, .ce-ta { margin: 0; position: absolute; inset: 0; padding: 14px 16px; font: 13px/20px var(--uk-font-mono); letter-spacing: 0.01em; tab-size: 2; -moz-tab-size: 2; white-space: pre; border: 0; }
+  .ce-hl { pointer-events: none; color: var(--uk-fg); overflow: hidden; z-index: 1; }
+  .ce-dark .ce-hl { color: #d8d8df; }
+  .ce-ta { overflow: auto; resize: none; background: transparent; color: transparent; caret-color: var(--uk-accent); outline: none; z-index: 2; }
+  .ce-dark .ce-ta { caret-color: #8c97ee; }
+  .ce-ta::selection { background: rgba(94,106,210,0.22); }
+  .ce-dark .ce-ta::selection { background: rgba(140,151,238,0.30); }
+  .ce-row { height: 20px; min-width: 100%; white-space: pre; }
+  .ce-row-err { background: rgba(180,35,24,0.07); box-shadow: inset 2px 0 0 var(--uk-danger); }
+  .ce-dark .ce-row-err { background: rgba(248,113,113,0.12); box-shadow: inset 2px 0 0 #f87171; }
+  .tk-com { color: #8a8a92; font-style: italic; } .tk-str { color: #16794a; } .tk-num { color: #a35c00; }
+  .tk-kw { color: #6f4ed3; } .tk-lit { color: #a35c00; } .tk-builtin { color: #0f766e; }
+  .tk-method { color: #1e58b6; } .tk-host { color: var(--uk-accent); font-weight: 600; }
+  .ce-dark .tk-com { color: #6b7280; } .ce-dark .tk-str { color: #7ee0a1; } .ce-dark .tk-num { color: #fbbf24; }
+  .ce-dark .tk-kw { color: #b9a4f5; } .ce-dark .tk-lit { color: #fbbf24; } .ce-dark .tk-builtin { color: #5ad4cf; }
+  .ce-dark .tk-method { color: #7fb4ff; } .ce-dark .tk-host { color: #9aa6f2; }
+  .api-row { width: 100%; display: flex; align-items: center; gap: 7px; padding: 7px 14px; background: none; border: none; cursor: pointer; text-align: left; font: inherit; }
+  .api-row:hover { background: var(--uk-surface-2); }
+  .api-sig { font-size: 11.5px; color: var(--uk-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .run-log { margin: 0; padding: 0 0 8px; font: 12px/1.75 var(--uk-font-mono); }
+  .run-log-line { display: flex; gap: 12px; padding: 0 16px; }
+  .run-log-line:hover { background: var(--uk-surface-2); }
+  .run-log-gut { width: 14px; text-align: right; color: var(--uk-fg-faint); flex-shrink: 0; user-select: none; }
+  .run-log-err { color: var(--uk-danger); } .run-log-err .run-log-gut { color: var(--uk-danger); }
+  @keyframes cePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  .ce-pulse { animation: cePulse 1s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -28,6 +65,7 @@
 <script type="text/babel" src="marketing-pages.jsx"></script>
 <script type="text/babel" src="ios-frame.jsx"></script>
 <script type="text/babel" src="marketing-mobile.jsx"></script>
+<script type="text/babel" src="scripts-feature.jsx"></script>
 
 <script type="text/babel">
 const { DesignCanvas, DCSection, DCArtboard } = window;
@@ -80,6 +118,13 @@ function App() {
         <DCArtboard id="grid-dark"      label="Workspace tasks grid · dark"    width={1280} height={760}><TasksGridScreenDark/></DCArtboard>
         <DCArtboard id="events-dark"    label="Agent activity log · dark"      width={1280} height={760}><EventsScreenDark/></DCArtboard>
         <DCArtboard id="workspace-dark" label="Workspace management · dark"    width={1280} height={760}><WorkspaceScreenDark/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="scripts" title="07 · Scripts · automation">
+        <DCArtboard id="scripts-list"   label="Scripts · list"            width={1280} height={760}><ScriptsListBoard/></DCArtboard>
+        <DCArtboard id="scripts-editor" label="Script editor"            width={1280} height={820}><ScriptEditorBoard/></DCArtboard>
+        <DCArtboard id="scripts-dark"   label="Script editor · dark code" width={1280} height={820}><ScriptEditorBoard dark={true}/></DCArtboard>
+        <DCArtboard id="scripts-vars"   label="Script variables"         width={1280} height={720}><VariablesBoard/></DCArtboard>
       </DCSection>
 
       <DCSection id="marketing" title="05 · Marketing site">

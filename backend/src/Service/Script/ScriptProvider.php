@@ -114,6 +114,16 @@ final readonly class ScriptProvider implements ScriptProviderInterface
 		return $this->scriptRunRepository->findByScript($script->id, $limit, $offset);
 	}
 
+	public function runCount(Script $script): int
+	{
+		return $this->scriptRunRepository->countByScript($script->id);
+	}
+
+	public function lastStatus(Script $script): ?string
+	{
+		return $this->scriptRunRepository->findLatestByScript($script->id)?->status->value;
+	}
+
 	private function validateName(Workspace $workspace, string $name, ?int $ignoreId): string
 	{
 		$name = trim($name);

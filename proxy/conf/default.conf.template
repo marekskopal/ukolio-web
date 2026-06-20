@@ -252,6 +252,25 @@ server {
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
     }
 
+    # Monaco editor assets. The TypeScript language worker requires eval, so this
+    # path carries a relaxed CSP that governs ONLY the worker context (the worker
+    # is started from the same-origin worker-proxy.js, not a blob/data URL). The
+    # app document at `location /app` keeps its strict, eval-free policy.
+    location ^~ /app/assets/monaco/ {
+        proxy_pass http://http_frontend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-eval'; connect-src 'self'; worker-src 'self'" always;
+    }
+
     location /app {
         # Strip Accept-Encoding so the upstream response is plain text and
         # sub_filter can substitute the CSP nonce before gzip.
@@ -270,7 +289,12 @@ server {
         add_header X-Frame-Options DENY always;
         add_header X-Content-Type-Options nosniff always;
         add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()" always;
-        add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'nonce-$request_id' https://accounts.google.com/gsi/client; style-src 'self' 'nonce-$request_id' https://fonts.googleapis.com https://accounts.google.com/gsi/style; object-src 'none'; base-uri 'self'; connect-src 'self' https://accounts.google.com/gsi/; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://accounts.google.com/gsi/; frame-ancestors 'none'; img-src 'self' data: https://*.googleusercontent.com; form-action 'self'; manifest-src 'self'; media-src 'self'; worker-src 'none'" always;
+        # style-src uses 'unsafe-inline' (no nonce) because Monaco injects its own
+        # <style> elements at runtime without a nonce, and per CSP3 a nonce in
+        # style-src disables 'unsafe-inline'. script-src stays nonce-based and
+        # eval-free; the eval Monaco's worker needs is scoped to /app/assets/monaco/
+        # above. worker-src 'self' allows the same-origin worker.
+        add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'nonce-$request_id' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; object-src 'none'; base-uri 'self'; connect-src 'self' https://accounts.google.com/gsi/; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://accounts.google.com/gsi/; frame-ancestors 'none'; img-src 'self' data: https://*.googleusercontent.com; form-action 'self'; manifest-src 'self'; media-src 'self'; worker-src 'self'" always;
 
         sub_filter_once off;
         sub_filter random_nonce_value $request_id;

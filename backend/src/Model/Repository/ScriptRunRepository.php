@@ -31,4 +31,13 @@ final class ScriptRunRepository extends AbstractRepository
 	{
 		return $this->select()->where(['script_id' => $scriptId])->count();
 	}
+
+	public function findLatestByScript(int $scriptId): ?ScriptRun
+	{
+		return $this->select()
+			->where(['script_id' => $scriptId])
+			->orderBy('id', 'DESC')
+			->limit(1)
+			->fetchOne();
+	}
 }

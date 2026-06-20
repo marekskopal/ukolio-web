@@ -19,12 +19,19 @@ final readonly class ScriptDto
 		public ?string $triggerConfig,
 		public bool $active,
 		public ?string $lastRunAt,
+		public ?string $lastStatus,
+		public int $runCount,
 		public string $createdAt,
 		public string $updatedAt,
 	) {
 	}
 
 	public static function fromEntity(Script $script): self
+	{
+		return self::fromEntityWithStats($script, null, 0);
+	}
+
+	public static function fromEntityWithStats(Script $script, ?string $lastStatus, int $runCount): self
 	{
 		return new self(
 			id: $script->id,
@@ -36,6 +43,8 @@ final readonly class ScriptDto
 			triggerConfig: $script->triggerConfig,
 			active: $script->active,
 			lastRunAt: $script->lastRunAt?->format(DATE_ATOM),
+			lastStatus: $lastStatus,
+			runCount: $runCount,
 			createdAt: $script->createdAt->format(DATE_ATOM),
 			updatedAt: $script->updatedAt->format(DATE_ATOM),
 		);

@@ -12,6 +12,8 @@ export interface Script {
     triggerConfig: string | null;
     active: boolean;
     lastRunAt: string | null;
+    lastStatus: ScriptRunStatus | null;
+    runCount: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -26,6 +28,8 @@ export interface ScriptRun {
     durationMs: number | null;
     logs: string | null;
     error: string | null;
+    httpCalls: number;
+    taskApiCalls: number;
     createdAt: string;
 }
 

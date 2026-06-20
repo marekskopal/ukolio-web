@@ -56,7 +56,11 @@ final readonly class ScriptController
 		}
 
 		$scripts = array_map(
-			static fn (Script $script): ScriptDto => ScriptDto::fromEntity($script),
+			fn (Script $script): ScriptDto => ScriptDto::fromEntityWithStats(
+				$script,
+				$this->scriptProvider->lastStatus($script),
+				$this->scriptProvider->runCount($script),
+			),
 			iterator_to_array($this->scriptProvider->listForWorkspace($workspace), false),
 		);
 

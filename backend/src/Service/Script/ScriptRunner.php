@@ -74,6 +74,8 @@ final readonly class ScriptRunner
 
 		$finishedAt = new DateTimeImmutable();
 		$run->logs = $context->getLogs();
+		$run->httpCalls = $context->getHttpCalls();
+		$run->taskApiCalls = $context->getTaskApiCalls();
 		$run->finishedAt = $finishedAt;
 		$run->updatedAt = $finishedAt;
 		$this->scriptRunRepository->persist($run);

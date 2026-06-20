@@ -77,6 +77,16 @@ final class ScriptRunContext
 		];
 	}
 
+	public function getHttpCalls(): int
+	{
+		return $this->httpCalls;
+	}
+
+	public function getTaskApiCalls(): int
+	{
+		return $this->taskApiCalls;
+	}
+
 	public function getLogs(): string
 	{
 		return $this->redact(implode("\n", $this->logLines));

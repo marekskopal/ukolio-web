@@ -44,4 +44,9 @@ interface ScriptProviderInterface
 
 	/** @return Iterator<ScriptRun> */
 	public function runHistory(Script $script, int $limit, int $offset): Iterator;
+
+	public function runCount(Script $script): int;
+
+	/** Status value (Running/Success/Error/Timeout) of the script's most recent run, or null if it never ran. */
+	public function lastStatus(Script $script): ?string;
 }

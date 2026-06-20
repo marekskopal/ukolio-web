@@ -19,6 +19,8 @@ final readonly class ScriptRunDto
 		public ?int $durationMs,
 		public ?string $logs,
 		public ?string $error,
+		public int $httpCalls,
+		public int $taskApiCalls,
 		public string $createdAt,
 	) {
 	}
@@ -40,6 +42,8 @@ final readonly class ScriptRunDto
 			durationMs: $durationMs,
 			logs: $run->logs,
 			error: $run->error,
+			httpCalls: $run->httpCalls,
+			taskApiCalls: $run->taskApiCalls,
 			createdAt: $run->createdAt->format(DATE_ATOM),
 		);
 	}

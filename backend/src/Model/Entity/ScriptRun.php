@@ -32,6 +32,10 @@ class ScriptRun extends AEntity
 		public ?string $logs = null,
 		#[Column(type: Type::Text, nullable: true, default: null)]
 		public ?string $error = null,
+		#[Column(type: Type::Int, default: 0)]
+		public int $httpCalls = 0,
+		#[Column(type: Type::Int, default: 0)]
+		public int $taskApiCalls = 0,
 	) {
 	}
 }
