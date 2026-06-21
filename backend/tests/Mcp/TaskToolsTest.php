@@ -182,12 +182,7 @@ final class TaskToolsTest extends IntegrationTestCase
 		[$taskTools] = $this->bootAs($user);
 
 		// Create carries startDate through to the DTO.
-		$task = $taskTools->createTask(
-			projectId: $project->id,
-			name: 'Spanning',
-			dueDate: '2026-05-20',
-			startDate: '2026-05-10',
-		);
+		$task = $taskTools->createTask(projectId: $project->id, name: 'Spanning', dueDate: '2026-05-20', startDate: '2026-05-10');
 		self::assertSame('2026-05-10', $task->startDate);
 
 		// Omitting startDate on update leaves it unchanged; empty string clears it.

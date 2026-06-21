@@ -25,6 +25,7 @@ import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
 import {CalendarTaskFilters, TaskCalendarComponent} from '@app/tasks/task-calendar.component';
+import {TaskTimelineComponent} from '@app/tasks/task-timeline.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
 
@@ -54,7 +55,10 @@ interface QueryParams {
 @Component({
     selector: 'uk-tasks-grid',
     standalone: true,
-    imports: [ReactiveFormsModule, PaginationComponent, TaskDetailDrawerComponent, TaskCalendarComponent, TranslatePipe],
+    imports: [
+        ReactiveFormsModule, PaginationComponent, TaskDetailDrawerComponent,
+        TaskCalendarComponent, TaskTimelineComponent, TranslatePipe,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './tasks-grid.component.html',
     styleUrl: './tasks-grid.component.scss',

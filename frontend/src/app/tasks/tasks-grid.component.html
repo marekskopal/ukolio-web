@@ -564,9 +564,12 @@
 }
 
 @if (view() === 'timeline') {
-    <div class="view-placeholder">
-        <p>{{ 'app.tasks.view.timelineSoon' | translate }}</p>
-    </div>
+    <uk-task-timeline
+        [filters]="calendarFilters()"
+        [refreshKey]="calendarRefreshKey()"
+        (openTask)="onCalendarOpenTask($event)"
+        (changed)="onCalendarChanged()"
+    />
 }
 
 @if (drawer(); as ctx) {

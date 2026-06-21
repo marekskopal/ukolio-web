@@ -68,10 +68,10 @@
                 </select>
 
                 <div class="meta-label">{{ 'app.board.drawer.startDate' | translate }}</div>
-                <input type="date" formControlName="startDate" class="input meta-control" />
+                <input id="task-start-date" type="date" formControlName="startDate" class="input meta-control" />
 
                 <div class="meta-label">{{ 'app.board.drawer.dueDate' | translate }}</div>
-                <input type="date" formControlName="dueDate" class="input meta-control" />
+                <input id="task-due-date" type="date" formControlName="dueDate" class="input meta-control" />
 
                 @for (desc of customControls(); track desc.controlName) {
                     <div class="meta-label">

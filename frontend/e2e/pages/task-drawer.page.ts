@@ -23,6 +23,22 @@ export class TaskDrawerPage {
         await this.page.locator('.drawer-status-select').selectOption({label: statusName});
     }
 
+    public async setStartDate(iso: string): Promise<void> {
+        await this.page.fill('#task-start-date', iso);
+    }
+
+    public async setDueDate(iso: string): Promise<void> {
+        await this.page.fill('#task-due-date', iso);
+    }
+
+    public async dueDateValue(): Promise<string> {
+        return this.page.locator('#task-due-date').inputValue();
+    }
+
+    public async startDateValue(): Promise<string> {
+        return this.page.locator('#task-start-date').inputValue();
+    }
+
     public async save(): Promise<void> {
         await this.page.locator('.drawer-footer .btn-primary').click();
         await this.expectClosed();
@@ -35,7 +51,8 @@ export class TaskDrawerPage {
     }
 
     public async cancel(): Promise<void> {
-        await this.page.locator('.drawer-footer .btn-ghost').click();
+        // The footer has several ghost buttons (Duplicate / Archive / Save as template); target Cancel by name.
+        await this.page.locator('.drawer-footer').getByRole('button', {name: 'Cancel', exact: true}).click();
         await this.expectClosed();
     }
 }
