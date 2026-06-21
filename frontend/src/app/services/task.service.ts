@@ -13,6 +13,7 @@ export interface TaskWritePayload {
     description: string | null;
     priorityId: number;
     dueDate: string | null;
+    startDate?: string | null;
     assigneeId?: number | null;
     fieldValues?: TaskFieldValue[];
     tagIds?: number[];

@@ -142,6 +142,7 @@ final readonly class TaskTools
 	 * @param int|null $statusId Optional explicit status ID
 	 * @param string|null $statusName Optional status name (case-insensitive); ignored if statusId is given
 	 * @param string|null $dueDate Optional due date (YYYY-MM-DD)
+	 * @param string|null $startDate Optional start date (YYYY-MM-DD). Must not be after dueDate. Used by the Timeline view.
 	 * @param int|null $assigneeId Optional user ID to assign. Defaults to the current MCP user. Must be a member of the project's workspace.
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values keyed by fieldId
 	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply to the new task
@@ -156,6 +157,7 @@ final readonly class TaskTools
 		?int $statusId = null,
 		?string $statusName = null,
 		?string $dueDate = null,
+		?string $startDate = null,
 		?int $assigneeId = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
@@ -183,6 +185,7 @@ final readonly class TaskTools
 			assignee: $assignee,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
 			tagIds: $tagIds,
+			startDate: $startDate !== null && $startDate !== '' ? new DateTimeImmutable($startDate) : null,
 		);
 
 		return McpTaskDto::fromEntity(
@@ -201,6 +204,7 @@ final readonly class TaskTools
 	 * @param int|null $priorityId New priority ID from the workspace's catalog (preferred over priorityName).
 	 * @param string|null $priorityName New priority name (case-insensitive). Accepts the legacy "Low"/"Medium"/"High" against seeded defaults.
 	 * @param string|null $dueDate New due date (YYYY-MM-DD), or empty string to clear
+	 * @param string|null $startDate New start date (YYYY-MM-DD), or empty string to clear. Must not be after dueDate.
 	 * @param int|null $assigneeId New assignee user ID. Pass null to clear (unassign). Omit the parameter to leave unchanged. Must be a member of the project's workspace.
 	 * @param bool $clearAssignee Pass true together with omitting assigneeId to explicitly unassign the task.
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values to replace
@@ -217,6 +221,7 @@ final readonly class TaskTools
 		?int $priorityId = null,
 		?string $priorityName = null,
 		?string $dueDate = null,
+		?string $startDate = null,
 		?int $assigneeId = null,
 		bool $clearAssignee = false,
 		?array $fieldValues = null,
@@ -225,7 +230,8 @@ final readonly class TaskTools
 		$user = $this->userContext->getUser();
 		$task = $this->requireTask($taskId);
 
-		$newDueDate = $this->resolveNewDueDate($task->dueDate, $dueDate);
+		$newDueDate = $this->resolveNewDate($task->dueDate, $dueDate);
+		$newStartDate = $this->resolveNewDate($task->startDate, $startDate);
 		$assignee = $this->resolveAssigneeForUpdate($task, $assigneeId, $clearAssignee);
 		$priority = $priorityId !== null || $priorityName !== null
 			? ($this->priorityResolver->resolve($task->project, $priorityId, $priorityName) ?? $task->priority)
@@ -242,6 +248,7 @@ final readonly class TaskTools
 			assignee: $assignee,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
 			tagIds: $tagIds,
+			startDate: $newStartDate,
 		);
 
 		return McpTaskDto::fromEntity(
@@ -451,12 +458,13 @@ final readonly class TaskTools
 		return $task->assignee;
 	}
 
-	private function resolveNewDueDate(?DateTimeImmutable $current, ?string $dueDate): ?DateTimeImmutable
+	/** Partial-update date semantics: null leaves the value unchanged, '' clears it, otherwise parse. */
+	private function resolveNewDate(?DateTimeImmutable $current, ?string $value): ?DateTimeImmutable
 	{
-		if ($dueDate === null) {
+		if ($value === null) {
 			return $current;
 		}
-		return $dueDate === '' ? null : new DateTimeImmutable($dueDate);
+		return $value === '' ? null : new DateTimeImmutable($value);
 	}
 
 	private function nextPositionInStatus(int $statusId): int

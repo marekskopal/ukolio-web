@@ -12,6 +12,7 @@ export interface Task {
     description: string | null;
     priority: Priority;
     dueDate: string | null;
+    startDate: string | null;
     position: number;
     sequenceNumber: number;
     createdByAgent: boolean;
@@ -41,6 +42,7 @@ export interface TaskListItem {
     description: string | null;
     priority: Priority;
     dueDate: string | null;
+    startDate: string | null;
     position: number;
     sequenceNumber: number;
     createdByAgent: boolean;

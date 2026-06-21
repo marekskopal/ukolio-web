@@ -6,6 +6,7 @@ namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
 use Iterator;
+use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Project;
@@ -126,6 +127,14 @@ final readonly class TaskProvider implements TaskProviderInterface
 		);
 	}
 
+	/** Guards the start ≤ due invariant; throws so the controller answers 422 and MCP surfaces a tool error. */
+	private static function assertDateOrder(?DateTimeImmutable $startDate, ?DateTimeImmutable $dueDate): void
+	{
+		if ($startDate !== null && $dueDate !== null && $startDate > $dueDate) {
+			throw new RuntimeException('Start date must not be after due date.');
+		}
+	}
+
 	/**
 	 * @param list<int>|null $tagIds
 	 * @return list<int>|null null = no tag filter; [] = no matches
@@ -177,7 +186,10 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?User $assignee = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
+		?DateTimeImmutable $startDate = null,
 	): Task {
+		self::assertDateOrder($startDate, $dueDate);
+
 		if ($fieldValues !== null) {
 			$this->taskFieldValueProvider->validateForProject($project, $fieldValues);
 		}
@@ -196,6 +208,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			dueDate: $dueDate,
 			position: $position,
 			sequenceNumber: $sequenceNumber,
+			startDate: $startDate,
 			createdByAgent: $this->actorContext->isAgent(),
 		);
 		$task->createdAt = $now;
@@ -246,6 +259,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			assignee: $task->assignee,
 			fieldValues: $this->taskFieldValueProvider->findByTask($task),
 			tagIds: $this->taskTagProvider->getTagIdsForTask($task),
+			startDate: $task->startDate,
 		);
 	}
 
@@ -265,7 +279,10 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $fieldValues = null,
 		?array $tagIds = null,
 		bool $recordEvent = true,
+		?DateTimeImmutable $startDate = null,
 	): Task {
+		self::assertDateOrder($startDate, $dueDate);
+
 		if ($fieldValues !== null) {
 			$this->taskFieldValueProvider->validateForProject($task->project, $fieldValues);
 		}
@@ -277,6 +294,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$task->description = $description;
 		$task->priority = $priority;
 		$task->dueDate = $dueDate;
+		$task->startDate = $startDate;
 		$task->assignee = $assignee;
 		if ($statusChanged) {
 			$task->status = $status;
