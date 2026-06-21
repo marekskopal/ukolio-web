@@ -32,6 +32,7 @@ use Ukolio\Service\Provider\PriorityProviderInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\SubtaskProviderInterface;
+use Ukolio\Service\Provider\TaskChecklistProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
 use Ukolio\Service\Provider\TaskFieldValueProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
@@ -50,6 +51,7 @@ final readonly class TaskController
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskTagProviderInterface $taskTagProvider,
 		private SubtaskProviderInterface $subtaskProvider,
+		private TaskChecklistProviderInterface $checklistProvider,
 		private PriorityProviderInterface $priorityProvider,
 		private RequestServiceInterface $requestService,
 		private UserRepository $userRepository,
@@ -107,6 +109,7 @@ final readonly class TaskController
 		$taskIds = array_map(static fn (Task $t): int => $t->id, $tasks);
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds($taskIds);
 		$subtaskCounts = $this->subtaskProvider->getSubtaskCounts($taskIds);
+		$checklistCounts = $this->checklistProvider->getCounts($taskIds);
 
 		return new JsonResponse(new TaskListDto(
 			tasks: array_map(
@@ -115,6 +118,8 @@ final readonly class TaskController
 					$tagsByTaskId[$t->id] ?? [],
 					$subtaskCounts[$t->id]['total'] ?? 0,
 					$subtaskCounts[$t->id]['done'] ?? 0,
+					$checklistCounts[$t->id]['total'] ?? 0,
+					$checklistCounts[$t->id]['done'] ?? 0,
 				),
 				$tasks,
 			),

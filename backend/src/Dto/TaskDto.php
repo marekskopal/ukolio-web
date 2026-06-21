@@ -34,6 +34,8 @@ final readonly class TaskDto
 		public array $tagIds,
 		public int $subtasksTotal,
 		public int $subtasksDone,
+		public int $checklistTotal,
+		public int $checklistDone,
 	) {
 	}
 
@@ -47,6 +49,8 @@ final readonly class TaskDto
 		array $tagIds = [],
 		int $subtasksTotal = 0,
 		int $subtasksDone = 0,
+		int $checklistTotal = 0,
+		int $checklistDone = 0,
 	): self
 	{
 		$values = [];
@@ -75,6 +79,8 @@ final readonly class TaskDto
 			tagIds: $tagIds,
 			subtasksTotal: $subtasksTotal,
 			subtasksDone: $subtasksDone,
+			checklistTotal: $checklistTotal,
+			checklistDone: $checklistDone,
 		);
 	}
 }

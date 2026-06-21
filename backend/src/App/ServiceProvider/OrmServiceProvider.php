@@ -26,6 +26,7 @@ use Ukolio\Model\Entity\ScriptVariable;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\Task;
+use Ukolio\Model\Entity\TaskChecklistItem;
 use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\TaskFieldValue;
 use Ukolio\Model\Entity\TaskFile;
@@ -52,6 +53,7 @@ use Ukolio\Model\Repository\ScriptRunRepository;
 use Ukolio\Model\Repository\ScriptVariableRepository;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\TagRepository;
+use Ukolio\Model\Repository\TaskChecklistItemRepository;
 use Ukolio\Model\Repository\TaskCommentRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskFileRepository;
@@ -86,6 +88,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			WorkflowRepository::class,
 			StatusRepository::class,
 			TaskRepository::class,
+			TaskChecklistItemRepository::class,
 			TaskCommentRepository::class,
 			TaskFieldValueRepository::class,
 			TaskFileRepository::class,
@@ -126,6 +129,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, WorkflowRepository::class, Workflow::class);
 		$this->addRepository($container, $orm, StatusRepository::class, Status::class);
 		$this->addRepository($container, $orm, TaskRepository::class, Task::class);
+		$this->addRepository($container, $orm, TaskChecklistItemRepository::class, TaskChecklistItem::class);
 		$this->addRepository($container, $orm, TaskCommentRepository::class, TaskComment::class);
 		$this->addRepository($container, $orm, TaskFieldValueRepository::class, TaskFieldValue::class);
 		$this->addRepository($container, $orm, TaskFileRepository::class, TaskFile::class);

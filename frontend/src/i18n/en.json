@@ -822,6 +822,16 @@
       "highestPriority": "Highest priority",
       "progressTitle": "{{done}} of {{total}} subtasks done"
     },
+    "checklist": {
+      "heading": "Checklist",
+      "add": "Add",
+      "addPlaceholder": "Add a checklist item…",
+      "toggle": "Toggle \"{{text}}\"",
+      "dragHandle": "Reorder item",
+      "dueDate": "Due date",
+      "assignee": "Assignee",
+      "progressTitle": "{{done}} of {{total}} checklist items done"
+    },
     "onboarding": {
       "shell": {
         "gettingStarted": "Getting started",

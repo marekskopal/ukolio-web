@@ -23,6 +23,8 @@ export interface Task {
     tagIds: number[];
     subtasksTotal?: number;
     subtasksDone?: number;
+    checklistTotal?: number;
+    checklistDone?: number;
 }
 
 export type TaskOrderBy = 'created_at' | 'name' | 'status_id';
@@ -52,6 +54,8 @@ export interface TaskListItem {
     tagIds: number[];
     subtasksTotal?: number;
     subtasksDone?: number;
+    checklistTotal?: number;
+    checklistDone?: number;
 }
 
 export interface TaskList {

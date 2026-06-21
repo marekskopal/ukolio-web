@@ -51,6 +51,8 @@ use Ukolio\Service\Provider\SubtaskProvider;
 use Ukolio\Service\Provider\SubtaskProviderInterface;
 use Ukolio\Service\Provider\TagProvider;
 use Ukolio\Service\Provider\TagProviderInterface;
+use Ukolio\Service\Provider\TaskChecklistProvider;
+use Ukolio\Service\Provider\TaskChecklistProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolver;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
 use Ukolio\Service\Provider\TaskCommentProvider;
@@ -119,6 +121,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			TaskProviderInterface::class,
 			BulkTaskProviderInterface::class,
 			TaskCodeResolverInterface::class,
+			TaskChecklistProviderInterface::class,
 			TaskCommentProviderInterface::class,
 			TaskFieldValueProviderInterface::class,
 			TaskFileProviderInterface::class,
@@ -175,6 +178,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(TaskProviderInterface::class, TaskProvider::class);
 		$c->add(BulkTaskProviderInterface::class, BulkTaskProvider::class);
 		$c->add(TaskCodeResolverInterface::class, TaskCodeResolver::class);
+		$c->add(TaskChecklistProviderInterface::class, TaskChecklistProvider::class);
 		$c->add(TaskCommentProviderInterface::class, TaskCommentProvider::class);
 		$c->add(TaskFieldValueProviderInterface::class, TaskFieldValueProvider::class);
 		$c->add(TaskFileProviderInterface::class, TaskFileProvider::class);

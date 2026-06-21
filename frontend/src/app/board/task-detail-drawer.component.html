@@ -375,6 +375,101 @@
 
             <section class="drawer-section">
                 <div class="drawer-section-head">
+                    <span class="uk-overline">{{ 'app.checklist.heading' | translate }}</span>
+                    @if (checklistLoaded() && checklist().length > 0) {
+                        <span class="section-count">{{ checklistDone() }}/{{ checklist().length }}</span>
+                    }
+                </div>
+
+                @if (checklistLoaded() && checklist().length > 0) {
+                    <div
+                        class="subtask-progress-track"
+                        role="progressbar"
+                        [attr.aria-valuenow]="checklistProgressPercent()"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                    >
+                        <div class="subtask-progress-fill" [style.width.%]="checklistProgressPercent()"></div>
+                    </div>
+                    <ul class="checklist-list" cdkDropList (cdkDropListDropped)="onReorderChecklist($event)">
+                        @for (item of checklist(); track item.id) {
+                            <li class="checklist-item" cdkDrag>
+                                <span
+                                    cdkDragHandle
+                                    class="checklist-handle"
+                                    [attr.aria-label]="'app.checklist.dragHandle' | translate"
+                                >⋮⋮</span>
+                                <input
+                                    type="checkbox"
+                                    class="subtask-check"
+                                    [checked]="item.checked"
+                                    (change)="onToggleChecklistItem(item, $event)"
+                                    [attr.aria-label]="'app.checklist.toggle' | translate: {text: item.text}"
+                                />
+                                <input
+                                    type="text"
+                                    class="checklist-text"
+                                    [class.checklist-text--done]="item.checked"
+                                    [value]="item.text"
+                                    (change)="onRenameChecklistItem(item, $event)"
+                                    autocomplete="off"
+                                />
+                                <input
+                                    type="date"
+                                    class="checklist-due"
+                                    [value]="item.dueDate ?? ''"
+                                    (change)="onChecklistDueDateChange(item, $event)"
+                                    [attr.aria-label]="'app.checklist.dueDate' | translate"
+                                />
+                                <select
+                                    class="checklist-assignee"
+                                    (change)="onChecklistAssigneeChange(item, $event)"
+                                    [attr.aria-label]="'app.checklist.assignee' | translate"
+                                >
+                                    <option value="" [selected]="item.assigneeId === null">—</option>
+                                    @for (member of sortedMembers(); track member.userId) {
+                                        <option [value]="member.userId" [selected]="member.userId === item.assigneeId">
+                                            {{ memberInitials(member.name) }}
+                                        </option>
+                                    }
+                                </select>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger-ghost btn-icon btn-sm"
+                                    (click)="onRemoveChecklistItem(item)"
+                                    [attr.aria-label]="'app.actions.remove' | translate"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                                        <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <div class="subtask-add-row">
+                    <input
+                        type="text"
+                        class="input subtask-add-input"
+                        [formControl]="checklistTextControl"
+                        (keydown.enter)="$event.preventDefault(); onAddChecklistItem()"
+                        [placeholder]="'app.checklist.addPlaceholder' | translate"
+                        autocomplete="off"
+                    />
+                    <button
+                        type="button"
+                        class="btn btn-ghost btn-sm"
+                        [disabled]="addingChecklistItem() || checklistTextControl.value.trim() === ''"
+                        (click)="onAddChecklistItem()"
+                    >
+                        {{ (addingChecklistItem() ? 'app.actions.loading' : 'app.checklist.add') | translate }}
+                    </button>
+                </div>
+            </section>
+
+            <section class="drawer-section">
+                <div class="drawer-section-head">
                     <span class="uk-overline">{{ 'app.taskRelations.section' | translate }}</span>
                     @if (relationsLoaded() && totalRelationCount() > 0) {
                         <span class="section-count">{{ totalRelationCount() }}</span>

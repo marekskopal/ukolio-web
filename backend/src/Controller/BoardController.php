@@ -20,6 +20,7 @@ use Ukolio\Route\Routes;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\SubtaskProviderInterface;
+use Ukolio\Service\Provider\TaskChecklistProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
 use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkflowProviderInterface;
@@ -35,6 +36,7 @@ final readonly class BoardController
 		private TaskProviderInterface $taskProvider,
 		private TaskTagProviderInterface $taskTagProvider,
 		private SubtaskProviderInterface $subtaskProvider,
+		private TaskChecklistProviderInterface $checklistProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private RequestServiceInterface $requestService,
 	) {
@@ -67,6 +69,7 @@ final readonly class BoardController
 		$taskIds = array_map(static fn (Task $t): int => $t->id, $projectTasks);
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds($taskIds);
 		$subtaskCounts = $this->subtaskProvider->getSubtaskCounts($taskIds);
+		$checklistCounts = $this->checklistProvider->getCounts($taskIds);
 		$tasks = array_map(
 			fn (Task $t): TaskDto => TaskDto::fromEntity(
 				$t,
@@ -74,6 +77,8 @@ final readonly class BoardController
 				$tagsByTaskId[$t->id] ?? [],
 				$subtaskCounts[$t->id]['total'] ?? 0,
 				$subtaskCounts[$t->id]['done'] ?? 0,
+				$checklistCounts[$t->id]['total'] ?? 0,
+				$checklistCounts[$t->id]['done'] ?? 0,
 			),
 			$projectTasks,
 		);

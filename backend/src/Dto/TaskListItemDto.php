@@ -32,11 +32,20 @@ final readonly class TaskListItemDto
 		public array $tagIds,
 		public int $subtasksTotal,
 		public int $subtasksDone,
+		public int $checklistTotal,
+		public int $checklistDone,
 	) {
 	}
 
 	/** @param list<int> $tagIds */
-	public static function fromEntity(Task $task, array $tagIds = [], int $subtasksTotal = 0, int $subtasksDone = 0): self
+	public static function fromEntity(
+		Task $task,
+		array $tagIds = [],
+		int $subtasksTotal = 0,
+		int $subtasksDone = 0,
+		int $checklistTotal = 0,
+		int $checklistDone = 0,
+	): self
 	{
 		return new self(
 			id: $task->id,
@@ -60,6 +69,8 @@ final readonly class TaskListItemDto
 			tagIds: $tagIds,
 			subtasksTotal: $subtasksTotal,
 			subtasksDone: $subtasksDone,
+			checklistTotal: $checklistTotal,
+			checklistDone: $checklistDone,
 		);
 	}
 }

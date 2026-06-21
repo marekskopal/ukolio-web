@@ -32,6 +32,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskFieldValueProviderInterface $taskFieldValueProvider,
 		private TaskFileProviderInterface $taskFileProvider,
 		private TaskRelationProviderInterface $taskRelationProvider,
+		private TaskChecklistProviderInterface $taskChecklistProvider,
 		private TaskTagProviderInterface $taskTagProvider,
 		private TaskTagRepository $taskTagRepository,
 		private TaskRelationRepository $taskRelationRepository,
@@ -476,6 +477,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$this->taskFieldValueProvider->deleteAllForTask($task);
 		$this->taskFileProvider->deleteAllForTask($author, $task);
 		$this->taskRelationProvider->deleteAllForTask($task);
+		$this->taskChecklistProvider->deleteAllForTask($task);
 		$this->taskTagProvider->deleteAllForTask($task);
 		$this->taskRepository->delete($task);
 

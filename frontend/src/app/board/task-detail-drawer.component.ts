@@ -1,7 +1,9 @@
+import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ChecklistItem} from '@app/models/checklist-item';
 import {ProjectField} from '@app/models/field';
 import {Priority} from '@app/models/priority';
 import {COMMENT_EVENT_TYPES, FILE_EVENT_TYPES, RealtimeEvent, RELATION_EVENT_TYPES} from '@app/models/realtime-event';
@@ -19,6 +21,7 @@ import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {TaskService} from '@app/services/task.service';
+import {TaskChecklistService} from '@app/services/task-checklist.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
 import {TaskTemplateService} from '@app/services/task-template.service';
@@ -78,7 +81,7 @@ const FILE_TYPE_FALLBACK: FileTypeChip = {tag: 'FILE', fg: '#52525b', bg: '#f4f4
 @Component({
     selector: 'uk-task-detail-drawer',
     standalone: true,
-    imports: [ReactiveFormsModule, MarkdownComponent, MarkdownEditorComponent, TranslatePipe, DatePipe],
+    imports: [ReactiveFormsModule, MarkdownComponent, MarkdownEditorComponent, TranslatePipe, DatePipe, CdkDropList, CdkDrag, CdkDragHandle],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-detail-drawer.component.html',
     styleUrl: './task-detail-drawer.component.scss',
@@ -102,6 +105,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly fieldService = inject(FieldService);
     private readonly taskRelationService = inject(TaskRelationService);
     private readonly taskCommentService = inject(TaskCommentService);
+    private readonly taskChecklistService = inject(TaskChecklistService);
     private readonly taskTemplateService = inject(TaskTemplateService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
@@ -185,6 +189,18 @@ export class TaskDetailDrawerComponent implements OnInit {
         if (subtasks.length === 0) return null;
         const highest = [...subtasks].sort((a, b) => a.priorityPosition - b.priorityPosition)[0];
         return highest.priorityName;
+    });
+
+    protected readonly checklist = signal<ChecklistItem[]>([]);
+    protected readonly checklistLoaded = signal(false);
+    protected readonly addingChecklistItem = signal(false);
+    protected readonly checklistTextControl = new FormControl<string>('', {nonNullable: true});
+
+    protected readonly checklistDone = computed<number>(() => this.checklist().filter((i) => i.checked).length);
+
+    protected readonly checklistProgressPercent = computed<number>(() => {
+        const total = this.checklist().length;
+        return total === 0 ? 0 : Math.round((this.checklistDone() / total) * 100);
     });
 
     protected readonly comments = signal<TaskComment[]>([]);
@@ -314,6 +330,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadRelations(existing.id);
             void this.loadComments(existing.id);
             void this.loadSubtasks(existing.id);
+            void this.loadChecklist(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             const defaultPriority = this.workspacePriorities().find((p) => p.isDefault) ?? this.workspacePriorities()[0];
@@ -720,6 +737,110 @@ export class TaskDetailDrawerComponent implements OnInit {
         } catch {
             // error interceptor
         }
+    }
+
+    private async loadChecklist(taskId: number): Promise<void> {
+        try {
+            this.checklist.set(await this.taskChecklistService.list(taskId));
+        } catch {
+            this.checklist.set([]);
+        } finally {
+            this.checklistLoaded.set(true);
+        }
+    }
+
+    protected async onAddChecklistItem(): Promise<void> {
+        const existing = this.task();
+        const text = this.checklistTextControl.value.trim();
+        if (!existing || text === '' || this.addingChecklistItem()) {
+            return;
+        }
+        this.addingChecklistItem.set(true);
+        try {
+            const created = await this.taskChecklistService.create(existing.id, {text});
+            this.checklist.update((list) => [...list, created]);
+            this.checklistTextControl.setValue('');
+        } catch {
+            // error interceptor
+        } finally {
+            this.addingChecklistItem.set(false);
+        }
+    }
+
+    protected async onToggleChecklistItem(item: ChecklistItem, event: Event): Promise<void> {
+        const checked = (event.target as HTMLInputElement).checked;
+        try {
+            const updated = await this.taskChecklistService.update(item.id, {checked});
+            this.replaceChecklistItem(updated);
+        } catch {
+            // revert the checkbox to the stored state
+            this.checklist.update((list) => [...list]);
+        }
+    }
+
+    protected async onRenameChecklistItem(item: ChecklistItem, event: Event): Promise<void> {
+        const text = (event.target as HTMLInputElement).value.trim();
+        if (text === '' || text === item.text) {
+            this.checklist.update((list) => [...list]);
+            return;
+        }
+        try {
+            const updated = await this.taskChecklistService.update(item.id, {text});
+            this.replaceChecklistItem(updated);
+        } catch {
+            this.checklist.update((list) => [...list]);
+        }
+    }
+
+    protected async onChecklistDueDateChange(item: ChecklistItem, event: Event): Promise<void> {
+        const value = (event.target as HTMLInputElement).value;
+        try {
+            const updated = await this.taskChecklistService.update(item.id, {dueDate: value === '' ? null : value});
+            this.replaceChecklistItem(updated);
+        } catch {
+            this.checklist.update((list) => [...list]);
+        }
+    }
+
+    protected async onChecklistAssigneeChange(item: ChecklistItem, event: Event): Promise<void> {
+        const raw = (event.target as HTMLSelectElement).value;
+        try {
+            const updated = await this.taskChecklistService.update(item.id, {assigneeId: raw === '' ? null : Number(raw)});
+            this.replaceChecklistItem(updated);
+        } catch {
+            this.checklist.update((list) => [...list]);
+        }
+    }
+
+    protected async onRemoveChecklistItem(item: ChecklistItem): Promise<void> {
+        try {
+            await this.taskChecklistService.delete(item.id);
+            this.checklist.update((list) => list.filter((i) => i.id !== item.id));
+        } catch {
+            // error interceptor
+        }
+    }
+
+    protected async onReorderChecklist(event: CdkDragDrop<ChecklistItem[]>): Promise<void> {
+        if (event.previousIndex === event.currentIndex) {
+            return;
+        }
+        const reordered = [...this.checklist()];
+        const moved = reordered[event.previousIndex];
+        moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+        this.checklist.set(reordered);
+        try {
+            await this.taskChecklistService.move(moved.id, event.currentIndex);
+        } catch {
+            const parent = this.task();
+            if (parent) {
+                await this.loadChecklist(parent.id);
+            }
+        }
+    }
+
+    private replaceChecklistItem(updated: ChecklistItem): void {
+        this.checklist.update((list) => list.map((i) => (i.id === updated.id ? updated : i)));
     }
 
     protected onOpenAddRelation(): void {

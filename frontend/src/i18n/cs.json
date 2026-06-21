@@ -822,6 +822,16 @@
       "highestPriority": "Nejvyšší priorita",
       "progressTitle": "Hotovo {{done}} z {{total}} podúkolů"
     },
+    "checklist": {
+      "heading": "Kontrolní seznam",
+      "add": "Přidat",
+      "addPlaceholder": "Přidat položku…",
+      "toggle": "Přepnout \"{{text}}\"",
+      "dragHandle": "Změnit pořadí",
+      "dueDate": "Termín",
+      "assignee": "Řešitel",
+      "progressTitle": "Hotovo {{done}} z {{total}} položek"
+    },
     "onboarding": {
       "shell": {
         "gettingStarted": "Začínáme",

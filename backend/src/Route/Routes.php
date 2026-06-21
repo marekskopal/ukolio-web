@@ -75,6 +75,9 @@ enum Routes: string
 	case TaskRelation = '/api/task-relations/{relationId:number}';
 	case TaskComments = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/comments';
 	case TaskComment = '/api/task-comments/{commentId:number}';
+	case TaskChecklist = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/checklist';
+	case TaskChecklistItem = '/api/checklist-items/{itemId:number}';
+	case TaskChecklistItemMove = '/api/checklist-items/{itemId:number}/move';
 
 	case Search = '/api/search';
 
