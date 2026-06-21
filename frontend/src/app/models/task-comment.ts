@@ -7,5 +7,7 @@ export interface TaskComment {
     createdByAgent: boolean;
     mcpClientId: string | null;
     mcpClientName: string | null;
+    parentCommentId: number | null;
+    edited: boolean;
     createdAt: string;
 }

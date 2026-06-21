@@ -8,11 +8,13 @@ use Laminas\Diactoros\Response\JsonResponse;
 use MarekSkopal\Router\Attribute\RouteDelete;
 use MarekSkopal\Router\Attribute\RouteGet;
 use MarekSkopal\Router\Attribute\RoutePost;
+use MarekSkopal\Router\Attribute\RoutePut;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Ukolio\Dto\TaskCommentCreateDto;
 use Ukolio\Dto\TaskCommentDto;
+use Ukolio\Dto\TaskCommentUpdateDto;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\User;
@@ -70,13 +72,54 @@ final readonly class TaskCommentController
 			return new ErrorResponse($e->getMessage(), 422);
 		}
 
+		$parent = null;
+		if ($dto->parentCommentId !== null) {
+			$parent = $this->taskCommentProvider->getComment($dto->parentCommentId);
+			if ($parent === null || $parent->task->id !== $task->id) {
+				return new NotFoundResponse('Parent comment not found.');
+			}
+		}
+
 		try {
-			$comment = $this->taskCommentProvider->createComment($user, $task, $dto->body);
+			$comment = $this->taskCommentProvider->createComment($user, $task, $dto->body, $parent);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);
 		}
 
 		return new JsonResponse(TaskCommentDto::fromEntity($comment), 201);
+	}
+
+	#[RoutePut(Routes::TaskComment->value)]
+	public function actionPutComment(ServerRequestInterface $request, int $commentId): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$comment = $this->taskCommentProvider->getComment($commentId);
+		if ($comment === null) {
+			return new NotFoundResponse('Comment not found.');
+		}
+
+		$workspace = $comment->task->project->workspace;
+		if (!$this->workspaceProvider->isMember($user, $workspace)) {
+			return new NotFoundResponse('Comment not found.');
+		}
+
+		if (!$this->permissionChecker->canEditTaskComment($user, $workspace, $comment)) {
+			return new NotAuthorizedResponse('You do not have permission to edit this comment.');
+		}
+
+		try {
+			$dto = $this->requestService->getRequestBodyDto($request, TaskCommentUpdateDto::class);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		try {
+			$updated = $this->taskCommentProvider->updateComment($user, $comment, $dto->body);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
+		return new JsonResponse(TaskCommentDto::fromEntity($updated));
 	}
 
 	#[RouteDelete(Routes::TaskComment->value)]

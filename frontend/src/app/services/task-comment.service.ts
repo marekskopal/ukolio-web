@@ -6,6 +6,11 @@ import {firstValueFrom} from 'rxjs';
 
 export interface CreateTaskCommentPayload {
     body: string;
+    parentCommentId?: number | null;
+}
+
+export interface UpdateTaskCommentPayload {
+    body: string;
 }
 
 @Injectable({providedIn: 'root'})
@@ -18,6 +23,10 @@ export class TaskCommentService {
 
     public create(taskId: number, payload: CreateTaskCommentPayload): Promise<TaskComment> {
         return firstValueFrom(this.http.post<TaskComment>(`${environment.apiUrl}/tasks/${taskId}/comments`, payload));
+    }
+
+    public update(commentId: number, payload: UpdateTaskCommentPayload): Promise<TaskComment> {
+        return firstValueFrom(this.http.put<TaskComment>(`${environment.apiUrl}/task-comments/${commentId}`, payload));
     }
 
     public delete(commentId: number): Promise<void> {

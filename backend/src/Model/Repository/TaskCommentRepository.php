@@ -27,6 +27,15 @@ final class TaskCommentRepository extends AbstractRepository
 	}
 
 	/** @return Iterator<TaskComment> */
+	public function findReplies(int $parentCommentId): Iterator
+	{
+		return $this->select()
+			->where(['parent_comment_id' => $parentCommentId])
+			->orderBy('id', 'ASC')
+			->fetchAll();
+	}
+
+	/** @return Iterator<TaskComment> */
 	public function findByAuthor(int $userId): Iterator
 	{
 		return $this->select()

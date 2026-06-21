@@ -587,57 +587,55 @@
                         <p class="text-subtle comment-empty">{{ 'app.taskComments.empty' | translate }}</p>
                     } @else {
                         <ul class="comment-list">
-                            @for (c of comments(); track c.id) {
+                            @for (thread of commentThreads(); track thread.root.id) {
                                 <li class="comment-item">
-                                    <div class="comment-head">
-                                        <span class="comment-author">{{ c.authorName }}</span>
-                                        @if (c.createdByAgent) {
-                                            <span class="uk-badge uk-badge--ai comment-agent-badge">
-                                                <svg width="9" height="9" viewBox="0 0 16 16" aria-hidden="true">
-                                                    <path
-                                                        d="M8 2v3M8 11v3M2 8h3M11 8h3M3.8 3.8l2 2M10.2 10.2l2 2M3.8 12.2l2-2M10.2 5.8l2-2"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="1.4"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                    />
-                                                </svg>
-                                                {{ 'app.agent.agent' | translate }}
-                                            </span>
-                                            @if (c.mcpClientName) {
-                                                <span class="comment-client">{{ c.mcpClientName }}</span>
+                                    <ng-container [ngTemplateOutlet]="commentTpl" [ngTemplateOutletContext]="{$implicit: thread.root}" />
+                                    @if (thread.replies.length > 0) {
+                                        <ul class="comment-replies">
+                                            @for (reply of thread.replies; track reply.id) {
+                                                <li class="comment-item comment-item--reply">
+                                                    <ng-container [ngTemplateOutlet]="commentTpl" [ngTemplateOutletContext]="{$implicit: reply}" />
+                                                </li>
                                             }
-                                        }
-                                        <time class="comment-time" [attr.datetime]="c.createdAt">{{ c.createdAt | date:'short' }}</time>
-                                        @if (canDeleteComment(c)) {
-                                            <button
-                                                type="button"
-                                                class="btn btn-danger-ghost btn-icon btn-sm comment-delete"
-                                                (click)="onDeleteComment(c)"
-                                                [attr.aria-label]="'app.taskComments.delete' | translate"
-                                            >
-                                                <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
-                                                    <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                                </svg>
-                                            </button>
-                                        }
-                                    </div>
-                                    <div class="comment-body">
-                                        <markdown [data]="c.body" />
-                                    </div>
+                                        </ul>
+                                    }
                                 </li>
                             }
                         </ul>
                     }
                 }
                 <div class="comment-form" [formGroup]="commentForm">
-                    <textarea
-                        formControlName="body"
-                        rows="3"
-                        class="textarea comment-input"
-                        [placeholder]="'app.taskComments.addPlaceholder' | translate"
-                    ></textarea>
+                    @if (replyingTo(); as parent) {
+                        <div class="comment-reply-banner">
+                            <span>{{ 'app.taskComments.replyingTo' | translate:{name: parent.authorName} }}</span>
+                            <button type="button" class="comment-reply-cancel" (click)="cancelReply()">
+                                {{ 'app.actions.cancel' | translate }}
+                            </button>
+                        </div>
+                    }
+                    <div class="comment-input-wrap">
+                        <textarea
+                            #commentInput
+                            formControlName="body"
+                            rows="3"
+                            class="textarea comment-input"
+                            [placeholder]="'app.taskComments.addPlaceholder' | translate"
+                            (input)="onCommentInput($event)"
+                        ></textarea>
+                        @if (mentionActive() && mentionResults().length > 0) {
+                            <ul class="mention-menu">
+                                @for (m of mentionResults(); track m.userId) {
+                                    <li>
+                                        <button type="button" class="mention-option" (click)="selectMention(m)">
+                                            <span class="mention-avatar">{{ memberInitials(m.name) }}</span>
+                                            <span class="mention-name">{{ m.name }}</span>
+                                            <span class="mention-email">{{ m.email }}</span>
+                                        </button>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
                     <div class="comment-form-actions">
                         <button
                             type="button"
@@ -645,13 +643,90 @@
                             [disabled]="commentForm.invalid || postingComment()"
                             (click)="onAddComment()"
                         >
-                            {{ (postingComment() ? 'app.actions.loading' : 'app.taskComments.addButton') | translate }}
+                            {{ (postingComment() ? 'app.actions.loading' : (replyingTo() ? 'app.taskComments.replyButton' : 'app.taskComments.addButton')) | translate }}
                         </button>
                     </div>
                 </div>
             </section>
         }
     </form>
+
+    <ng-template #commentTpl let-c>
+        <div class="comment-head">
+            <span class="comment-author">{{ c.authorName }}</span>
+            @if (c.createdByAgent) {
+                <span class="uk-badge uk-badge--ai comment-agent-badge">
+                    <svg width="9" height="9" viewBox="0 0 16 16" aria-hidden="true">
+                        <path
+                            d="M8 2v3M8 11v3M2 8h3M11 8h3M3.8 3.8l2 2M10.2 10.2l2 2M3.8 12.2l2-2M10.2 5.8l2-2"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                    {{ 'app.agent.agent' | translate }}
+                </span>
+                @if (c.mcpClientName) {
+                    <span class="comment-client">{{ c.mcpClientName }}</span>
+                }
+            }
+            <time class="comment-time" [attr.datetime]="c.createdAt">{{ c.createdAt | date:'short' }}</time>
+            @if (c.edited) {
+                <span class="comment-edited">{{ 'app.taskComments.edited' | translate }}</span>
+            }
+            <span class="comment-actions">
+                <button type="button" class="comment-action" (click)="startReply(c)">
+                    {{ 'app.taskComments.reply' | translate }}
+                </button>
+                @if (canEditComment(c) && editingCommentId() !== c.id) {
+                    <button type="button" class="comment-action" (click)="startEdit(c)">
+                        {{ 'app.taskComments.edit' | translate }}
+                    </button>
+                }
+                @if (canDeleteComment(c)) {
+                    <button
+                        type="button"
+                        class="btn btn-danger-ghost btn-icon btn-sm comment-delete"
+                        (click)="onDeleteComment(c)"
+                        [attr.aria-label]="'app.taskComments.delete' | translate"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                        </svg>
+                    </button>
+                }
+            </span>
+        </div>
+        @if (editingCommentId() === c.id) {
+            <div class="comment-edit">
+                <textarea
+                    rows="3"
+                    class="textarea comment-input"
+                    [value]="editingBody()"
+                    (input)="onEditBodyInput($event)"
+                ></textarea>
+                <div class="comment-form-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="cancelEdit()">
+                        {{ 'app.actions.cancel' | translate }}
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm"
+                        [disabled]="savingEdit() || editingBody().trim() === ''"
+                        (click)="saveEdit(c)"
+                    >
+                        {{ (savingEdit() ? 'app.actions.loading' : 'app.actions.save') | translate }}
+                    </button>
+                </div>
+            </div>
+        } @else {
+            <div class="comment-body">
+                <markdown [data]="renderCommentBody(c.body)" />
+            </div>
+        }
+    </ng-template>
 
     <footer class="drawer-footer">
         @if (task()) {

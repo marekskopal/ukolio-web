@@ -4,6 +4,7 @@ import {Priority} from '@app/models/priority';
 import {Status} from '@app/models/status';
 import {Subtask} from '@app/models/subtask';
 import {Task} from '@app/models/task';
+import {TaskComment} from '@app/models/task-comment';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
@@ -28,6 +29,26 @@ interface DrawerInternals {
     onToggleSubtask: (subtask: Subtask, event: Event) => Promise<void>;
     subtaskNameControl: {setValue: (v: string) => void};
     subtasks: {(): Subtask[]; set: (v: Subtask[]) => void};
+    comments: {(): TaskComment[]; set: (v: TaskComment[]) => void};
+    commentThreads: () => {root: TaskComment; replies: TaskComment[]}[];
+    renderCommentBody: (body: string) => string;
+}
+
+function makeComment(overrides: Partial<TaskComment> = {}): TaskComment {
+    return {
+        id: 1,
+        taskId: 1,
+        authorId: 1,
+        authorName: 'Ada',
+        body: 'hello',
+        createdByAgent: false,
+        mcpClientId: null,
+        mcpClientName: null,
+        parentCommentId: null,
+        edited: false,
+        createdAt: '2026-06-21T10:00:00+00:00',
+        ...overrides,
+    };
 }
 
 function internals(component: TaskDetailDrawerComponent): DrawerInternals {
@@ -348,5 +369,29 @@ describe('TaskDetailDrawerComponent', () => {
 
         expect(stubs.taskService.deleteTask).not.toHaveBeenCalled();
         expect(deleted).toEqual([]);
+    });
+
+    it('commentThreads groups replies under their top-level comment', () => {
+        const {component} = createFixture({task: makeTask()});
+        internals(component).comments.set([
+            makeComment({id: 1, body: 'root'}),
+            makeComment({id: 2, body: 'reply', parentCommentId: 1}),
+            makeComment({id: 3, body: 'other root'}),
+        ]);
+
+        const threads = internals(component).commentThreads();
+
+        expect(threads.map((t) => t.root.id)).toEqual([1, 3]);
+        expect(threads[0].replies.map((r) => r.id)).toEqual([2]);
+        expect(threads[1].replies).toEqual([]);
+    });
+
+    it('renderCommentBody turns mention tokens into a styled span and escapes the name', () => {
+        const {component} = createFixture({task: makeTask()});
+
+        expect(internals(component).renderCommentBody('hi @[Ada Lovelace](user:7)!'))
+            .toBe('hi <span class="mention">@Ada Lovelace</span>!');
+        expect(internals(component).renderCommentBody('@[<b>x</b>](user:1)'))
+            .toBe('<span class="mention">@&lt;b&gt;x&lt;/b&gt;</span>');
     });
 });

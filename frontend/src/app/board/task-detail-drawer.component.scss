@@ -791,8 +791,50 @@
     font-size: $font-size-11;
 }
 
+.comment-edited {
+    color: $color-text-subtle;
+    font-size: $font-size-11;
+    font-style: italic;
+}
+
+.comment-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+}
+
+.comment-action {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    color: $color-text-muted;
+    font-size: $font-size-11;
+    font-weight: 600;
+
+    &:hover {
+        color: $color-accent;
+        text-decoration: underline;
+    }
+}
+
 .comment-delete {
     margin-left: $space-1;
+}
+
+.comment-replies {
+    list-style: none;
+    margin: $space-3 0 0;
+    padding: 0 0 0 $space-5;
+    border-left: 2px solid $color-border;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+}
+
+.comment-item--reply {
+    background: $color-bg;
 }
 
 .comment-body {
@@ -806,6 +848,21 @@
     :last-child {
         margin-bottom: 0;
     }
+
+    .mention {
+        display: inline-block;
+        padding: 0 4px;
+        border-radius: $radius-sm;
+        background: $color-accent-soft;
+        color: $color-accent-fg;
+        font-weight: 600;
+    }
+}
+
+.comment-edit {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
 }
 
 .comment-form {
@@ -814,12 +871,100 @@
     gap: $space-3;
 }
 
+.comment-reply-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+    background: $color-accent-soft;
+    color: $color-accent-fg;
+    font-size: $font-size-11;
+}
+
+.comment-reply-cancel {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.comment-input-wrap {
+    position: relative;
+}
+
 .comment-input {
     min-height: 80px;
     resize: vertical;
 }
 
+.mention-menu {
+    list-style: none;
+    margin: 0;
+    padding: $space-1;
+    position: absolute;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + #{$space-1});
+    max-height: 220px;
+    overflow-y: auto;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    box-shadow: $shadow-md;
+}
+
+.mention-option {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    width: 100%;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+        background: $color-surface-hover;
+    }
+}
+
+.mention-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: $color-accent-soft;
+    color: $color-accent-fg;
+    font-size: $font-size-11;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.mention-name {
+    font-size: $font-size-13;
+    font-weight: 600;
+}
+
+.mention-email {
+    color: $color-text-subtle;
+    font-size: $font-size-11;
+    margin-left: auto;
+}
+
 .comment-form-actions {
     display: flex;
     justify-content: flex-end;
+    gap: $space-2;
 }

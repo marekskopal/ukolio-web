@@ -540,10 +540,15 @@
     "taskComments": {
       "section": "Comments",
       "empty": "No comments yet.",
-      "addPlaceholder": "Add a comment…",
+      "addPlaceholder": "Add a comment… use @ to mention someone",
       "addButton": "Add comment",
+      "replyButton": "Reply",
+      "reply": "Reply",
+      "replyingTo": "Replying to {{name}}",
+      "edit": "Edit",
+      "edited": "(edited)",
       "delete": "Delete",
-      "deleteConfirm": "Delete this comment?"
+      "deleteConfirm": "Delete this comment? Replies will be removed too."
     },
     "taskRelations": {
       "section": "Relations",

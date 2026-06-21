@@ -41,4 +41,6 @@ interface PermissionCheckerInterface
 	public function canInviteAs(User $actor, Workspace $workspace, WorkspaceRoleEnum $role): bool;
 
 	public function canDeleteTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool;
+
+	public function canEditTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool;
 }

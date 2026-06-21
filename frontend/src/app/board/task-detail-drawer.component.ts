@@ -1,6 +1,6 @@
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
-import {DatePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
+import {DatePipe, NgTemplateOutlet} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, OnInit, output, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ChecklistItem} from '@app/models/checklist-item';
@@ -81,7 +81,17 @@ const FILE_TYPE_FALLBACK: FileTypeChip = {tag: 'FILE', fg: '#52525b', bg: '#f4f4
 @Component({
     selector: 'uk-task-detail-drawer',
     standalone: true,
-    imports: [ReactiveFormsModule, MarkdownComponent, MarkdownEditorComponent, TranslatePipe, DatePipe, CdkDropList, CdkDrag, CdkDragHandle],
+    imports: [
+        NgTemplateOutlet,
+        ReactiveFormsModule,
+        MarkdownComponent,
+        MarkdownEditorComponent,
+        TranslatePipe,
+        DatePipe,
+        CdkDropList,
+        CdkDrag,
+        CdkDragHandle,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-detail-drawer.component.html',
     styleUrl: './task-detail-drawer.component.scss',
@@ -209,6 +219,43 @@ export class TaskDetailDrawerComponent implements OnInit {
         body: ['', [Validators.required, Validators.minLength(1)]],
     });
     protected readonly postingComment = signal(false);
+
+    // Threading is clamped to one level: every reply points at a top-level comment.
+    protected readonly commentThreads = computed<{root: TaskComment; replies: TaskComment[]}[]>(() => {
+        const all = this.comments();
+        const repliesByParent = new Map<number, TaskComment[]>();
+        for (const c of all) {
+            if (c.parentCommentId !== null) {
+                const bucket = repliesByParent.get(c.parentCommentId) ?? [];
+                bucket.push(c);
+                repliesByParent.set(c.parentCommentId, bucket);
+            }
+        }
+        return all
+            .filter((c) => c.parentCommentId === null)
+            .map((root) => ({root, replies: repliesByParent.get(root.id) ?? []}));
+    });
+
+    protected readonly replyingTo = signal<TaskComment | null>(null);
+    protected readonly editingCommentId = signal<number | null>(null);
+    protected readonly editingBody = signal('');
+    protected readonly savingEdit = signal(false);
+
+    private readonly commentInputRef = viewChild<ElementRef<HTMLTextAreaElement>>('commentInput');
+    private mentionAnchor = -1;
+    protected readonly mentionActive = signal(false);
+    protected readonly mentionQuery = signal('');
+    protected readonly mentionResults = computed<WorkspaceMember[]>(() => {
+        if (!this.mentionActive()) {
+            return [];
+        }
+        const query = this.mentionQuery();
+        const members = this.sortedMembers();
+        const matched = query === ''
+            ? members
+            : members.filter((m) => m.name.toLowerCase().includes(query) || m.email.toLowerCase().includes(query));
+        return matched.slice(0, 6);
+    });
 
     protected readonly searchControl = new FormControl<string>('', {nonNullable: true});
     protected readonly searchResults = signal<TaskListItem[]>([]);
@@ -1004,6 +1051,15 @@ export class TaskDetailDrawerComponent implements OnInit {
         return user.systemRole === 'SystemAdmin' || comment.authorId === user.id;
     }
 
+    protected canEditComment(comment: TaskComment): boolean {
+        const user = this.currentUserService.currentUser();
+        if (user === null) {
+            return false;
+        }
+        // Editing rewrites someone's words, so only the author (or a system admin) may do it.
+        return user.systemRole === 'SystemAdmin' || comment.authorId === user.id;
+    }
+
     protected async onAddComment(): Promise<void> {
         const existing = this.task();
         if (!existing || this.commentForm.invalid) {
@@ -1015,13 +1071,67 @@ export class TaskDetailDrawerComponent implements OnInit {
         }
         this.postingComment.set(true);
         try {
-            const created = await this.taskCommentService.create(existing.id, {body});
+            const created = await this.taskCommentService.create(existing.id, {
+                body,
+                parentCommentId: this.replyingTo()?.id ?? null,
+            });
             this.comments.update((list) => [...list, created]);
             this.commentForm.reset({body: ''});
+            this.replyingTo.set(null);
+            this.closeMention();
         } catch {
             // error interceptor
         } finally {
             this.postingComment.set(false);
+        }
+    }
+
+    protected startReply(comment: TaskComment): void {
+        // Clamp to one level — replying to a reply targets its top-level parent.
+        const target = comment.parentCommentId !== null
+            ? this.comments().find((c) => c.id === comment.parentCommentId) ?? comment
+            : comment;
+        this.replyingTo.set(target);
+        const el = this.commentInputRef()?.nativeElement;
+        queueMicrotask(() => el?.focus());
+    }
+
+    protected cancelReply(): void {
+        this.replyingTo.set(null);
+    }
+
+    protected startEdit(comment: TaskComment): void {
+        this.editingCommentId.set(comment.id);
+        this.editingBody.set(comment.body);
+    }
+
+    protected cancelEdit(): void {
+        this.editingCommentId.set(null);
+        this.editingBody.set('');
+    }
+
+    protected onEditBodyInput(event: Event): void {
+        this.editingBody.set((event.target as HTMLTextAreaElement).value);
+    }
+
+    protected async saveEdit(comment: TaskComment): Promise<void> {
+        const body = this.editingBody().trim();
+        if (body === '') {
+            return;
+        }
+        if (body === comment.body) {
+            this.cancelEdit();
+            return;
+        }
+        this.savingEdit.set(true);
+        try {
+            const updated = await this.taskCommentService.update(comment.id, {body});
+            this.comments.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+            this.cancelEdit();
+        } catch {
+            // error interceptor
+        } finally {
+            this.savingEdit.set(false);
         }
     }
 
@@ -1032,10 +1142,69 @@ export class TaskDetailDrawerComponent implements OnInit {
         }
         try {
             await this.taskCommentService.delete(comment.id);
-            this.comments.update((list) => list.filter((c) => c.id !== comment.id));
+            // Deleting a top-level comment also removes its replies on the backend.
+            this.comments.update((list) => list.filter((c) => c.id !== comment.id && c.parentCommentId !== comment.id));
+            if (this.replyingTo()?.id === comment.id) {
+                this.replyingTo.set(null);
+            }
         } catch {
             // error interceptor
         }
+    }
+
+    /** Detect an `@…` token immediately before the caret and surface the member picker. */
+    protected onCommentInput(event: Event): void {
+        const el = event.target as HTMLTextAreaElement;
+        const caret = el.selectionStart ?? el.value.length;
+        const match = /@([\p{L}\p{N}._-]*)$/u.exec(el.value.slice(0, caret));
+        if (match !== null && this.sortedMembers().length > 0) {
+            this.mentionAnchor = caret - match[1].length - 1;
+            this.mentionQuery.set(match[1].toLowerCase());
+            this.mentionActive.set(true);
+        } else {
+            this.closeMention();
+        }
+    }
+
+    protected selectMention(member: WorkspaceMember): void {
+        const el = this.commentInputRef()?.nativeElement;
+        if (el === undefined || this.mentionAnchor < 0) {
+            this.closeMention();
+            return;
+        }
+        const caret = el.selectionStart ?? el.value.length;
+        const label = member.name.replace(/[[\]()]/g, '').trim();
+        const token = `@[${label}](user:${member.userId}) `;
+        const next = el.value.slice(0, this.mentionAnchor) + token + el.value.slice(caret);
+        this.commentForm.controls.body.setValue(next);
+        const pos = this.mentionAnchor + token.length;
+        this.closeMention();
+        queueMicrotask(() => {
+            el.focus();
+            el.setSelectionRange(pos, pos);
+        });
+    }
+
+    private closeMention(): void {
+        this.mentionActive.set(false);
+        this.mentionQuery.set('');
+        this.mentionAnchor = -1;
+    }
+
+    /** Turn `@[Name](user:ID)` mention tokens into a styled, inert span the markdown sanitizer keeps. */
+    protected renderCommentBody(body: string): string {
+        return body.replace(
+            /@\[([^\]]+)\]\(user:\d+\)/g,
+            (_match, name: string) => `<span class="mention">@${this.escapeHtml(name)}</span>`,
+        );
+    }
+
+    private escapeHtml(value: string): string {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
     }
 
     private async runSearch(term: string): Promise<void> {

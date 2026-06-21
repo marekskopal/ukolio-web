@@ -540,10 +540,15 @@
     "taskComments": {
       "section": "Komentáře",
       "empty": "Zatím žádné komentáře.",
-      "addPlaceholder": "Přidat komentář…",
+      "addPlaceholder": "Přidat komentář… pomocí @ zmíníte člena",
       "addButton": "Přidat komentář",
+      "replyButton": "Odpovědět",
+      "reply": "Odpovědět",
+      "replyingTo": "Odpověď na {{name}}",
+      "edit": "Upravit",
+      "edited": "(upraveno)",
       "delete": "Smazat",
-      "deleteConfirm": "Smazat tento komentář?"
+      "deleteConfirm": "Smazat tento komentář? Odpovědi budou také odstraněny."
     },
     "taskRelations": {
       "section": "Vazby",

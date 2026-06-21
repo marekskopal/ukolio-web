@@ -18,11 +18,15 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 {
 	private const int MaxBodyLength = 10000;
 
+	/** Mention token embedded in the body: @[Display Name](user:42). */
+	private const string MentionPattern = '/@\[[^\]]+\]\(user:(\d+)\)/';
+
 	public function __construct(
 		private TaskCommentRepository $taskCommentRepository,
 		private EventProviderInterface $eventProvider,
 		private ActorContextInterface $actorContext,
 		private SearchIndexer $searchIndexer,
+		private WorkspaceProviderInterface $workspaceProvider,
 	) {
 	}
 
@@ -41,14 +45,18 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 		return $this->taskCommentRepository->findOneById($commentId);
 	}
 
-	public function createComment(User $author, Task $task, string $body): TaskComment
+	public function createComment(User $author, Task $task, string $body, ?TaskComment $parent = null): TaskComment
 	{
-		$trimmed = trim($body);
-		if ($trimmed === '') {
-			throw new RuntimeException('Comment body is empty.');
+		$trimmed = $this->validateBody($body);
+
+		if ($parent !== null && $parent->task->id !== $task->id) {
+			throw new RuntimeException('Parent comment belongs to a different task.');
 		}
-		if (mb_strlen($trimmed) > self::MaxBodyLength) {
-			throw new RuntimeException(sprintf('Comment is too long (max %d characters).', self::MaxBodyLength));
+
+		// Clamp threads to a single level: a reply to a reply attaches to the same top-level comment.
+		$parentCommentId = null;
+		if ($parent !== null) {
+			$parentCommentId = $parent->parentCommentId ?? $parent->id;
 		}
 
 		$now = new DateTimeImmutable();
@@ -59,6 +67,7 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 			actorType: $this->actorContext->getActorType(),
 			mcpClientId: $this->actorContext->getMcpClientId(),
 			mcpClientName: $this->actorContext->getMcpClientName(),
+			parentCommentId: $parentCommentId,
 		);
 		$comment->createdAt = $now;
 		$comment->updatedAt = $now;
@@ -69,7 +78,39 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 			$author,
 			$task->project,
 			EventTypeEnum::TaskCommentAdded,
-			['commentId' => $comment->id, 'taskId' => $task->id],
+			[
+				'commentId' => $comment->id,
+				'taskId' => $task->id,
+				'mentionedUserIds' => $this->extractMentionedUserIds($trimmed, $task),
+			],
+			$task->id,
+		);
+
+		$this->searchIndexer->queueUpsert($task->id);
+
+		return $comment;
+	}
+
+	public function updateComment(User $editor, TaskComment $comment, string $body): TaskComment
+	{
+		$trimmed = $this->validateBody($body);
+
+		$task = $comment->task;
+		$now = new DateTimeImmutable();
+		$comment->body = $trimmed;
+		$comment->editedAt = $now;
+		$comment->updatedAt = $now;
+		$this->taskCommentRepository->persist($comment);
+
+		$this->eventProvider->recordEvent(
+			$editor,
+			$task->project,
+			EventTypeEnum::TaskCommentEdited,
+			[
+				'commentId' => $comment->id,
+				'taskId' => $task->id,
+				'mentionedUserIds' => $this->extractMentionedUserIds($trimmed, $task),
+			],
 			$task->id,
 		);
 
@@ -81,6 +122,12 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 	public function deleteComment(User $author, TaskComment $comment): void
 	{
 		$task = $comment->task;
+
+		// Threads are single-level, so a top-level comment's replies must go first (FK restricts otherwise).
+		foreach ($this->taskCommentRepository->findReplies($comment->id) as $reply) {
+			$this->taskCommentRepository->delete($reply);
+		}
+
 		$this->taskCommentRepository->delete($comment);
 
 		$this->eventProvider->recordEvent(
@@ -92,5 +139,39 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 		);
 
 		$this->searchIndexer->queueUpsert($task->id);
+	}
+
+	private function validateBody(string $body): string
+	{
+		$trimmed = trim($body);
+		if ($trimmed === '') {
+			throw new RuntimeException('Comment body is empty.');
+		}
+		if (mb_strlen($trimmed) > self::MaxBodyLength) {
+			throw new RuntimeException(sprintf('Comment is too long (max %d characters).', self::MaxBodyLength));
+		}
+		return $trimmed;
+	}
+
+	/**
+	 * Parse @[Name](user:ID) tokens and keep only ids that are real members of the task's
+	 * workspace. Recorded on the event so the notifications work (U-83) can fan out pings.
+	 *
+	 * @return list<int>
+	 */
+	private function extractMentionedUserIds(string $body, Task $task): array
+	{
+		if (preg_match_all(self::MentionPattern, $body, $matches) === 0) {
+			return [];
+		}
+
+		$candidateIds = array_values(array_unique(array_map('intval', $matches[1])));
+
+		$memberIds = [];
+		foreach ($this->workspaceProvider->getMembers($task->project->workspace) as $membership) {
+			$memberIds[$membership->user->id] = true;
+		}
+
+		return array_values(array_filter($candidateIds, static fn (int $id): bool => isset($memberIds[$id])));
 	}
 }

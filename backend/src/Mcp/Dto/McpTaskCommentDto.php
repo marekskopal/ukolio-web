@@ -19,6 +19,8 @@ final readonly class McpTaskCommentDto
 		public bool $createdByAgent,
 		public ?string $mcpClientId,
 		public ?string $mcpClientName,
+		public ?int $parentCommentId,
+		public bool $edited,
 		public string $createdAt,
 	) {
 	}
@@ -34,6 +36,8 @@ final readonly class McpTaskCommentDto
 			createdByAgent: $comment->actorType === ActorTypeEnum::Agent,
 			mcpClientId: $comment->mcpClientId,
 			mcpClientName: $comment->mcpClientName,
+			parentCommentId: $comment->parentCommentId,
+			edited: $comment->editedAt !== null,
 			createdAt: $comment->createdAt->format(DATE_ATOM),
 		);
 	}

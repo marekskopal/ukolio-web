@@ -214,6 +214,16 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 		return $comment->author->id === $user->id;
 	}
 
+	public function canEditTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool
+	{
+		if ($this->isSystemAdmin($user)) {
+			return true;
+		}
+
+		// Editing rewrites someone's words, so — unlike deletion — only the author may do it.
+		return $this->workspaceProvider->isMember($user, $workspace) && $comment->author->id === $user->id;
+	}
+
 	public function canInviteAs(User $actor, Workspace $workspace, WorkspaceRoleEnum $role): bool
 	{
 		if ($role === WorkspaceRoleEnum::Owner) {

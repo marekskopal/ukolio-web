@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Entity;
 
+use DateTimeImmutable;
 use MarekSkopal\ORM\Attribute\Column;
 use MarekSkopal\ORM\Attribute\ColumnEnum;
 use MarekSkopal\ORM\Attribute\Entity;
@@ -21,13 +22,19 @@ class TaskComment extends AEntity
 		#[ManyToOne(entityClass: User::class, name: 'author_id')]
 		public readonly User $author,
 		#[Column(type: Type::Text)]
-		public readonly string $body,
+		public string $body,
 		#[ColumnEnum(enum: ActorTypeEnum::class, default: ActorTypeEnum::Human)]
 		public readonly ActorTypeEnum $actorType = ActorTypeEnum::Human,
 		#[Column(type: Type::String, size: 128, nullable: true)]
 		public readonly ?string $mcpClientId = null,
 		#[Column(type: Type::String, nullable: true)]
 		public readonly ?string $mcpClientName = null,
+		// Plain FK id, not a ManyToOne relation: the ORM can't eager-load a self-referential
+		// relation (the self-join reuses the table alias), and we only ever need the id here.
+		#[Column(type: Type::Int, size: 11, nullable: true)]
+		public readonly ?int $parentCommentId = null,
+		#[Column(type: Type::Timestamp, nullable: true)]
+		public ?DateTimeImmutable $editedAt = null,
 	) {
 	}
 }

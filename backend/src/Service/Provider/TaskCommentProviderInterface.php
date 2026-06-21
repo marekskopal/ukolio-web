@@ -15,7 +15,9 @@ interface TaskCommentProviderInterface
 
 	public function getComment(int $commentId): ?TaskComment;
 
-	public function createComment(User $author, Task $task, string $body): TaskComment;
+	public function createComment(User $author, Task $task, string $body, ?TaskComment $parent = null): TaskComment;
+
+	public function updateComment(User $editor, TaskComment $comment, string $body): TaskComment;
 
 	public function deleteComment(User $author, TaskComment $comment): void;
 }
