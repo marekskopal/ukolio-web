@@ -307,8 +307,7 @@
         "label": "Zobrazení",
         "list": "Seznam",
         "calendar": "Kalendář",
-        "timeline": "Časová osa",
-        "timelineSoon": "Zobrazení časové osy připravujeme."
+        "timeline": "Časová osa"
       }
     },
     "calendar": {
@@ -321,6 +320,11 @@
       "dragHint": "Přetažením úkolu na jiný den změníte termín dokončení.",
       "overdue": "Po termínu",
       "truncated": "Zobrazeny jsou jen nejnovější úkoly."
+    },
+    "timeline": {
+      "task": "Úkol",
+      "empty": "V tomto rozsahu nejsou žádné úkoly s daty.",
+      "dragHint": "Přetažením pruhu posunete oba termíny; přetažením okraje změníte začátek nebo termín."
     },
     "savedViews": {
       "picker": "Pohledy",

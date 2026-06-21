@@ -307,8 +307,7 @@
         "label": "View",
         "list": "List",
         "calendar": "Calendar",
-        "timeline": "Timeline",
-        "timelineSoon": "Timeline view is coming soon."
+        "timeline": "Timeline"
       }
     },
     "calendar": {
@@ -321,6 +320,11 @@
       "dragHint": "Drag a task to another day to reschedule its due date.",
       "overdue": "Overdue",
       "truncated": "Showing the most recent tasks only."
+    },
+    "timeline": {
+      "task": "Task",
+      "empty": "No tasks with dates in this range.",
+      "dragHint": "Drag a bar to shift both dates; drag an edge to change the start or due date."
     },
     "savedViews": {
       "picker": "Views",
