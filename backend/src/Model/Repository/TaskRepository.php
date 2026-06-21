@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
+use DateTimeImmutable;
 use EmptyIterator;
 use Iterator;
 use MarekSkopal\ORM\Query\Expression\RawExpression;
@@ -105,6 +106,8 @@ final class TaskRepository extends AbstractRepository
 		?array $assigneeIds = null,
 		?array $excludeTaskIds = null,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): Iterator {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
 			return new EmptyIterator();
@@ -119,6 +122,8 @@ final class TaskRepository extends AbstractRepository
 			$assigneeIds,
 			$excludeTaskIds,
 			$archived,
+			$dueFrom,
+			$dueTo,
 		);
 
 		$select->orderBy($orderBy->value, $direction->value);
@@ -150,6 +155,8 @@ final class TaskRepository extends AbstractRepository
 		?array $assigneeIds = null,
 		?array $excludeTaskIds = null,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): int {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
 			return 0;
@@ -163,6 +170,8 @@ final class TaskRepository extends AbstractRepository
 			$assigneeIds,
 			$excludeTaskIds,
 			$archived,
+			$dueFrom,
+			$dueTo,
 		)
 			->count();
 	}
@@ -192,6 +201,8 @@ final class TaskRepository extends AbstractRepository
 		?array $assigneeIds = null,
 		?array $excludeTaskIds = null,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): Select {
 		$select = $this->select()
 			->where(['project.workspace_id' => $workspaceId]);
@@ -200,6 +211,13 @@ final class TaskRepository extends AbstractRepository
 
 		if ($search !== null && $search !== '') {
 			$select->where(['name', 'LIKE', '%' . $search . '%']);
+		}
+		// Inclusive due-date range (DATE column). Tasks with a null due_date never match a range bound.
+		if ($dueFrom !== null) {
+			$select->where(['due_date', '>=', $dueFrom->format('Y-m-d')]);
+		}
+		if ($dueTo !== null) {
+			$select->where(['due_date', '<=', $dueTo->format('Y-m-d')]);
 		}
 		if ($statusIds !== null && $statusIds !== []) {
 			$select->where(['status_id', 'IN', $statusIds]);

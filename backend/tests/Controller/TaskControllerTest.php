@@ -123,6 +123,44 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(4, $pagedBody['count']);
 	}
 
+	public function testWorkspaceListDueDateRangeFilter(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		[$todoId] = $this->statusIds($project->id);
+
+		$create = function (string $name, ?string $dueDate) use ($project, $todoId, $owner): void {
+			$this->request(
+				'POST',
+				'/api/projects/' . $project->id . '/tasks',
+				body: ['statusId' => $todoId, 'name' => $name, 'description' => null, 'priority' => 'Medium', 'dueDate' => $dueDate],
+				authenticatedAs: $owner,
+			);
+		};
+		$create('May 10', '2026-05-10');
+		$create('May 20', '2026-05-20');
+		$create('Jun 05', '2026-06-05');
+		$create('No due date', null);
+
+		// Inclusive on both bounds — May window catches exactly the two May tasks.
+		$may = $this->request('GET', '/api/tasks?dueFrom=2026-05-01&dueTo=2026-05-31', authenticatedAs: $owner);
+		self::assertSame(200, $may->getStatusCode());
+		self::assertSame(2, $this->jsonBody($may)['count']);
+
+		// Open-ended lower bound (undated tasks never match a bound).
+		$fromMid = $this->request('GET', '/api/tasks?dueFrom=2026-05-15', authenticatedAs: $owner);
+		self::assertSame(2, $this->jsonBody($fromMid)['count']);
+
+		// Open-ended upper bound.
+		$untilMid = $this->request('GET', '/api/tasks?dueTo=2026-05-15', authenticatedAs: $owner);
+		self::assertSame(1, $this->jsonBody($untilMid)['count']);
+
+		// A malformed date is a 400, not a silent no-op.
+		$bad = $this->request('GET', '/api/tasks?dueFrom=not-a-date', authenticatedAs: $owner);
+		self::assertSame(400, $bad->getStatusCode());
+	}
+
 	public function testDeleteTaskRemovesIt(): void
 	{
 		$owner = Fixture::createUser();

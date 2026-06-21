@@ -43,6 +43,8 @@ interface TaskProviderInterface
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): Iterator;
 
 	/**
@@ -59,6 +61,8 @@ interface TaskProviderInterface
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): int;
 
 	/**

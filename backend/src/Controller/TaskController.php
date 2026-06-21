@@ -85,6 +85,8 @@ final readonly class TaskController
 				$listQuery->assigneeIds,
 				$listQuery->subtaskFilter,
 				$listQuery->archived,
+				$listQuery->dueFrom,
+				$listQuery->dueTo,
 			),
 			false,
 		);
@@ -98,6 +100,8 @@ final readonly class TaskController
 			$listQuery->assigneeIds,
 			$listQuery->subtaskFilter,
 			$listQuery->archived,
+			$listQuery->dueFrom,
+			$listQuery->dueTo,
 		);
 
 		$taskIds = array_map(static fn (Task $t): int => $t->id, $tasks);

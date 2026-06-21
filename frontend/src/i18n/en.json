@@ -302,7 +302,25 @@
         "archived": "Archived only",
         "all": "All (incl. archived)"
       },
-      "archivedBadge": "Archived"
+      "archivedBadge": "Archived",
+      "view": {
+        "label": "View",
+        "list": "List",
+        "calendar": "Calendar",
+        "timeline": "Timeline",
+        "timelineSoon": "Timeline view is coming soon."
+      }
+    },
+    "calendar": {
+      "prev": "Previous",
+      "next": "Next",
+      "today": "Today",
+      "month": "Month",
+      "week": "Week",
+      "more": "+{{count}} more",
+      "dragHint": "Drag a task to another day to reschedule its due date.",
+      "overdue": "Overdue",
+      "truncated": "Showing the most recent tasks only."
     },
     "savedViews": {
       "picker": "Views",

@@ -3,6 +3,27 @@
         <h1 class="page-title">{{ 'app.tasks.title' | translate }}</h1>
         <p class="page-subtitle">{{ 'app.tasks.subtitle' | translate: {count: count()} }}</p>
     </div>
+
+    <div class="view-switch" role="group" [attr.aria-label]="'app.tasks.view.label' | translate">
+        <button
+            type="button"
+            class="view-switch-btn"
+            [class.view-switch-btn--active]="view() === 'list'"
+            (click)="setView('list')"
+        >{{ 'app.tasks.view.list' | translate }}</button>
+        <button
+            type="button"
+            class="view-switch-btn"
+            [class.view-switch-btn--active]="view() === 'calendar'"
+            (click)="setView('calendar')"
+        >{{ 'app.tasks.view.calendar' | translate }}</button>
+        <button
+            type="button"
+            class="view-switch-btn"
+            [class.view-switch-btn--active]="view() === 'timeline'"
+            (click)="setView('timeline')"
+        >{{ 'app.tasks.view.timeline' | translate }}</button>
+    </div>
 </div>
 
 <div class="filters">
@@ -211,6 +232,7 @@
     }
 </div>
 
+@if (view() === 'list') {
 @if (selectionCount() > 0) {
     <section class="bulk-toolbar" role="toolbar" [attr.aria-busy]="bulkBusy() ? 'true' : null">
         <span class="bulk-toolbar-count">
@@ -530,6 +552,22 @@
     (pageChange)="onPageChange($event)"
     (pageSizeChange)="onPageSizeChange($event)"
 />
+}
+
+@if (view() === 'calendar') {
+    <uk-task-calendar
+        [filters]="calendarFilters()"
+        [refreshKey]="calendarRefreshKey()"
+        (openTask)="onCalendarOpenTask($event)"
+        (changed)="onCalendarChanged()"
+    />
+}
+
+@if (view() === 'timeline') {
+    <div class="view-placeholder">
+        <p>{{ 'app.tasks.view.timelineSoon' | translate }}</p>
+    </div>
+}
 
 @if (drawer(); as ctx) {
     <uk-task-detail-drawer

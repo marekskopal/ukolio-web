@@ -70,6 +70,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): Iterator {
 		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
 
@@ -86,6 +88,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$assigneeIds,
 			$excludeIds,
 			$archived,
+			$dueFrom,
+			$dueTo,
 		);
 	}
 
@@ -103,6 +107,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $assigneeIds = null,
 		SubtaskFilterEnum $subtaskFilter = SubtaskFilterEnum::All,
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
+		?DateTimeImmutable $dueFrom = null,
+		?DateTimeImmutable $dueTo = null,
 	): int {
 		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
 
@@ -115,6 +121,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$assigneeIds,
 			$excludeIds,
 			$archived,
+			$dueFrom,
+			$dueTo,
 		);
 	}
 

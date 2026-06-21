@@ -30,6 +30,8 @@ export interface TaskListParams {
     onlyActive?: boolean;
     subtaskFilter?: SubtaskFilter;
     archived?: ArchivedFilter;
+    dueFrom?: string;
+    dueTo?: string;
 }
 
 export type BulkOp = 'move' | 'tag' | 'untag' | 'assign' | 'priority' | 'delete';
@@ -74,6 +76,12 @@ export class TaskService {
         }
         if (params.archived && params.archived !== 'active') {
             httpParams = httpParams.set('archived', params.archived);
+        }
+        if (params.dueFrom) {
+            httpParams = httpParams.set('dueFrom', params.dueFrom);
+        }
+        if (params.dueTo) {
+            httpParams = httpParams.set('dueTo', params.dueTo);
         }
         return firstValueFrom(this.http.get<TaskList>(`${environment.apiUrl}/tasks`, {params: httpParams}));
     }

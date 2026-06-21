@@ -59,6 +59,7 @@
 <script type="text/babel" src="components.jsx"></script>
 <script type="text/babel" src="features.jsx"></script>
 <script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="task-views.jsx"></script>
 <script type="text/babel" src="onboarding.jsx"></script>
 <script type="text/babel" src="screens-dark.jsx"></script>
 <script type="text/babel" src="landing.jsx"></script>
@@ -105,9 +106,14 @@ function App() {
         <DCArtboard id="projects" label="Projects list"               width={1280} height={760}><ProjectsScreen/></DCArtboard>
         <DCArtboard id="kanban"   label="Kanban board"                width={1280} height={760}><KanbanScreen/></DCArtboard>
         <DCArtboard id="drawer"   label="Task detail · drawer (with Tags, Files, Relations)"        width={1280} height={1080}><DrawerScreen/></DCArtboard>
-        <DCArtboard id="grid"     label="Workspace tasks grid"        width={1280} height={760}><TasksGridScreen/></DCArtboard>
         <DCArtboard id="events"   label="Agent activity log"          width={1280} height={760}><EventsScreen/></DCArtboard>
         <DCArtboard id="workspace" label="Workspace management"       width={1280} height={760}><WorkspaceScreen/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="task-views" title="04c · Task views">
+        <DCArtboard id="grid"     label="List · scheduled tasks"                               width={1280} height={760}><TaskListScreen/></DCArtboard>
+        <DCArtboard id="calendar" label="Calendar · tasks by due date, drag to reschedule"     width={1280} height={840}><CalendarScreen/></DCArtboard>
+        <DCArtboard id="timeline" label="Timeline · Gantt bars start → due, grouped by project" width={1280} height={760}><TimelineScreen/></DCArtboard>
       </DCSection>
 
       <DCSection id="screens-dark" title="04b · Application · Dark mode">

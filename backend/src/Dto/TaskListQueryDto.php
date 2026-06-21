@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Dto;
 
+use DateTimeImmutable;
 use RuntimeException;
 use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
@@ -31,6 +32,8 @@ final readonly class TaskListQueryDto
 		public ?array $tagIds,
 		public ?array $assigneeIds,
 		public bool $onlyActive,
+		public ?DateTimeImmutable $dueFrom,
+		public ?DateTimeImmutable $dueTo,
 	) {
 	}
 
@@ -53,7 +56,28 @@ final readonly class TaskListQueryDto
 			tagIds: self::idsParam($query, 'tagIds'),
 			assigneeIds: self::idsParam($query, 'assigneeIds'),
 			onlyActive: self::boolParam($query, 'onlyActive'),
+			dueFrom: self::dateParam($query, 'dueFrom'),
+			dueTo: self::dateParam($query, 'dueTo'),
 		);
+	}
+
+	/**
+	 * Parses a strict YYYY-MM-DD date param (used for the due-date range filter). Returns null when
+	 * absent/empty; throws RuntimeException on a malformed value (the message is safe for a 400).
+	 *
+	 * @param array<array-key, mixed> $query
+	 */
+	private static function dateParam(array $query, string $key): ?DateTimeImmutable
+	{
+		if (!isset($query[$key]) || !is_string($query[$key]) || $query[$key] === '') {
+			return null;
+		}
+		$date = DateTimeImmutable::createFromFormat('!Y-m-d', $query[$key]);
+		$errors = DateTimeImmutable::getLastErrors();
+		if ($date === false || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+			throw new RuntimeException(sprintf('Invalid %s value; expected YYYY-MM-DD.', $key));
+		}
+		return $date;
 	}
 
 	/** @param array<array-key, mixed> $query */

@@ -24,6 +24,7 @@ import {WorkflowService} from '@app/services/workflow.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
+import {CalendarTaskFilters, TaskCalendarComponent} from '@app/tasks/task-calendar.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
 
@@ -33,6 +34,8 @@ interface DrawerContext {
     projectId: number;
     projectFields: ProjectField[];
 }
+
+export type TasksView = 'list' | 'calendar' | 'timeline';
 
 interface QueryParams {
     limit: number;
@@ -51,7 +54,7 @@ interface QueryParams {
 @Component({
     selector: 'uk-tasks-grid',
     standalone: true,
-    imports: [ReactiveFormsModule, PaginationComponent, TaskDetailDrawerComponent, TranslatePipe],
+    imports: [ReactiveFormsModule, PaginationComponent, TaskDetailDrawerComponent, TaskCalendarComponent, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './tasks-grid.component.html',
     styleUrl: './tasks-grid.component.scss',
@@ -89,6 +92,11 @@ export class TasksGridComponent implements OnInit {
     protected readonly sortDirection = signal<OrderDirection>('DESC');
     protected readonly page = signal<number>(1);
     protected readonly pageSize = signal<number>(50);
+
+    // List / Calendar / Timeline switcher. Reflected in the URL (?view=) but kept out of saved views.
+    protected readonly view = signal<TasksView>('list');
+    // Bumped after a drawer save/delete so embedded views (Calendar) know to refetch.
+    protected readonly calendarRefreshKey = signal<number>(0);
 
     protected readonly tasks = signal<TaskListItem[]>([]);
     protected readonly count = signal<number>(0);
@@ -168,6 +176,17 @@ export class TasksGridComponent implements OnInit {
         offset: this.offset(),
         orderBy: this.sortBy(),
         orderDirection: this.sortDirection(),
+        search: this.search() === '' ? undefined : this.search(),
+        statusIds: this.selectedStatusIds().length > 0 ? this.selectedStatusIds() : undefined,
+        tagIds: this.selectedTagIds().length > 0 ? this.selectedTagIds() : undefined,
+        assigneeIds: this.selectedAssigneeIds().length > 0 ? this.selectedAssigneeIds() : undefined,
+        onlyActive: this.onlyActive() ? true : undefined,
+        subtaskFilter: this.subtaskFilter() === 'all' ? undefined : this.subtaskFilter(),
+        archived: this.archived() === 'active' ? undefined : this.archived(),
+    }));
+
+    // Filters shared with the Calendar view (no pagination / sort — it scopes by date itself).
+    protected readonly calendarFilters = computed<CalendarTaskFilters>(() => ({
         search: this.search() === '' ? undefined : this.search(),
         statusIds: this.selectedStatusIds().length > 0 ? this.selectedStatusIds() : undefined,
         tagIds: this.selectedTagIds().length > 0 ? this.selectedTagIds() : undefined,
@@ -286,6 +305,11 @@ export class TasksGridComponent implements OnInit {
         if (Number.isFinite(pageSize) && pageSize > 0) {
             this.pageSize.set(pageSize);
         }
+
+        const view = map.get('view');
+        if (view === 'calendar' || view === 'timeline') {
+            this.view.set(view);
+        }
     }
 
     private readonly urlParams = computed<Record<string, string>>(() => {
@@ -302,6 +326,7 @@ export class TasksGridComponent implements OnInit {
         if (this.sortDirection() !== 'DESC') out['orderDirection'] = this.sortDirection();
         if (this.page() !== 1) out['page'] = String(this.page());
         if (this.pageSize() !== 50) out['pageSize'] = String(this.pageSize());
+        if (this.view() !== 'list') out['view'] = this.view();
         return out;
     });
 
@@ -315,7 +340,21 @@ export class TasksGridComponent implements OnInit {
         this.refreshTimer = setTimeout(() => {
             this.refreshTimer = null;
             void this.fetchTasks(this.queryParams());
+            this.calendarRefreshKey.update((k) => k + 1);
         }, 150);
+    }
+
+    protected setView(view: TasksView): void {
+        this.view.set(view);
+    }
+
+    protected async onCalendarOpenTask(event: {id: number; projectId: number}): Promise<void> {
+        await this.openTaskById(event.id, event.projectId);
+    }
+
+    protected onCalendarChanged(): void {
+        // A drag-reschedule changed a due date — keep the list in sync too.
+        void this.fetchTasks(this.queryParams());
     }
 
     private async loadWorkflows(): Promise<void> {
@@ -910,11 +949,13 @@ export class TasksGridComponent implements OnInit {
     protected onTaskSaved(): void {
         this.closeDrawer();
         void this.fetchTasks(this.queryParams());
+        this.calendarRefreshKey.update((k) => k + 1);
     }
 
     protected onTaskDeleted(): void {
         this.closeDrawer();
         void this.fetchTasks(this.queryParams());
+        this.calendarRefreshKey.update((k) => k + 1);
     }
 
     protected formatCreated(iso: string): string {

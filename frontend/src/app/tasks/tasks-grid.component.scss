@@ -9,6 +9,53 @@
     margin-bottom: $space-6;
 }
 
+// ─── List / Calendar / Timeline switcher ────────────────────
+.view-switch {
+    display: inline-flex;
+    flex-shrink: 0;
+    border: 1px solid $color-border-strong;
+    border-radius: $radius-sm;
+    overflow: hidden;
+}
+
+.view-switch-btn {
+    height: $h-sm;
+    padding: 0 $space-4;
+    border: none;
+    border-right: 1px solid $color-border-strong;
+    background: $color-surface;
+    color: $color-text-muted;
+    font-size: $font-size-12;
+    cursor: pointer;
+    transition: background 80ms ease, color 80ms ease;
+
+    &:last-child {
+        border-right: none;
+    }
+
+    &:hover {
+        background: $color-surface-hover;
+        color: $color-text;
+    }
+
+    &--active {
+        background: $color-surface-muted;
+        color: $color-text;
+        font-weight: 500;
+    }
+}
+
+.view-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    border: 1px dashed $color-border-strong;
+    border-radius: $radius-md;
+    color: $color-text-subtle;
+    font-size: $font-size-13;
+}
+
 // ─── Filter bar ─────────────────────────────────────────────
 .filters {
     display: flex;

@@ -302,7 +302,25 @@
         "archived": "Jen archivované",
         "all": "Vše (vč. archivu)"
       },
-      "archivedBadge": "Archivováno"
+      "archivedBadge": "Archivováno",
+      "view": {
+        "label": "Zobrazení",
+        "list": "Seznam",
+        "calendar": "Kalendář",
+        "timeline": "Časová osa",
+        "timelineSoon": "Zobrazení časové osy připravujeme."
+      }
+    },
+    "calendar": {
+      "prev": "Předchozí",
+      "next": "Další",
+      "today": "Dnes",
+      "month": "Měsíc",
+      "week": "Týden",
+      "more": "+{{count}} dalších",
+      "dragHint": "Přetažením úkolu na jiný den změníte termín dokončení.",
+      "overdue": "Po termínu",
+      "truncated": "Zobrazeny jsou jen nejnovější úkoly."
     },
     "savedViews": {
       "picker": "Pohledy",
