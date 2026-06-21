@@ -27,6 +27,7 @@ function makeTask(overrides: Partial<TaskListItem>): TaskListItem {
             createdAt: '2026-05-01T00:00:00Z', updatedAt: '2026-05-01T00:00:00Z',
         },
         dueDate: null,
+        startDate: null,
         position: 0,
         sequenceNumber: 1,
         createdByAgent: false,

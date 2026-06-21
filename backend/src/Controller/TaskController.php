@@ -202,6 +202,7 @@ final readonly class TaskController
 				assignee: $assignee,
 				fieldValues: $dto->fieldValues,
 				tagIds: $dto->tagIds,
+				startDate: $dto->startDate,
 			);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);
@@ -268,6 +269,7 @@ final readonly class TaskController
 				assignee: $assignee,
 				fieldValues: $dto->fieldValues,
 				tagIds: $dto->tagIds,
+				startDate: $dto->startDate,
 			);
 		} catch (RuntimeException $e) {
 			return new ErrorResponse($e->getMessage(), 422);

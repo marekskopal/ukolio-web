@@ -87,6 +87,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
         description: 'A description',
         priority: PRIORITY_MEDIUM,
         dueDate: null,
+        startDate: null,
         position: 1,
         sequenceNumber: 42,
         createdByAgent: false,
@@ -221,6 +222,30 @@ describe('TaskDetailDrawerComponent', () => {
             priorityId: original.priority.id,
         }));
         expect(saved).toEqual([updated]);
+    });
+
+    it('onSubmit sends startDate in the payload', async () => {
+        const original = makeTask();
+        const {component, stubs} = createFixture({task: original});
+        stubs.taskService.updateTask.mockResolvedValue(original);
+        component.form.patchValue({startDate: '2026-05-10', dueDate: '2026-05-20'});
+
+        await internals(component).onSubmit();
+
+        expect(stubs.taskService.updateTask).toHaveBeenCalledWith(original.id, expect.objectContaining({
+            startDate: '2026-05-10',
+            dueDate: '2026-05-20',
+        }));
+    });
+
+    it('onSubmit blocks the save when start date is after due date', async () => {
+        const original = makeTask();
+        const {component, stubs} = createFixture({task: original});
+        component.form.patchValue({startDate: '2026-05-25', dueDate: '2026-05-20'});
+
+        await internals(component).onSubmit();
+
+        expect(stubs.taskService.updateTask).not.toHaveBeenCalled();
     });
 
     it('onSubmit on a new task calls createTask and emits saved with the result', async () => {

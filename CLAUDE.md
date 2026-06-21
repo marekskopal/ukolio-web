@@ -20,7 +20,7 @@ as the primary actor; the web UI is for human overview.
 - `Project` (workspace, name, description) → has one `Workflow`, many `Tasks`, many `ProjectField` attachments.
 - `Workflow` (project, name) → has many `Status`.
 - `Status` (workflow, name, color, position, type ∈ Start/Normal/Finish).
-- `Task` (project, status, name, description [markdown], priority, dueDate, position, createdByAgent, archivedAt?) → has many `TaskFieldValue`. `createdByAgent = true` when the row was created via the MCP transport. `archivedAt` (nullable timestamp) is set when the task is archived; archived tasks are hidden from boards and from the default task list/MCP `list_tasks` but remain editable and can be unarchived.
+- `Task` (project, status, name, description [markdown], priority, dueDate, startDate?, position, createdByAgent, archivedAt?) → has many `TaskFieldValue`. `createdByAgent = true` when the row was created via the MCP transport. `startDate` (nullable date) pairs with `dueDate` to span the Timeline view; the create/update endpoints + MCP `create_task`/`update_task` reject `startDate > dueDate`. `archivedAt` (nullable timestamp) is set when the task is archived; archived tasks are hidden from boards and from the default task list/MCP `list_tasks` but remain editable and can be unarchived.
 - `Field` (workspace, name, type ∈ Text/Textarea/Select/Version, required, defaultValue, options) — per-workspace custom-field catalog.
 - `ProjectField` (project, field, position, required) — attaches a workspace field to a project and orders it in the task drawer.
 - `TaskFieldValue` (task, field, value) — concrete value per task.

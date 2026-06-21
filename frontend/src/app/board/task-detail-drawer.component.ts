@@ -207,6 +207,7 @@ export class TaskDetailDrawerComponent implements OnInit {
         statusId: [0, Validators.required],
         priorityId: [0, Validators.required],
         dueDate: [''],
+        startDate: [''],
     });
 
     protected readonly currentPriorityColor = computed<string>(() => {
@@ -304,6 +305,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 statusId: existing.statusId,
                 priorityId: existing.priority.id,
                 dueDate: existing.dueDate ?? '',
+                startDate: existing.startDate ?? '',
             });
             this.statusId.set(existing.statusId);
             this.selectedTagIds.set([...(existing.tagIds ?? [])]);
@@ -347,6 +349,12 @@ export class TaskDetailDrawerComponent implements OnInit {
             }
             return;
         }
+        const dueDate = this.form.value.dueDate ? this.form.value.dueDate : null;
+        const startDate = this.form.value.startDate ? this.form.value.startDate : null;
+        if (startDate !== null && dueDate !== null && startDate > dueDate) {
+            this.alertService.error(await this.translate.instant('app.board.drawer.startAfterDue') as string);
+            return;
+        }
         this.saving.set(true);
         const fieldValues = this.customControls().map((desc) => ({
             fieldId: desc.pf.fieldId,
@@ -357,7 +365,8 @@ export class TaskDetailDrawerComponent implements OnInit {
             name: this.form.value.name!,
             description: (this.form.value.description ?? '').trim() === '' ? null : this.form.value.description!,
             priorityId: Number(this.form.value.priorityId),
-            dueDate: this.form.value.dueDate ? this.form.value.dueDate : null,
+            dueDate,
+            startDate,
             assigneeId: this.selectedAssigneeId(),
             fieldValues,
             tagIds: this.selectedTagIds(),
@@ -698,6 +707,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 description: task.description,
                 priority: task.priority,
                 dueDate: task.dueDate,
+                startDate: task.startDate,
                 position: task.position,
                 sequenceNumber: task.sequenceNumber,
                 createdByAgent: task.createdByAgent,
@@ -794,6 +804,7 @@ export class TaskDetailDrawerComponent implements OnInit {
                 description: task.description,
                 priority: task.priority,
                 dueDate: task.dueDate,
+                startDate: task.startDate,
                 position: task.position,
                 sequenceNumber: task.sequenceNumber,
                 createdByAgent: task.createdByAgent,

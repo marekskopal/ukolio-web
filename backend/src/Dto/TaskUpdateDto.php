@@ -14,6 +14,7 @@ use DateTimeImmutable;
  *     priorityId?: ?int,
  *     priority?: ?string,
  *     dueDate?: ?string,
+ *     startDate?: ?string,
  *     assigneeId?: ?int,
  *     fieldValues?: ?list<array{fieldId: int, value: ?string}>,
  *     tagIds?: ?list<int>,
@@ -32,6 +33,7 @@ final readonly class TaskUpdateDto implements ArrayFactoryInterface
 		public ?int $priorityId,
 		public ?string $priorityName,
 		public ?DateTimeImmutable $dueDate,
+		public ?DateTimeImmutable $startDate,
 		public ?int $assigneeId,
 		public bool $assigneeIdProvided,
 		public ?array $fieldValues,
@@ -43,6 +45,10 @@ final readonly class TaskUpdateDto implements ArrayFactoryInterface
 	{
 		$dueDate = isset($data['dueDate']) && $data['dueDate'] !== ''
 			? new DateTimeImmutable($data['dueDate'])
+			: null;
+
+		$startDate = isset($data['startDate']) && $data['startDate'] !== ''
+			? new DateTimeImmutable($data['startDate'])
 			: null;
 
 		$assigneeIdProvided = array_key_exists('assigneeId', $data);
@@ -58,6 +64,7 @@ final readonly class TaskUpdateDto implements ArrayFactoryInterface
 			priorityId: $priorityId,
 			priorityName: $priorityName,
 			dueDate: $dueDate,
+			startDate: $startDate,
 			assigneeId: $assigneeId,
 			assigneeIdProvided: $assigneeIdProvided,
 			fieldValues: self::parseFieldValues($data['fieldValues'] ?? null),

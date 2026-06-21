@@ -80,6 +80,7 @@ interface TaskProviderInterface
 		?User $assignee = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
+		?DateTimeImmutable $startDate = null,
 	): Task;
 
 	public function duplicateTask(User $author, Task $task, ?string $name = null): Task;
@@ -100,6 +101,7 @@ interface TaskProviderInterface
 		?array $fieldValues = null,
 		?array $tagIds = null,
 		bool $recordEvent = true,
+		?DateTimeImmutable $startDate = null,
 	): Task;
 
 	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition, bool $recordEvent = true): Task;

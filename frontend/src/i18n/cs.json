@@ -452,6 +452,8 @@
         "descriptionPlaceholder": "Podporuje Markdown…",
         "nothingToPreview": "Není co zobrazit.",
         "dueDate": "Termín",
+        "startDate": "Začátek",
+        "startAfterDue": "Začátek nesmí být po termínu dokončení.",
         "status": "Stav",
         "details": "Detaily",
         "assignee": "Řešitel",

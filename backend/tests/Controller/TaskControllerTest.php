@@ -161,6 +161,40 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(400, $bad->getStatusCode());
 	}
 
+	public function testStartDateRoundTripAndOrderValidation(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		// Create with both start + due — both round-trip in the response.
+		$create = $this->request('POST', '/api/projects/' . $project->id . '/tasks', body: [
+			'statusId' => $todoId, 'name' => 'Spanning task', 'description' => null, 'priority' => 'Medium',
+			'startDate' => '2026-05-10', 'dueDate' => '2026-05-20',
+		], authenticatedAs: $owner);
+		self::assertSame(200, $create->getStatusCode());
+		$created = $this->jsonBody($create);
+		self::assertSame('2026-05-10', $created['startDate']);
+		self::assertSame('2026-05-20', $created['dueDate']);
+		$code = self::stringField($created['code']);
+
+		// Updating the start date round-trips too.
+		$update = $this->request('PUT', '/api/tasks/' . $code, body: [
+			'statusId' => $todoId, 'name' => 'Spanning task', 'description' => null, 'priority' => 'Medium',
+			'startDate' => '2026-05-12', 'dueDate' => '2026-05-20',
+		], authenticatedAs: $owner);
+		self::assertSame(200, $update->getStatusCode());
+		self::assertSame('2026-05-12', $this->jsonBody($update)['startDate']);
+
+		// start > due is rejected by the provider invariant (422).
+		$bad = $this->request('POST', '/api/projects/' . $project->id . '/tasks', body: [
+			'statusId' => $todoId, 'name' => 'Backwards', 'description' => null, 'priority' => 'Medium',
+			'startDate' => '2026-05-25', 'dueDate' => '2026-05-20',
+		], authenticatedAs: $owner);
+		self::assertSame(422, $bad->getStatusCode());
+	}
+
 	public function testDeleteTaskRemovesIt(): void
 	{
 		$owner = Fixture::createUser();

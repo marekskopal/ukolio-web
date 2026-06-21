@@ -173,6 +173,34 @@ final class TaskToolsTest extends IntegrationTestCase
 		$taskTools->createTask(projectId: $project->id, name: 'Bad', assigneeId: $outsider->id);
 	}
 
+	public function testStartDateCreateUpdateClearAndOrderValidation(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace);
+
+		[$taskTools] = $this->bootAs($user);
+
+		// Create carries startDate through to the DTO.
+		$task = $taskTools->createTask(
+			projectId: $project->id,
+			name: 'Spanning',
+			dueDate: '2026-05-20',
+			startDate: '2026-05-10',
+		);
+		self::assertSame('2026-05-10', $task->startDate);
+
+		// Omitting startDate on update leaves it unchanged; empty string clears it.
+		$nameOnly = $taskTools->updateTask(taskId: $task->id, name: 'Spanning 2');
+		self::assertSame('2026-05-10', $nameOnly->startDate);
+		$cleared = $taskTools->updateTask(taskId: $task->id, startDate: '');
+		self::assertNull($cleared->startDate);
+
+		// start > due is rejected.
+		$this->expectException(\RuntimeException::class);
+		$taskTools->createTask(projectId: $project->id, name: 'Backwards', dueDate: '2026-05-20', startDate: '2026-05-25');
+	}
+
 	public function testCreateTaskDefaultsToWorkspaceDefaultPriority(): void
 	{
 		$user = Fixture::createUser();
