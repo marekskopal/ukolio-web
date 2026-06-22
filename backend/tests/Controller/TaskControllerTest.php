@@ -207,6 +207,24 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(422, $bad->getStatusCode());
 	}
 
+	public function testMalformedBodyDateIsRejectedWith422(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$todoId = $this->firstStatusId($project->id);
+
+		// A malformed due date must answer 422, not crash with an uncaught date-parse error (500).
+		$response = $this->request('POST', '/api/projects/' . $project->id . '/tasks', body: [
+			'statusId' => $todoId,
+			'name' => 'Bad date',
+			'description' => null,
+			'priority' => 'Medium',
+			'dueDate' => 'not-a-date',
+		], authenticatedAs: $owner);
+		self::assertSame(422, $response->getStatusCode());
+	}
+
 	public function testDeleteTaskRemovesIt(): void
 	{
 		$owner = Fixture::createUser();

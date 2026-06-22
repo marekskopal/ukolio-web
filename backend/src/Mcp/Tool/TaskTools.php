@@ -7,6 +7,7 @@ namespace Ukolio\Mcp\Tool;
 use DateTimeImmutable;
 use Mcp\Capability\Attribute\McpTool;
 use RuntimeException;
+use Ukolio\Dto\DateInput;
 use Ukolio\Mcp\Dto\McpTaskDto;
 use Ukolio\Mcp\Dto\McpTaskListDto;
 use Ukolio\Mcp\McpUserContextInterface;
@@ -181,11 +182,11 @@ final readonly class TaskTools
 			name: $name,
 			description: $description,
 			priority: $priority,
-			dueDate: $dueDate !== null ? new DateTimeImmutable($dueDate) : null,
+			dueDate: DateInput::parse($dueDate, 'dueDate'),
 			assignee: $assignee,
 			fieldValues: $this->normalizeFieldValues($fieldValues),
 			tagIds: $tagIds,
-			startDate: $startDate !== null && $startDate !== '' ? new DateTimeImmutable($startDate) : null,
+			startDate: DateInput::parse($startDate, 'startDate'),
 		);
 
 		return McpTaskDto::fromEntity(
@@ -464,7 +465,7 @@ final readonly class TaskTools
 		if ($value === null) {
 			return $current;
 		}
-		return $value === '' ? null : new DateTimeImmutable($value);
+		return DateInput::parse($value, 'date');
 	}
 
 	private function nextPositionInStatus(int $statusId): int
