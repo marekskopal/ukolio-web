@@ -14,6 +14,7 @@ use Ukolio\App\ApplicationFactory;
 use Ukolio\Jobs\Handler\EmailVerificationHandler;
 use Ukolio\Jobs\Handler\InvitationHandler;
 use Ukolio\Jobs\Handler\JobHandler;
+use Ukolio\Jobs\Handler\NotificationHandler;
 use Ukolio\Jobs\Handler\PasswordResetHandler;
 use Ukolio\Jobs\Handler\SearchReindexHandler;
 use Ukolio\Jobs\Message\AmqpReceivedMessage;
@@ -38,6 +39,7 @@ $handlerMap = [
 	QueueEnum::EmailVerification->value => EmailVerificationHandler::class,
 	QueueEnum::PasswordReset->value => PasswordResetHandler::class,
 	QueueEnum::SearchReindex->value => SearchReindexHandler::class,
+	QueueEnum::Notification->value => NotificationHandler::class,
 ];
 
 $prefetch = (int) getenv('BACKEND_AMQP_CONSUMER_PREFETCH');

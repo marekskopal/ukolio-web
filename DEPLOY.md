@@ -105,6 +105,18 @@ are enqueued automatically; **scheduled** triggers require a once-a-minute cron.
   is safe to run more than once per minute — a per-(script, minute) cache guard
   de-dupes dispatch. Without this cron, `Manual` and `Event` scripts still work;
   only `Scheduled` ones won't fire.
+- **Due-date reminder cron (required for task due reminders, U-83).** Run on the
+  host (or a sidecar) hourly:
+
+  ```cron
+  0 * * * * docker compose exec -T backend php /app/bin/console notifications:due-tick
+  ```
+
+  `notifications:due-tick` sends due-date reminders (in-app + email) for tasks due
+  today and tomorrow to each task's assignee and watchers. Per-(task, user, type)
+  de-duplication via the notifications table makes the hourly schedule idempotent —
+  each reminder fires at most once per day. Without this cron, assignment / comment /
+  mention notifications still work; only due-date reminders won't fire.
 - **Operations.**
   - Tail the worker: `docker compose logs -f backend | grep script-worker`
   - Restart just the worker: `docker compose exec backend supervisorctl restart script-worker`

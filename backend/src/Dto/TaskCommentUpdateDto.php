@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Ukolio\Dto;
 
-/** @implements ArrayFactoryInterface<array{body: string}> */
+use RuntimeException;
+
+/** @implements ArrayFactoryInterface<array<string, mixed>> */
 final readonly class TaskCommentUpdateDto implements ArrayFactoryInterface
 {
 	public function __construct(public string $body)
@@ -13,6 +15,11 @@ final readonly class TaskCommentUpdateDto implements ArrayFactoryInterface
 
 	public static function fromArray(array $data): static
 	{
-		return new self(body: $data['body']);
+		$body = $data['body'] ?? null;
+		if (!is_string($body)) {
+			throw new RuntimeException('Comment body is required.');
+		}
+
+		return new self(body: $body);
 	}
 }

@@ -19,6 +19,7 @@ enum EventTypeEnum: string
 
 	case TaskCreated = 'TaskCreated';
 	case TaskUpdated = 'TaskUpdated';
+	case TaskAssigned = 'TaskAssigned';
 	case TaskDeleted = 'TaskDeleted';
 	case TaskMoved = 'TaskMoved';
 	case TaskArchived = 'TaskArchived';
@@ -57,4 +58,8 @@ enum EventTypeEnum: string
 	case ScriptRun = 'ScriptRun';
 
 	case UserSelfDeleted = 'UserSelfDeleted';
+
+	// Realtime-only signal — published to the Mercure stream so a recipient's bell refreshes.
+	// Never persisted as an Event row (notifications are not audit events).
+	case NotificationCreated = 'NotificationCreated';
 }

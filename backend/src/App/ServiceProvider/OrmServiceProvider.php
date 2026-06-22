@@ -13,6 +13,7 @@ use Ukolio\Model\Entity\EmailVerificationToken;
 use Ukolio\Model\Entity\Event;
 use Ukolio\Model\Entity\Field;
 use Ukolio\Model\Entity\Invitation;
+use Ukolio\Model\Entity\Notification;
 use Ukolio\Model\Entity\OAuthAuthorization;
 use Ukolio\Model\Entity\OAuthClient;
 use Ukolio\Model\Entity\PasswordResetToken;
@@ -33,6 +34,7 @@ use Ukolio\Model\Entity\TaskFile;
 use Ukolio\Model\Entity\TaskRelation;
 use Ukolio\Model\Entity\TaskTag;
 use Ukolio\Model\Entity\TaskTemplate;
+use Ukolio\Model\Entity\TaskWatcher;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workflow;
 use Ukolio\Model\Entity\Workspace;
@@ -41,6 +43,7 @@ use Ukolio\Model\Repository\EmailVerificationTokenRepository;
 use Ukolio\Model\Repository\EventRepository;
 use Ukolio\Model\Repository\FieldRepository;
 use Ukolio\Model\Repository\InvitationRepository;
+use Ukolio\Model\Repository\NotificationRepository;
 use Ukolio\Model\Repository\OAuthAuthorizationRepository;
 use Ukolio\Model\Repository\OAuthClientRepository;
 use Ukolio\Model\Repository\PasswordResetTokenRepository;
@@ -61,6 +64,7 @@ use Ukolio\Model\Repository\TaskRelationRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Model\Repository\TaskTemplateRepository;
+use Ukolio\Model\Repository\TaskWatcherRepository;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
 use Ukolio\Model\Repository\WorkspaceRepository;
@@ -106,6 +110,8 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			ScriptRepository::class,
 			ScriptVariableRepository::class,
 			ScriptRunRepository::class,
+			NotificationRepository::class,
+			TaskWatcherRepository::class,
 		], true);
 	}
 
@@ -147,6 +153,8 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, ScriptRepository::class, Script::class);
 		$this->addRepository($container, $orm, ScriptVariableRepository::class, ScriptVariable::class);
 		$this->addRepository($container, $orm, ScriptRunRepository::class, ScriptRun::class);
+		$this->addRepository($container, $orm, NotificationRepository::class, Notification::class);
+		$this->addRepository($container, $orm, TaskWatcherRepository::class, TaskWatcher::class);
 	}
 
 	/**

@@ -256,6 +256,9 @@ export class TaskCalendarComponent {
                 description: full.description,
                 priorityId: full.priority.id,
                 dueDate: targetIso,
+                // Preserve the existing start date — the update endpoint treats an omitted
+                // startDate as a clear, which would silently drop a Timeline-spanning task's start.
+                startDate: full.startDate,
                 assigneeId: full.assigneeId,
                 fieldValues: full.fieldValues,
                 tagIds: full.tagIds,

@@ -13,6 +13,7 @@ export type RealtimeEventType =
     | 'TaskFileDeleted'
     | 'TaskRelationCreated'
     | 'TaskRelationDeleted'
+    | 'NotificationCreated'
     | 'RealtimeReconnected';
 
 export interface RealtimeEvent {
@@ -23,6 +24,7 @@ export interface RealtimeEvent {
     commentId: number | null;
     fileId: number | null;
     relationId: number | null;
+    userId: number | null;
     originClientId: string | null;
 }
 

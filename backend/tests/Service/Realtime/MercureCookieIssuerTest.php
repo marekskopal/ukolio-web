@@ -57,6 +57,7 @@ final class MercureCookieIssuerTest extends IntegrationTestCase
 		sort($subscribed);
 
 		$expected = [
+			RealtimePublisher::UserTopicPrefix . $owner->id,
 			RealtimePublisher::TopicPrefix . $workspaceA->id,
 			RealtimePublisher::TopicPrefix . $workspaceB->id,
 			RealtimePublisher::TopicPrefix . $thirdWorkspace->id,

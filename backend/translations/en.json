@@ -3,7 +3,13 @@
         "subject": {
             "invitation": "You've been invited to {workspace} on Ukolio",
             "passwordReset": "Reset your Ukolio password",
-            "emailVerification": "Verify your Ukolio email"
+            "emailVerification": "Verify your Ukolio email",
+            "notification": {
+                "TaskMention": "{actor} mentioned you on {task}",
+                "TaskAssigned": "{actor} assigned {task} to you",
+                "DueSoon": "{task} is due tomorrow",
+                "DueToday": "{task} is due today"
+            }
         },
         "invitation": {
             "title": "You've been invited to Ukolio",
@@ -30,6 +36,15 @@
             "fallback": "Or copy this link into your browser:",
             "expires": "This link expires in 24 hours.",
             "ignore": "If you didn't sign up for Ukolio, you can safely ignore this email."
+        },
+        "notification": {
+            "greeting": "Hi {name},",
+            "TaskMention": "{actor} mentioned you on {task} — {taskName}.",
+            "TaskAssigned": "{actor} assigned the task {task} ({taskName}) to you.",
+            "DueSoon": "The task {task} ({taskName}) is due tomorrow.",
+            "DueToday": "The task {task} ({taskName}) is due today.",
+            "button": "Open task",
+            "fallback": "Or copy this link into your browser:"
         }
     }
 }

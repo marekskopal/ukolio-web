@@ -150,6 +150,7 @@ describe('TaskCalendarComponent', () => {
             description: 'desc',
             priority: {id: 7},
             dueDate: '2026-05-10',
+            startDate: '2026-05-08',
             assigneeId: 3,
             fieldValues: [{fieldId: 1, value: 'x'}],
             tagIds: [4],
@@ -169,6 +170,8 @@ describe('TaskCalendarComponent', () => {
         expect(payload.priorityId).toBe(7);
         expect(payload.assigneeId).toBe(3);
         expect(payload.tagIds).toEqual([4]);
+        // The existing start date must be preserved, not silently cleared.
+        expect(payload.startDate).toBe('2026-05-08');
         expect(dropped).toHaveBeenCalled();
     });
 });

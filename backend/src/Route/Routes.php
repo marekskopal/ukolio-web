@@ -78,6 +78,14 @@ enum Routes: string
 	case TaskChecklist = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/checklist';
 	case TaskChecklistItem = '/api/checklist-items/{itemId:number}';
 	case TaskChecklistItemMove = '/api/checklist-items/{itemId:number}/move';
+	case TaskWatchers = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/watchers';
+	case TaskWatch = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/watch';
+
+	case Notifications = '/api/notifications';
+	case NotificationsReadAll = '/api/notifications/read-all';
+	case NotificationsUnreadCount = '/api/notifications/unread-count';
+	case NotificationRead = '/api/notifications/{notificationId:number}/read';
+	case Notification = '/api/notifications/{notificationId:number}';
 
 	case Search = '/api/search';
 

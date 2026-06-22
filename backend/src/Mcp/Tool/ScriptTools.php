@@ -190,7 +190,8 @@ final readonly class ScriptTools
 	public function listScriptRuns(int $scriptId, int $limit = self::DefaultRunsLimit, int $offset = 0): McpScriptRunListDto
 	{
 		$workspace = $this->requireWorkspace();
-		$this->requireView($workspace);
+		// Run logs/errors can contain secret-variable values — restrict to script managers.
+		$this->requireManage($workspace);
 		$script = $this->require($workspace, $scriptId);
 
 		$boundedLimit = min(max($limit, 1), self::MaxRunsLimit);

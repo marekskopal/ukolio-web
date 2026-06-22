@@ -15,6 +15,7 @@ import {TaskComment} from '@app/models/task-comment';
 import {TaskFile} from '@app/models/task-file';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
 import {TaskTemplate} from '@app/models/task-template';
+import {TaskWatcher} from '@app/models/task-watcher';
 import {WorkspaceMember} from '@app/models/workspace';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
@@ -25,6 +26,7 @@ import {TaskChecklistService} from '@app/services/task-checklist.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
 import {TaskTemplateService} from '@app/services/task-template.service';
+import {TaskWatcherService} from '@app/services/task-watcher.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
 import {MarkdownEditorComponent} from '@app/shared/components/markdown-editor/markdown-editor.component';
@@ -117,6 +119,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly taskCommentService = inject(TaskCommentService);
     private readonly taskChecklistService = inject(TaskChecklistService);
     private readonly taskTemplateService = inject(TaskTemplateService);
+    private readonly taskWatcherService = inject(TaskWatcherService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly alertService = inject(AlertService);
     private readonly translate = inject(TranslateService);
@@ -212,6 +215,10 @@ export class TaskDetailDrawerComponent implements OnInit {
         const total = this.checklist().length;
         return total === 0 ? 0 : Math.round((this.checklistDone() / total) * 100);
     });
+
+    protected readonly watching = signal(false);
+    protected readonly watchers = signal<TaskWatcher[]>([]);
+    protected readonly watchToggling = signal(false);
 
     protected readonly comments = signal<TaskComment[]>([]);
     protected readonly commentsLoaded = signal(false);
@@ -347,6 +354,8 @@ export class TaskDetailDrawerComponent implements OnInit {
         }
         if (COMMENT_EVENT_TYPES.has(event.type)) {
             void this.loadComments(current.id);
+            // Commenters auto-watch (U-83), so the watcher list may have changed.
+            void this.loadWatchers(current.id);
         } else if (FILE_EVENT_TYPES.has(event.type)) {
             void this.loadFiles(current.id);
         } else if (RELATION_EVENT_TYPES.has(event.type)) {
@@ -378,6 +387,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadComments(existing.id);
             void this.loadSubtasks(existing.id);
             void this.loadChecklist(existing.id);
+            void this.loadWatchers(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
             const defaultPriority = this.workspacePriorities().find((p) => p.isDefault) ?? this.workspacePriorities()[0];
@@ -1040,6 +1050,36 @@ export class TaskDetailDrawerComponent implements OnInit {
             this.comments.set([]);
         } finally {
             this.commentsLoaded.set(true);
+        }
+    }
+
+    private async loadWatchers(taskId: number): Promise<void> {
+        try {
+            const result = await this.taskWatcherService.list(taskId);
+            this.watchers.set(result.watchers);
+            this.watching.set(result.watching);
+        } catch {
+            this.watchers.set([]);
+            this.watching.set(false);
+        }
+    }
+
+    protected async toggleWatch(): Promise<void> {
+        const current = this.task();
+        if (current === null || this.watchToggling()) {
+            return;
+        }
+        this.watchToggling.set(true);
+        try {
+            const result = this.watching()
+                ? await this.taskWatcherService.unwatch(current.id)
+                : await this.taskWatcherService.watch(current.id);
+            this.watchers.set(result.watchers);
+            this.watching.set(result.watching);
+        } catch {
+            // error interceptor surfaces failures
+        } finally {
+            this.watchToggling.set(false);
         }
     }
 

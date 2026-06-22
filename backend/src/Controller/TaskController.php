@@ -170,7 +170,11 @@ final readonly class TaskController
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
 
-		$dto = $this->requestService->getRequestBodyDto($request, TaskCreateDto::class);
+		try {
+			$dto = $this->requestService->getRequestBodyDto($request, TaskCreateDto::class);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
 
 		$status = $this->statusProvider->getStatus($dto->statusId);
 		if ($status === null || $status->workflow->project->id !== $project->id) {
@@ -241,7 +245,11 @@ final readonly class TaskController
 			return new NotFoundResponse('Task not found.');
 		}
 
-		$dto = $this->requestService->getRequestBodyDto($request, TaskUpdateDto::class);
+		try {
+			$dto = $this->requestService->getRequestBodyDto($request, TaskUpdateDto::class);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
 
 		$status = $this->statusProvider->getStatus($dto->statusId);
 		if ($status === null || $status->workflow->project->id !== $task->project->id) {

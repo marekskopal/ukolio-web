@@ -43,13 +43,8 @@ final readonly class TaskCreateDto implements ArrayFactoryInterface
 
 	public static function fromArray(array $data): static
 	{
-		$dueDate = isset($data['dueDate']) && $data['dueDate'] !== ''
-			? new DateTimeImmutable($data['dueDate'])
-			: null;
-
-		$startDate = isset($data['startDate']) && $data['startDate'] !== ''
-			? new DateTimeImmutable($data['startDate'])
-			: null;
+		$dueDate = DateInput::parse($data['dueDate'] ?? null, 'dueDate');
+		$startDate = DateInput::parse($data['startDate'] ?? null, 'startDate');
 
 		$assigneeIdProvided = array_key_exists('assigneeId', $data);
 		$assigneeId = $assigneeIdProvided ? $data['assigneeId'] : null;

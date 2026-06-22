@@ -1,11 +1,13 @@
 import {DestroyRef, effect, inject, Injectable, signal} from '@angular/core';
 import {RealtimeEvent} from '@app/models/realtime-event';
+import {CurrentUserService} from '@app/services/current-user.service';
 import {RealtimeOriginService} from '@app/services/realtime-origin.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {environment} from '@environments/environment';
 import {Subject} from 'rxjs';
 
 const TOPIC_PREFIX = 'ukolio/workspaces/';
+const USER_TOPIC_PREFIX = 'ukolio/users/';
 const RECONNECT_INITIAL_DELAY_MS = 500;
 const RECONNECT_MAX_DELAY_MS = 30000;
 
@@ -13,6 +15,7 @@ const RECONNECT_MAX_DELAY_MS = 30000;
 export class RealtimeService {
     private readonly origin = inject(RealtimeOriginService);
     private readonly workspaceService = inject(WorkspaceService);
+    private readonly currentUserService = inject(CurrentUserService);
     private readonly destroyRef = inject(DestroyRef);
 
     private readonly eventSubject = new Subject<RealtimeEvent>();
@@ -21,6 +24,7 @@ export class RealtimeService {
 
     private source: EventSource | null = null;
     private currentWorkspaceId: number | null = null;
+    private currentUserId: number | null = null;
     private reconnectDelay = RECONNECT_INITIAL_DELAY_MS;
     private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     private explicitlyClosed = false;
@@ -30,27 +34,32 @@ export class RealtimeService {
 
         effect(() => {
             const workspaceId = this.workspaceService.currentWorkspaceId();
+            // Track the signed-in user so the connection reopens (and subscribes to their private
+            // notification topic) once the user is loaded after login.
+            const userId = this.currentUserService.currentUser()?.id ?? null;
             if (workspaceId === null) {
                 this.close();
             } else {
-                this.open(workspaceId);
+                this.open(workspaceId, userId);
             }
         });
     }
 
-    public open(workspaceId: number): void {
-        if (this.currentWorkspaceId === workspaceId && this.source !== null) {
+    public open(workspaceId: number, userId: number | null = null): void {
+        if (this.currentWorkspaceId === workspaceId && this.currentUserId === userId && this.source !== null) {
             return;
         }
         this.closeInternal();
         this.currentWorkspaceId = workspaceId;
+        this.currentUserId = userId;
         this.explicitlyClosed = false;
         this.connect();
     }
 
     public reopen(workspaceId: number): void {
+        const userId = this.currentUserId;
         this.close();
-        this.open(workspaceId);
+        this.open(workspaceId, userId);
     }
 
     public close(): void {
@@ -77,8 +86,12 @@ export class RealtimeService {
             return;
         }
 
-        const topic = `${TOPIC_PREFIX}${workspaceId}`;
-        const url = `${environment.mercureHubUrl}?topic=${encodeURIComponent(topic)}`;
+        const topics = [`${TOPIC_PREFIX}${workspaceId}`];
+        if (this.currentUserId !== null) {
+            topics.push(`${USER_TOPIC_PREFIX}${this.currentUserId}`);
+        }
+        const query = topics.map((topic) => `topic=${encodeURIComponent(topic)}`).join('&');
+        const url = `${environment.mercureHubUrl}?${query}`;
 
         const source = new EventSource(url, {withCredentials: true});
         this.source = source;
@@ -146,6 +159,7 @@ export class RealtimeService {
                 commentId: typeof obj.commentId === 'number' ? obj.commentId : null,
                 fileId: typeof obj.fileId === 'number' ? obj.fileId : null,
                 relationId: typeof obj.relationId === 'number' ? obj.relationId : null,
+                userId: typeof obj.userId === 'number' ? obj.userId : null,
                 originClientId: typeof obj.originClientId === 'string' ? obj.originClientId : null,
             };
         } catch {
@@ -162,6 +176,7 @@ export class RealtimeService {
             commentId: null,
             fileId: null,
             relationId: null,
+            userId: null,
             originClientId: null,
         };
     }

@@ -182,6 +182,47 @@ final class TaskCommentControllerTest extends IntegrationTestCase
 		self::assertSame([$member->id], $meta['mentionedUserIds']);
 	}
 
+	public function testMentionFanOutIsCappedPerComment(): void
+	{
+		// A single comment must not be able to mass-notify an unbounded number of members.
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$taskId = $this->createTask($owner, $project->id, 'Task');
+
+		$mentions = '';
+		for ($i = 0; $i < 55; $i++) {
+			$member = Fixture::createUser();
+			Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+			$mentions .= '@[Member](user:' . $member->id . ') ';
+		}
+
+		$this->request('POST', '/api/tasks/' . $taskId . '/comments', body: ['body' => trim($mentions)], authenticatedAs: $owner);
+
+		$meta = $this->latestEventMetadata($workspace->id, EventTypeEnum::TaskCommentAdded);
+		self::assertArrayHasKey('mentionedUserIds', $meta);
+		self::assertIsArray($meta['mentionedUserIds']);
+		self::assertLessThanOrEqual(50, count($meta['mentionedUserIds']));
+		self::assertCount(50, $meta['mentionedUserIds']);
+	}
+
+	public function testMissingBodyIsRejectedWith422(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$taskId = $this->createTask($owner, $project->id, 'Task');
+
+		// No body key — must answer 422, not crash with an undefined-key error (500).
+		$response = $this->request(
+			'POST',
+			'/api/tasks/' . $taskId . '/comments',
+			body: ['parentCommentId' => null],
+			authenticatedAs: $owner,
+		);
+		self::assertSame(422, $response->getStatusCode());
+	}
+
 	public function testForeignTaskCommentsAreNotFound(): void
 	{
 		$owner = Fixture::createUser();

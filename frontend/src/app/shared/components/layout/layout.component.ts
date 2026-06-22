@@ -12,13 +12,14 @@ import {PermissionsService} from '@app/services/permissions.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {ThemeService} from '@app/services/theme.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {NotificationBellComponent} from '@app/shared/components/notification-bell/notification-bell.component';
 import {SearchPopoverComponent} from '@app/shared/components/search-popover/search-popover.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-layout',
     standalone: true,
-    imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, SearchPopoverComponent],
+    imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, SearchPopoverComponent, NotificationBellComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss',

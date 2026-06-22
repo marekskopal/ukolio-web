@@ -99,7 +99,13 @@ final class ScriptRunContext
 
 	public function getLogs(): string
 	{
-		return $this->redact(implode("\n", $this->logLines));
+		return $this->redactSecrets(implode("\n", $this->logLines));
+	}
+
+	/** Scrub every secret plaintext the run touched out of an arbitrary string (logs, error messages). */
+	public function redactSecrets(string $text): string
+	{
+		return $this->redact($text);
 	}
 
 	private function redact(string $text): string
