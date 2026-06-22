@@ -80,6 +80,12 @@ final readonly class ScriptRunner
 			ScriptExecutionGuard::leave();
 		}
 
+		// A secret interpolated into a thrown error (e.g. into a fetch URL) must not survive into the
+		// run history, which is rendered verbatim by the API. Scrub it like the captured logs.
+		if ($run->error !== null) {
+			$run->error = $context->redactSecrets($run->error);
+		}
+
 		$finishedAt = new DateTimeImmutable();
 		$run->logs = $context->getLogs();
 		$run->httpCalls = $context->getHttpCalls();
