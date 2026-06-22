@@ -183,7 +183,9 @@ final readonly class ScriptController
 		if ($script === null) {
 			return new NotFoundResponse('Script not found.');
 		}
-		if (!$this->permissionChecker->canViewWorkspace($this->requestService->getUser($request), $script->workspace)) {
+		// Run logs/errors can contain secret-variable values — restrict to script managers (Admin/Owner),
+		// not every workspace member.
+		if (!$this->permissionChecker->canManageScripts($this->requestService->getUser($request), $script->workspace)) {
 			return new NotAuthorizedResponse('You do not have access to this script.');
 		}
 

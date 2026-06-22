@@ -61,6 +61,20 @@ final class ScriptControllerTest extends IntegrationTestCase
 		self::assertSame(42, $runs[0]['taskApiCalls']);
 	}
 
+	public function testMemberCannotReadRunHistory(): void
+	{
+		// Run logs/errors may contain secret-variable values, so only script managers may read them.
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$member = Fixture::createUser('member@example.com');
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$script = $this->createScript($owner, $workspace);
+		$this->persistRun($script, ScriptRunStatusEnum::Success, 1, 1);
+
+		$response = $this->request('GET', '/api/scripts/' . $script->id . '/runs', null, $member);
+		self::assertSame(401, $response->getStatusCode());
+	}
+
 	public function testMemberCannotCreateScript(): void
 	{
 		$owner = Fixture::createUser();

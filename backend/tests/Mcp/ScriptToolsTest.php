@@ -78,6 +78,20 @@ final class ScriptToolsTest extends IntegrationTestCase
 		$tools->createScript(name: 'Nope', source: 'ukolio.log(1);', trigger: 'Manual');
 	}
 
+	public function testMemberCannotListScriptRuns(): void
+	{
+		// Run logs/errors may carry secret-variable values — agents acting as a plain Member are denied.
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$script = $this->bootAs($owner)->createScript(name: 'Digest', source: 'ukolio.log(1);', trigger: 'Manual');
+
+		$member = Fixture::createUser('member@example.com');
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+
+		$this->expectException(RuntimeException::class);
+		$this->bootAs($member)->listScriptRuns($script->id);
+	}
+
 	private function bootAs(User $user): ScriptTools
 	{
 		$ctx = AppHarness::container()->get(McpUserContextInterface::class);
