@@ -16,6 +16,14 @@ interface RealtimePublisherInterface
 		?int $commentId = null,
 		?int $fileId = null,
 		?int $relationId = null,
-		?int $userId = null,
+	): void;
+
+	/** Publish to a single user's private topic (e.g. a notification ping), invisible to other members. */
+	public function publishToUser(
+		EventTypeEnum $type,
+		int $userId,
+		?int $workspaceId = null,
+		?int $projectId = null,
+		?int $taskId = null,
 	): void;
 }

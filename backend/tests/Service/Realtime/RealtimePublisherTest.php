@@ -45,6 +45,25 @@ final class RealtimePublisherTest extends TestCase
 		self::assertNull($payload['originClientId']);
 	}
 
+	public function testPublishToUserWritesPrivateUserTopic(): void
+	{
+		$hub = new RecordingMercureHub();
+		$publisher = new RealtimePublisher($hub, new RealtimeOriginContext(), new NullLogger());
+
+		$publisher->publishToUser(EventTypeEnum::NotificationCreated, userId: 99, workspaceId: 42, projectId: 7, taskId: 123);
+
+		self::assertCount(1, $hub->updates);
+		// Addressed to the recipient's own topic — not the workspace topic — so other members never see it.
+		self::assertSame(['ukolio/users/99'], $hub->updates[0]->getTopics());
+		self::assertTrue($hub->updates[0]->isPrivate());
+
+		$payload = json_decode($hub->updates[0]->getData(), associative: true, flags: JSON_THROW_ON_ERROR);
+		self::assertIsArray($payload);
+		self::assertSame('NotificationCreated', $payload['type']);
+		self::assertSame(99, $payload['userId']);
+		self::assertSame(123, $payload['taskId']);
+	}
+
 	public function testPublishIncludesOriginClientIdFromContext(): void
 	{
 		$hub = new RecordingMercureHub();

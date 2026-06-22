@@ -21,7 +21,8 @@ final readonly class MercureCookieIssuer implements MercureCookieIssuerInterface
 
 	public function issue(User $user, bool $secure): string
 	{
-		$topics = [];
+		// The user's own private topic (notification pings, U-83) plus each of their workspace topics.
+		$topics = [RealtimePublisher::UserTopicPrefix . $user->id];
 		foreach ($this->workspaceProvider->getMemberships($user) as $membership) {
 			$topics[] = RealtimePublisher::TopicPrefix . $membership->workspace->id;
 		}

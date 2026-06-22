@@ -190,13 +190,8 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 
 		$this->notificationProvider->create($recipient, $workspaceId, $type, $task->id, $projectId, $actorId, $actorName, $data);
 
-		$this->realtimePublisher->publish(
-			type: EventTypeEnum::NotificationCreated,
-			workspaceId: $workspaceId,
-			projectId: $projectId,
-			taskId: $task->id,
-			userId: $recipient->id,
-		);
+		// Deliver to the recipient's private topic so no other workspace member can observe the ping.
+		$this->realtimePublisher->publishToUser(EventTypeEnum::NotificationCreated, $recipient->id, $workspaceId, $projectId, $task->id);
 
 		if (!$type->isEmailable()) {
 			return;
