@@ -18,6 +18,9 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 {
 	private const int MaxBodyLength = 10000;
 
+	/** Bound the notification fan-out: at most this many distinct members are mentioned per comment. */
+	private const int MaxMentions = 50;
+
 	/** Mention token embedded in the body: @[Display Name](user:42). */
 	private const string MentionPattern = '/@\[[^\]]+\]\(user:(\d+)\)/';
 
@@ -172,6 +175,9 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 			$memberIds[$membership->user->id] = true;
 		}
 
-		return array_values(array_filter($candidateIds, static fn (int $id): bool => isset($memberIds[$id])));
+		$mentioned = array_values(array_filter($candidateIds, static fn (int $id): bool => isset($memberIds[$id])));
+
+		// Bound the fan-out so a single comment can't mass-notify the whole workspace repeatedly.
+		return array_slice($mentioned, 0, self::MaxMentions);
 	}
 }
