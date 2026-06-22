@@ -248,7 +248,9 @@ final readonly class TasksApi
 
 	private function resolve(int|string $id): ?Task
 	{
-		return $this->taskCodeResolver->resolveForUser($this->context->owner, (string) $id);
+		// Strictly scope to the script's own workspace, not the owner's memberships — otherwise a
+		// script in workspace A could act on a task in workspace B that its author also belongs to.
+		return $this->taskCodeResolver->resolve($this->context->workspace, (string) $id);
 	}
 
 	private function requireProject(int $projectId): Project
