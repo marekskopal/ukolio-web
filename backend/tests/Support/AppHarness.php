@@ -9,6 +9,7 @@ use PDO;
 use Psr\Container\ContainerInterface;
 use Ukolio\App\Application;
 use Ukolio\App\ApplicationFactory;
+use Ukolio\Service\Actor\ActorContextInterface;
 
 /**
  * Shared per-suite singleton: builds the Application once, exposes the
@@ -79,5 +80,12 @@ final class AppHarness
 		$orm = self::container()->get(ORM::class);
 		assert($orm instanceof ORM);
 		$orm->getEntityCache()->clear();
+
+		// The shared container reuses mutable, per-request contexts; production resets these at the
+		// start of every request (frankenphp-worker.php). Mirror that so an Agent actor set by an
+		// MCP test doesn't leak into a later HTTP test (which would mis-tag events as agent-driven).
+		$actorContext = self::container()->get(ActorContextInterface::class);
+		assert($actorContext instanceof ActorContextInterface);
+		$actorContext->setHuman();
 	}
 }

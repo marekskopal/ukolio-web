@@ -550,6 +550,27 @@
       "delete": "Delete",
       "deleteConfirm": "Delete this comment? Replies will be removed too."
     },
+    "notifications": {
+      "section": "Notifications",
+      "bell": "Notifications",
+      "empty": "You're all caught up.",
+      "markAllAsRead": "Mark all read",
+      "dismiss": "Dismiss",
+      "message": {
+        "TaskAssigned": "{{actor}} assigned {{task}} to you",
+        "TaskComment": "{{actor}} commented on {{task}}",
+        "TaskMention": "{{actor}} mentioned you on {{task}}",
+        "TaskMoved": "{{actor}} moved {{task}} to {{status}}",
+        "DueSoon": "{{task}} is due tomorrow",
+        "DueToday": "{{task}} is due today"
+      }
+    },
+    "taskWatchers": {
+      "watch": "Watch",
+      "watching": "Watching",
+      "watchHint": "Get notified about comments, moves and due dates for this task",
+      "unwatchHint": "Stop receiving notifications for this task"
+    },
     "taskRelations": {
       "section": "Relations",
       "addButton": "+ Add relation",

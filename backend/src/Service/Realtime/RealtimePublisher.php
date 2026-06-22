@@ -30,6 +30,7 @@ final readonly class RealtimePublisher implements RealtimePublisherInterface
 		?int $commentId = null,
 		?int $fileId = null,
 		?int $relationId = null,
+		?int $userId = null,
 	): void {
 		$topic = self::TopicPrefix . $workspaceId;
 		$data = json_encode([
@@ -40,6 +41,8 @@ final readonly class RealtimePublisher implements RealtimePublisherInterface
 			'commentId' => $commentId,
 			'fileId' => $fileId,
 			'relationId' => $relationId,
+			// Recipient of a notification ping (U-83); clients ignore pings not addressed to them.
+			'userId' => $userId,
 			'originClientId' => $this->originContext->get(),
 		], JSON_THROW_ON_ERROR);
 

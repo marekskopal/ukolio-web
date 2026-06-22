@@ -176,6 +176,22 @@ final class TaskRepository extends AbstractRepository
 			->count();
 	}
 
+	/**
+	 * Active (non-archived), non-finished tasks due on a specific day. Backs the due-date reminder
+	 * cron (U-83). `archived_at` lives only on the tasks table, so the raw IS NULL predicate is
+	 * unambiguous even with the status join.
+	 *
+	 * @return Iterator<Task>
+	 */
+	public function findDueOn(DateTimeImmutable $date): Iterator
+	{
+		return $this->select()
+			->where(['due_date' => $date->format('Y-m-d')])
+			->where(['status.type', '!=', StatusTypeEnum::Finish])
+			->where([new RawExpression('(archived_at IS NULL)'), '=', 1])
+			->fetchAll();
+	}
+
 	/** @return Iterator<Task> */
 	public function findByAssigneeInWorkspace(int $userId, int $workspaceId): Iterator
 	{

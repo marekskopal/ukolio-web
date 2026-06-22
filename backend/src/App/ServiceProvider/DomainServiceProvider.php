@@ -23,6 +23,8 @@ use Ukolio\Service\Auth\PermissionChecker;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
 use Ukolio\Service\Auth\UserDataExportService;
 use Ukolio\Service\Auth\UserDataExportServiceInterface;
+use Ukolio\Service\Notification\NotificationDispatcher;
+use Ukolio\Service\Notification\NotificationDispatcherInterface;
 use Ukolio\Service\Provider\BulkTaskProvider;
 use Ukolio\Service\Provider\BulkTaskProviderInterface;
 use Ukolio\Service\Provider\EmailVerificationProvider;
@@ -33,6 +35,8 @@ use Ukolio\Service\Provider\FieldProvider;
 use Ukolio\Service\Provider\FieldProviderInterface;
 use Ukolio\Service\Provider\InvitationProvider;
 use Ukolio\Service\Provider\InvitationProviderInterface;
+use Ukolio\Service\Provider\NotificationProvider;
+use Ukolio\Service\Provider\NotificationProviderInterface;
 use Ukolio\Service\Provider\PasswordResetProvider;
 use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Service\Provider\PriorityProvider;
@@ -69,6 +73,8 @@ use Ukolio\Service\Provider\TaskTagProvider;
 use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\TaskTemplateProvider;
 use Ukolio\Service\Provider\TaskTemplateProviderInterface;
+use Ukolio\Service\Provider\TaskWatcherProvider;
+use Ukolio\Service\Provider\TaskWatcherProviderInterface;
 use Ukolio\Service\Provider\UserProvider;
 use Ukolio\Service\Provider\UserProviderInterface;
 use Ukolio\Service\Provider\WorkflowProvider;
@@ -149,6 +155,9 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			ScriptRunDispatcherInterface::class,
 			CronEvaluatorInterface::class,
 			ScriptEventTriggerInterface::class,
+			TaskWatcherProviderInterface::class,
+			NotificationProviderInterface::class,
+			NotificationDispatcherInterface::class,
 		], true);
 	}
 
@@ -208,5 +217,9 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(ScriptRunDispatcherInterface::class, ScriptRunDispatcher::class);
 		$c->add(CronEvaluatorInterface::class, CronEvaluator::class);
 		$c->add(ScriptEventTriggerInterface::class, ScriptEventTrigger::class);
+
+		$c->add(TaskWatcherProviderInterface::class, TaskWatcherProvider::class);
+		$c->add(NotificationProviderInterface::class, NotificationProvider::class);
+		$c->add(NotificationDispatcherInterface::class, NotificationDispatcher::class);
 	}
 }

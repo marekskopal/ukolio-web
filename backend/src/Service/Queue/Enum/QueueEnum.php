@@ -11,4 +11,5 @@ enum QueueEnum: string
 	case PasswordReset = 'password-reset';
 	case SearchReindex = 'search-reindex';
 	case ScriptRun = 'script-run';
+	case Notification = 'notification';
 }

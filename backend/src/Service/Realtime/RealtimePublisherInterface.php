@@ -16,5 +16,6 @@ interface RealtimePublisherInterface
 		?int $commentId = null,
 		?int $fileId = null,
 		?int $relationId = null,
+		?int $userId = null,
 	): void;
 }

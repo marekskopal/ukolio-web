@@ -33,6 +33,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskFileProviderInterface $taskFileProvider,
 		private TaskRelationProviderInterface $taskRelationProvider,
 		private TaskChecklistProviderInterface $taskChecklistProvider,
+		private TaskWatcherProviderInterface $taskWatcherProvider,
 		private TaskTagProviderInterface $taskTagProvider,
 		private TaskTagRepository $taskTagRepository,
 		private TaskRelationRepository $taskRelationRepository,
@@ -242,6 +243,10 @@ final readonly class TaskProvider implements TaskProviderInterface
 			$task->id,
 		);
 
+		if ($assignee !== null) {
+			$this->recordAssignedEvent($author, $task, $assignee);
+		}
+
 		$this->searchIndexer->queueUpsert($task->id);
 
 		return $task;
@@ -289,6 +294,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		}
 
 		$oldName = $task->name;
+		$oldAssigneeId = $task->assignee?->id;
 		$statusChanged = $task->status->id !== $status->id;
 
 		$task->name = $name;
@@ -314,11 +320,27 @@ final readonly class TaskProvider implements TaskProviderInterface
 
 		if ($recordEvent) {
 			$this->recordUpdateEvents($author, $task, $name, $oldName, $fieldChanges, $tagChanges);
+
+			if ($assignee !== null && $assignee->id !== $oldAssigneeId) {
+				$this->recordAssignedEvent($author, $task, $assignee);
+			}
 		}
 
 		$this->searchIndexer->queueUpsert($task->id);
 
 		return $task;
+	}
+
+	/** Records a dedicated TaskAssigned event so the notification fan-out (U-83) can ping the assignee. */
+	private function recordAssignedEvent(User $author, Task $task, User $assignee): void
+	{
+		$this->eventProvider->recordEvent(
+			$author,
+			$task->project,
+			EventTypeEnum::TaskAssigned,
+			['assigneeId' => $assignee->id, 'assigneeName' => $assignee->name, 'taskName' => $task->name],
+			$task->id,
+		);
 	}
 
 	public function moveTask(User $author, Task $task, Status $newStatus, int $newPosition, bool $recordEvent = true): Task
@@ -478,6 +500,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$this->taskFileProvider->deleteAllForTask($author, $task);
 		$this->taskRelationProvider->deleteAllForTask($task);
 		$this->taskChecklistProvider->deleteAllForTask($task);
+		$this->taskWatcherProvider->deleteAllForTask($task);
 		$this->taskTagProvider->deleteAllForTask($task);
 		$this->taskRepository->delete($task);
 

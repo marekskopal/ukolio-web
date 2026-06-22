@@ -14,6 +14,7 @@ use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\EventRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Notification\NotificationDispatcherInterface;
 use Ukolio\Service\Realtime\RealtimePublisherInterface;
 use Ukolio\Service\Script\Trigger\ScriptEventTriggerInterface;
 use const JSON_THROW_ON_ERROR;
@@ -25,6 +26,7 @@ final readonly class EventProvider implements EventProviderInterface
 		private ActorContextInterface $actorContext,
 		private RealtimePublisherInterface $realtimePublisher,
 		private ScriptEventTriggerInterface $scriptEventTrigger,
+		private NotificationDispatcherInterface $notificationDispatcher,
 	) {
 	}
 
@@ -59,6 +61,7 @@ final readonly class EventProvider implements EventProviderInterface
 		);
 
 		$this->scriptEventTrigger->onEvent($event);
+		$this->notificationDispatcher->onEvent($event);
 
 		return $event;
 	}

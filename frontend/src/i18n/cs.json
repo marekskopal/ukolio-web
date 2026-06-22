@@ -550,6 +550,27 @@
       "delete": "Smazat",
       "deleteConfirm": "Smazat tento komentář? Odpovědi budou také odstraněny."
     },
+    "notifications": {
+      "section": "Oznámení",
+      "bell": "Oznámení",
+      "empty": "Vše přečteno.",
+      "markAllAsRead": "Označit vše",
+      "dismiss": "Zavřít",
+      "message": {
+        "TaskAssigned": "{{actor}} vám přiřadil(a) {{task}}",
+        "TaskComment": "{{actor}} okomentoval(a) {{task}}",
+        "TaskMention": "{{actor}} vás zmínil(a) v {{task}}",
+        "TaskMoved": "{{actor}} přesunul(a) {{task}} do {{status}}",
+        "DueSoon": "{{task}} má termín zítra",
+        "DueToday": "{{task}} má termín dnes"
+      }
+    },
+    "taskWatchers": {
+      "watch": "Sledovat",
+      "watching": "Sleduji",
+      "watchHint": "Dostávat oznámení o komentářích, přesunech a termínech tohoto úkolu",
+      "unwatchHint": "Přestat dostávat oznámení o tomto úkolu"
+    },
     "taskRelations": {
       "section": "Vazby",
       "addButton": "+ Přidat vazbu",

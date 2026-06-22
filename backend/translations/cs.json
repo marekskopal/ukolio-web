@@ -3,7 +3,13 @@
         "subject": {
             "invitation": "Pozvánka do pracovního prostoru {workspace} v Ukolio",
             "passwordReset": "Obnovení hesla pro Ukolio",
-            "emailVerification": "Ověřte svůj e-mail pro Ukolio"
+            "emailVerification": "Ověřte svůj e-mail pro Ukolio",
+            "notification": {
+                "TaskMention": "{actor} vás zmínil(a) v {task}",
+                "TaskAssigned": "{actor} vám přiřadil(a) úkol {task}",
+                "DueSoon": "Úkol {task} má termín zítra",
+                "DueToday": "Úkol {task} má termín dnes"
+            }
         },
         "invitation": {
             "title": "Pozvánka do Ukolio",
@@ -30,6 +36,15 @@
             "fallback": "Nebo zkopírujte tento odkaz do prohlížeče:",
             "expires": "Tento odkaz vyprší za 24 hodin.",
             "ignore": "Pokud jste si Ukolio nezakládal(a), můžete tento e-mail bez obav ignorovat."
+        },
+        "notification": {
+            "greeting": "Dobrý den, {name},",
+            "TaskMention": "{actor} vás zmínil(a) v {task} — {taskName}.",
+            "TaskAssigned": "{actor} vám přiřadil(a) úkol {task} ({taskName}).",
+            "DueSoon": "Úkol {task} ({taskName}) má termín zítra.",
+            "DueToday": "Úkol {task} ({taskName}) má termín dnes.",
+            "button": "Otevřít úkol",
+            "fallback": "Nebo zkopírujte tento odkaz do prohlížeče:"
         }
     }
 }

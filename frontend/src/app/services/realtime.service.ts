@@ -146,6 +146,7 @@ export class RealtimeService {
                 commentId: typeof obj.commentId === 'number' ? obj.commentId : null,
                 fileId: typeof obj.fileId === 'number' ? obj.fileId : null,
                 relationId: typeof obj.relationId === 'number' ? obj.relationId : null,
+                userId: typeof obj.userId === 'number' ? obj.userId : null,
                 originClientId: typeof obj.originClientId === 'string' ? obj.originClientId : null,
             };
         } catch {
@@ -162,6 +163,7 @@ export class RealtimeService {
             commentId: null,
             fileId: null,
             relationId: null,
+            userId: null,
             originClientId: null,
         };
     }
