@@ -1,7 +1,8 @@
 # Ukolio
 
-Minimalistic, multi-tenant Kanban task manager. Designed for AI agents (MCP)
-as the primary actor; the web UI is for human overview.
+Minimalistic, multi-tenant project & task manager — work shown as a board,
+table, calendar, or timeline. AI agents (over MCP) and humans (over the web UI)
+are equal first-class actors: both can plan, create, move, and close work.
 
 ## Services
 
@@ -187,7 +188,8 @@ Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 - `EventTools` — `list_events` (workspace audit log, filter by `projectId`/`taskId`/`type`), `list_task_events` (by task id or code). Event `createdAt` is ISO 8601; `TaskMoved` metadata carries `toStatusId`/`toStatusName`, so a script/agent can tell when a task entered a status.
 - `ScriptTools` — `list_scripts`, `get_script`, `create_script`, `update_script`, `delete_script`, `run_script` (async one-off), `list_script_runs`. Mutations require workspace admin (`canManageScripts`). Scheduled triggers take a 5-field cron in `triggerConfig`.
 
-Designed for AI-agent-driven flows; the frontend stays for human overview.
+The MCP surface mirrors the web UI: agents and humans are equal first-class
+actors, each able to plan, create, move, and close work.
 
 ## Testing
 

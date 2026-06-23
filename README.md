@@ -3,12 +3,13 @@
 </p>
 
 <p align="center">
-  <strong>The Kanban your <em>agents</em> can drive.</strong>
+  <strong>The project &amp; task manager your <em>agents</em> can drive.</strong>
 </p>
 
 <p align="center">
-  Multi-tenant task manager built around the <a href="https://modelcontextprotocol.io">Model Context Protocol</a>.
-  Claude, Cursor, ChatGPT — any MCP client — plans, creates, moves, and closes tasks alongside your team.
+  Multi-tenant work management built around the <a href="https://modelcontextprotocol.io">Model Context Protocol</a>.
+  See your work as a board, table, calendar, or timeline — while Claude, Cursor, ChatGPT, or any MCP client
+  plans, creates, moves, and closes tasks alongside your team.
   Self-hostable, MIT-licensed, EN + CS.
 </p>
 
@@ -24,7 +25,8 @@
 - **OAuth 2.1 + PKCE for agents.** No shared API keys, no copy-paste tokens — each agent has its own credential.
 - **Human/Agent attribution.** Every event, comment, and task is tagged `Human` or `Agent`; append-only event log per workspace / project / task.
 - **Multi-tenant.** Workspaces with Owner / Admin / Member roles, invitations, and a separate SystemAdmin tier for global operations.
-- **Full Kanban kit.** Boards with drag-and-drop, workspace-wide task grid with saved views, custom fields, custom priorities, tags, assignees, comments, file attachments, task relations, realtime updates over Mercure.
+- **Four views of your work.** The same tasks as a drag-and-drop Kanban board, a workspace-wide table with saved views, a calendar, or a timeline (Gantt-style, spanning start → due dates).
+- **Rich tasks.** Markdown descriptions, subtasks and typed relations, checklists, threaded comments with `@mentions`, watchers and an in-app notification inbox, reusable task templates, archiving, custom fields, custom priorities, tags, assignees, file attachments, and realtime updates over Mercure.
 - **Typo-tolerant search.** Meilisearch indexes task names, descriptions, comments, text custom-field values, and tags — exposed both on the web and as an MCP tool.
 - **Scriptable automations.** Per-workspace JavaScript that runs in a hardened V8 sandbox (`ext-v8js`) — on a schedule, on workspace events, or on demand — with a typed `ukolio.*` host API, encrypted variables, and an in-app Monaco editor.
 
@@ -94,10 +96,12 @@ loop is wired (`request-password-reset` → `confirm-password-reset`). Setting
   `isDefault`). Replaces the old hard-coded `Low` / `Medium` / `High` enum;
   every task references one.
 - **Task** — project-scoped, lives in a Status, has name / Markdown description
-  / `Priority` / due date / position / optional assignee. `sequenceNumber`
-  combined with the project's `prefix` gives a stable public code (e.g.
-  `MP-3`) used in URLs and MCP `get_task`. `createdByAgent = true` when the
-  row was created via MCP.
+  / `Priority` / position / optional assignee, an optional `startDate` + due
+  date pair (spanning the timeline view), and a nullable `archivedAt`.
+  `sequenceNumber` combined with the project's `prefix` gives a stable public
+  code (e.g. `MP-3`) used in URLs and MCP `get_task`. `createdByAgent = true`
+  when the row was created via MCP. Archived tasks drop off boards and the
+  default list but stay editable and unarchivable.
 - **Field / ProjectField / TaskFieldValue** — per-workspace catalog of custom
   fields (`Text` / `Textarea` / `Select` / `Version` semver). Projects opt-in
   to fields; their values are persisted per task.
@@ -106,12 +110,24 @@ loop is wired (`request-password-reset` → `confirm-password-reset`). Setting
 - **SavedView** — per-user named filter set on the workspace-wide tasks grid
   (search / status / assignee / tag / priority / project / sort / page size);
   `User.defaultSavedViewId` selects the view loaded on entry.
+- **TaskChecklistItem** — lightweight ordered steps inside a task, each with an
+  optional due date and assignee; progress rides on task DTOs as an N-of-M chip.
+  Distinct from subtasks (which are real linked `Task` rows).
 - **TaskComment** — Markdown comments attributed to the author and tagged
   `Human` or `Agent` (the MCP transport flips actor type via `ActorContext`).
+  Supports one-level threaded replies, an "edited" flag, and `@[Name](user:ID)`
+  mentions resolved against workspace members.
 - **TaskFile** — file attachments stored in the configured S3-compatible
   bucket; metadata persisted alongside the task.
 - **TaskRelation** — typed link between two tasks (`Related` / `Duplicates` /
-  `Parent` / `DependsOn`).
+  `Parent` / `DependsOn`); `Parent` relations back the subtask tree.
+- **TaskTemplate** — reusable task snapshot (name, description, priority, field
+  values, tags) saved from an existing task and instantiated into new ones.
+- **TaskWatcher / Notification** — Trello-style task subscriptions plus a
+  per-user in-app inbox. Watchers (auto-added on assign / comment / mention, or
+  toggled manually) receive assignment, comment, move, mention, and due-soon
+  pings; emailable types also go out over SMTP. The topbar bell streams new
+  notifications over Mercure.
 - **Event** — append-only audit log keyed to workspace / project / task; covers
   task / project / workflow / status / field / tag / priority / comment / file
   / relation / membership / admin actions.
@@ -130,8 +146,9 @@ mutating controller routes through it.
 - **Admin** — workspace-scoped. Manages members (Member ↔ Admin), invites
   Members, full CRUD on projects, workflows, statuses, custom fields, tags,
   priorities, tasks.
-- **Member** — workspace-scoped. Full CRUD on tasks (incl. comments, files,
-  relations, tag assignment, saved views); read-only on the rest.
+- **Member** — workspace-scoped. Full CRUD on tasks (incl. checklists,
+  comments, files, subtasks/relations, tag assignment, watchers, templates,
+  saved views); read-only on the rest.
 
 Ownership transfer (`POST /api/workspaces/{id}/transfer-ownership`) is atomic
 — the old Owner becomes Admin. Workspace owner removal is blocked; transfer
@@ -148,7 +165,7 @@ first.
 | `/projects/:id/board` | Kanban board with drag-and-drop and task drawer |
 | `/projects/:id/workflow` | Workflow editor |
 | `/projects/:id/events` | Project activity log |
-| `/tasks` | Workspace-wide task grid — full-text search (Meili), multi-status / assignee / tag / priority / project filters, saved views, sortable columns, pagination, URL-persisted state |
+| `/tasks` | Workspace-wide tasks, as a **table**, **calendar**, or **timeline** — full-text search (Meili), multi-status / assignee / tag / priority / project filters, saved views, sortable columns, pagination, URL-persisted state |
 | `/agents` | Agent-vs-human activity stats |
 | `/workspaces` | Membership, invitations, tags, priorities, custom fields, MCP clients, events |
 | `/settings/scripts`, `/settings/variables` | Sandboxed automation scripts (Monaco editor + run history) and the workspace variable store |
@@ -185,9 +202,10 @@ Auto-discovered tools (`backend/src/Mcp/Tool/`):
 - `ProjectTools` — list / find / get / create / delete projects.
 - `WorkflowTools` — list / find / create / update / move / delete workflow
   statuses.
-- `TaskTools` — list / find / get / create / update / move / delete tasks
-  (move accepts `statusId` *or* `statusName`), plus `bulk_update_tasks` for
-  batched move / tag / untag / assign / priority / delete operations.
+- `TaskTools` — list / find / get / create / update / move / archive /
+  unarchive / duplicate / delete tasks (move accepts `statusId` *or*
+  `statusName`), plus `bulk_update_tasks` for batched move / tag / untag /
+  assign / priority / delete operations.
 - `FieldTools` — manage the workspace's custom-field catalog and per-project
   attachments.
 - `TagTools` — list / find / create / update / delete tags, plus
@@ -198,9 +216,16 @@ Auto-discovered tools (`backend/src/Mcp/Tool/`):
 - `SearchTools` — `search_tasks`: typo-tolerant full-text search across task
   names, descriptions, comments, text custom-field values, and tag names
   (Meilisearch-backed).
-- `TaskCommentTools` — list & add comments (agent-tagged automatically).
+- `TaskCommentTools` — list, add (threaded replies + `@[Name](user:ID)`
+  mentions, agent-tagged automatically), and author-only edit comments.
+- `TaskChecklistTools` — list / add / update / toggle / delete checklist items.
 - `TaskFileTools` — list / attach (base64) / fetch / delete task files.
-- `TaskRelationTools` — list / link / unlink typed task relations.
+- `TaskRelationTools` — list / link / unlink typed task relations, plus
+  `create_subtask` (create + `Parent`-link in one call).
+- `TaskTemplateTools` — list templates, save a task as a template, create a
+  task from a template.
+- `EventTools` — read the workspace audit log (`list_events`) and a single
+  task's history (`list_task_events`).
 - `ScriptTools` — list / get / create / update / delete / run sandboxed
   automation scripts and read their run history.
 
@@ -287,9 +312,10 @@ frontend/   Angular 22 SPA
                       Google sign-in
     onboarding/       3-step first-run wizard
     projects/         Project list + CRUD
-    board/            Kanban board + task drawer (tags, comments, files, relations)
+    board/            Kanban board + task drawer (checklists, subtasks, tags,
+                      comments, files, relations, watchers, templates)
     workflow-editor/  Workflow + status editing
-    tasks/            Workspace-wide tasks grid with saved views
+    tasks/            Workspace-wide tasks: table, calendar, timeline + saved views
     events/           Activity log
     workspaces/       Workspace management, invitations, tags, priorities,
                       custom fields, MCP clients
