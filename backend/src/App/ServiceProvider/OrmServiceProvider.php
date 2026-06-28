@@ -31,6 +31,7 @@ use Ukolio\Model\Entity\TaskChecklistItem;
 use Ukolio\Model\Entity\TaskComment;
 use Ukolio\Model\Entity\TaskFieldValue;
 use Ukolio\Model\Entity\TaskFile;
+use Ukolio\Model\Entity\TaskRecurrence;
 use Ukolio\Model\Entity\TaskRelation;
 use Ukolio\Model\Entity\TaskTag;
 use Ukolio\Model\Entity\TaskTemplate;
@@ -60,6 +61,7 @@ use Ukolio\Model\Repository\TaskChecklistItemRepository;
 use Ukolio\Model\Repository\TaskCommentRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskFileRepository;
+use Ukolio\Model\Repository\TaskRecurrenceRepository;
 use Ukolio\Model\Repository\TaskRelationRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
@@ -93,6 +95,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 			StatusRepository::class,
 			TaskRepository::class,
 			TaskChecklistItemRepository::class,
+			TaskRecurrenceRepository::class,
 			TaskCommentRepository::class,
 			TaskFieldValueRepository::class,
 			TaskFileRepository::class,
@@ -136,6 +139,7 @@ final class OrmServiceProvider extends AbstractServiceProvider
 		$this->addRepository($container, $orm, StatusRepository::class, Status::class);
 		$this->addRepository($container, $orm, TaskRepository::class, Task::class);
 		$this->addRepository($container, $orm, TaskChecklistItemRepository::class, TaskChecklistItem::class);
+		$this->addRepository($container, $orm, TaskRecurrenceRepository::class, TaskRecurrence::class);
 		$this->addRepository($container, $orm, TaskCommentRepository::class, TaskComment::class);
 		$this->addRepository($container, $orm, TaskFieldValueRepository::class, TaskFieldValue::class);
 		$this->addRepository($container, $orm, TaskFileRepository::class, TaskFile::class);

@@ -67,6 +67,8 @@ use Ukolio\Service\Provider\TaskFileProvider;
 use Ukolio\Service\Provider\TaskFileProviderInterface;
 use Ukolio\Service\Provider\TaskProvider;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskRecurrenceProvider;
+use Ukolio\Service\Provider\TaskRecurrenceProviderInterface;
 use Ukolio\Service\Provider\TaskRelationProvider;
 use Ukolio\Service\Provider\TaskRelationProviderInterface;
 use Ukolio\Service\Provider\TaskTagProvider;
@@ -83,6 +85,8 @@ use Ukolio\Service\Provider\WorkspaceMcpClientProvider;
 use Ukolio\Service\Provider\WorkspaceMcpClientProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProvider;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use Ukolio\Service\Recurrence\RecurrenceTrigger;
+use Ukolio\Service\Recurrence\RecurrenceTriggerInterface;
 use Ukolio\Service\Request\RequestService;
 use Ukolio\Service\Request\RequestServiceInterface;
 use Ukolio\Service\Script\Engine\ScriptEngineInterface;
@@ -128,6 +132,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			BulkTaskProviderInterface::class,
 			TaskCodeResolverInterface::class,
 			TaskChecklistProviderInterface::class,
+			TaskRecurrenceProviderInterface::class,
 			TaskCommentProviderInterface::class,
 			TaskFieldValueProviderInterface::class,
 			TaskFileProviderInterface::class,
@@ -158,6 +163,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			TaskWatcherProviderInterface::class,
 			NotificationProviderInterface::class,
 			NotificationDispatcherInterface::class,
+			RecurrenceTriggerInterface::class,
 		], true);
 	}
 
@@ -188,6 +194,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(BulkTaskProviderInterface::class, BulkTaskProvider::class);
 		$c->add(TaskCodeResolverInterface::class, TaskCodeResolver::class);
 		$c->add(TaskChecklistProviderInterface::class, TaskChecklistProvider::class);
+		$c->add(TaskRecurrenceProviderInterface::class, TaskRecurrenceProvider::class);
 		$c->add(TaskCommentProviderInterface::class, TaskCommentProvider::class);
 		$c->add(TaskFieldValueProviderInterface::class, TaskFieldValueProvider::class);
 		$c->add(TaskFileProviderInterface::class, TaskFileProvider::class);
@@ -221,5 +228,6 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(TaskWatcherProviderInterface::class, TaskWatcherProvider::class);
 		$c->add(NotificationProviderInterface::class, NotificationProvider::class);
 		$c->add(NotificationDispatcherInterface::class, NotificationDispatcher::class);
+		$c->add(RecurrenceTriggerInterface::class, RecurrenceTrigger::class);
 	}
 }

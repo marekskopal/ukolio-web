@@ -16,6 +16,7 @@ use Ukolio\Jobs\Handler\InvitationHandler;
 use Ukolio\Jobs\Handler\JobHandler;
 use Ukolio\Jobs\Handler\NotificationHandler;
 use Ukolio\Jobs\Handler\PasswordResetHandler;
+use Ukolio\Jobs\Handler\RecurringTaskSpawnHandler;
 use Ukolio\Jobs\Handler\SearchReindexHandler;
 use Ukolio\Jobs\Message\AmqpReceivedMessage;
 use Ukolio\Service\Queue\Enum\QueueEnum;
@@ -40,6 +41,7 @@ $handlerMap = [
 	QueueEnum::PasswordReset->value => PasswordResetHandler::class,
 	QueueEnum::SearchReindex->value => SearchReindexHandler::class,
 	QueueEnum::Notification->value => NotificationHandler::class,
+	QueueEnum::RecurringTaskSpawn->value => RecurringTaskSpawnHandler::class,
 ];
 
 $prefetch = (int) getenv('BACKEND_AMQP_CONSUMER_PREFETCH');

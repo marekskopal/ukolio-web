@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Mcp\Capability\Attribute\McpTool;
 use RuntimeException;
 use Ukolio\Dto\DateInput;
+use Ukolio\Dto\TaskRecurrenceWriteDto;
 use Ukolio\Mcp\Dto\McpTaskDto;
 use Ukolio\Mcp\Dto\McpTaskListDto;
 use Ukolio\Mcp\McpUserContextInterface;
@@ -26,6 +27,7 @@ use Ukolio\Service\Provider\StatusProviderInterface;
 use Ukolio\Service\Provider\TaskCodeResolverInterface;
 use Ukolio\Service\Provider\TaskFieldValueProviderInterface;
 use Ukolio\Service\Provider\TaskProviderInterface;
+use Ukolio\Service\Provider\TaskRecurrenceProviderInterface;
 use Ukolio\Service\Provider\TaskTagProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
@@ -44,6 +46,7 @@ final readonly class TaskTools
 		private StatusResolver $statusResolver,
 		private UserRepository $userRepository,
 		private BulkTaskProviderInterface $bulkTaskProvider,
+		private TaskRecurrenceProviderInterface $recurrenceProvider,
 	) {
 	}
 
@@ -147,8 +150,12 @@ final readonly class TaskTools
 	 * @param int|null $assigneeId Optional user ID to assign. Defaults to the current MCP user. Must be a member of the project's workspace.
 	 * @param array<array{fieldId: int, value: ?string}>|null $fieldValues Optional custom-field values keyed by fieldId
 	 * @param list<int>|null $tagIds Optional list of workspace tag IDs to apply to the new task
+	 * @param array{cadence: string, interval?: int, weekday?: ?int, dayOfMonth?: ?int, cronExpression?: ?string, endType?: string, endDate?: ?string, maxOccurrences?: ?int, anchorDate?: ?string}|null $recurrence Optional recurrence rule. See set_task_recurrence for the field semantics.
 	 */
-	#[McpTool(name: 'create_task', description: 'Create a task in a project. Lands in Start status by default.')]
+	#[McpTool(
+		name: 'create_task',
+		description: 'Create a task in a project. Lands in Start status by default. Pass recurrence to make it repeat.',
+	)]
 	public function createTask(
 		int $projectId,
 		string $name,
@@ -162,6 +169,7 @@ final readonly class TaskTools
 		?int $assigneeId = null,
 		?array $fieldValues = null,
 		?array $tagIds = null,
+		?array $recurrence = null,
 	): McpTaskDto {
 		$user = $this->userContext->getUser();
 		$project = $this->requireProject($projectId);
@@ -174,6 +182,9 @@ final readonly class TaskTools
 			?? throw new RuntimeException(sprintf('No Start status found for project %d.', $projectId));
 
 		$assignee = $assigneeId !== null ? $this->resolveAssignee($project, $assigneeId) : $user;
+
+		// Validate the recurrence payload up front so a bad rule fails before a task is created.
+		$recurrenceConfig = $recurrence !== null ? TaskRecurrenceWriteDto::fromArray($recurrence)->toConfig() : null;
 
 		$task = $this->taskProvider->createTask(
 			author: $user,
@@ -188,6 +199,10 @@ final readonly class TaskTools
 			tagIds: $tagIds,
 			startDate: DateInput::parse($startDate, 'startDate'),
 		);
+
+		if ($recurrenceConfig !== null) {
+			$this->recurrenceProvider->set($user, $task, $recurrenceConfig);
+		}
 
 		return McpTaskDto::fromEntity(
 			$task,

@@ -25,6 +25,9 @@ enum EventTypeEnum: string
 	case TaskArchived = 'TaskArchived';
 	case TaskUnarchived = 'TaskUnarchived';
 	case TasksBulkUpdated = 'TasksBulkUpdated';
+	case TaskRecurrenceSet = 'TaskRecurrenceSet';
+	case TaskRecurrenceCleared = 'TaskRecurrenceCleared';
+	case TaskRecurrenceSpawned = 'TaskRecurrenceSpawned';
 
 	case MemberRoleChanged = 'MemberRoleChanged';
 	case OwnershipTransferred = 'OwnershipTransferred';

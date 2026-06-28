@@ -491,6 +491,122 @@
 
             <section class="drawer-section">
                 <div class="drawer-section-head">
+                    <span class="uk-overline">{{ 'app.recurrence.heading' | translate }}</span>
+                    @if (recurrenceLoaded() && recurrenceActive() && !recurrenceEditing()) {
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="onEditRecurrence()">
+                            {{ 'app.actions.edit' | translate }}
+                        </button>
+                    }
+                </div>
+
+                @if (recurrenceLoaded()) {
+                    @if (!recurrenceEditing() && recurrence() === null) {
+                        <button type="button" class="btn btn-ghost btn-sm recurrence-enable" (click)="onEditRecurrence()">
+                            {{ 'app.recurrence.enable' | translate }}
+                        </button>
+                    } @else if (!recurrenceEditing() && recurrence() !== null) {
+                        @if (recurrence(); as r) {
+                            <p class="recurrence-summary">
+                                {{ 'app.recurrence.cadenceLabel.' + r.cadence | translate: {interval: r.interval} }}
+                                @if (!r.active) {
+                                    <span class="recurrence-ended">{{ 'app.recurrence.ended' | translate }}</span>
+                                } @else if (r.nextRunAt) {
+                                    <span class="recurrence-next">{{ 'app.recurrence.next' | translate: {date: (r.nextRunAt | date: 'mediumDate')} }}</span>
+                                }
+                            </p>
+                            <button
+                                type="button"
+                                class="btn btn-danger-ghost btn-sm"
+                                [disabled]="savingRecurrence()"
+                                (click)="onClearRecurrence()"
+                            >
+                                {{ 'app.recurrence.remove' | translate }}
+                            </button>
+                        }
+                    } @else {
+                        <div class="recurrence-form" [formGroup]="recurrenceForm">
+                            <div class="meta-grid">
+                                <label class="meta-label" for="recurrence-cadence">{{ 'app.recurrence.cadence' | translate }}</label>
+                                <select id="recurrence-cadence" class="select meta-control" formControlName="cadence">
+                                    <option value="Daily">{{ 'app.recurrence.cadenceOption.Daily' | translate }}</option>
+                                    <option value="Weekly">{{ 'app.recurrence.cadenceOption.Weekly' | translate }}</option>
+                                    <option value="Monthly">{{ 'app.recurrence.cadenceOption.Monthly' | translate }}</option>
+                                    <option value="Cron">{{ 'app.recurrence.cadenceOption.Cron' | translate }}</option>
+                                </select>
+
+                                @if (recurrenceCadence() !== 'Cron') {
+                                    <label class="meta-label" for="recurrence-interval">{{ 'app.recurrence.interval' | translate }}</label>
+                                    <input id="recurrence-interval" type="number" min="1" class="input meta-control" formControlName="interval" />
+                                }
+
+                                @if (recurrenceCadence() === 'Weekly') {
+                                    <label class="meta-label" for="recurrence-weekday">{{ 'app.recurrence.weekday' | translate }}</label>
+                                    <select id="recurrence-weekday" class="select meta-control" formControlName="weekday">
+                                        @for (day of weekdays; track day) {
+                                            <option [value]="day">{{ 'app.recurrence.weekdayName.' + day | translate }}</option>
+                                        }
+                                    </select>
+                                }
+
+                                @if (recurrenceCadence() === 'Monthly') {
+                                    <label class="meta-label" for="recurrence-dom">{{ 'app.recurrence.dayOfMonth' | translate }}</label>
+                                    <input id="recurrence-dom" type="number" min="1" max="31" class="input meta-control" formControlName="dayOfMonth" />
+                                }
+
+                                @if (recurrenceCadence() === 'Cron') {
+                                    <label class="meta-label" for="recurrence-cron">{{ 'app.recurrence.cron' | translate }}</label>
+                                    <input
+                                        id="recurrence-cron"
+                                        type="text"
+                                        class="input meta-control"
+                                        formControlName="cronExpression"
+                                        placeholder="0 9 * * 1"
+                                        autocomplete="off"
+                                    />
+                                }
+
+                                <label class="meta-label" for="recurrence-endtype">{{ 'app.recurrence.ends' | translate }}</label>
+                                <select id="recurrence-endtype" class="select meta-control" formControlName="endType">
+                                    <option value="Never">{{ 'app.recurrence.endOption.Never' | translate }}</option>
+                                    <option value="OnDate">{{ 'app.recurrence.endOption.OnDate' | translate }}</option>
+                                    <option value="AfterCount">{{ 'app.recurrence.endOption.AfterCount' | translate }}</option>
+                                </select>
+
+                                @if (recurrenceEndType() === 'OnDate') {
+                                    <label class="meta-label" for="recurrence-enddate">{{ 'app.recurrence.endDate' | translate }}</label>
+                                    <input id="recurrence-enddate" type="date" class="input meta-control" formControlName="endDate" />
+                                }
+
+                                @if (recurrenceEndType() === 'AfterCount') {
+                                    <label class="meta-label" for="recurrence-max">{{ 'app.recurrence.maxOccurrences' | translate }}</label>
+                                    <input id="recurrence-max" type="number" min="1" class="input meta-control" formControlName="maxOccurrences" />
+                                }
+                            </div>
+
+                            <div class="recurrence-actions">
+                                <button type="button" class="btn btn-primary btn-sm" [disabled]="savingRecurrence()" (click)="onSaveRecurrence()">
+                                    {{ (savingRecurrence() ? 'app.actions.loading' : 'app.actions.save') | translate }}
+                                </button>
+                                @if (recurrence() !== null) {
+                                    <button type="button" class="btn btn-ghost btn-sm" [disabled]="savingRecurrence()" (click)="onCancelRecurrence()">
+                                        {{ 'app.actions.cancel' | translate }}
+                                    </button>
+                                    <button type="button" class="btn btn-danger-ghost btn-sm" [disabled]="savingRecurrence()" (click)="onClearRecurrence()">
+                                        {{ 'app.recurrence.remove' | translate }}
+                                    </button>
+                                } @else {
+                                    <button type="button" class="btn btn-ghost btn-sm" [disabled]="savingRecurrence()" (click)="onCancelRecurrence()">
+                                        {{ 'app.actions.cancel' | translate }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </section>
+
+            <section class="drawer-section">
+                <div class="drawer-section-head">
                     <span class="uk-overline">{{ 'app.taskRelations.section' | translate }}</span>
                     @if (relationsLoaded() && totalRelationCount() > 0) {
                         <span class="section-count">{{ totalRelationCount() }}</span>

@@ -117,6 +117,21 @@ are enqueued automatically; **scheduled** triggers require a once-a-minute cron.
   de-duplication via the notifications table makes the hourly schedule idempotent —
   each reminder fires at most once per day. Without this cron, assignment / comment /
   mention notifications still work; only due-date reminders won't fire.
+- **Recurring-task cron (required for recurring tasks, U-67).** Run on the host
+  (or a sidecar) hourly:
+
+  ```cron
+  0 * * * * docker compose exec -T backend php /app/bin/console recurring-tasks:tick
+  ```
+
+  `recurring-tasks:tick` is the safety net for date-anchored recurring series: it
+  enqueues the next occurrence of any active recurrence whose `next_run_at` has
+  passed (to the `recurring-task-spawn` queue, consumed by the standard
+  `amqp-consumer`). The common case — spawning the next occurrence when a recurring
+  task is moved to a Finish status — happens inline via the event hook and needs no
+  cron. A per-(recurrence, day) cache guard plus a carrier re-check in the handler
+  keep both paths idempotent. Without this cron, recurring tasks still spawn on
+  completion; only series the user never completes won't advance on schedule.
 - **Operations.**
   - Tail the worker: `docker compose logs -f backend | grep script-worker`
   - Restart just the worker: `docker compose exec backend supervisorctl restart script-worker`

@@ -13,6 +13,7 @@ import {Tag} from '@app/models/tag';
 import {Task, TaskListItem} from '@app/models/task';
 import {TaskComment} from '@app/models/task-comment';
 import {TaskFile} from '@app/models/task-file';
+import {RecurrenceCadence, RecurrenceEndType, RecurrenceWritePayload, TaskRecurrence} from '@app/models/task-recurrence';
 import {TaskRelation, TaskRelationType} from '@app/models/task-relation';
 import {TaskTemplate} from '@app/models/task-template';
 import {TaskWatcher} from '@app/models/task-watcher';
@@ -24,6 +25,7 @@ import {RealtimeService} from '@app/services/realtime.service';
 import {TaskService} from '@app/services/task.service';
 import {TaskChecklistService} from '@app/services/task-checklist.service';
 import {TaskCommentService} from '@app/services/task-comment.service';
+import {TaskRecurrenceService} from '@app/services/task-recurrence.service';
 import {TaskRelationService} from '@app/services/task-relation.service';
 import {TaskTemplateService} from '@app/services/task-template.service';
 import {TaskWatcherService} from '@app/services/task-watcher.service';
@@ -118,6 +120,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     private readonly taskRelationService = inject(TaskRelationService);
     private readonly taskCommentService = inject(TaskCommentService);
     private readonly taskChecklistService = inject(TaskChecklistService);
+    private readonly taskRecurrenceService = inject(TaskRecurrenceService);
     private readonly taskTemplateService = inject(TaskTemplateService);
     private readonly taskWatcherService = inject(TaskWatcherService);
     private readonly currentUserService = inject(CurrentUserService);
@@ -215,6 +218,30 @@ export class TaskDetailDrawerComponent implements OnInit {
         const total = this.checklist().length;
         return total === 0 ? 0 : Math.round((this.checklistDone() / total) * 100);
     });
+
+    protected readonly recurrence = signal<TaskRecurrence | null>(null);
+    protected readonly recurrenceLoaded = signal(false);
+    protected readonly recurrenceEditing = signal(false);
+    protected readonly savingRecurrence = signal(false);
+    protected readonly weekdays = [0, 1, 2, 3, 4, 5, 6];
+
+    protected readonly recurrenceForm = this.fb.nonNullable.group({
+        cadence: 'Weekly' as RecurrenceCadence,
+        interval: 1,
+        weekday: 1,
+        dayOfMonth: 1,
+        cronExpression: '',
+        endType: 'Never' as RecurrenceEndType,
+        endDate: '',
+        maxOccurrences: 10,
+    });
+
+    // Mirror the cadence/end-type controls into signals so per-mode field visibility re-renders
+    // under zoneless change detection (reactive-form values are not signals).
+    protected readonly recurrenceCadence = signal<RecurrenceCadence>('Weekly');
+    protected readonly recurrenceEndType = signal<RecurrenceEndType>('Never');
+
+    protected readonly recurrenceActive = computed<boolean>(() => this.recurrence()?.active === true);
 
     protected readonly watching = signal(false);
     protected readonly watchers = signal<TaskWatcher[]>([]);
@@ -387,6 +414,7 @@ export class TaskDetailDrawerComponent implements OnInit {
             void this.loadComments(existing.id);
             void this.loadSubtasks(existing.id);
             void this.loadChecklist(existing.id);
+            void this.loadRecurrence(existing.id);
             void this.loadWatchers(existing.id);
         } else {
             const fallbackStatusId = this.defaultStatusId() ?? this.statuses()[0]?.id ?? 0;
@@ -400,6 +428,9 @@ export class TaskDetailDrawerComponent implements OnInit {
         this.form.controls.statusId.valueChanges.subscribe((value) => {
             this.statusId.set(Number(value));
         });
+
+        this.recurrenceForm.controls.cadence.valueChanges.subscribe((value) => this.recurrenceCadence.set(value));
+        this.recurrenceForm.controls.endType.valueChanges.subscribe((value) => this.recurrenceEndType.set(value));
 
         const existingValues = new Map(existing?.fieldValues.map((fv) => [fv.fieldId, fv.value ?? '']) ?? []);
         const dynamic = this.form as unknown as FormGroup;
@@ -898,6 +929,87 @@ export class TaskDetailDrawerComponent implements OnInit {
 
     private replaceChecklistItem(updated: ChecklistItem): void {
         this.checklist.update((list) => list.map((i) => (i.id === updated.id ? updated : i)));
+    }
+
+    private async loadRecurrence(taskId: number): Promise<void> {
+        try {
+            const recurrence = await this.taskRecurrenceService.get(taskId);
+            this.recurrence.set(recurrence);
+            if (recurrence) {
+                this.recurrenceForm.patchValue({
+                    cadence: recurrence.cadence,
+                    interval: recurrence.interval,
+                    weekday: recurrence.weekday ?? 1,
+                    dayOfMonth: recurrence.dayOfMonth ?? 1,
+                    cronExpression: recurrence.cronExpression ?? '',
+                    endType: recurrence.endType,
+                    endDate: recurrence.endDate ?? '',
+                    maxOccurrences: recurrence.maxOccurrences ?? 10,
+                });
+                this.recurrenceCadence.set(recurrence.cadence);
+                this.recurrenceEndType.set(recurrence.endType);
+            }
+        } catch {
+            this.recurrence.set(null);
+        } finally {
+            this.recurrenceLoaded.set(true);
+        }
+    }
+
+    protected onEditRecurrence(): void {
+        this.recurrenceEditing.set(true);
+    }
+
+    protected onCancelRecurrence(): void {
+        this.recurrenceEditing.set(false);
+    }
+
+    protected async onSaveRecurrence(): Promise<void> {
+        const existing = this.task();
+        if (!existing || this.savingRecurrence()) {
+            return;
+        }
+        this.savingRecurrence.set(true);
+        try {
+            const saved = await this.taskRecurrenceService.set(existing.id, this.buildRecurrencePayload());
+            this.recurrence.set(saved);
+            this.recurrenceEditing.set(false);
+        } catch {
+            // error interceptor surfaces the message
+        } finally {
+            this.savingRecurrence.set(false);
+        }
+    }
+
+    protected async onClearRecurrence(): Promise<void> {
+        const existing = this.task();
+        if (!existing || this.savingRecurrence()) {
+            return;
+        }
+        this.savingRecurrence.set(true);
+        try {
+            await this.taskRecurrenceService.clear(existing.id);
+            this.recurrence.set(null);
+            this.recurrenceEditing.set(false);
+        } catch {
+            // error interceptor surfaces the message
+        } finally {
+            this.savingRecurrence.set(false);
+        }
+    }
+
+    private buildRecurrencePayload(): RecurrenceWritePayload {
+        const value = this.recurrenceForm.getRawValue();
+        return {
+            cadence: value.cadence,
+            interval: value.cadence === 'Cron' ? 1 : Math.max(1, Number(value.interval) || 1),
+            weekday: value.cadence === 'Weekly' ? Number(value.weekday) : null,
+            dayOfMonth: value.cadence === 'Monthly' ? Number(value.dayOfMonth) : null,
+            cronExpression: value.cadence === 'Cron' ? value.cronExpression.trim() : null,
+            endType: value.endType,
+            endDate: value.endType === 'OnDate' && value.endDate !== '' ? value.endDate : null,
+            maxOccurrences: value.endType === 'AfterCount' ? Math.max(1, Number(value.maxOccurrences) || 1) : null,
+        };
     }
 
     protected onOpenAddRelation(): void {

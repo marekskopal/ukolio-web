@@ -983,3 +983,33 @@
     font-weight: 600;
     line-height: 16px;
 }
+
+.recurrence-form {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+}
+
+.recurrence-actions {
+    display: flex;
+    gap: $space-3;
+}
+
+.recurrence-summary {
+    margin: 0 0 $space-3;
+    font-size: $font-size-13;
+    color: $color-text;
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+}
+
+.recurrence-next {
+    font-size: $font-size-12;
+    color: $color-text-subtle;
+}
+
+.recurrence-ended {
+    font-size: $font-size-12;
+    color: $color-text-faint;
+}

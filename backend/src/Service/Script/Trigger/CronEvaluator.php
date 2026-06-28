@@ -6,6 +6,7 @@ namespace Ukolio\Service\Script\Trigger;
 
 use Cron\CronExpression;
 use DateTimeImmutable;
+use RuntimeException;
 
 final readonly class CronEvaluator implements CronEvaluatorInterface
 {
@@ -21,5 +22,16 @@ final readonly class CronEvaluator implements CronEvaluatorInterface
 		}
 
 		return (new CronExpression($expression))->isDue($now);
+	}
+
+	public function nextRunDate(string $expression, DateTimeImmutable $after, bool $allowCurrent = false): DateTimeImmutable
+	{
+		if (!CronExpression::isValidExpression($expression)) {
+			throw new RuntimeException('Invalid cron expression.');
+		}
+
+		$next = (new CronExpression($expression))->getNextRunDate($after, 0, $allowCurrent);
+
+		return DateTimeImmutable::createFromInterface($next);
 	}
 }

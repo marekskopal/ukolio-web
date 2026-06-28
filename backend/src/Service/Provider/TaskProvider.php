@@ -18,6 +18,7 @@ use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\SubtaskFilterEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
+use Ukolio\Model\Repository\TaskRecurrenceRepository;
 use Ukolio\Model\Repository\TaskRelationRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
@@ -34,6 +35,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		private TaskRelationProviderInterface $taskRelationProvider,
 		private TaskChecklistProviderInterface $taskChecklistProvider,
 		private TaskWatcherProviderInterface $taskWatcherProvider,
+		private TaskRecurrenceRepository $taskRecurrenceRepository,
 		private TaskTagProviderInterface $taskTagProvider,
 		private TaskTagRepository $taskTagRepository,
 		private TaskRelationRepository $taskRelationRepository,
@@ -501,6 +503,12 @@ final readonly class TaskProvider implements TaskProviderInterface
 		$this->taskRelationProvider->deleteAllForTask($task);
 		$this->taskChecklistProvider->deleteAllForTask($task);
 		$this->taskWatcherProvider->deleteAllForTask($task);
+		// Delete the recurrence row directly (not via its provider) to avoid a provider cycle:
+		// TaskRecurrenceProvider depends on TaskProvider for spawning occurrences.
+		$recurrence = $this->taskRecurrenceRepository->findByTask($taskId);
+		if ($recurrence !== null) {
+			$this->taskRecurrenceRepository->delete($recurrence);
+		}
 		$this->taskTagProvider->deleteAllForTask($task);
 		$this->taskRepository->delete($task);
 

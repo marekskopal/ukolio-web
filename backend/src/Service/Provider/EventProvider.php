@@ -16,6 +16,7 @@ use Ukolio\Model\Repository\EventRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Service\Notification\NotificationDispatcherInterface;
 use Ukolio\Service\Realtime\RealtimePublisherInterface;
+use Ukolio\Service\Recurrence\RecurrenceTriggerInterface;
 use Ukolio\Service\Script\Trigger\ScriptEventTriggerInterface;
 use const JSON_THROW_ON_ERROR;
 
@@ -27,6 +28,7 @@ final readonly class EventProvider implements EventProviderInterface
 		private RealtimePublisherInterface $realtimePublisher,
 		private ScriptEventTriggerInterface $scriptEventTrigger,
 		private NotificationDispatcherInterface $notificationDispatcher,
+		private RecurrenceTriggerInterface $recurrenceTrigger,
 	) {
 	}
 
@@ -62,6 +64,7 @@ final readonly class EventProvider implements EventProviderInterface
 
 		$this->scriptEventTrigger->onEvent($event);
 		$this->notificationDispatcher->onEvent($event);
+		$this->recurrenceTrigger->onEvent($event);
 
 		return $event;
 	}

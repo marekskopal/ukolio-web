@@ -80,6 +80,7 @@ enum Routes: string
 	case TaskChecklistItemMove = '/api/checklist-items/{itemId:number}/move';
 	case TaskWatchers = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/watchers';
 	case TaskWatch = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/watch';
+	case TaskRecurrence = '/api/tasks/{taskId:[A-Z0-9][A-Z0-9-]*}/recurrence';
 
 	case Notifications = '/api/notifications';
 	case NotificationsReadAll = '/api/notifications/read-all';
