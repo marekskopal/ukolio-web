@@ -1,14 +1,14 @@
-import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AuthenticationService} from '@app/services/authentication.service';
+import {BrandLogoComponent} from '@app/shared/components/brand-logo/brand-logo.component';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-reset-password',
     standalone: true,
-    imports: [NgOptimizedImage, ReactiveFormsModule, RouterLink, TranslatePipe],
+    imports: [BrandLogoComponent, ReactiveFormsModule, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './reset-password.component.html',
     styleUrl: './auth-page.scss',

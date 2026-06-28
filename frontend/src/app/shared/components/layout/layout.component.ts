@@ -1,4 +1,3 @@
-import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnInit, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {SearchHit} from '@app/models/search';
@@ -12,6 +11,7 @@ import {PermissionsService} from '@app/services/permissions.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {ThemeService} from '@app/services/theme.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {BrandLogoComponent} from '@app/shared/components/brand-logo/brand-logo.component';
 import {NotificationBellComponent} from '@app/shared/components/notification-bell/notification-bell.component';
 import {SearchPopoverComponent} from '@app/shared/components/search-popover/search-popover.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
@@ -19,7 +19,7 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 @Component({
     selector: 'uk-layout',
     standalone: true,
-    imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, SearchPopoverComponent, NotificationBellComponent],
+    imports: [BrandLogoComponent, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, SearchPopoverComponent, NotificationBellComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss',

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/src/assets/brand/logo-wordmark.svg" alt="Ukolio" width="320" />
+  <img src="frontend/src/assets/brand/logo-wordmark-inverse.svg" alt="Ukolio" width="320" />
 </p>
 
 <p align="center">

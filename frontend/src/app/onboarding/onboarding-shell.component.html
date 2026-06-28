@@ -1,12 +1,6 @@
 <div class="onboarding-shell">
     <header class="onboarding-header">
-        <img
-            class="onboarding-logo"
-            ngSrc="assets/brand/logo-wordmark.svg"
-            width="330"
-            height="120"
-            [alt]="'app.brand' | translate"
-        />
+        <uk-brand-logo class="onboarding-logo" [height]="22" />
         @if (workspaceName(); as ws) {
             <span class="onboarding-divider"></span>
             <span class="onboarding-caption">

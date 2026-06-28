@@ -89,14 +89,13 @@
 }
 
 // ─── Kanban columns (no fill — cards float on page bg) ──────
-// No overflow here: the whole page is the single scroll container, which lets
-// the column headers stick to the top of the viewport via position: sticky.
 .kanban {
     display: flex;
     align-items: stretch;
     gap: 0;
     flex: 1;
     min-height: 0;
+    overflow-x: scroll;
 }
 
 .column {

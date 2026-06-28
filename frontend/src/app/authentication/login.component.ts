@@ -1,15 +1,15 @@
-import {NgOptimizedImage} from '@angular/common';
 import {AfterViewInit, ChangeDetectionStrategy, Component, inject, NgZone, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AuthenticationService} from '@app/services/authentication.service';
 import {LanguageService} from '@app/services/language.service';
+import {BrandLogoComponent} from '@app/shared/components/brand-logo/brand-logo.component';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-login',
     standalone: true,
-    imports: [NgOptimizedImage, ReactiveFormsModule, RouterLink, TranslatePipe],
+    imports: [BrandLogoComponent, ReactiveFormsModule, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './login.component.html',
     styleUrl: './auth-page.scss',

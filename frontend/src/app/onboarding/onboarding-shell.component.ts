@@ -1,4 +1,3 @@
-import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {OnboardingStateService} from '@app/onboarding/onboarding-state.service';
@@ -6,13 +5,14 @@ import {AuthenticationService} from '@app/services/authentication.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {OnboardingService} from '@app/services/onboarding.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {BrandLogoComponent} from '@app/shared/components/brand-logo/brand-logo.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {filter, Subscription} from 'rxjs';
 
 @Component({
     selector: 'uk-onboarding-shell',
     standalone: true,
-    imports: [NgOptimizedImage, RouterOutlet, TranslatePipe],
+    imports: [BrandLogoComponent, RouterOutlet, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './onboarding-shell.component.html',
     styleUrl: './onboarding-shell.component.scss',

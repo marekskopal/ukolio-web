@@ -1,15 +1,15 @@
-import {NgOptimizedImage} from '@angular/common';
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {AuthenticationService} from '@app/services/authentication.service';
 import {OAuthService} from '@app/services/oauth.service';
+import {BrandLogoComponent} from '@app/shared/components/brand-logo/brand-logo.component';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-oauth-authorize',
     standalone: true,
-    imports: [NgOptimizedImage, ReactiveFormsModule, TranslatePipe],
+    imports: [BrandLogoComponent, ReactiveFormsModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './oauth-authorize.component.html',
     styleUrl: '../authentication/auth-page.scss',
