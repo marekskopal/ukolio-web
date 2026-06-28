@@ -230,6 +230,7 @@
 					@implements,
 					@method,
 					@phpstan-ignore-next-line,
+					@phpstan-impure,
 					@api
 				"/>
             </property>

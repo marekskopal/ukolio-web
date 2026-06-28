@@ -26,7 +26,6 @@ final readonly class TaskRecurrenceTools
 	 * Get the recurrence rule attached to a task, or null if it does not recur.
 	 *
 	 * @param int|string $taskId Task ID or code (e.g. "MP-3")
-	 *
 	 * @phpstan-impure Reads mutable persistence; set/clear between calls changes the result.
 	 */
 	#[McpTool(name: 'get_task_recurrence', description: 'Get a task\'s recurrence rule, or null if the task does not recur.')]
