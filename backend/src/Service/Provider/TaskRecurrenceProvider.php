@@ -22,6 +22,11 @@ use Ukolio\Service\Script\Trigger\CronEvaluatorInterface;
 
 final readonly class TaskRecurrenceProvider implements TaskRecurrenceProviderInterface
 {
+	// Upper bounds keep pathological values away from DateTime::modify() (date overflow)
+	// and cap how far a single rule can schedule ahead.
+	private const int MaxInterval = 1000;
+	private const int MaxOccurrencesCap = 10000;
+
 	public function __construct(
 		private TaskRecurrenceRepository $taskRecurrenceRepository,
 		private EventProviderInterface $eventProvider,
@@ -191,8 +196,8 @@ final readonly class TaskRecurrenceProvider implements TaskRecurrenceProviderInt
 
 	private function validate(RecurrenceConfig $config): void
 	{
-		if ($config->interval < 1) {
-			throw new RuntimeException('Recurrence interval must be at least 1.');
+		if ($config->interval < 1 || $config->interval > self::MaxInterval) {
+			throw new RuntimeException(sprintf('Recurrence interval must be between 1 and %d.', self::MaxInterval));
 		}
 
 		if ($config->cadence === RecurrenceCadenceEnum::Cron) {
@@ -219,6 +224,10 @@ final readonly class TaskRecurrenceProvider implements TaskRecurrenceProviderInt
 
 		if ($config->endType === RecurrenceEndTypeEnum::AfterCount && ($config->maxOccurrences === null || $config->maxOccurrences < 1)) {
 			throw new RuntimeException('A positive occurrence count is required when the recurrence ends after a number of occurrences.');
+		}
+
+		if ($config->maxOccurrences !== null && $config->maxOccurrences > self::MaxOccurrencesCap) {
+			throw new RuntimeException(sprintf('Occurrence count must not exceed %d.', self::MaxOccurrencesCap));
 		}
 	}
 
