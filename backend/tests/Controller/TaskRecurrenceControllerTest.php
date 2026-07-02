@@ -67,6 +67,40 @@ final class TaskRecurrenceControllerTest extends IntegrationTestCase
 		self::assertSame(422, $response->getStatusCode());
 	}
 
+	public function testOverlongIntervalIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$taskId = $this->createTask($owner, $project->id, 'Pathological interval');
+
+		$response = $this->request(
+			'PUT',
+			'/api/tasks/' . $taskId . '/recurrence',
+			body: ['cadence' => 'Daily', 'interval' => 1001, 'endType' => 'Never'],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testOverlongMaxOccurrencesIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$taskId = $this->createTask($owner, $project->id, 'Pathological count');
+
+		$response = $this->request(
+			'PUT',
+			'/api/tasks/' . $taskId . '/recurrence',
+			body: ['cadence' => 'Daily', 'interval' => 1, 'endType' => 'AfterCount', 'maxOccurrences' => 10001],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
 	public function testOnDateWithoutEndDateIsRejected(): void
 	{
 		$owner = Fixture::createUser();

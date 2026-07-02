@@ -29,6 +29,26 @@ use const UPLOAD_ERR_OK;
 
 final readonly class TaskFileController
 {
+	/**
+	 * The stored MIME type is client-supplied at upload time. Only these types are
+	 * echoed back on download; anything else is forced to application/octet-stream
+	 * so a mislabelled payload can't be rendered by the browser. Deliberately
+	 * excludes scriptable types like text/html and image/svg+xml.
+	 */
+	private const array SafeDownloadMimeTypes = [
+		'image/png',
+		'image/jpeg',
+		'image/gif',
+		'image/webp',
+		'application/pdf',
+		'application/zip',
+		'application/json',
+		'text/plain',
+		'text/csv',
+		'video/mp4',
+		'audio/mpeg',
+	];
+
 	public function __construct(
 		private TaskCodeResolverInterface $taskCodeResolver,
 		private TaskFileProviderInterface $taskFileProvider,
@@ -108,10 +128,16 @@ final readonly class TaskFileController
 		$stream->rewind();
 
 		return new Response($stream, 200, [
-			'Content-Type' => $file->mimeType,
+			'Content-Type' => self::downloadContentType($file->mimeType),
 			'Content-Length' => (string) $file->size,
 			'Content-Disposition' => 'attachment; filename="' . addslashes($file->filename) . '"',
+			'X-Content-Type-Options' => 'nosniff',
 		]);
+	}
+
+	private static function downloadContentType(string $mimeType): string
+	{
+		return in_array(strtolower($mimeType), self::SafeDownloadMimeTypes, true) ? $mimeType : 'application/octet-stream';
 	}
 
 	#[RouteDelete(Routes::TaskFile->value)]

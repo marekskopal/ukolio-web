@@ -12,6 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Ukolio\OAuth\AuthorizationServiceInterface;
 use Ukolio\OAuth\ClientServiceInterface;
+use Ukolio\OAuth\DiscoveryUrl;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Route\Routes;
 use Ukolio\Service\Request\RequestServiceInterface;
@@ -29,7 +30,7 @@ final readonly class OAuthController
 	#[RouteGet(Routes::OAuthMetadata->value)]
 	public function actionGetMetadata(ServerRequestInterface $request): ResponseInterface
 	{
-		$baseUrl = self::getBaseUrl($request);
+		$baseUrl = DiscoveryUrl::baseUrl($request);
 
 		$issuer = $baseUrl . Routes::Mcp->value;
 
@@ -48,7 +49,7 @@ final readonly class OAuthController
 	#[RouteGet(Routes::OAuthResourceMetadata->value)]
 	public function actionGetResourceMetadata(ServerRequestInterface $request): ResponseInterface
 	{
-		$baseUrl = self::getBaseUrl($request);
+		$baseUrl = DiscoveryUrl::baseUrl($request);
 
 		return new JsonResponse([
 			'resource' => $baseUrl . Routes::Mcp->value,
@@ -96,7 +97,7 @@ final readonly class OAuthController
 			return new ErrorResponse('code_challenge_method must be "S256"', 400);
 		}
 
-		if (!self::resourceMatches($request, $body['resource'] ?? null)) {
+		if (!DiscoveryUrl::resourceMatches($request, $body['resource'] ?? null)) {
 			return new ErrorResponse(
 				'Invalid resource indicator: this authorization server only issues tokens for its own MCP resource',
 				400,
@@ -137,7 +138,7 @@ final readonly class OAuthController
 		/** @var array<string, mixed> $body */
 		$body = $request->getParsedBody() ?? [];
 
-		if (!self::resourceMatches($request, $body['resource'] ?? null)) {
+		if (!DiscoveryUrl::resourceMatches($request, $body['resource'] ?? null)) {
 			return new JsonResponse([
 				'error' => 'invalid_target',
 				'error_description' => 'The requested resource is not served by this authorization server',
@@ -213,42 +214,5 @@ final readonly class OAuthController
 			'redirect_uris' => json_decode($client->redirectUris, true, 2, JSON_THROW_ON_ERROR),
 			'token_endpoint_auth_method' => 'none',
 		], 201);
-	}
-
-	/**
-	 * RFC 8707 resource indicator validation. This authorization server protects exactly
-	 * one resource — its own MCP endpoint — and issues opaque tokens validated against its
-	 * own store. Rejecting a `resource` that names anything else prevents a client from
-	 * being steered into minting a token here for a different (e.g. attacker) resource,
-	 * closing the OAuth confused-deputy vector. The indicator is optional (absent → allowed)
-	 * to stay compatible with clients that predate resource indicators.
-	 */
-	private static function resourceMatches(ServerRequestInterface $request, mixed $resource): bool
-	{
-		if (!is_string($resource) || $resource === '') {
-			return true;
-		}
-
-		$canonical = self::getBaseUrl($request) . Routes::Mcp->value;
-
-		return rtrim($resource, '/') === rtrim($canonical, '/');
-	}
-
-	private static function getBaseUrl(ServerRequestInterface $request): string
-	{
-		$scheme = $request->getHeaderLine('X-Forwarded-Proto');
-		if ($scheme === '') {
-			$scheme = $request->getUri()->getScheme();
-		}
-
-		$host = $request->getHeaderLine('X-Forwarded-Host');
-		if ($host === '') {
-			$host = $request->getHeaderLine('Host');
-		}
-		if ($host === '') {
-			$host = $request->getUri()->getAuthority();
-		}
-
-		return $scheme . '://' . $host;
 	}
 }

@@ -143,6 +143,24 @@ final class OAuthControllerTest extends IntegrationTestCase
 		return [$verifier, $challenge];
 	}
 
+	public function testDiscoveryIgnoresSpoofedForwardedHost(): void
+	{
+		$request = $this->buildRequest('GET', '/.well-known/oauth-authorization-server/mcp')
+			->withHeader('X-Forwarded-Host', 'attacker.example')
+			->withHeader('X-Forwarded-Proto', 'https');
+
+		$response = $this->handler->handle($request);
+
+		self::assertSame(200, $response->getStatusCode());
+		$body = $this->jsonBody($response);
+		$issuer = self::stringField($body['issuer']);
+		// PROXY_HOST is pinned to test.local in the test bootstrap; a spoofed
+		// forwarded host must not leak into the advertised URLs.
+		self::assertStringNotContainsString('attacker.example', $issuer);
+		self::assertStringContainsString('test.local', $issuer);
+		self::assertStringNotContainsString('attacker.example', (string) json_encode($body));
+	}
+
 	public function testRegisterCapsRedirectUriCount(): void
 	{
 		$uris = array_map(static fn (int $i): string => 'http://localhost/cb' . $i, range(1, 11));

@@ -93,13 +93,16 @@ final class MeiliClient
 
 	public function search(int $workspaceId, string $query, ?SearchFiltersDto $filters, int $limit, int $offset): SearchResultDto
 	{
+		// Filter values are concatenated into the Meili expression, so every value is
+		// int-cast here — never rely on upstream typing alone (a raw string value
+		// could break out of the expression and cross workspace boundaries).
 		$filterExpressions = ['workspaceId = ' . $workspaceId];
 		if ($filters !== null) {
 			if ($filters->projectId !== null) {
 				$filterExpressions[] = 'projectId = ' . $filters->projectId;
 			}
 			if ($filters->statusIds !== null && $filters->statusIds !== []) {
-				$filterExpressions[] = 'statusId IN [' . implode(', ', $filters->statusIds) . ']';
+				$filterExpressions[] = 'statusId IN [' . implode(', ', array_map(intval(...), $filters->statusIds)) . ']';
 			}
 			if ($filters->onlyActive) {
 				$filterExpressions[] = 'statusType != "Finish"';

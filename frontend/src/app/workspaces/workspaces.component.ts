@@ -635,7 +635,7 @@ export class WorkspacesComponent implements OnInit {
             return;
         }
         try {
-            await this.priorityService.movePriority(priority.id, newPosition);
+            await this.priorityService.movePriority(ws.id, priority.id, newPosition);
             const refreshed = await this.priorityService.loadWorkspacePriorities(ws.id, true);
             this.priorities.set(refreshed);
         } catch {

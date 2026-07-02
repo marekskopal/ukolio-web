@@ -75,10 +75,24 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 			throw new NotAuthorizedException('AccessToken is invalid.', $request, 401, $exception);
 		}
 
+		$this->assertAccessType($token, $request);
+
 		$request = $this->withUserAttribute($request, $token->id, $this->tokenVersion($token));
 		$request = $request->withAttribute(self::AttributeToken, $jwtToken);
 
 		return $handler->handle($request);
+	}
+
+	/**
+	 * A refresh token must not double as an access token (it would stretch a stolen
+	 * token's life from 1 h to 7 d). Tokens minted before the `type` claim existed
+	 * carry none and stay valid until they expire naturally.
+	 */
+	private function assertAccessType(object $token, ServerRequestInterface $request): void
+	{
+		if (isset($token->type) && $token->type !== AuthenticationServiceInterface::TokenTypeAccess) {
+			throw new NotAuthorizedException('AccessToken is invalid.', $request);
+		}
 	}
 
 	private function captureOriginClientId(ServerRequestInterface $request): void
@@ -111,8 +125,10 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 			throw new NotAuthorizedException('AccessToken is expired.', $request, 401, $exception);
 		}
 
-		/** @var object{id: int, tv?: int} $payload */
+		/** @var object{id: int, tv?: int, type?: string} $payload */
 		$payload = $exception->getPayload();
+
+		$this->assertAccessType($payload, $request);
 
 		$request = $this->withUserAttribute($request, $payload->id, $this->tokenVersion($payload));
 

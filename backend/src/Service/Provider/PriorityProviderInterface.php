@@ -15,8 +15,6 @@ interface PriorityProviderInterface
 
 	public function getPriority(Workspace $workspace, int $priorityId): ?Priority;
 
-	public function getPriorityById(int $priorityId): ?Priority;
-
 	public function findPriorityByName(Workspace $workspace, string $name): ?Priority;
 
 	public function getDefaultForWorkspace(Workspace $workspace): ?Priority;

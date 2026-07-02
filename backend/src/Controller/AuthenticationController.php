@@ -129,6 +129,12 @@ final readonly class AuthenticationController
 			return new NotAuthorizedResponse('Invalid RefreshToken.');
 		}
 
+		// An access token must not be accepted here — it would stretch a stolen 1 h
+		// token into a 7 d session. Legacy tokens without the claim expire naturally.
+		if (isset($decoded->type) && $decoded->type !== AuthenticationServiceInterface::TokenTypeRefresh) {
+			return new NotAuthorizedResponse('Invalid RefreshToken.');
+		}
+
 		$user = $this->requestService->getUser($request);
 
 		$decodedTokenVersion = isset($decoded->tv) && is_int($decoded->tv) ? $decoded->tv : 0;
