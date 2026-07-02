@@ -23,6 +23,13 @@ RUN install-php-extensions \
 # v8js.so links against (V8 is embedded in Node, no separate libv8 in Alpine).
 RUN apk add --no-cache curl tzdata supervisor nodejs-libs
 
+# Unprivileged user for the V8 script sandbox. The worker runs attacker-authored
+# (admin-authored) JS in-process, so a V8 memory-safety escape must NOT land as
+# root in the same container that holds the DB creds and AUTHORIZATION_TOKEN_KEY.
+# It only needs read access to /app (which is root-owned but world-readable) plus
+# outbound network to RabbitMQ/DB — no write access to the codebase.
+RUN adduser -S -D -H -u 10001 -s /sbin/nologin ukolio-script
+
 # Copy the prebuilt ZTS v8js extension. It is loaded only by the script-worker
 # process (via `php -d extension=v8js.so` in supervisord.conf), not by FrankenPHP
 # or the main AMQP consumer, so the heavyweight V8 runtime stays out of the web

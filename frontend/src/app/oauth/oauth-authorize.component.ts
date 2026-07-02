@@ -103,6 +103,21 @@ export class OAuthAuthorizeComponent implements OnInit {
             params.set('state', response.state);
         }
 
+        // The backend only ever hands back a redirect_uri it validated at registration, but this
+        // value flows straight into a navigation — guard the sink so a non-http(s) scheme (e.g.
+        // javascript:) can never execute in the app origin even if that invariant regressed.
+        let target: URL;
+        try {
+            target = new URL(response.redirectUri);
+        } catch {
+            this.errorKey.set('app.auth.oauth.invalidRequest');
+            return;
+        }
+        if (target.protocol !== 'https:' && target.protocol !== 'http:') {
+            this.errorKey.set('app.auth.oauth.invalidRequest');
+            return;
+        }
+
         window.location.href = `${response.redirectUri}?${params.toString()}`;
     }
 }

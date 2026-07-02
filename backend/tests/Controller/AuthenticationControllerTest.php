@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Ukolio\Tests\Controller;
 
 use DateTimeImmutable;
+use Laminas\Diactoros\ServerRequest;
+use Laminas\Diactoros\Stream;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\AuthenticationController;
 use Ukolio\Model\Entity\User;
@@ -64,6 +66,38 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		]);
 
 		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testLogoutClearsMercureCookie(): void
+	{
+		$response = $this->request('POST', '/api/authentication/logout', []);
+
+		self::assertSame(200, $response->getStatusCode());
+		$setCookie = $response->getHeaderLine('Set-Cookie');
+		self::assertStringContainsString('mercureAuthorization=;', $setCookie);
+		self::assertStringContainsString('Max-Age=0', $setCookie);
+	}
+
+	public function testMalformedJsonBodyReturns400NotServerError(): void
+	{
+		$request = (new ServerRequest([], [], '/api/authentication/login', 'POST'))
+			->withHeader('Content-Type', 'application/json');
+		$stream = new Stream('php://temp', 'r+');
+		$stream->write('{"email": "x@example.com", ');
+		$stream->rewind();
+		$request = $request->withBody($stream);
+
+		$response = $this->handler->handle($request);
+
+		self::assertSame(400, $response->getStatusCode());
+	}
+
+	public function testMissingRequiredFieldsReturns400NotServerError(): void
+	{
+		// CredentialsDto needs email + password; an empty body must be a client error, not a 500.
+		$response = $this->request('POST', '/api/authentication/login', []);
+
+		self::assertSame(400, $response->getStatusCode());
 	}
 
 	public function testSignUpWithDuplicateEmailReturnsGenericOkAndKeepsAccountIntact(): void

@@ -59,6 +59,8 @@ final readonly class ClientService implements ClientServiceInterface
 			if (strlen($redirectUri) > self::MaxRedirectUriLength) {
 				throw new RuntimeException(sprintf('redirect_uri is too long (max %d characters)', self::MaxRedirectUriLength), 400);
 			}
+
+			self::assertSafeRedirectUri($redirectUri);
 		}
 
 		$this->garbageCollectAnonymousClients();
@@ -91,6 +93,30 @@ final readonly class ClientService implements ClientServiceInterface
 		}
 
 		return mb_substr($clientName, 0, self::MaxClientNameLength);
+	}
+
+	/**
+	 * Registration is open, so the redirect_uri is fully attacker-controlled and later fed to a
+	 * `window.location` navigation on approval. Only `https` (or `http`/`https` for loopback dev
+	 * clients) is allowed — a `javascript:`/`data:` scheme would execute in the app's own origin,
+	 * where the session JWTs live, once a victim approved the client.
+	 */
+	private static function assertSafeRedirectUri(string $redirectUri): void
+	{
+		$parsed = parse_url($redirectUri);
+		if ($parsed === false || !isset($parsed['scheme'], $parsed['host'])) {
+			throw new RuntimeException('redirect_uri must be an absolute http(s) URL', 400);
+		}
+
+		$scheme = strtolower($parsed['scheme']);
+		$host = strtolower($parsed['host']);
+		$isLoopback = in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+
+		if ($scheme === 'https' || ($scheme === 'http' && $isLoopback)) {
+			return;
+		}
+
+		throw new RuntimeException('redirect_uri must use https (http is allowed only for loopback)', 400);
 	}
 
 	/** Open registration must not grow the table unboundedly: drop stale registrations no user ever approved. */

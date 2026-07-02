@@ -51,7 +51,8 @@
 
 ```bash
 cp .env.example .env                                          # adjust ports / secrets as needed
-openssl rand -hex 32                                          # generate AUTHORIZATION_TOKEN_KEY (+ Mercure keys)
+openssl rand -hex 32                                          # run 3× — one value each for AUTHORIZATION_TOKEN_KEY,
+                                                              # MERCURE_PUBLISHER_JWT_KEY, MERCURE_SUBSCRIBER_JWT_KEY
 make up                                                       # build & start the full stack
 make migrate                                                  # run database migrations
 docker compose exec backend php bin/console admin:create      # bootstrap the first SystemAdmin
@@ -60,8 +61,9 @@ open http://localhost:4300/                                   # default proxy po
 
 The backend refuses to boot when `AUTHORIZATION_TOKEN_KEY` is missing, shorter
 than 32 characters, or still set to the `replace-with-32-char-random-hex-key-here`
-placeholder. Generate one (and the two Mercure JWT keys) with
-`openssl rand -hex 32`. With `APP_ENV=production` the same boot guard also
+placeholder. Generate a distinct value for it and for each of the two Mercure
+JWT keys by running `openssl rand -hex 32` once per key (three times total).
+With `APP_ENV=production` the same boot guard also
 rejects the dev defaults for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`,
 `S3_ACCESS_KEY`, and `S3_SECRET_KEY` — rotate them before going live.
 
@@ -187,7 +189,7 @@ Sessions persist to Redis with a TTL of `MCP_SESSION_TTL` seconds (default
 
 - `GET /.well-known/oauth-authorization-server/mcp`
 - `GET /.well-known/oauth-protected-resource/mcp`
-- `POST /mcp/oauth/register` — dynamic client registration (open)
+- `POST /mcp/oauth/register` — dynamic client registration (open; `redirect_uri` must be `https`, or `http` for loopback)
 - `POST /mcp/oauth/authorize` — user approval (requires user JWT)
 - `POST /mcp/oauth/token` — code/refresh-token exchange (open)
 - `GET /mcp/oauth/client-info` — display name lookup (open)
@@ -219,6 +221,9 @@ Auto-discovered tools (`backend/src/Mcp/Tool/`):
 - `TaskCommentTools` — list, add (threaded replies + `@[Name](user:ID)`
   mentions, agent-tagged automatically), and author-only edit comments.
 - `TaskChecklistTools` — list / add / update / toggle / delete checklist items.
+- `TaskRecurrenceTools` — get / set / clear a task's recurrence rule
+  (cadence, interval, cron, end condition); `create_task` also accepts an
+  inline `recurrence` payload.
 - `TaskFileTools` — list / attach (base64) / fetch / delete task files.
 - `TaskRelationTools` — list / link / unlink typed task relations, plus
   `create_subtask` (create + `Parent`-link in one call).

@@ -62,7 +62,11 @@ final class JsonStrategy extends \League\Route\Strategy\JsonStrategy
 				try {
 					return $handler->handle($request);
 				} catch (\Throwable $exception) {
-					if ($exception instanceof NotAuthorizedException) {
+					// 4xx are client errors (malformed input, bad auth) — log at warning so bots
+					// probing the API don't flood the error channel; reserve error for genuine
+					// 5xx server faults that need attention.
+					$code = $exception->getCode();
+					if ($exception instanceof NotAuthorizedException || ($code >= 400 && $code < 500)) {
 						$this->logger->warning($exception->getMessage(), ['exception' => $exception]);
 					} else {
 						$this->logger->error($exception->getMessage(), ['exception' => $exception]);
