@@ -158,7 +158,8 @@ services:
         networks:
             - backend
         ports:
-            - "9001:9001"
+            # Admin console — loopback only; reach it on a server via an SSH tunnel.
+            - "127.0.0.1:9001:9001"
         volumes:
             - ukolio_minio:/data
 
