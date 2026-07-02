@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\OAuth\AuthorizationService;
 use Ukolio\OAuth\AuthorizationServiceInterface;
 use Ukolio\OAuth\ClientServiceInterface;
+use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -146,6 +147,54 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 		// Old refresh token is now revoked
 		$this->expectException(\RuntimeException::class);
 		$authService->refreshToken($pair->refreshToken, $client->clientId);
+	}
+
+	public function testRefreshTokenReuseRevokesTheWholeFamily(): void
+	{
+		$user = Fixture::createUser();
+		$clientService = $this->container->get(ClientServiceInterface::class);
+		assert($clientService instanceof ClientServiceInterface);
+		$client = $clientService->registerClient('Test', ['http://localhost/cb']);
+
+		$authService = $this->container->get(AuthorizationServiceInterface::class);
+		assert($authService instanceof AuthorizationServiceInterface);
+
+		$verifier = 'verifier-family';
+		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+		$code = $authService->createAuthorizationCode($client->clientId, $user->id, $challenge, 'S256', 'http://localhost/cb');
+		$stolen = $authService->exchangeCode($code, $verifier, $client->clientId, 'http://localhost/cb');
+
+		// Legitimate client rotates; the "stolen" token is now stale.
+		$current = $authService->refreshToken($stolen->refreshToken, $client->clientId);
+		self::assertNotEmpty($authService->validateAccessToken($current->accessToken)->clientId);
+
+		// A thief replays the stale refresh token → the whole family dies, ...
+		try {
+			$authService->refreshToken($stolen->refreshToken, $client->clientId);
+			self::fail('Expected reuse to be rejected.');
+		} catch (\RuntimeException $e) {
+			self::assertSame('Refresh token has been revoked', $e->getMessage());
+		}
+
+		// Drop the identity map so the assertions below observe the raw family
+		// UPDATE, the same way a fresh request would (the worker clears the
+		// entity cache between requests).
+		AppHarness::app()->dbContext->getOrm()->getEntityCache()->clear();
+
+		// ...including the live descendant pair.
+		try {
+			$authService->validateAccessToken($current->accessToken);
+			self::fail('Expected the descendant access token to be revoked.');
+		} catch (\RuntimeException $e) {
+			self::assertSame('Access token has been revoked', $e->getMessage());
+		}
+
+		try {
+			$authService->refreshToken($current->refreshToken, $client->clientId);
+			self::fail('Expected the descendant refresh token to be revoked.');
+		} catch (\RuntimeException $e) {
+			self::assertSame('Refresh token has been revoked', $e->getMessage());
+		}
 	}
 
 	public function testValidateAccessTokenReturnsAuthorization(): void
