@@ -634,6 +634,20 @@
             "transferOwnershipConfirm": "Předat vlastnictví „{{workspace}}\" uživateli {{name}}? Z vás se stane Admin.",
             "ownershipTransferred": "Vlastnictví předáno.",
             "roleChanged": "Role aktualizována.",
+            "tabs": {
+                "general": "Obecné",
+                "members": "Členové",
+                "tags": "Štítky",
+                "priorities": "Priority",
+                "fields": "Vlastní pole",
+                "mcp": "MCP a agenti"
+            },
+            "general": {
+                "renameTitle": "Název pracovního prostoru",
+                "renameDescription": "Přejmenujte tento pracovní prostor. Název vidí všichni členové.",
+                "deleteTitle": "Smazat pracovní prostor",
+                "deleteDescription": "Trvale smaže tento pracovní prostor včetně všech projektů a úkolů. Tato akce je nevratná."
+            },
             "mcp": {
                 "heading": "MCP klienti",
                 "empty": "Pro tento pracovní prostor zatím není autorizován žádný MCP klient.",

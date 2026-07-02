@@ -540,6 +540,45 @@ hr {
 }
 
 // ════════════════════════════════════════════════════════════
+// Tabs — underline tab strip (design canvas: workspace mgmt)
+// ════════════════════════════════════════════════════════════
+.uk-tabs {
+    display: flex;
+    align-items: flex-end;
+    border-bottom: 1px solid $color-border;
+}
+
+.uk-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    height: 34px;
+    margin-bottom: -1px;
+    padding: 0 $space-4;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: $color-text-muted;
+    font: inherit;
+    font-size: $font-size-13;
+    font-weight: 400;
+    white-space: nowrap;
+    user-select: none;
+    cursor: pointer;
+    transition: color 80ms ease, border-color 80ms ease, box-shadow 80ms ease;
+
+    @include focus-ring;
+
+    &:hover { color: $color-text; }
+
+    &--active {
+        color: $color-text;
+        border-bottom-color: $color-text;
+        font-weight: 500;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
 // Table
 // ════════════════════════════════════════════════════════════
 .uk-table {

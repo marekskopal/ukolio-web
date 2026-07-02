@@ -40,6 +40,8 @@ interface PriorityEditorState {
     isDefault: boolean;
 }
 
+type WorkspaceTab = 'general' | 'members' | 'tags' | 'priorities' | 'fields' | 'mcp';
+
 const FIELD_TYPES: FieldType[] = ['Text', 'Textarea', 'Select', 'Version'];
 
 const DEFAULT_TAG_COLOR = '#3b82f6';
@@ -84,6 +86,8 @@ export class WorkspacesComponent implements OnInit {
     protected readonly priorityEditor = signal<PriorityEditorState | null>(null);
     protected readonly prioritySaving = signal(false);
 
+    protected readonly activeTab = signal<WorkspaceTab>('members');
+
     protected readonly isSystemAdmin = this.permissionsService.isSystemAdmin;
     protected readonly canManageWorkspace = computed<boolean>(() => this.permissionsService.canManageWorkspace(this.members()));
     protected readonly canManageMembers = computed<boolean>(() => this.permissionsService.canManageMembers(this.members()));
@@ -97,6 +101,25 @@ export class WorkspacesComponent implements OnInit {
         return ed !== null && (ed.type === 'Select' || ed.type === 'Version');
     });
     protected readonly totalAuthorizations = computed<number>(() => this.mcpClients().reduce((sum, c) => sum + c.totalAuthorizations, 0));
+
+    protected readonly availableTabs = computed<WorkspaceTab[]>(() => {
+        const tabs: WorkspaceTab[] = [];
+        if (this.canManageWorkspace()) {
+            tabs.push('general');
+        }
+        tabs.push('members');
+        if (this.canManageTags()) {
+            tabs.push('tags');
+        }
+        if (this.canManagePriorities()) {
+            tabs.push('priorities');
+        }
+        if (this.canManageFields()) {
+            tabs.push('fields');
+        }
+        tabs.push('mcp');
+        return tabs;
+    });
 
     public async ngOnInit(): Promise<void> {
         this.loading.set(true);
@@ -143,6 +166,13 @@ export class WorkspacesComponent implements OnInit {
         if (!allowed.includes(this.inviteRole())) {
             this.inviteRole.set(allowed[0] ?? 'Member');
         }
+        if (!this.availableTabs().includes(this.activeTab())) {
+            this.activeTab.set('members');
+        }
+    }
+
+    protected setTab(tab: WorkspaceTab): void {
+        this.activeTab.set(tab);
     }
 
     protected async rename(): Promise<void> {
