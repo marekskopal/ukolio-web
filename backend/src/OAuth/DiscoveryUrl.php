@@ -6,6 +6,7 @@ namespace Ukolio\OAuth;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Ukolio\Route\Routes;
+use const PHP_URL_HOST;
 
 /**
  * Builds the base URL advertised in the OAuth discovery documents and validates

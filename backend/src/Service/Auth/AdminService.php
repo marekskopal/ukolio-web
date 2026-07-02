@@ -16,6 +16,7 @@ use Ukolio\Model\Repository\WorkspaceRepository;
 use Ukolio\Model\Repository\WorkspaceUserRepository;
 use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use const FILTER_VALIDATE_EMAIL;
 
 final readonly class AdminService implements AdminServiceInterface
 {
