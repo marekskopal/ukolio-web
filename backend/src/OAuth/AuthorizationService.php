@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\OAuth;
 
 use DateTimeImmutable;
+use MarekSkopal\ORM\Database\DatabaseInterface;
 use RuntimeException;
 use Ukolio\Model\Entity\OAuthAuthorization;
 use Ukolio\Model\Entity\User;
@@ -24,6 +25,7 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 		private PkceVerifier $pkceVerifier,
 		private ClientServiceInterface $clientService,
 		private UserProviderInterface $userProvider,
+		private DatabaseInterface $database,
 	) {
 	}
 
@@ -73,10 +75,6 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			throw new RuntimeException('Invalid authorization code');
 		}
 
-		if ($authorization->revoked) {
-			throw new RuntimeException('Authorization code has been revoked');
-		}
-
 		if ($authorization->codeExpires !== null && $authorization->codeExpires < time()) {
 			throw new RuntimeException('Authorization code has expired');
 		}
@@ -89,18 +87,34 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			throw new RuntimeException('Redirect URI mismatch');
 		}
 
+		// Atomic single-use consume (OAuth 2.1): only one concurrent exchange can flip
+		// revoked 0→1; every other request with the same code — including replays —
+		// fails here before any token is minted. The consume happens before the PKCE
+		// check so a code allows exactly one verifier attempt.
+		if ($authorization->revoked || !$this->consumeAuthorizationCode($codeHash)) {
+			throw new RuntimeException('Authorization code has already been used');
+		}
+
 		if ($authorization->codeChallenge === null || !$this->pkceVerifier->verify($codeVerifier, $authorization->codeChallenge)) {
 			throw new RuntimeException('PKCE verification failed');
 		}
 
-		$tokenPair = $this->issueTokenPair($clientId, $authorization->user);
+		return $this->issueTokenPair($clientId, $authorization->user);
+	}
 
-		$authorization->authorizationCodeHash = null;
-		$authorization->revoked = true;
-		$authorization->updatedAt = new DateTimeImmutable();
-		$this->oAuthAuthorizationRepository->persist($authorization);
+	/** Flips `revoked` 0→1 for the given code hash; true only for the single winning request. */
+	private function consumeAuthorizationCode(string $codeHash): bool
+	{
+		$statement = $this->database->getPdo()->prepare(
+			'UPDATE oauth_authorizations SET revoked = 1, updated_at = NOW() WHERE authorization_code_hash = :hash AND revoked = 0',
+		);
+		if ($statement === false) {
+			throw new RuntimeException('Failed to prepare the authorization-code consume statement');
+		}
 
-		return $tokenPair;
+		$statement->execute(['hash' => $codeHash]);
+
+		return $statement->rowCount() === 1;
 	}
 
 	public function refreshToken(string $refreshToken, string $clientId): OAuthTokenPair

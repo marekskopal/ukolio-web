@@ -75,6 +75,36 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 		$authService->exchangeCode($code, $verifier, $client->clientId, 'http://localhost/cb');
 	}
 
+	public function testFailedPkceAttemptConsumesTheCode(): void
+	{
+		$user = Fixture::createUser();
+		$clientService = $this->container->get(ClientServiceInterface::class);
+		assert($clientService instanceof ClientServiceInterface);
+		$client = $clientService->registerClient('Test', ['http://localhost/cb']);
+
+		$authService = $this->container->get(AuthorizationServiceInterface::class);
+		assert($authService instanceof AuthorizationServiceInterface);
+
+		$verifier = 'single-attempt-verifier';
+		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+		$code = $authService->createAuthorizationCode($client->clientId, $user->id, $challenge, 'S256', 'http://localhost/cb');
+
+		try {
+			$authService->exchangeCode($code, 'wrong-verifier', $client->clientId, 'http://localhost/cb');
+			self::fail('Expected PKCE failure.');
+		} catch (\RuntimeException $e) {
+			self::assertSame('PKCE verification failed', $e->getMessage());
+		}
+
+		// The failed attempt consumed the code: even the correct verifier is refused now.
+		try {
+			$authService->exchangeCode($code, $verifier, $client->clientId, 'http://localhost/cb');
+			self::fail('Expected the code to be single-use.');
+		} catch (\RuntimeException $e) {
+			self::assertSame('Authorization code has already been used', $e->getMessage());
+		}
+	}
+
 	public function testWrongPkceVerifierFails(): void
 	{
 		$user = Fixture::createUser();
