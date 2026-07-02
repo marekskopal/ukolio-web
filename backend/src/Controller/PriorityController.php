@@ -139,16 +139,20 @@ final readonly class PriorityController
 	}
 
 	#[RoutePut(Routes::PriorityMove->value)]
-	public function actionMovePriority(ServerRequestInterface $request, int $priorityId): ResponseInterface
+	public function actionMovePriority(ServerRequestInterface $request, int $workspaceId, int $priorityId): ResponseInterface
 	{
 		$user = $this->requestService->getUser($request);
-		$priority = $this->priorityProvider->getPriorityById($priorityId);
-		if ($priority === null) {
-			return new NotFoundResponse('Priority not found.');
+		$workspace = $this->workspaceProvider->getWorkspace($workspaceId);
+		if ($workspace === null) {
+			return new NotFoundResponse('Workspace not found.');
 		}
-		$workspace = $priority->workspace;
 		if (!$this->permissionChecker->canManagePriorities($user, $workspace)) {
 			return new NotAuthorizedResponse('You do not have permission to manage priorities.');
+		}
+
+		$priority = $this->priorityProvider->getPriority($workspace, $priorityId);
+		if ($priority === null) {
+			return new NotFoundResponse('Priority not found.');
 		}
 
 		$dto = $this->requestService->getRequestBodyDto($request, PriorityMoveDto::class);

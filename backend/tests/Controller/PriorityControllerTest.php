@@ -109,7 +109,7 @@ final class PriorityControllerTest extends IntegrationTestCase
 
 		$move = $this->request(
 			'PUT',
-			'/api/priorities/' . $lowId . '/move',
+			'/api/workspaces/' . $workspace->id . '/priorities/' . $lowId . '/move',
 			body: ['position' => 0],
 			authenticatedAs: $owner,
 		);
@@ -122,6 +122,31 @@ final class PriorityControllerTest extends IntegrationTestCase
 		));
 		$names = array_map(static fn (array $p): mixed => $p['name'], $reordered);
 		self::assertSame(['Low', 'High', 'Medium'], $names);
+	}
+
+	public function testMovePriorityFromAnotherWorkspaceIsNotFound(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$workspaceA = Fixture::createWorkspace($owner, 'A');
+		$priorities = $this->jsonList($this->request(
+			'GET',
+			'/api/workspaces/' . $workspaceA->id . '/priorities',
+			authenticatedAs: $owner,
+		));
+		$foreignPriorityId = self::intField($priorities[0]['id']);
+
+		$intruder = Fixture::createUser(email: 'intruder@example.com');
+		$workspaceB = Fixture::createWorkspace($intruder, 'B');
+
+		// A priority id from workspace A must not be reachable through workspace B's scope.
+		$response = $this->request(
+			'PUT',
+			'/api/workspaces/' . $workspaceB->id . '/priorities/' . $foreignPriorityId . '/move',
+			body: ['position' => 0],
+			authenticatedAs: $intruder,
+		);
+
+		self::assertSame(404, $response->getStatusCode());
 	}
 
 	public function testDeletingPriorityWithTasksReturns409(): void

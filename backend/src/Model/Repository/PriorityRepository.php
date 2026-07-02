@@ -20,11 +20,6 @@ final class PriorityRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	public function findById(int $priorityId): ?Priority
-	{
-		return $this->findOne(['id' => $priorityId]);
-	}
-
 	public function findOneByWorkspaceAndId(int $workspaceId, int $priorityId): ?Priority
 	{
 		return $this->findOne(['workspace_id' => $workspaceId, 'id' => $priorityId]);

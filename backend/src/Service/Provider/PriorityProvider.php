@@ -29,11 +29,6 @@ final readonly class PriorityProvider implements PriorityProviderInterface
 		return $this->priorityRepository->findOneByWorkspaceAndId($workspace->id, $priorityId);
 	}
 
-	public function getPriorityById(int $priorityId): ?Priority
-	{
-		return $this->priorityRepository->findById($priorityId);
-	}
-
 	public function findPriorityByName(Workspace $workspace, string $name): ?Priority
 	{
 		return $this->priorityRepository->findOneByWorkspaceAndName($workspace->id, $name);

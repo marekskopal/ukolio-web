@@ -47,9 +47,9 @@ export class PriorityService {
         return priority;
     }
 
-    public async movePriority(priorityId: number, position: number): Promise<Priority> {
+    public async movePriority(workspaceId: number, priorityId: number, position: number): Promise<Priority> {
         const priority = await firstValueFrom(
-            this.http.put<Priority>(`${environment.apiUrl}/priorities/${priorityId}/move`, {position}),
+            this.http.put<Priority>(`${environment.apiUrl}/workspaces/${workspaceId}/priorities/${priorityId}/move`, {position}),
         );
         this.replaceInCache(priority.workspaceId, priority);
         return priority;
