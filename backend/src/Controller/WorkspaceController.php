@@ -268,6 +268,25 @@ final readonly class WorkspaceController
 		return new JsonResponse($this->mcpClientProvider->getClientsForWorkspace($workspace));
 	}
 
+	#[RoutePost(Routes::WorkspaceMcpClientRevoke->value)]
+	public function actionPostRevokeMcpClient(
+		ServerRequestInterface $request,
+		int $workspaceId,
+		string $clientId,
+	): ResponseInterface {
+		$user = $this->requestService->getUser($request);
+		$workspace = $this->workspaceProvider->getWorkspace($workspaceId);
+		if ($workspace === null) {
+			return new NotFoundResponse('Workspace not found.');
+		}
+
+		if (!$this->permissionChecker->canManageMembers($user, $workspace)) {
+			return new NotAuthorizedResponse('You do not have permission to revoke MCP client access.');
+		}
+
+		return new JsonResponse(['revokedTokens' => $this->mcpClientProvider->revokeClient($workspace, $clientId)]);
+	}
+
 	private function findMembershipByUserId(Workspace $workspace, int $userId): ?WorkspaceUser
 	{
 		foreach ($this->workspaceProvider->getMembers($workspace) as $membership) {

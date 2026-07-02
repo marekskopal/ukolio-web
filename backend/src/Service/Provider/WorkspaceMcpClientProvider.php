@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
+use DateTimeImmutable;
 use Ukolio\Dto\WorkspaceMcpClientDto;
 use Ukolio\Model\Entity\OAuthAuthorization;
 use Ukolio\Model\Entity\Workspace;
@@ -74,6 +75,29 @@ final readonly class WorkspaceMcpClientProvider implements WorkspaceMcpClientPro
 		usort($result, static fn (WorkspaceMcpClientDto $a, WorkspaceMcpClientDto $b): int => strcmp($b->lastUsedAt, $a->lastUsedAt));
 
 		return $result;
+	}
+
+	public function revokeClient(Workspace $workspace, string $clientId): int
+	{
+		$userIds = [];
+		foreach ($this->workspaceProvider->getMembers($workspace) as $membership) {
+			$userIds[] = $membership->user->id;
+		}
+
+		$now = new DateTimeImmutable();
+		$revoked = 0;
+		foreach ($this->oAuthAuthorizationRepository->findByUserIds($userIds) as $authorization) {
+			if ($authorization->clientId !== $clientId || $authorization->revoked) {
+				continue;
+			}
+
+			$authorization->revoked = true;
+			$authorization->updatedAt = $now;
+			$this->oAuthAuthorizationRepository->persist($authorization);
+			$revoked++;
+		}
+
+		return $revoked;
 	}
 
 	private function isActiveToken(OAuthAuthorization $authorization, int $now): bool
