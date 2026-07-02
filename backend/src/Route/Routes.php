@@ -9,6 +9,7 @@ enum Routes: string
 	case Health = '/api/health';
 
 	case AuthenticationLogin = '/api/authentication/login';
+	case AuthenticationLogout = '/api/authentication/logout';
 	case AuthenticationSignUp = '/api/authentication/sign-up';
 	case AuthenticationRefreshToken = '/api/authentication/refresh-token';
 	case AuthenticationRequestPasswordReset = '/api/authentication/request-password-reset';

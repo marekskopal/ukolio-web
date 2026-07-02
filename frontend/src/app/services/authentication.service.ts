@@ -97,6 +97,11 @@ export class AuthenticationService {
     }
 
     public logout(): void {
+        // Ask the server to expire the HttpOnly Mercure subscriber cookie (client JS cannot
+        // clear it). Fire-and-forget: local sign-out must proceed even if the call fails.
+        this.http.post<void>(`${environment.apiUrl}/authentication/logout`, {}).subscribe({
+            error: () => undefined,
+        });
         this.storage.remove(STORAGE_KEY_AUTH);
         this.authentication.set(null);
         this.router.navigate(['/login']);

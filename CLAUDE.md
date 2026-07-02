@@ -68,7 +68,7 @@ admin UI for cross-workspace management.
 
 All routes live in `Ukolio\Route\Routes` (single enum). Highlights:
 
-- `POST /api/authentication/{login,sign-up,refresh-token}`
+- `POST /api/authentication/{login,logout,sign-up,refresh-token}` — `logout` is open and expires the HttpOnly Mercure subscriber cookie (web JWTs are stateless; it does not revoke them).
 - `GET/PATCH /api/current-user`
 - `GET/POST /api/workspaces`, `PUT/DELETE /api/workspaces/{id}`, plus `/switch`, `/members`, `/transfer-ownership`, `/invitations`, `/fields`, `/mcp-clients`, `/events`, `/agent-stats`.
 - `GET/POST/PUT/DELETE /api/invitations/...`
@@ -86,7 +86,7 @@ All routes live in `Ukolio\Route\Routes` (single enum). Highlights:
 - Recurrence (U-67): `GET /api/tasks/{id}/recurrence` → rule or `null`, `PUT /api/tasks/{id}/recurrence` (set/replace; body = cadence/interval/weekday/dayOfMonth/cronExpression/endType/endDate/maxOccurrences/anchorDate), `DELETE /api/tasks/{id}/recurrence` (clear). Gated by `canManageTasks`. The new-occurrence spawn runs in the background (`recurring-task-spawn` queue), not synchronously on the move.
 - Templates: `GET /api/workspaces/{id}/task-templates`, `POST /api/tasks/{id}/save-as-template` (`{name}`), `DELETE /api/task-templates/{id}`. The UI "Create from template" prefills the new-task drawer client-side and goes through the normal create endpoint.
 - Admin: `GET/PUT/DELETE /api/admin/users[/{id}]`, `GET/PUT/DELETE /api/admin/workspaces[/{id}]`, plus `/members`, `/transfer-ownership`.
-- MCP: `POST/GET/DELETE /api/mcp`, OAuth discovery + flow endpoints (see below).
+- MCP: `POST/GET/DELETE /mcp`, OAuth discovery + flow endpoints (see below).
 
 Query enums live under `backend/src/Model/Repository/Enum/`
 (`OrderDirectionEnum`, `TaskOrderByEnum`).
@@ -134,18 +134,18 @@ make migrate                              # Apply migrations
 
 ## MCP server
 
-Exposed at `POST/GET/DELETE /api/mcp` (Streamable HTTP transport, `mcp/sdk`).
-Sessions persisted to `MCP_SESSION_DIR` (defaults to
-`<tmp>/ukolio-mcp-sessions`).
+Exposed at `POST/GET/DELETE /mcp` (Streamable HTTP transport, `mcp/sdk`).
+Sessions are persisted to Redis with a TTL of `MCP_SESSION_TTL` seconds
+(default 86400).
 
 Auth is **OAuth 2.1 with PKCE**. Discovery endpoints:
 
-- `GET /.well-known/oauth-authorization-server/api/mcp` — issuer/authz/token/registration URLs
-- `GET /.well-known/oauth-protected-resource/api/mcp` — resource metadata
-- `POST /api/mcp/oauth/register` — dynamic client registration (open)
-- `POST /api/mcp/oauth/authorize` — user approval (requires user JWT)
-- `POST /api/mcp/oauth/token` — code/refresh-token exchange (open)
-- `GET /api/mcp/oauth/client-info` — display name lookup (open)
+- `GET /.well-known/oauth-authorization-server/mcp` — issuer/authz/token/registration URLs
+- `GET /.well-known/oauth-protected-resource/mcp` — resource metadata
+- `POST /mcp/oauth/register` — dynamic client registration (open; `redirect_uri` must be `https`, or `http` for loopback)
+- `POST /mcp/oauth/authorize` — user approval (requires user JWT)
+- `POST /mcp/oauth/token` — code/refresh-token exchange (open)
+- `GET /mcp/oauth/client-info` — display name lookup (open)
 
 401 responses include `WWW-Authenticate: Bearer resource_metadata="…"` per
 RFC 9728 so MCP clients can auto-discover. PKCE `S256` only; no client
@@ -163,6 +163,11 @@ Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 - `TaskCommentTools` — `list_task_comments`, `add_task_comment` (agent-tagged; optional `parentCommentId` for a threaded reply; `@[Name](user:ID)` tokens mention members), `update_task_comment` (author-only edit)
 - `TaskTemplateTools` — `list_task_templates`, `save_task_as_template`, `create_task_from_template` (defaults to Start status; accepts name/status overrides)
 - `FieldTools` — manage the workspace's custom-field catalog and per-project attachments
+- `TaskFileTools` — `list_task_files`, `get_task_file`, `attach_file`, `delete_task_file` (file attachments on a task)
+- `TagTools` — `list_workspace_tags`, `find_tag_by_name`, `create_tag`, `update_tag`, `delete_tag`, `set_task_tags`
+- `PriorityTools` — `list_workspace_priorities`, `find_priority_by_name`, `create_priority`, `update_priority`, `delete_priority`
+- `MemberTools` — `list_workspace_members`, `find_member_by_email`, `invite_member`
+- `SearchTools` — `search_tasks` (full-text search across the workspace's tasks)
 - `EventTools` — `list_events` (workspace audit log, filter by `projectId`/`taskId`/`type`), `list_task_events` (by task id or code). Event `createdAt` is ISO 8601; `TaskMoved` metadata carries `toStatusId`/`toStatusName`, so a script/agent can tell when a task entered a status.
 - `ScriptTools` — `list_scripts`, `get_script`, `create_script`, `update_script`, `delete_script`, `run_script` (async one-off), `list_script_runs`. Mutations require workspace admin (`canManageScripts`). Scheduled triggers take a 5-field cron in `triggerConfig`.
 

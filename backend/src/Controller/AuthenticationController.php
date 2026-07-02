@@ -80,6 +80,19 @@ final readonly class AuthenticationController
 		return $this->withMercureCookie(new JsonResponse($auth), $request, $user);
 	}
 
+	#[RoutePost(Routes::AuthenticationLogout->value)]
+	public function actionPostLogout(ServerRequestInterface $request): ResponseInterface
+	{
+		// Web JWTs are stateless (revocation is tracked separately), but the HttpOnly Mercure
+		// subscriber cookie lives up to 1 h — expire it so the next user on a shared browser
+		// cannot resume the previous user's realtime stream. Open route: an expired access
+		// token must still be able to log out.
+		return (new OkResponse())->withAddedHeader(
+			'Set-Cookie',
+			$this->mercureCookieIssuer->clear($this->isSecureRequest($request)),
+		);
+	}
+
 	#[RoutePost(Routes::AuthenticationSignUp->value)]
 	public function actionPostSignUp(ServerRequestInterface $request): ResponseInterface
 	{

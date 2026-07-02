@@ -30,6 +30,7 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 	private const array OpenRoutes = [
 		Routes::Health->value,
 		Routes::AuthenticationLogin->value,
+		Routes::AuthenticationLogout->value,
 		Routes::AuthenticationSignUp->value,
 		Routes::AuthenticationRequestPasswordReset->value,
 		Routes::AuthenticationConfirmPasswordReset->value,
