@@ -92,9 +92,39 @@
     letter-spacing: $tracking-tight;
 }
 
-.ws-actions {
+.general-row {
     display: flex;
-    gap: $space-3;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-6;
+    padding: $space-5;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface;
+
+    & + & {
+        margin-top: $space-4;
+    }
+
+    &--danger {
+        border-color: $color-danger-border;
+    }
+}
+
+.general-row-text {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    h3 {
+        margin: 0 0 $space-1;
+        font-size: $font-size-13;
+        font-weight: 600;
+    }
+
+    p {
+        margin: 0;
+        font-size: $font-size-12;
+    }
 }
 
 .ws-section h3 {

@@ -21,7 +21,8 @@ export class WorkspacesPage {
         this.page.once('dialog', async (dialog) => {
             await dialog.accept(newName);
         });
-        await this.page.locator('.ws-actions').getByRole('button', {name: 'Rename'}).click();
+        await this.page.getByRole('tab', {name: 'General'}).click();
+        await this.page.locator('.general-row').getByRole('button', {name: 'Rename'}).click();
         await expect(this.page.locator('.ws-detail h2')).toHaveText(newName, {timeout: 10_000});
     }
 

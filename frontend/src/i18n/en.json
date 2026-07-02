@@ -634,6 +634,20 @@
             "transferOwnershipConfirm": "Transfer ownership of \"{{workspace}}\" to {{name}}? You will become an Admin.",
             "ownershipTransferred": "Ownership transferred.",
             "roleChanged": "Role updated.",
+            "tabs": {
+                "general": "General",
+                "members": "Members",
+                "tags": "Tags",
+                "priorities": "Priorities",
+                "fields": "Custom fields",
+                "mcp": "MCP & agents"
+            },
+            "general": {
+                "renameTitle": "Workspace name",
+                "renameDescription": "Rename this workspace. The name is visible to all members.",
+                "deleteTitle": "Delete workspace",
+                "deleteDescription": "Permanently delete this workspace including all projects and tasks. This is irreversible."
+            },
             "mcp": {
                 "heading": "MCP clients",
                 "empty": "No MCP clients have authorized for this workspace yet.",
