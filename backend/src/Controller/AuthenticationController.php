@@ -41,6 +41,7 @@ use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Service\Realtime\MercureCookieIssuerInterface;
 use Ukolio\Service\Request\RequestServiceInterface;
 use Ukolio\Validator\PasswordValidator;
+use Ukolio\Validator\TextFieldValidator;
 use const FILTER_VALIDATE_EMAIL;
 
 final readonly class AuthenticationController
@@ -93,14 +94,20 @@ final readonly class AuthenticationController
 			return new ErrorResponse('Password must be at least 8 characters and contain uppercase, lowercase, and a digit.', 422);
 		}
 
+		try {
+			$name = TextFieldValidator::validateName($signUp->name, 'User');
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
+
 		if ($this->userProvider->getUserByEmail($signUp->email) !== null) {
 			return new ConflictResponse('User with email "' . $signUp->email . '" already exists.');
 		}
 
 		$locale = $signUp->locale !== null ? LocaleEnum::tryFrom($signUp->locale) ?? LocaleEnum::En : LocaleEnum::En;
-		$user = $this->userProvider->createUser($signUp->email, $signUp->password, $signUp->name, $locale);
+		$user = $this->userProvider->createUser($signUp->email, $signUp->password, $name, $locale);
 
-		$this->workspaceProvider->createWorkspace($user, $signUp->name . "'s Workspace");
+		$this->workspaceProvider->createWorkspace($user, mb_substr($name, 0, 240) . "'s Workspace");
 
 		$this->emailVerificationProvider->requestVerification($user);
 

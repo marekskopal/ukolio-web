@@ -12,6 +12,7 @@ use MarekSkopal\Router\Attribute\RoutePost;
 use MarekSkopal\Router\Attribute\RoutePut;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Ukolio\Dto\WorkspaceCreateDto;
 use Ukolio\Dto\WorkspaceDto;
 use Ukolio\Dto\WorkspaceMemberDto;
@@ -62,12 +63,11 @@ final readonly class WorkspaceController
 		$user = $this->requestService->getUser($request);
 		$dto = $this->requestService->getRequestBodyDto($request, WorkspaceCreateDto::class);
 
-		$name = trim($dto->name);
-		if ($name === '') {
-			return new ErrorResponse('Workspace name is required.', 422);
+		try {
+			$workspace = $this->workspaceProvider->createWorkspace($user, $dto->name);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
 		}
-
-		$workspace = $this->workspaceProvider->createWorkspace($user, $name);
 
 		return new JsonResponse(WorkspaceDto::fromEntity($workspace));
 	}
@@ -86,12 +86,12 @@ final readonly class WorkspaceController
 		}
 
 		$dto = $this->requestService->getRequestBodyDto($request, WorkspaceUpdateDto::class);
-		$name = $dto->name !== null ? trim($dto->name) : $workspace->name;
-		if ($name === '') {
-			return new ErrorResponse('Workspace name is required.', 422);
-		}
 
-		$updated = $this->workspaceProvider->updateWorkspace($workspace, $name);
+		try {
+			$updated = $this->workspaceProvider->updateWorkspace($workspace, $dto->name ?? $workspace->name);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
 
 		return new JsonResponse(WorkspaceDto::fromEntity($updated));
 	}

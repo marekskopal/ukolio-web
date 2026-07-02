@@ -11,6 +11,7 @@ use MarekSkopal\Router\Attribute\RoutePost;
 use MarekSkopal\Router\Attribute\RoutePut;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Ukolio\Dto\ProjectCreateDto;
 use Ukolio\Dto\ProjectDto;
 use Ukolio\Dto\ProjectUpdateDto;
@@ -82,7 +83,11 @@ final readonly class ProjectController
 
 		$dto = $this->requestService->getRequestBodyDto($request, ProjectCreateDto::class);
 
-		$project = $this->projectProvider->createProject($user, $workspace, $dto->name, $dto->description);
+		try {
+			$project = $this->projectProvider->createProject($user, $workspace, $dto->name, $dto->description);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
 
 		return new JsonResponse(ProjectDto::fromEntity($project));
 	}
@@ -107,12 +112,16 @@ final readonly class ProjectController
 
 		$dto = $this->requestService->getRequestBodyDto($request, ProjectUpdateDto::class);
 
-		$project = $this->projectProvider->updateProject(
-			author: $user,
-			project: $project,
-			name: $dto->name ?? $project->name,
-			description: $dto->description ?? $project->description,
-		);
+		try {
+			$project = $this->projectProvider->updateProject(
+				author: $user,
+				project: $project,
+				name: $dto->name ?? $project->name,
+				description: $dto->description ?? $project->description,
+			);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
 
 		return new JsonResponse(ProjectDto::fromEntity($project));
 	}
