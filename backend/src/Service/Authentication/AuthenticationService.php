@@ -16,6 +16,12 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 	private const int AccessTokenExpiration = 3600;
 	private const int RefreshTokenExpiration = 604800;
 
+	/**
+	 * Bcrypt hash of a random throwaway string. Verified against when the account
+	 * does not exist so absent and present users take comparable time (timing oracle).
+	 */
+	private const string DummyPasswordHash = '$2y$12$bM7D3SRpgIxPKSOrodU8fufxpIw6wuJjlnOyH66eJdDqlexKtgeMa';
+
 	public function __construct(private UserProviderInterface $userProvider, private LoginAttemptService $loginAttempts)
 	{
 	}
@@ -24,6 +30,8 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 	{
 		$user = $this->userProvider->getUserByEmail($credentials->email);
 		if ($user === null) {
+			password_verify($credentials->password, self::DummyPasswordHash);
+
 			throw new AuthenticationException('Invalid credentials.');
 		}
 

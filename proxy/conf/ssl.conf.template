@@ -118,7 +118,7 @@ server {
         add_header Retry-After "60" always;
     }
 
-    location ~ ^/mcp/oauth/(register|token|authorize)$ {
+    location ~ ^/mcp/oauth/(register|token|authorize|client-info)$ {
         limit_req zone=auth_oauth burst=10 nodelay;
 
         proxy_pass http://http_backend;

@@ -26,11 +26,13 @@ export class AuthenticationService {
     }
 
     public async signUp(email: string, password: string, name: string, locale?: string): Promise<Authentication> {
-        const auth = await firstValueFrom(
-            this.http.post<Authentication>(`${environment.apiUrl}/authentication/sign-up`, {email, password, name, locale}),
+        // The sign-up response is intentionally generic (no tokens) so it does not
+        // reveal whether the email was already registered; the follow-up login
+        // establishes the session for genuinely new accounts.
+        await firstValueFrom(
+            this.http.post<void>(`${environment.apiUrl}/authentication/sign-up`, {email, password, name, locale}),
         );
-        this.setAuthentication(auth);
-        return auth;
+        return this.login(email, password);
     }
 
     public async googleClientId(): Promise<string> {

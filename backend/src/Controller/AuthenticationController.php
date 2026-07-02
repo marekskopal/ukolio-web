@@ -24,7 +24,6 @@ use Ukolio\Dto\SignUpDto;
 use Ukolio\Dto\VerifyEmailDto;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
 use Ukolio\Model\Entity\User;
-use Ukolio\Response\ConflictResponse;
 use Ukolio\Response\ErrorResponse;
 use Ukolio\Response\NotAuthorizedResponse;
 use Ukolio\Response\OkResponse;
@@ -100,20 +99,19 @@ final readonly class AuthenticationController
 			return new ErrorResponse($e->getMessage(), 422);
 		}
 
-		if ($this->userProvider->getUserByEmail($signUp->email) !== null) {
-			return new ConflictResponse('User with email "' . $signUp->email . '" already exists.');
+		// Generic response either way so the endpoint does not reveal whether the
+		// email is already registered (user enumeration). The frontend follows up
+		// with a normal login call to establish the session for new accounts.
+		if ($this->userProvider->getUserByEmail($signUp->email) === null) {
+			$locale = $signUp->locale !== null ? LocaleEnum::tryFrom($signUp->locale) ?? LocaleEnum::En : LocaleEnum::En;
+			$user = $this->userProvider->createUser($signUp->email, $signUp->password, $name, $locale);
+
+			$this->workspaceProvider->createWorkspace($user, mb_substr($name, 0, 240) . "'s Workspace");
+
+			$this->emailVerificationProvider->requestVerification($user);
 		}
 
-		$locale = $signUp->locale !== null ? LocaleEnum::tryFrom($signUp->locale) ?? LocaleEnum::En : LocaleEnum::En;
-		$user = $this->userProvider->createUser($signUp->email, $signUp->password, $name, $locale);
-
-		$this->workspaceProvider->createWorkspace($user, mb_substr($name, 0, 240) . "'s Workspace");
-
-		$this->emailVerificationProvider->requestVerification($user);
-
-		$auth = $this->authenticationService->authenticate(new CredentialsDto($signUp->email, $signUp->password));
-
-		return $this->withMercureCookie(new JsonResponse($auth), $request, $user);
+		return new OkResponse();
 	}
 
 	#[RoutePost(Routes::AuthenticationRefreshToken->value)]
