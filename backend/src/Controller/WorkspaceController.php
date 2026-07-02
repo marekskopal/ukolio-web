@@ -12,6 +12,7 @@ use MarekSkopal\Router\Attribute\RoutePost;
 use MarekSkopal\Router\Attribute\RoutePut;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Ukolio\Dto\WorkspaceCreateDto;
 use Ukolio\Dto\WorkspaceDto;
 use Ukolio\Dto\WorkspaceMemberDto;
@@ -62,12 +63,11 @@ final readonly class WorkspaceController
 		$user = $this->requestService->getUser($request);
 		$dto = $this->requestService->getRequestBodyDto($request, WorkspaceCreateDto::class);
 
-		$name = trim($dto->name);
-		if ($name === '') {
-			return new ErrorResponse('Workspace name is required.', 422);
+		try {
+			$workspace = $this->workspaceProvider->createWorkspace($user, $dto->name);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
 		}
-
-		$workspace = $this->workspaceProvider->createWorkspace($user, $name);
 
 		return new JsonResponse(WorkspaceDto::fromEntity($workspace));
 	}
@@ -86,12 +86,12 @@ final readonly class WorkspaceController
 		}
 
 		$dto = $this->requestService->getRequestBodyDto($request, WorkspaceUpdateDto::class);
-		$name = $dto->name !== null ? trim($dto->name) : $workspace->name;
-		if ($name === '') {
-			return new ErrorResponse('Workspace name is required.', 422);
-		}
 
-		$updated = $this->workspaceProvider->updateWorkspace($workspace, $name);
+		try {
+			$updated = $this->workspaceProvider->updateWorkspace($workspace, $dto->name ?? $workspace->name);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 422);
+		}
 
 		return new JsonResponse(WorkspaceDto::fromEntity($updated));
 	}
@@ -266,6 +266,22 @@ final readonly class WorkspaceController
 		}
 
 		return new JsonResponse($this->mcpClientProvider->getClientsForWorkspace($workspace));
+	}
+
+	#[RoutePost(Routes::WorkspaceMcpClientRevoke->value)]
+	public function actionPostRevokeMcpClient(ServerRequestInterface $request, int $workspaceId, string $clientId,): ResponseInterface
+	{
+		$user = $this->requestService->getUser($request);
+		$workspace = $this->workspaceProvider->getWorkspace($workspaceId);
+		if ($workspace === null) {
+			return new NotFoundResponse('Workspace not found.');
+		}
+
+		if (!$this->permissionChecker->canManageMembers($user, $workspace)) {
+			return new NotAuthorizedResponse('You do not have permission to revoke MCP client access.');
+		}
+
+		return new JsonResponse(['revokedTokens' => $this->mcpClientProvider->revokeClient($workspace, $clientId)]);
 	}
 
 	private function findMembershipByUserId(Workspace $workspace, int $userId): ?WorkspaceUser

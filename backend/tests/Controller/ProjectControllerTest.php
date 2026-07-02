@@ -144,4 +144,34 @@ final class ProjectControllerTest extends IntegrationTestCase
 		$response = $this->request('DELETE', '/api/projects/' . $projectInA->id, authenticatedAs: $intruder);
 		self::assertSame(404, $response->getStatusCode());
 	}
+
+	public function testCreateProjectWithEmptyNameIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		Fixture::createWorkspace($owner);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects',
+			body: ['name' => '  ', 'description' => null],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testCreateProjectWithOverlongNameIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		Fixture::createWorkspace($owner);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects',
+			body: ['name' => str_repeat('a', 256), 'description' => null],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
 }

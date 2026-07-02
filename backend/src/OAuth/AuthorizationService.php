@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\OAuth;
 
 use DateTimeImmutable;
+use MarekSkopal\ORM\Database\DatabaseInterface;
 use RuntimeException;
 use Ukolio\Model\Entity\OAuthAuthorization;
 use Ukolio\Model\Entity\User;
@@ -24,6 +25,7 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 		private PkceVerifier $pkceVerifier,
 		private ClientServiceInterface $clientService,
 		private UserProviderInterface $userProvider,
+		private DatabaseInterface $database,
 	) {
 	}
 
@@ -55,6 +57,7 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			codeChallengeMethod: $codeChallengeMethod,
 			redirectUri: $redirectUri,
 			codeExpires: time() + self::CodeLifetime,
+			familyId: bin2hex(random_bytes(16)),
 		);
 		$authorization->createdAt = $now;
 		$authorization->updatedAt = $now;
@@ -73,10 +76,6 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			throw new RuntimeException('Invalid authorization code');
 		}
 
-		if ($authorization->revoked) {
-			throw new RuntimeException('Authorization code has been revoked');
-		}
-
 		if ($authorization->codeExpires !== null && $authorization->codeExpires < time()) {
 			throw new RuntimeException('Authorization code has expired');
 		}
@@ -89,18 +88,54 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			throw new RuntimeException('Redirect URI mismatch');
 		}
 
+		// Atomic single-use consume (OAuth 2.1): only one concurrent exchange can flip
+		// revoked 0→1; every other request with the same code — including replays —
+		// fails here before any token is minted. The consume happens before the PKCE
+		// check so a code allows exactly one verifier attempt. Replaying a consumed
+		// code revokes every token descended from it (RFC 9700).
+		if ($authorization->revoked || !$this->consume('authorization_code_hash', $codeHash)) {
+			$this->revokeFamily($authorization->familyId);
+
+			throw new RuntimeException('Authorization code has already been used');
+		}
+
 		if ($authorization->codeChallenge === null || !$this->pkceVerifier->verify($codeVerifier, $authorization->codeChallenge)) {
 			throw new RuntimeException('PKCE verification failed');
 		}
 
-		$tokenPair = $this->issueTokenPair($clientId, $authorization->user);
+		return $this->issueTokenPair($clientId, $authorization->user, $authorization->familyId);
+	}
 
-		$authorization->authorizationCodeHash = null;
-		$authorization->revoked = true;
-		$authorization->updatedAt = new DateTimeImmutable();
-		$this->oAuthAuthorizationRepository->persist($authorization);
+	/** Flips `revoked` 0→1 for the row holding the given token hash; true only for the single winning request. */
+	private function consume(string $hashColumn, string $hash): bool
+	{
+		$statement = $this->database->getPdo()->prepare(
+			sprintf('UPDATE oauth_authorizations SET revoked = 1, updated_at = NOW() WHERE %s = :hash AND revoked = 0', $hashColumn),
+		);
+		if ($statement === false) {
+			throw new RuntimeException('Failed to prepare the token consume statement');
+		}
 
-		return $tokenPair;
+		$statement->execute(['hash' => $hash]);
+
+		return $statement->rowCount() === 1;
+	}
+
+	/** Revokes every live token in a lineage; a no-op for legacy rows without a family id. */
+	private function revokeFamily(?string $familyId): void
+	{
+		if ($familyId === null) {
+			return;
+		}
+
+		$statement = $this->database->getPdo()->prepare(
+			'UPDATE oauth_authorizations SET revoked = 1, updated_at = NOW() WHERE family_id = :familyId AND revoked = 0',
+		);
+		if ($statement === false) {
+			throw new RuntimeException('Failed to prepare the family revocation statement');
+		}
+
+		$statement->execute(['familyId' => $familyId]);
 	}
 
 	public function refreshToken(string $refreshToken, string $clientId): OAuthTokenPair
@@ -112,10 +147,6 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			throw new RuntimeException('Invalid refresh token');
 		}
 
-		if ($authorization->revoked) {
-			throw new RuntimeException('Refresh token has been revoked');
-		}
-
 		if ($authorization->refreshTokenExpires !== null && $authorization->refreshTokenExpires < time()) {
 			throw new RuntimeException('Refresh token has expired');
 		}
@@ -124,11 +155,17 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			throw new RuntimeException('Client ID mismatch');
 		}
 
-		$authorization->revoked = true;
-		$authorization->updatedAt = new DateTimeImmutable();
-		$this->oAuthAuthorizationRepository->persist($authorization);
+		// Replay of an already-rotated refresh token means either theft or a lost
+		// race; both revoke the whole family (RFC 9700), killing the live descendant
+		// a thief may hold. The rotation itself is the same atomic 0→1 flip as the
+		// code exchange, so only one concurrent refresh can win.
+		if ($authorization->revoked || !$this->consume('refresh_token_hash', $refreshTokenHash)) {
+			$this->revokeFamily($authorization->familyId);
 
-		return $this->issueTokenPair($clientId, $authorization->user);
+			throw new RuntimeException('Refresh token has been revoked');
+		}
+
+		return $this->issueTokenPair($clientId, $authorization->user, $authorization->familyId);
 	}
 
 	public function validateAccessToken(string $accessToken): OAuthAuthorization
@@ -151,7 +188,7 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 		return $authorization;
 	}
 
-	private function issueTokenPair(string $clientId, User $user): OAuthTokenPair
+	private function issueTokenPair(string $clientId, User $user, ?string $familyId): OAuthTokenPair
 	{
 		$accessToken = bin2hex(random_bytes(32));
 		$refreshToken = bin2hex(random_bytes(32));
@@ -164,6 +201,7 @@ final readonly class AuthorizationService implements AuthorizationServiceInterfa
 			refreshTokenHash: hash('sha256', $refreshToken),
 			accessTokenExpires: time() + self::AccessTokenLifetime,
 			refreshTokenExpires: time() + self::RefreshTokenLifetime,
+			familyId: $familyId,
 		);
 		$authorization->createdAt = $now;
 		$authorization->updatedAt = $now;

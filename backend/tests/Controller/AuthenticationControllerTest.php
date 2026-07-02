@@ -17,7 +17,7 @@ use Ukolio\Tests\Support\IntegrationTestCase;
 #[CoversClass(AuthenticationController::class)]
 final class AuthenticationControllerTest extends IntegrationTestCase
 {
-	public function testSignUpCreatesUserAndPersonalWorkspaceAndReturnsTokens(): void
+	public function testSignUpCreatesUserAndPersonalWorkspace(): void
 	{
 		$response = $this->request('POST', '/api/authentication/sign-up', [
 			'email' => 'new@example.com',
@@ -25,17 +25,23 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 			'name' => 'New Person',
 		]);
 
+		// Generic body (no tokens) so the endpoint can't be used for user enumeration;
+		// the frontend follows up with a login call.
 		self::assertSame(200, $response->getStatusCode());
-		$body = $this->jsonBody($response);
-		self::assertArrayHasKey('accessToken', $body);
-		self::assertArrayHasKey('refreshToken', $body);
-		self::assertIsInt($body['userId']);
+		self::assertArrayNotHasKey('accessToken', $this->jsonBody($response));
 
 		$workspaceRepo = $this->container->get(WorkspaceRepository::class);
 		assert($workspaceRepo instanceof WorkspaceRepository);
 		$workspaces = iterator_to_array($workspaceRepo->findAll(), false);
 		self::assertCount(1, $workspaces);
 		self::assertSame("New Person's Workspace", $workspaces[0]->name);
+
+		$login = $this->request('POST', '/api/authentication/login', [
+			'email' => 'new@example.com',
+			'password' => 'StrongPass1',
+		]);
+		self::assertSame(200, $login->getStatusCode());
+		self::assertArrayHasKey('accessToken', $this->jsonBody($login));
 	}
 
 	public function testSignUpRejectsWeakPassword(): void
@@ -60,7 +66,7 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		self::assertSame(422, $response->getStatusCode());
 	}
 
-	public function testSignUpRejectsDuplicateEmail(): void
+	public function testSignUpWithDuplicateEmailReturnsGenericOkAndKeepsAccountIntact(): void
 	{
 		Fixture::createUser(email: 'dup@example.com', password: 'OldPass1!');
 
@@ -70,7 +76,23 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 			'name' => 'Dup',
 		]);
 
-		self::assertSame(409, $response->getStatusCode());
+		// Same generic 200 as a fresh sign-up — no user-enumeration oracle.
+		self::assertSame(200, $response->getStatusCode());
+		self::assertArrayNotHasKey('accessToken', $this->jsonBody($response));
+
+		// The existing account is untouched: the attempted password does not work…
+		$loginWithNew = $this->request('POST', '/api/authentication/login', [
+			'email' => 'dup@example.com',
+			'password' => 'NewPass1!',
+		]);
+		self::assertSame(401, $loginWithNew->getStatusCode());
+
+		// …and the original one still does.
+		$loginWithOld = $this->request('POST', '/api/authentication/login', [
+			'email' => 'dup@example.com',
+			'password' => 'OldPass1!',
+		]);
+		self::assertSame(200, $loginWithOld->getStatusCode());
 	}
 
 	public function testLoginWithValidCredentialsReturnsTokens(): void

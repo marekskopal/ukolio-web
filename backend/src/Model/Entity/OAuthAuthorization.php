@@ -38,6 +38,8 @@ class OAuthAuthorization extends AEntity
 		public ?int $codeExpires = null,
 		#[Column(type: Type::Boolean)]
 		public bool $revoked = false,
+		#[Column(type: Type::String, size: 32, nullable: true, default: null)]
+		public ?string $familyId = null,
 	) {
 	}
 }

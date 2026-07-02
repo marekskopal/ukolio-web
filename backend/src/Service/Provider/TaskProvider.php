@@ -24,6 +24,7 @@ use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Service\Search\SearchIndexer;
+use Ukolio\Validator\TextFieldValidator;
 
 final readonly class TaskProvider implements TaskProviderInterface
 {
@@ -192,6 +193,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		?array $tagIds = null,
 		?DateTimeImmutable $startDate = null,
 	): Task {
+		$name = TextFieldValidator::validateName($name, 'Task');
+		$description = TextFieldValidator::validateDescription($description);
 		self::assertDateOrder($startDate, $dueDate);
 
 		if ($fieldValues !== null) {
@@ -260,7 +263,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 			author: $author,
 			project: $task->project,
 			status: $task->status,
-			name: $name ?? $task->name . ' (copy)',
+			name: $name ?? mb_substr($task->name, 0, TextFieldValidator::MaxNameLength - 7) . ' (copy)',
 			description: $task->description,
 			priority: $task->priority,
 			dueDate: $task->dueDate,
@@ -289,6 +292,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		bool $recordEvent = true,
 		?DateTimeImmutable $startDate = null,
 	): Task {
+		$name = TextFieldValidator::validateName($name, 'Task');
+		$description = TextFieldValidator::validateDescription($description);
 		self::assertDateOrder($startDate, $dueDate);
 
 		if ($fieldValues !== null) {

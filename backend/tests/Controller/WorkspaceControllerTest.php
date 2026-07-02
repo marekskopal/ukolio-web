@@ -9,6 +9,8 @@ use Ukolio\Controller\WorkspaceController;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
+use Ukolio\OAuth\AuthorizationServiceInterface;
+use Ukolio\OAuth\ClientServiceInterface;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -166,6 +168,49 @@ final class WorkspaceControllerTest extends IntegrationTestCase
 		$get = $this->request('GET', '/api/tasks/' . $code, authenticatedAs: $owner);
 		self::assertSame(200, $get->getStatusCode());
 		self::assertNull($this->jsonBody($get)['assigneeId']);
+	}
+
+	public function testRevokeMcpClientKillsItsTokens(): void
+	{
+		$owner = Fixture::createUser(email: 'owner@example.com');
+		$member = Fixture::createUser(email: 'member@example.com');
+		$workspace = Fixture::createWorkspace($owner);
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+
+		$clientService = $this->container->get(ClientServiceInterface::class);
+		assert($clientService instanceof ClientServiceInterface);
+		$client = $clientService->registerClient('Rogue Agent', ['http://localhost/cb']);
+
+		$authService = $this->container->get(AuthorizationServiceInterface::class);
+		assert($authService instanceof AuthorizationServiceInterface);
+
+		$verifier = 'verifier-revoke-endpoint';
+		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+		$code = $authService->createAuthorizationCode($client->clientId, $owner->id, $challenge, 'S256', 'http://localhost/cb');
+		$pair = $authService->exchangeCode($code, $verifier, $client->clientId, 'http://localhost/cb');
+
+		// A plain member may not revoke.
+		$forbidden = $this->request(
+			'POST',
+			'/api/workspaces/' . $workspace->id . '/mcp-clients/' . $client->clientId . '/revoke',
+			authenticatedAs: $member,
+		);
+		self::assertSame(401, $forbidden->getStatusCode());
+
+		$response = $this->request(
+			'POST',
+			'/api/workspaces/' . $workspace->id . '/mcp-clients/' . $client->clientId . '/revoke',
+			authenticatedAs: $owner,
+		);
+		self::assertSame(200, $response->getStatusCode());
+		self::assertGreaterThan(0, $this->jsonBody($response)['revokedTokens']);
+
+		try {
+			$authService->validateAccessToken($pair->accessToken);
+			self::fail('Expected the access token to be revoked.');
+		} catch (\RuntimeException $e) {
+			self::assertSame('Access token has been revoked', $e->getMessage());
+		}
 	}
 
 	private function firstStatusId(int $projectId): int

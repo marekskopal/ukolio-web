@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace Ukolio\OAuth;
 
 use DateTimeImmutable;
+use MarekSkopal\ORM\Database\DatabaseInterface;
+use RuntimeException;
 use Ukolio\Model\Entity\OAuthClient;
 use Ukolio\Model\Repository\OAuthClientRepository;
 use const JSON_THROW_ON_ERROR;
 
 final readonly class ClientService implements ClientServiceInterface
 {
-	public function __construct(private OAuthClientRepository $oAuthClientRepository)
+	public const int MaxRedirectUris = 10;
+	public const int MaxClientNameLength = 100;
+	public const int MaxRedirectUriLength = 2000;
+
+	/** Anonymous registrations that never completed an authorization are purged after this long. */
+	private const string AnonymousClientMaxAge = '30 days';
+
+	public function __construct(private OAuthClientRepository $oAuthClientRepository, private DatabaseInterface $database)
 	{
 	}
 
@@ -42,10 +51,22 @@ final readonly class ClientService implements ClientServiceInterface
 	/** @param list<string> $redirectUris */
 	public function registerClient(string $clientName, array $redirectUris): OAuthClient
 	{
+		if (count($redirectUris) > self::MaxRedirectUris) {
+			throw new RuntimeException(sprintf('Too many redirect_uris (max %d)', self::MaxRedirectUris), 400);
+		}
+
+		foreach ($redirectUris as $redirectUri) {
+			if (strlen($redirectUri) > self::MaxRedirectUriLength) {
+				throw new RuntimeException(sprintf('redirect_uri is too long (max %d characters)', self::MaxRedirectUriLength), 400);
+			}
+		}
+
+		$this->garbageCollectAnonymousClients();
+
 		$now = new DateTimeImmutable();
 		$client = new OAuthClient(
 			clientId: bin2hex(random_bytes(16)),
-			clientName: $clientName,
+			clientName: self::sanitizeClientName($clientName),
 			redirectUris: json_encode($redirectUris, JSON_THROW_ON_ERROR),
 			user: null,
 		);
@@ -55,6 +76,36 @@ final readonly class ClientService implements ClientServiceInterface
 		$this->oAuthClientRepository->persist($client);
 
 		return $client;
+	}
+
+	/**
+	 * The name is attacker-controlled (open dynamic registration) and rendered in every
+	 * admin's MCP-clients list: strip control/invisible characters and cap the length so
+	 * it cannot smuggle formatting or fill the page.
+	 */
+	private static function sanitizeClientName(string $clientName): string
+	{
+		$clientName = trim((string) preg_replace('/\p{C}+/u', '', $clientName));
+		if ($clientName === '') {
+			return 'MCP Client';
+		}
+
+		return mb_substr($clientName, 0, self::MaxClientNameLength);
+	}
+
+	/** Open registration must not grow the table unboundedly: drop stale registrations no user ever approved. */
+	private function garbageCollectAnonymousClients(): void
+	{
+		$statement = $this->database->getPdo()->prepare(
+			'DELETE c FROM oauth_clients c'
+			. ' LEFT JOIN oauth_authorizations a ON a.client_id = c.client_id'
+			. ' WHERE c.user_id IS NULL AND a.id IS NULL AND c.created_at < :cutoff',
+		);
+		if ($statement === false) {
+			throw new RuntimeException('Failed to prepare the client GC statement');
+		}
+
+		$statement->execute(['cutoff' => new DateTimeImmutable('-' . self::AnonymousClientMaxAge)->format('Y-m-d H:i:s')]);
 	}
 
 	private function matchesRedirectUri(string $allowedUri, string $requestedUri): bool

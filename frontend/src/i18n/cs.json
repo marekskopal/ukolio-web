@@ -654,7 +654,10 @@
                 "firstSeen": "První přihlášení",
                 "lastUsed": "Naposledy použito",
                 "activeTokens": "aktivních tokenů",
-                "totalAuthorizations": "Celkem autorizací"
+                "totalAuthorizations": "Celkem autorizací",
+                "revoke": "Odebrat přístup",
+                "revokeConfirm": "Odebrat přístup klientovi „{{name}}“? Všechny jeho tokeny okamžitě přestanou fungovat a klient se bude muset znovu autorizovat.",
+                "revoked": "Přístup klienta byl odebrán."
             },
             "role": {
                 "Owner": "Vlastník",

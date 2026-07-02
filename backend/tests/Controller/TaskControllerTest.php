@@ -617,4 +617,56 @@ final class TaskControllerTest extends IntegrationTestCase
 		$restored = $this->request('GET', '/api/tasks', authenticatedAs: $owner);
 		self::assertSame(1, $this->jsonBody($restored)['count']);
 	}
+
+	public function testCreateTaskWithEmptyNameIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $this->firstStatusId($project->id), 'name' => '   '],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testCreateTaskWithOverlongNameIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: ['statusId' => $this->firstStatusId($project->id), 'name' => str_repeat('a', 256)],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
+
+	public function testCreateTaskWithOverlongDescriptionIsRejected(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+
+		$response = $this->request(
+			'POST',
+			'/api/projects/' . $project->id . '/tasks',
+			body: [
+				'statusId' => $this->firstStatusId($project->id),
+				'name' => 'Valid name',
+				'description' => str_repeat('a', 50001),
+			],
+			authenticatedAs: $owner,
+		);
+
+		self::assertSame(422, $response->getStatusCode());
+	}
 }

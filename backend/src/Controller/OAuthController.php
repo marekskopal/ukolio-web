@@ -201,7 +201,11 @@ final readonly class OAuthController
 			return new ErrorResponse('At least one redirect_uri is required', 400);
 		}
 
-		$client = $this->clientService->registerClient($clientName, $redirectUris);
+		try {
+			$client = $this->clientService->registerClient($clientName, $redirectUris);
+		} catch (RuntimeException $e) {
+			return new ErrorResponse($e->getMessage(), 400);
+		}
 
 		return new JsonResponse([
 			'client_id' => $client->clientId,

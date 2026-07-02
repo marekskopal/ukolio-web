@@ -40,4 +40,13 @@ export class EventService {
             this.http.get<WorkspaceMcpClient[]>(`${environment.apiUrl}/workspaces/${workspaceId}/mcp-clients`),
         );
     }
+
+    public revokeWorkspaceMcpClient(workspaceId: number, clientId: string): Promise<{revokedTokens: number}> {
+        return firstValueFrom(
+            this.http.post<{revokedTokens: number}>(
+                `${environment.apiUrl}/workspaces/${workspaceId}/mcp-clients/${clientId}/revoke`,
+                {},
+            ),
+        );
+    }
 }

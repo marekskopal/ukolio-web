@@ -283,6 +283,26 @@ export class WorkspacesComponent implements OnInit {
         }
     }
 
+    protected async revokeMcpClient(client: WorkspaceMcpClient): Promise<void> {
+        const ws = this.selected();
+        if (ws === null || !this.canManageMembers()) {
+            return;
+        }
+        const confirmMessage = await this.translate.instant('app.workspaces.mcp.revokeConfirm', {
+            name: client.clientName,
+        }) as string;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        try {
+            await this.eventService.revokeWorkspaceMcpClient(ws.id, client.clientId);
+            this.mcpClients.set(await this.eventService.getWorkspaceMcpClients(ws.id).catch(() => [] as WorkspaceMcpClient[]));
+            this.alertService.success(await this.translate.instant('app.workspaces.mcp.revoked') as string);
+        } catch {
+            // error interceptor
+        }
+    }
+
     protected async deleteWorkspace(): Promise<void> {
         const ws = this.selected();
         if (ws === null || !this.canManageWorkspace()) {

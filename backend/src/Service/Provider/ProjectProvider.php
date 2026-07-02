@@ -11,6 +11,7 @@ use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 use Ukolio\Model\Repository\ProjectRepository;
+use Ukolio\Validator\TextFieldValidator;
 
 final readonly class ProjectProvider implements ProjectProviderInterface
 {
@@ -35,6 +36,8 @@ final readonly class ProjectProvider implements ProjectProviderInterface
 
 	public function createProject(User $author, Workspace $workspace, string $name, ?string $description): Project
 	{
+		$name = TextFieldValidator::validateName($name, 'Project');
+		$description = TextFieldValidator::validateDescription($description);
 		$now = new DateTimeImmutable();
 		$prefix = $this->prefixGenerator->generate($workspace, $name, null);
 		$project = new Project(workspace: $workspace, name: $name, prefix: $prefix, description: $description);
@@ -52,6 +55,8 @@ final readonly class ProjectProvider implements ProjectProviderInterface
 
 	public function updateProject(User $author, Project $project, string $name, ?string $description): Project
 	{
+		$name = TextFieldValidator::validateName($name, 'Project');
+		$description = TextFieldValidator::validateDescription($description);
 		if ($name !== $project->name) {
 			$project->prefix = $this->prefixGenerator->generate($project->workspace, $name, $project->id);
 		}

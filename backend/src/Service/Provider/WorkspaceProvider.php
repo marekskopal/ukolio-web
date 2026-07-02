@@ -15,6 +15,7 @@ use Ukolio\Model\Entity\WorkspaceUser;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkspaceRepository;
 use Ukolio\Model\Repository\WorkspaceUserRepository;
+use Ukolio\Validator\TextFieldValidator;
 
 final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 {
@@ -57,6 +58,7 @@ final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 
 	public function createWorkspace(User $owner, string $name): Workspace
 	{
+		$name = TextFieldValidator::validateName($name, 'Workspace');
 		$now = new DateTimeImmutable();
 		$workspace = new Workspace(owner: $owner, name: $name);
 		$workspace->createdAt = $now;
@@ -80,6 +82,7 @@ final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 
 	public function updateWorkspace(Workspace $workspace, string $name): Workspace
 	{
+		$name = TextFieldValidator::validateName($name, 'Workspace');
 		$workspace->name = $name;
 		$workspace->updatedAt = new DateTimeImmutable();
 		$this->workspaceRepository->persist($workspace);

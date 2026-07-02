@@ -451,6 +451,11 @@
                                                     <span class="uk-badge uk-badge--ai" [attr.aria-label]="'app.workspaces.mcp.activeTokens' | translate">
                                                         {{ client.activeTokens }} {{ 'app.workspaces.mcp.activeTokens' | translate }}
                                                     </span>
+                                                    @if (canManageMembers()) {
+                                                        <button type="button" class="btn btn-ghost" (click)="revokeMcpClient(client)">
+                                                            {{ 'app.workspaces.mcp.revoke' | translate }}
+                                                        </button>
+                                                    }
                                                 </div>
                                             </li>
                                         }

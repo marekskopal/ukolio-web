@@ -654,7 +654,10 @@
                 "firstSeen": "First seen",
                 "lastUsed": "Last used",
                 "activeTokens": "active tokens",
-                "totalAuthorizations": "Total authorizations"
+                "totalAuthorizations": "Total authorizations",
+                "revoke": "Revoke access",
+                "revokeConfirm": "Revoke access for \"{{name}}\"? All its tokens will stop working immediately and the client will have to authorize again.",
+                "revoked": "Client access revoked."
             },
             "role": {
                 "Owner": "Owner",
