@@ -76,19 +76,29 @@ final class Fixture
 
 	public static function accessTokenFor(User $user): string
 	{
-		$key = (string) getenv('AUTHORIZATION_TOKEN_KEY');
-		return JWT::encode(
-			['id' => $user->id, 'exp' => time() + 3600],
-			$key,
-			AuthenticationServiceInterface::TokenAlgorithm,
-		);
+		return self::tokenFor($user, AuthenticationServiceInterface::TokenTypeAccess, time() + 3600);
 	}
 
 	public static function expiredAccessTokenFor(User $user): string
 	{
+		return self::tokenFor($user, AuthenticationServiceInterface::TokenTypeAccess, time() - 60);
+	}
+
+	public static function refreshTokenFor(User $user): string
+	{
+		return self::tokenFor($user, AuthenticationServiceInterface::TokenTypeRefresh, time() + 3600);
+	}
+
+	public static function expiredRefreshTokenFor(User $user): string
+	{
+		return self::tokenFor($user, AuthenticationServiceInterface::TokenTypeRefresh, time() - 60);
+	}
+
+	private static function tokenFor(User $user, string $type, int $expiresAt): string
+	{
 		$key = (string) getenv('AUTHORIZATION_TOKEN_KEY');
 		return JWT::encode(
-			['id' => $user->id, 'exp' => time() - 60],
+			['id' => $user->id, 'tv' => $user->tokenVersion, 'type' => $type, 'exp' => $expiresAt],
 			$key,
 			AuthenticationServiceInterface::TokenAlgorithm,
 		);

@@ -223,7 +223,7 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		$response = $this->request(
 			'POST',
 			'/api/authentication/refresh-token',
-			body: ['refreshToken' => Fixture::accessTokenFor($user)],
+			body: ['refreshToken' => Fixture::refreshTokenFor($user)],
 			bearerToken: Fixture::expiredAccessTokenFor($user),
 		);
 
@@ -253,7 +253,7 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		$response = $this->request(
 			'POST',
 			'/api/authentication/refresh-token',
-			body: ['refreshToken' => Fixture::expiredAccessTokenFor($user)],
+			body: ['refreshToken' => Fixture::expiredRefreshTokenFor($user)],
 			bearerToken: Fixture::accessTokenFor($user),
 		);
 
@@ -268,8 +268,35 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		$response = $this->request(
 			'POST',
 			'/api/authentication/refresh-token',
-			body: ['refreshToken' => Fixture::accessTokenFor($otherUser)],
+			body: ['refreshToken' => Fixture::refreshTokenFor($otherUser)],
 			bearerToken: Fixture::accessTokenFor($user),
+		);
+
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testAccessTokenCannotBeUsedAsRefreshToken(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'POST',
+			'/api/authentication/refresh-token',
+			body: ['refreshToken' => Fixture::accessTokenFor($user)],
+			bearerToken: Fixture::accessTokenFor($user),
+		);
+
+		self::assertSame(401, $response->getStatusCode());
+	}
+
+	public function testRefreshTokenCannotBeUsedAsAccessToken(): void
+	{
+		$user = Fixture::createUser();
+
+		$response = $this->request(
+			'GET',
+			'/api/current-user',
+			bearerToken: Fixture::refreshTokenFor($user),
 		);
 
 		self::assertSame(401, $response->getStatusCode());
