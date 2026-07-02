@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Controller;
 
+use DateTimeImmutable;
 use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\Http\Message\ResponseInterface;
 use Ukolio\Controller\OAuthController;
+use Ukolio\Model\Repository\OAuthClientRepository;
+use Ukolio\OAuth\ClientServiceInterface;
+use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -137,6 +141,54 @@ final class OAuthControllerTest extends IntegrationTestCase
 		$verifier = bin2hex(random_bytes(32));
 		$challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
 		return [$verifier, $challenge];
+	}
+
+	public function testRegisterCapsRedirectUriCount(): void
+	{
+		$uris = array_map(static fn (int $i): string => 'http://localhost/cb' . $i, range(1, 11));
+
+		$register = $this->request(
+			'POST',
+			'/mcp/oauth/register',
+			body: ['client_name' => 'Greedy Client', 'redirect_uris' => $uris],
+		);
+
+		self::assertSame(400, $register->getStatusCode());
+	}
+
+	public function testRegisterSanitizesAndClampsClientName(): void
+	{
+		$register = $this->request(
+			'POST',
+			'/mcp/oauth/register',
+			body: [
+				'client_name' => "  Sneaky\u{202E}\u{0000}\nName " . str_repeat('x', 300),
+				'redirect_uris' => ['http://localhost/cb'],
+			],
+		);
+
+		self::assertSame(201, $register->getStatusCode());
+		$name = self::stringField($this->jsonBody($register)['client_name']);
+		self::assertSame(100, mb_strlen($name));
+		self::assertStringStartsWith('SneakyName', $name);
+	}
+
+	public function testStaleAnonymousClientsAreGarbageCollectedOnRegistration(): void
+	{
+		$clientService = $this->container->get(ClientServiceInterface::class);
+		assert($clientService instanceof ClientServiceInterface);
+		$stale = $clientService->registerClient('Stale', ['http://localhost/cb']);
+
+		$repo = $this->container->get(OAuthClientRepository::class);
+		assert($repo instanceof OAuthClientRepository);
+		$stale->createdAt = new DateTimeImmutable('-60 days');
+		$repo->persist($stale);
+
+		$fresh = $clientService->registerClient('Fresh', ['http://localhost/cb']);
+
+		AppHarness::app()->dbContext->getOrm()->getEntityCache()->clear();
+		self::assertNull($clientService->findByClientId($stale->clientId));
+		self::assertNotNull($clientService->findByClientId($fresh->clientId));
 	}
 
 	/**

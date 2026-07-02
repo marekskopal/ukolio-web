@@ -269,11 +269,8 @@ final readonly class WorkspaceController
 	}
 
 	#[RoutePost(Routes::WorkspaceMcpClientRevoke->value)]
-	public function actionPostRevokeMcpClient(
-		ServerRequestInterface $request,
-		int $workspaceId,
-		string $clientId,
-	): ResponseInterface {
+	public function actionPostRevokeMcpClient(ServerRequestInterface $request, int $workspaceId, string $clientId,): ResponseInterface
+	{
 		$user = $this->requestService->getUser($request);
 		$workspace = $this->workspaceProvider->getWorkspace($workspaceId);
 		if ($workspace === null) {
