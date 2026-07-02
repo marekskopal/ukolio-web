@@ -7,6 +7,7 @@ namespace Ukolio\Tests\Controller\Admin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\Admin\AdminUserController;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
+use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
 
@@ -45,6 +46,59 @@ final class AdminUserControllerTest extends IntegrationTestCase
 		$sysAdmin = Fixture::createUser(systemRole: SystemRoleEnum::SystemAdmin);
 
 		$response = $this->request('DELETE', '/api/admin/users/' . $sysAdmin->id, authenticatedAs: $sysAdmin);
+		self::assertSame(409, $response->getStatusCode());
+	}
+
+	public function testAdminEmailChangeRejectsDuplicates(): void
+	{
+		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);
+		Fixture::createUser(email: 'taken@example.com');
+		$target = Fixture::createUser(email: 'target@example.com');
+
+		$response = $this->request(
+			'PATCH',
+			'/api/admin/users/' . $target->id,
+			body: ['email' => 'taken@example.com'],
+			authenticatedAs: $sysAdmin,
+		);
+
+		self::assertSame(409, $response->getStatusCode());
+	}
+
+	public function testAdminEmailChangeResetsVerification(): void
+	{
+		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);
+		$target = Fixture::createUser(email: 'old@example.com', emailVerified: true);
+
+		$response = $this->request(
+			'PATCH',
+			'/api/admin/users/' . $target->id,
+			body: ['email' => 'new@example.com'],
+			authenticatedAs: $sysAdmin,
+		);
+
+		self::assertSame(200, $response->getStatusCode());
+
+		$repo = $this->container->get(UserRepository::class);
+		assert($repo instanceof UserRepository);
+		$updated = $repo->findUserById($target->id);
+		self::assertNotNull($updated);
+		self::assertSame('new@example.com', $updated->email);
+		self::assertFalse($updated->emailVerified);
+	}
+
+	public function testAdminEmailChangeRejectsMalformedAddress(): void
+	{
+		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);
+		$target = Fixture::createUser(email: 'target@example.com');
+
+		$response = $this->request(
+			'PATCH',
+			'/api/admin/users/' . $target->id,
+			body: ['email' => 'not-an-email'],
+			authenticatedAs: $sysAdmin,
+		);
+
 		self::assertSame(409, $response->getStatusCode());
 	}
 }

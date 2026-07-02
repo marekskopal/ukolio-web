@@ -65,6 +65,29 @@ final readonly class AdminService implements AdminServiceInterface
 		return $blocking;
 	}
 
+	private function applyEmailChange(User $target, string $email): void
+	{
+		$trimmed = trim($email);
+		if ($trimmed === '' || $trimmed === $target->email) {
+			return;
+		}
+
+		if (filter_var($trimmed, FILTER_VALIDATE_EMAIL) === false) {
+			throw new RuntimeException('Invalid email address.');
+		}
+
+		// Login and password reset resolve users by email — a duplicate
+		// would make those lookups ambiguous.
+		$existing = $this->userRepository->findUserByEmail($trimmed);
+		if ($existing !== null && $existing->id !== $target->id) {
+			throw new RuntimeException('A user with this email already exists.');
+		}
+
+		$target->email = $trimmed;
+		// The new address has not been proven to belong to anyone yet.
+		$target->emailVerified = false;
+	}
+
 	public function updateUser(User $actor, User $target, ?string $name, ?string $email, ?SystemRoleEnum $systemRole): User
 	{
 		if ($name !== null) {
@@ -75,10 +98,7 @@ final readonly class AdminService implements AdminServiceInterface
 		}
 
 		if ($email !== null) {
-			$trimmed = trim($email);
-			if ($trimmed !== '') {
-				$target->email = $trimmed;
-			}
+			$this->applyEmailChange($target, $email);
 		}
 
 		if ($systemRole !== null && $systemRole !== $target->systemRole) {
