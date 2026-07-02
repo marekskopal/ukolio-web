@@ -415,9 +415,11 @@ php bin/console migration:run
 | `APP_URL` | Base URL embedded in email links |
 | `ADMINER_USER` / `ADMINER_PASSWORD` | Basic-auth for the optional Adminer profile |
 
-`mailpit` is wired into `docker-compose.yml` so local invitations are captured
-at the SMTP layer instead of being sent. The `dev` Compose profile additionally
-boots Adminer behind the proxy for ad-hoc DB inspection.
+The `dev` Compose profile (`docker compose --profile dev up -d`) boots
+`mailpit`, which captures local invitations at the SMTP layer instead of
+sending them, plus Adminer behind the proxy for ad-hoc DB inspection. Neither
+runs in a plain `docker compose up`, so a production host never starts an
+accept-anything SMTP sink.
 
 ## Contributing
 
