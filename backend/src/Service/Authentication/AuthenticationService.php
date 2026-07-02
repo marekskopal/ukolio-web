@@ -48,8 +48,8 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 		$refreshTokenExpiration = time() + self::RefreshTokenExpiration;
 
 		return new AuthenticationDto(
-			accessToken: $this->createToken(['id' => $user->id, 'exp' => $accessTokenExpiration]),
-			refreshToken: $this->createToken(['id' => $user->id, 'exp' => $refreshTokenExpiration]),
+			accessToken: $this->createToken(['id' => $user->id, 'tv' => $user->tokenVersion, 'exp' => $accessTokenExpiration]),
+			refreshToken: $this->createToken(['id' => $user->id, 'tv' => $user->tokenVersion, 'exp' => $refreshTokenExpiration]),
 			userId: $user->id,
 		);
 	}

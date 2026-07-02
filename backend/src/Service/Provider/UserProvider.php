@@ -105,6 +105,9 @@ final readonly class UserProvider implements UserProviderInterface
 	public function updateUserPassword(User $user, #[SensitiveParameter] string $newPassword): User
 	{
 		$user->password = password_hash($newPassword, PASSWORD_BCRYPT);
+		// Invalidate every outstanding access + refresh token: their `tv` claim no longer
+		// matches, so a stolen token stops working the moment the password changes.
+		$user->tokenVersion++;
 		$user->updatedAt = new DateTimeImmutable();
 		$this->userRepository->persist($user);
 

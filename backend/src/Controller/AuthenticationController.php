@@ -126,7 +126,8 @@ final readonly class AuthenticationController
 
 		$user = $this->requestService->getUser($request);
 
-		if ($decoded->id !== $user->id) {
+		$decodedTokenVersion = isset($decoded->tv) && is_int($decoded->tv) ? $decoded->tv : 0;
+		if ($decoded->id !== $user->id || $decodedTokenVersion !== $user->tokenVersion) {
 			return new NotAuthorizedResponse('Invalid RefreshToken.');
 		}
 

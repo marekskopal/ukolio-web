@@ -6,8 +6,12 @@ namespace Ukolio\Service\Authentication;
 
 final readonly class RateLimitConfig
 {
-	public function __construct(public int $loginThreshold, public int $loginBackoffCapSeconds, public int $invitationsPerHour)
-	{
+	public function __construct(
+		public int $loginThreshold,
+		public int $loginBackoffCapSeconds,
+		public int $invitationsPerHour,
+		public int $passwordResetsPerHour,
+	) {
 	}
 
 	public static function fromEnv(): self
@@ -30,6 +34,17 @@ final readonly class RateLimitConfig
 			$invitationsPerHour = 50;
 		}
 
-		return new self(loginThreshold: $loginThreshold, loginBackoffCapSeconds: $cap, invitationsPerHour: $invitationsPerHour);
+		$passwordResetsRaw = (string) getenv('RATE_LIMIT_PASSWORD_RESETS_PER_HOUR');
+		$passwordResetsPerHour = $passwordResetsRaw === '' ? 5 : (int) $passwordResetsRaw;
+		if ($passwordResetsPerHour < 1) {
+			$passwordResetsPerHour = 5;
+		}
+
+		return new self(
+			loginThreshold: $loginThreshold,
+			loginBackoffCapSeconds: $cap,
+			invitationsPerHour: $invitationsPerHour,
+			passwordResetsPerHour: $passwordResetsPerHour,
+		);
 	}
 }

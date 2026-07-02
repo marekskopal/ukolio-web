@@ -30,7 +30,11 @@ final class EnvironmentValidatorTest extends TestCase
 			'S3_SECRET_KEY' => self::StrongPassword,
 			'REDIS_HOST' => 'redis',
 			'REDIS_PORT' => '6379',
-			'REDIS_PASSWORD' => 'redis-pass',
+			'REDIS_PASSWORD' => self::StrongPassword,
+			'RABBITMQ_PASSWORD' => self::StrongPassword,
+			'MEILI_MASTER_KEY' => self::StrongPassword,
+			'MERCURE_PUBLISHER_JWT_KEY' => self::StrongPassword,
+			'MERCURE_SUBSCRIBER_JWT_KEY' => self::StrongPassword,
 			'MEMCACHED_HOST' => 'memcached',
 			'MEMCACHED_PORT' => '11211',
 			'APP_ENV' => 'development',
@@ -119,6 +123,66 @@ final class EnvironmentValidatorTest extends TestCase
 			self::assertStringContainsString('MYSQL_ROOT_PASSWORD', $e->getMessage());
 			self::assertStringContainsString('S3_ACCESS_KEY', $e->getMessage());
 			self::assertStringContainsString('S3_SECRET_KEY', $e->getMessage());
+		}
+	}
+
+	public function testProductionRejectsDefaultRedisPassword(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['REDIS_PASSWORD'] = 'ukolio';
+
+		$validator = new EnvironmentValidator($env);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('REDIS_PASSWORD');
+
+		$validator->validate();
+	}
+
+	public function testProductionRejectsDefaultRabbitmqPassword(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['RABBITMQ_PASSWORD'] = 'ukolio';
+
+		$validator = new EnvironmentValidator($env);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('RABBITMQ_PASSWORD');
+
+		$validator->validate();
+	}
+
+	public function testProductionRejectsPlaceholderMeiliMasterKey(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['MEILI_MASTER_KEY'] = EnvironmentValidator::PlaceholderToken;
+
+		$validator = new EnvironmentValidator($env);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('MEILI_MASTER_KEY');
+
+		$validator->validate();
+	}
+
+	public function testProductionRejectsPlaceholderMercureKeys(): void
+	{
+		$env = self::baseEnv();
+		$env['APP_ENV'] = 'production';
+		$env['MERCURE_PUBLISHER_JWT_KEY'] = EnvironmentValidator::PlaceholderToken;
+		$env['MERCURE_SUBSCRIBER_JWT_KEY'] = EnvironmentValidator::PlaceholderToken;
+
+		$validator = new EnvironmentValidator($env);
+
+		try {
+			$validator->validate();
+			self::fail('Expected RuntimeException');
+		} catch (RuntimeException $e) {
+			self::assertStringContainsString('MERCURE_PUBLISHER_JWT_KEY', $e->getMessage());
+			self::assertStringContainsString('MERCURE_SUBSCRIBER_JWT_KEY', $e->getMessage());
 		}
 	}
 

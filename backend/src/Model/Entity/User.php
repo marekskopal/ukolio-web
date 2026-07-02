@@ -20,6 +20,9 @@ class User extends AEntity
 	#[Column(type: Type::Int, default: 0)]
 	public int $failedLoginAttempts = 0;
 
+	#[Column(type: Type::Int, default: 0)]
+	public int $tokenVersion = 0;
+
 	#[Column(type: Type::Timestamp, nullable: true)]
 	public ?DateTimeImmutable $lockedUntil = null;
 

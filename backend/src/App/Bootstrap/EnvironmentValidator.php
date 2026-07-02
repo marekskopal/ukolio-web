@@ -35,6 +35,11 @@ final readonly class EnvironmentValidator
 		'MYSQL_ROOT_PASSWORD' => 'ukolio',
 		'S3_ACCESS_KEY' => 'minioadmin',
 		'S3_SECRET_KEY' => 'minioadmin',
+		'REDIS_PASSWORD' => 'ukolio',
+		'RABBITMQ_PASSWORD' => 'ukolio',
+		'MEILI_MASTER_KEY' => self::PlaceholderToken,
+		'MERCURE_PUBLISHER_JWT_KEY' => self::PlaceholderToken,
+		'MERCURE_SUBSCRIBER_JWT_KEY' => self::PlaceholderToken,
 	];
 
 	/** @param array<string, string> $env */

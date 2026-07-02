@@ -64,7 +64,7 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		$jwtToken = $this->extractToken($request);
 
 		try {
-			/** @var object{id: int}&stdClass $token */
+			/** @var object{id: int, tv?: int}&stdClass $token */
 			$token = JWT::decode(
 				$jwtToken,
 				new Key((string) getenv('AUTHORIZATION_TOKEN_KEY'), AuthenticationServiceInterface::TokenAlgorithm),
@@ -75,7 +75,7 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 			throw new NotAuthorizedException('AccessToken is invalid.', $request, 401, $exception);
 		}
 
-		$request = $this->withUserAttribute($request, $token->id);
+		$request = $this->withUserAttribute($request, $token->id, $this->tokenVersion($token));
 		$request = $request->withAttribute(self::AttributeToken, $jwtToken);
 
 		return $handler->handle($request);
@@ -111,21 +111,31 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 			throw new NotAuthorizedException('AccessToken is expired.', $request, 401, $exception);
 		}
 
-		/** @var object{id: int} $payload */
+		/** @var object{id: int, tv?: int} $payload */
 		$payload = $exception->getPayload();
 
-		$request = $this->withUserAttribute($request, $payload->id);
+		$request = $this->withUserAttribute($request, $payload->id, $this->tokenVersion($payload));
 
 		return $handler->handle($request);
 	}
 
-	private function withUserAttribute(ServerRequestInterface $request, int $userId): ServerRequestInterface
+	private function withUserAttribute(ServerRequestInterface $request, int $userId, int $tokenVersion): ServerRequestInterface
 	{
 		$user = $this->userProvider->getUser($userId);
 		if ($user === null) {
 			throw new NotAuthorizedException('User is not authorized.', $request);
 		}
 
+		// Reject tokens minted before a credential change bumped the user's version.
+		if ($user->tokenVersion !== $tokenVersion) {
+			throw new NotAuthorizedException('Token has been revoked.', $request);
+		}
+
 		return $request->withAttribute(self::AttributeUser, $user);
+	}
+
+	private function tokenVersion(object $token): int
+	{
+		return isset($token->tv) && is_int($token->tv) ? $token->tv : 0;
 	}
 }

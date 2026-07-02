@@ -11,6 +11,7 @@ use Ukolio\Dto\PasswordResetQueueDto;
 use Ukolio\Model\Entity\PasswordResetToken;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\PasswordResetTokenRepository;
+use Ukolio\Service\Authentication\RateLimitConfig;
 use Ukolio\Service\Queue\Enum\QueueEnum;
 use Ukolio\Service\Queue\QueuePublisher;
 use const FILTER_VALIDATE_EMAIL;
@@ -23,6 +24,7 @@ final readonly class PasswordResetProvider implements PasswordResetProviderInter
 		private PasswordResetTokenRepository $tokenRepository,
 		private UserProviderInterface $userProvider,
 		private QueuePublisher $queuePublisher,
+		private RateLimitConfig $rateLimitConfig,
 	) {
 	}
 
@@ -35,6 +37,16 @@ final readonly class PasswordResetProvider implements PasswordResetProviderInter
 
 		$user = $this->userProvider->getUserByEmail($email);
 		if ($user === null) {
+			return;
+		}
+
+		// Silently cap resets per user/hour: bounds both the email-bomb blast radius and
+		// unbounded token-row growth without leaking whether the account exists.
+		$recentCount = $this->tokenRepository->countByUserSince(
+			$user->id,
+			(new DateTimeImmutable())->modify('-1 hour'),
+		);
+		if ($recentCount >= $this->rateLimitConfig->passwordResetsPerHour) {
 			return;
 		}
 
