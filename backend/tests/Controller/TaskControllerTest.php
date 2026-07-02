@@ -618,6 +618,32 @@ final class TaskControllerTest extends IntegrationTestCase
 		self::assertSame(1, $this->jsonBody($restored)['count']);
 	}
 
+	public function testSearchTreatsLikeWildcardsLiterally(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace);
+		$statusId = $this->firstStatusId($project->id);
+
+		foreach (['Plain task', '100% done', 'under_score'] as $name) {
+			$create = $this->request(
+				'POST',
+				'/api/projects/' . $project->id . '/tasks',
+				body: ['statusId' => $statusId, 'name' => $name],
+				authenticatedAs: $owner,
+			);
+			self::assertSame(200, $create->getStatusCode());
+		}
+
+		// "%" must match only the literal percent sign, not every row.
+		$percent = $this->request('GET', '/api/tasks?search=' . urlencode('%'), authenticatedAs: $owner);
+		self::assertSame(1, $this->jsonBody($percent)['count']);
+
+		// "_" must match only the literal underscore, not any single character.
+		$underscore = $this->request('GET', '/api/tasks?search=' . urlencode('_'), authenticatedAs: $owner);
+		self::assertSame(1, $this->jsonBody($underscore)['count']);
+	}
+
 	public function testCreateTaskWithEmptyNameIsRejected(): void
 	{
 		$owner = Fixture::createUser();

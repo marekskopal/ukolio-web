@@ -24,6 +24,12 @@ final class TaskRepository extends AbstractRepository
 		return $this->findOne(['id' => $taskId]);
 	}
 
+	/** LIKE treats %/_ as wildcards; escape them so user input only ever matches literally. */
+	private static function escapeLikePattern(string $value): string
+	{
+		return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
+	}
+
 	public function countByPriority(int $priorityId): int
 	{
 		return $this->select()
@@ -226,7 +232,7 @@ final class TaskRepository extends AbstractRepository
 		$this->applyArchivedFilter($select, $archived);
 
 		if ($search !== null && $search !== '') {
-			$select->where(['name', 'LIKE', '%' . $search . '%']);
+			$select->where(['name', 'LIKE', '%' . self::escapeLikePattern($search) . '%']);
 		}
 		// Inclusive due-date range (DATE column). Tasks with a null due_date never match a range bound.
 		if ($dueFrom !== null) {
