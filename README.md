@@ -267,7 +267,8 @@ a hardened **V8 sandbox** — the PHP **`ext-v8js`** extension — inside a dedi
 stays out of FrankenPHP and the main AMQP consumer.
 
 - **Triggers.** `Manual` (run button / API), `Scheduled` (5-field cron, ticked
-  by `php bin/console scripts:tick`), or `Event` (subscribe to task events; the
+  every minute by the backend container's built-in supercronic cron), or
+  `Event` (subscribe to task events; the
   payload is exposed as `ukolio.context.event`).
 - **Host API.** A typed `ukolio.*` global: `tasks` (list / get / create / update /
   move / delete / setTags / addComment), `projects`, `workflow(projectId)`,

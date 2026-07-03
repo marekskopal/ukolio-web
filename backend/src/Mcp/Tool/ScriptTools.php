@@ -47,7 +47,7 @@ final readonly class ScriptTools
 
 		$scripts = [];
 		foreach ($this->scriptProvider->listForWorkspace($workspace) as $script) {
-			$scripts[] = ScriptDto::fromEntity($script);
+			$scripts[] = $this->toDto($script);
 		}
 
 		return new McpScriptListDto($scripts);
@@ -64,7 +64,7 @@ final readonly class ScriptTools
 		$workspace = $this->requireWorkspace();
 		$this->requireView($workspace);
 
-		return ScriptDto::fromEntity($this->require($workspace, $scriptId));
+		return $this->toDto($this->require($workspace, $scriptId));
 	}
 
 	/**
@@ -100,7 +100,7 @@ final readonly class ScriptTools
 			$active,
 		);
 
-		return ScriptDto::fromEntity($script);
+		return $this->toDto($script);
 	}
 
 	/**
@@ -139,7 +139,7 @@ final readonly class ScriptTools
 			$active ?? $script->active,
 		);
 
-		return ScriptDto::fromEntity($updated);
+		return $this->toDto($updated);
 	}
 
 	/**
@@ -203,6 +203,15 @@ final readonly class ScriptTools
 		}
 
 		return new McpScriptRunListDto($runs);
+	}
+
+	private function toDto(Script $script): ScriptDto
+	{
+		return ScriptDto::fromEntityWithStats(
+			$script,
+			$this->scriptProvider->lastStatus($script),
+			$this->scriptProvider->runCount($script),
+		);
 	}
 
 	private function resolveTrigger(string $trigger): ScriptTriggerEnum
