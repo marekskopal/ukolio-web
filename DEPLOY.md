@@ -83,8 +83,8 @@ latency / outages no longer block sign-up / invite flows.
 - **Operations**:
   - Tail the worker: `docker compose logs -f backend | grep amqp-consumer`
   - Check queue depth: `docker compose exec rabbitmq rabbitmqctl list_queues`
-  - Restart just the worker without bouncing the web process:
-    `docker compose exec backend supervisorctl restart amqp-consumer`
+  - Restart just the worker without bouncing the web process (supervisord
+    respawns it): `docker compose exec backend pkill -f amqp-consumer.php`
 
 ## Scripting (sandboxed automations)
 
@@ -92,49 +92,39 @@ Workspace scripts run in a V8 sandbox (`ext-v8js`) executed by a dedicated
 **script-worker** process — managed by supervisor inside the `backend` container
 (`backend/docker/supervisord.conf`), separate from FrankenPHP and the
 amqp-consumer so V8 never loads in the web tier. Manual and event-triggered runs
-are enqueued automatically; **scheduled** triggers require a once-a-minute cron.
+are enqueued automatically; **scheduled** triggers are dispatched by the
+built-in cron below.
 
-- **Scheduled-trigger cron (required for `Scheduled` scripts).** Run on the host
-  (or a sidecar) every minute:
-
-  ```cron
-  * * * * * docker compose exec -T backend php /app/bin/console scripts:tick
-  ```
-
-  `scripts:tick` dispatches every active scheduled script whose cron is due. It
-  is safe to run more than once per minute — a per-(script, minute) cache guard
-  de-dupes dispatch. Without this cron, `Manual` and `Event` scripts still work;
-  only `Scheduled` ones won't fire.
-- **Due-date reminder cron (required for task due reminders, U-83).** Run on the
-  host (or a sidecar) hourly:
+- **Built-in cron.** The backend container runs `supercronic` under supervisor
+  (`[program:cron]` in `backend/docker/supervisord.conf`, crontab at
+  `backend/docker/cron.d/ukolio` → `/etc/cron.d/ukolio`). No host cron is
+  needed. It runs:
 
   ```cron
-  0 * * * * docker compose exec -T backend php /app/bin/console notifications:due-tick
+  * * * * *  php /app/bin/console scripts:tick
+  0 * * * *  php /app/bin/console notifications:due-tick
+  0 * * * *  php /app/bin/console recurring-tasks:tick
   ```
 
-  `notifications:due-tick` sends due-date reminders (in-app + email) for tasks due
-  today and tomorrow to each task's assignee and watchers. Per-(task, user, type)
-  de-duplication via the notifications table makes the hourly schedule idempotent —
-  each reminder fires at most once per day. Without this cron, assignment / comment /
-  mention notifications still work; only due-date reminders won't fire.
-- **Recurring-task cron (required for recurring tasks, U-67).** Run on the host
-  (or a sidecar) hourly:
-
-  ```cron
-  0 * * * * docker compose exec -T backend php /app/bin/console recurring-tasks:tick
-  ```
-
-  `recurring-tasks:tick` is the safety net for date-anchored recurring series: it
-  enqueues the next occurrence of any active recurrence whose `next_run_at` has
-  passed (to the `recurring-task-spawn` queue, consumed by the standard
-  `amqp-consumer`). The common case — spawning the next occurrence when a recurring
-  task is moved to a Finish status — happens inline via the event hook and needs no
-  cron. A per-(recurrence, day) cache guard plus a carrier re-check in the handler
-  keep both paths idempotent. Without this cron, recurring tasks still spawn on
-  completion; only series the user never completes won't advance on schedule.
+  - `scripts:tick` dispatches every active scheduled script whose cron is due.
+    It is safe to run more than once per minute — a per-(script, minute) cache
+    guard de-dupes dispatch. `Manual` and `Event` scripts don't depend on it.
+  - `notifications:due-tick` sends due-date reminders (in-app + email, U-83) for
+    tasks due today and tomorrow to each task's assignee and watchers.
+    Per-(task, user, type) de-duplication via the notifications table makes the
+    hourly schedule idempotent — each reminder fires at most once per day.
+  - `recurring-tasks:tick` is the safety net for date-anchored recurring series
+    (U-67): it enqueues the next occurrence of any active recurrence whose
+    `next_run_at` has passed (to the `recurring-task-spawn` queue, consumed by
+    the standard `amqp-consumer`). The common case — spawning the next
+    occurrence when a recurring task is moved to a Finish status — happens
+    inline via the event hook. A per-(recurrence, day) cache guard plus a
+    carrier re-check in the handler keep both paths idempotent.
 - **Operations.**
+  - Tail the cron: `docker compose logs -f backend | grep cron`
   - Tail the worker: `docker compose logs -f backend | grep script-worker`
-  - Restart just the worker: `docker compose exec backend supervisorctl restart script-worker`
+  - Restart just the worker (supervisord respawns it):
+    `docker compose exec backend pkill -f script-worker.php`
 - **Outbound-fetch allowlist (optional hardening).** Set a workspace script
   variable named `UKOLIO_FETCH_ALLOWLIST` to a comma/whitespace-separated list of
   hosts (e.g. `hooks.slack.com, api.github.com`). When present, `ukolio.fetch`

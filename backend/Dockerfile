@@ -19,9 +19,10 @@ RUN install-php-extensions \
     igbinary \
     memcached
 
-# curl/tzdata/supervisor for the runtime; nodejs-libs provides the libnode that
-# v8js.so links against (V8 is embedded in Node, no separate libv8 in Alpine).
-RUN apk add --no-cache curl tzdata supervisor nodejs-libs
+# curl/tzdata/supervisor for the runtime; supercronic runs the in-container cron
+# (see docker/cron.d/ukolio); nodejs-libs provides the libnode that v8js.so links
+# against (V8 is embedded in Node, no separate libv8 in Alpine).
+RUN apk add --no-cache curl tzdata supervisor supercronic nodejs-libs
 
 # Unprivileged user for the V8 script sandbox. The worker runs attacker-authored
 # (admin-authored) JS in-process, so a V8 memory-safety escape must NOT land as
@@ -47,6 +48,8 @@ COPY ./translations /app/translations
 COPY ./Caddyfile /etc/frankenphp/Caddyfile
 COPY ./docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY ./docker/supervisord.conf /etc/supervisord.conf
+COPY ./docker/cron.d /etc/cron.d
+RUN chmod 0600 /etc/cron.d/*
 COPY ./composer.json ./composer.lock* /app/
 
 WORKDIR /app/
