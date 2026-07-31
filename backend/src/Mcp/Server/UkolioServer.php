@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Mcp\Server;
 
+use Mcp\Capability\Registry\ReferenceHandler;
 use Mcp\Server;
 use Mcp\Server\Session\SessionStoreInterface;
 use Psr\Container\ContainerInterface;
@@ -20,6 +21,7 @@ final readonly class UkolioServer
 		$builder = Server::builder()
 			->setContainer($this->container)
 			->setLogger($this->logger)
+			->setReferenceHandler(new ToolErrorTranslatingReferenceHandler(new ReferenceHandler($this->container)))
 			->setDiscovery(
 				basePath: dirname(__DIR__, 2),
 				scanDirs: ['Mcp/Tool'],
