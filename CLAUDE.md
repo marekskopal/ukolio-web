@@ -174,6 +174,15 @@ Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 The MCP surface mirrors the web UI: agents and humans are equal first-class
 actors, each able to plan, create, move, and close work.
 
+Tools signal expected failures ("Task template 1 not found.") by throwing a
+plain `RuntimeException`. `ToolErrorTranslatingReferenceHandler` (wired into
+`UkolioServer` via `setReferenceHandler`) converts those into the SDK's
+`ToolCallException`, which `CallToolHandler` renders as a tool result carrying
+the message — without it the SDK collapses every throwable into a message-less
+"Error while executing tool" internal error and the agent retries blind.
+Infrastructure faults (`ORMException`, `PDOException`) are deliberately left
+untranslated so they stay internal errors and keep being logged at error level.
+
 ## Testing
 
 ```bash
