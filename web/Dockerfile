@@ -50,6 +50,10 @@ RUN rm -rf /var/www/html/vendor \
     && composer clear-cache
 
 COPY ./public/.htaccess /var/www/html/public/
+# Creates the default file storage's base path. Without it TYPO3 fails to
+# initialize storage [1] on every request that touches a file reference.
+# The .htaccess is TYPO3's CSP hardening for user-uploaded resources.
+COPY ./public/fileadmin/.htaccess /var/www/html/public/fileadmin/
 
 FROM node AS build_frontend
 
