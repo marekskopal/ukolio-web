@@ -25,7 +25,7 @@ languages:
   -
     title: English
     enabled: true
-    locale: en_US
+    locale: en_US.UTF-8
     hreflang: en
     base: /
     websiteTitle: Ukolio
@@ -37,7 +37,7 @@ languages:
   -
     title: Czech
     enabled: true
-    locale: cs_CZ
+    locale: cs_CZ.UTF-8
     hreflang: cs
     base: /cs/
     baseVariants:
