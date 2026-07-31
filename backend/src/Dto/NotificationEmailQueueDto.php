@@ -16,12 +16,12 @@ use Ukolio\Model\Entity\Enum\NotificationTypeEnum;
  *     recipientName: string,
  *     locale: value-of<LocaleEnum>,
  *     type: value-of<NotificationTypeEnum>,
- *     actorName: string|null,
- *     taskCode: string|null,
- *     taskName: string|null,
- *     projectId: int|null,
- *     statusName: string|null,
- *     dueDate: string|null,
+ *     actorName?: string|null,
+ *     taskCode?: string|null,
+ *     taskName?: string|null,
+ *     projectId?: int|null,
+ *     statusName?: string|null,
+ *     dueDate?: string|null,
  * }>
  */
 final readonly class NotificationEmailQueueDto implements ArrayFactoryInterface

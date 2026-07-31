@@ -161,7 +161,7 @@ services:
             - dev
 
     adminer:
-        image: adminer:5.4.2
+        image: adminer:5.5.0
         restart: unless-stopped
         networks:
             - frontend
@@ -197,13 +197,13 @@ services:
             - dev
 
     memcached:
-        image: memcached:1.6.42-alpine
+        image: memcached:1.6.45-alpine
         restart: unless-stopped
         networks:
             - backend
 
     redis:
-        image: redis:8.8.0-alpine
+        image: redis:8.10.0-alpine
         restart: unless-stopped
         environment:
             REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -220,7 +220,7 @@ services:
             - ukolio_redis:/data
 
     rabbitmq:
-        image: rabbitmq:4.3.2-alpine
+        image: rabbitmq:4.3.4-alpine
         restart: unless-stopped
         environment:
             RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}

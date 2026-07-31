@@ -56,7 +56,8 @@ final readonly class HttpFetcher
 		$this->assertHostAllowed($url, $allowedHosts);
 		$target = $this->resolveSafeTarget($url);
 
-		$method = strtoupper(JsValue::string($options['method'] ?? null) ?? 'GET');
+		$requestedMethod = strtoupper(JsValue::string($options['method'] ?? null) ?? '');
+		$method = $requestedMethod !== '' ? $requestedMethod : 'GET';
 		$timeoutMs = min(max(JsValue::int($options['timeoutMs'] ?? null) ?? self::DefaultTimeoutMs, 1), self::MaxTimeoutMs);
 
 		$handle = curl_init();
