@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b309e8f0692271a2cfb1c821a944bf98",
+    "content-hash": "5743e8c627835f78d1565d19cd3b47b2",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1690,21 +1690,21 @@
         },
         {
             "name": "marekskopal/typo3-mcp-server",
-            "version": "v0.12.4",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/typo3-mcp-server.git",
-                "reference": "4eb0a7229ae43a392f0d1d489614d8d37ae42003"
+                "reference": "8e1a1864a15c6a9a9cb091f335e9027814a1bde8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/4eb0a7229ae43a392f0d1d489614d8d37ae42003",
-                "reference": "4eb0a7229ae43a392f0d1d489614d8d37ae42003",
+                "url": "https://api.github.com/repos/marekskopal/typo3-mcp-server/zipball/8e1a1864a15c6a9a9cb091f335e9027814a1bde8",
+                "reference": "8e1a1864a15c6a9a9cb091f335e9027814a1bde8",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
-                "mcp/sdk": "^0.6",
+                "mcp/sdk": "^0.7",
                 "php": ">=8.3",
                 "typo3/cms-backend": "^13.4.24 || ^14.3.0",
                 "typo3/cms-core": "^13.4.24 || ^14.3.0",
@@ -1740,22 +1740,28 @@
             "authors": [
                 {
                     "name": "Marek Skopal",
+                    "email": "skopal.marek@gmail.com",
                     "homepage": "https://marekskopal.com",
                     "role": "Developer"
                 }
             ],
             "description": "MCP server for TYPO3 CMS administration",
-            "homepage": "https://marekskopal.com",
+            "homepage": "https://github.com/marekskopal/typo3-mcp-server",
             "keywords": [
+                "ai",
                 "mcp",
+                "mcp-server",
+                "model-context-protocol",
+                "oauth",
                 "server",
-                "typo3"
+                "typo3",
+                "typo3-extension"
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/typo3-mcp-server/issues",
-                "source": "https://github.com/marekskopal/typo3-mcp-server/tree/v0.12.4"
+                "source": "https://github.com/marekskopal/typo3-mcp-server"
             },
-            "time": "2026-07-02T12:26:45+00:00"
+            "time": "2026-07-28T18:45:11+00:00"
         },
         {
             "name": "marekskopal/typo3-pricing",
@@ -1919,16 +1925,16 @@
         },
         {
             "name": "mcp/sdk",
-            "version": "v0.6.0",
+            "version": "v0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/modelcontextprotocol/php-sdk.git",
-                "reference": "433c84b58af346dd32f15f9909679e96a46ebe23"
+                "reference": "a6f415578fa789783d010274d11c922e97659a8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/modelcontextprotocol/php-sdk/zipball/433c84b58af346dd32f15f9909679e96a46ebe23",
-                "reference": "433c84b58af346dd32f15f9909679e96a46ebe23",
+                "url": "https://api.github.com/repos/modelcontextprotocol/php-sdk/zipball/a6f415578fa789783d010274d11c922e97659a8a",
+                "reference": "a6f415578fa789783d010274d11c922e97659a8a",
                 "shasum": ""
             },
             "require": {
@@ -1997,9 +2003,9 @@
             "description": "Model Context Protocol SDK for Client and Server applications in PHP",
             "support": {
                 "issues": "https://github.com/modelcontextprotocol/php-sdk/issues",
-                "source": "https://github.com/modelcontextprotocol/php-sdk/tree/v0.6.0"
+                "source": "https://github.com/modelcontextprotocol/php-sdk/tree/v0.7.0"
             },
-            "time": "2026-06-02T15:47:04+00:00"
+            "time": "2026-07-14T22:58:00+00:00"
         },
         {
             "name": "netresearch/rte-ckeditor-image",
