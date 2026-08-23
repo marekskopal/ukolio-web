@@ -220,7 +220,7 @@ services:
             - ukolio_redis:/data
 
     rabbitmq:
-        image: rabbitmq:4.3.4-alpine
+        image: rabbitmq:4.3.5-alpine
         restart: unless-stopped
         environment:
             RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
