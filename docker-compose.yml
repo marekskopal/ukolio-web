@@ -23,7 +23,7 @@ services:
         healthcheck:
             test: ["CMD", "nc", "-z", "127.0.0.1", "80"]
             interval: 10s
-            timeout: 10s
+            timeout: 5s
             retries: 5
             start_period: 10s
         networks:
@@ -228,7 +228,7 @@ services:
         healthcheck:
             test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
             interval: 10s
-            timeout: 5s
+            timeout: 10s
             retries: 10
             start_period: 20s
         networks:
