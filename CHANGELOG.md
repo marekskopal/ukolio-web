@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Scheduled scripts were dispatched but never executed. The script-worker runs
+  as the unprivileged `ukolio-script` user (uid 10001, added in 1.0.1's
+  hardening) and could not append to the shared `/app/log` files owned by the
+  root-run processes. Tracy throws when it cannot write, that throw escaped the
+  consume callback before the message was acked or nacked, and after three fast
+  restarts supervisord left the `script-run` queue with no consumer at all — so
+  every scheduled run since piled up unprocessed. The worker now logs to its
+  own `/app/log/script` directory (`BACKEND_LOG_DIR`, prepared by the new
+  container entrypoint), and a logging fault can no longer abort the caller: it
+  falls back to stderr via `SafeLogger`.
+- `supervisorctl` works inside the backend container again (`[unix_http_server]`
+  / `[supervisorctl]` / `[rpcinterface]` sections were missing, so
+  `supervisorctl status` failed with "ini file does not include supervisorctl
+  section" and a dead program could not be inspected or restarted).
+- The queue consumers tolerate a dependency that is briefly unreachable at boot
+  (`startretries=30`): the default of three start retries was exhausted within
+  seconds of a RabbitMQ restart, disabling the queues until the next deploy.
+
 ## [1.0.1] - 2026-07-03
 
 ### Fixed
