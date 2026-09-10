@@ -130,7 +130,7 @@ services:
             - ukolio_data:/var/lib/mysql
 
     adminer:
-        image: adminer:5.5.0
+        image: adminer:5.5.1
         restart: unless-stopped
         networks:
             - frontend
@@ -139,7 +139,7 @@ services:
             - dev
 
     mailpit:
-        image: axllent/mailpit:v1.30
+        image: axllent/mailpit:v1.31
         restart: unless-stopped
         networks:
             - backend
@@ -172,7 +172,7 @@ services:
             - backend
 
     redis:
-        image: redis:8.10.0-alpine
+        image: redis:8.10.1-alpine
         restart: unless-stopped
         environment:
             REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -189,7 +189,7 @@ services:
             - ukolio_redis:/data
 
     rabbitmq:
-        image: rabbitmq:4.3.4-alpine
+        image: rabbitmq:4.3.5-alpine
         restart: unless-stopped
         environment:
             RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
