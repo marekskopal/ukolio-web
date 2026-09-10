@@ -161,14 +161,14 @@ services:
             - dev
 
     adminer:
-        image: adminer:5.5.0
+        image: adminer:5.5.1
         restart: unless-stopped
         networks:
             - frontend
             - backend
 
     mailpit:
-        image: axllent/mailpit:v1.30
+        image: axllent/mailpit:v1.31
         restart: unless-stopped
         networks:
             - backend
@@ -203,7 +203,7 @@ services:
             - backend
 
     redis:
-        image: redis:8.10.0-alpine
+        image: redis:8.10.1-alpine
         restart: unless-stopped
         environment:
             REDIS_PASSWORD: ${REDIS_PASSWORD}

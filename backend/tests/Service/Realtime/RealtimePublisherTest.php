@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Jwt\TokenFactoryInterface;
+use Symfony\Component\Mercure\ProtocolVersion;
 use Symfony\Component\Mercure\Update;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Service\Realtime\RealtimeOriginContext;
@@ -95,6 +96,16 @@ final class RealtimePublisherTest extends TestCase
 			public function getFactory(): ?TokenFactoryInterface
 			{
 				return null;
+			}
+
+			public function getProtocolVersion(): ProtocolVersion
+			{
+				return ProtocolVersion::Legacy;
+			}
+
+			public function getCookieName(): string
+			{
+				return ProtocolVersion::Legacy->getDefaultCookieName();
 			}
 		};
 
