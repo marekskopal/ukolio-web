@@ -120,11 +120,26 @@ built-in cron below.
     occurrence when a recurring task is moved to a Finish status — happens
     inline via the event hook. A per-(recurrence, day) cache guard plus a
     carrier re-check in the handler keep both paths idempotent.
+- **Worker identity and logs.** The script-worker drops privileges to
+  `ukolio-script` (uid 10001) because it executes user-authored JS in-process.
+  It therefore cannot append to the log files in `/app/log`, which belong to the
+  root-run processes, and Tracy aborts a process whose log file is unwritable —
+  so `docker-entrypoint.sh` creates `/app/log/script` for it and
+  `[program:script-worker]` points `BACKEND_LOG_DIR` there. Its logs land in
+  `log/script/{info,warning,error,exception}.log` on the host, and also on
+  stderr in `docker compose logs backend`. If that directory is missing, the
+  process falls back to the shared directory and reports failed writes on
+  stderr rather than exiting.
 - **Operations.**
+  - Process states (a dead program shows as `FATAL` / `BACKOFF` here):
+    `docker compose exec backend supervisorctl status`
   - Tail the cron: `docker compose logs -f backend | grep cron`
   - Tail the worker: `docker compose logs -f backend | grep script-worker`
-  - Restart just the worker (supervisord respawns it):
-    `docker compose exec backend pkill -f script-worker.php`
+  - Restart just the worker:
+    `docker compose exec backend supervisorctl restart script-worker`
+  - Confirm the queue actually has a consumer — a worker that is down leaves
+    `script-run` growing with `consumers` at 0:
+    `docker compose exec rabbitmq rabbitmqctl list_queues name messages consumers`
 - **Outbound-fetch allowlist (optional hardening).** Set a workspace script
   variable named `UKOLIO_FETCH_ALLOWLIST` to a comma/whitespace-separated list of
   hosts (e.g. `hooks.slack.com, api.github.com`). When present, `ukolio.fetch`

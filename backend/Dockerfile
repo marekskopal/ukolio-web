@@ -50,6 +50,8 @@ COPY ./docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY ./docker/supervisord.conf /etc/supervisord.conf
 COPY ./docker/cron.d /etc/cron.d
 RUN chmod 0600 /etc/cron.d/*
+COPY ./docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod 0755 /usr/local/bin/docker-entrypoint.sh
 COPY ./composer.json ./composer.lock* /app/
 
 WORKDIR /app/
@@ -58,4 +60,6 @@ RUN rm -rf /app/vendor \
     && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-progress --classmap-authoritative -d /app/ \
     && composer clear-cache
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# The entrypoint prepares the bind-mounted log directories (needs root), then execs the CMD.
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

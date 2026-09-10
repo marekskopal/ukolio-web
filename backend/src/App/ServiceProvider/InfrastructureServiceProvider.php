@@ -19,6 +19,7 @@ use Ukolio\Service\Cache\CacheFactory;
 use Ukolio\Service\Cache\CacheFactoryInterface;
 use Ukolio\Service\Cors\CorsPolicy;
 use Ukolio\Service\Logger\Logger;
+use Ukolio\Service\Logger\SafeLogger;
 use Ukolio\Service\Queue\QueuePublisher;
 use Ukolio\Service\Search\MeiliClient;
 use Ukolio\Service\Search\SearchIndexer;
@@ -51,7 +52,10 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 	{
 		$container = $this->getContainer();
 
-		$container->add(LoggerInterface::class, fn (): LoggerInterface => Logger::initLogger(__DIR__ . '/../../../log'));
+		$container->add(
+			LoggerInterface::class,
+			fn (): LoggerInterface => new SafeLogger(Logger::initLogger(self::resolveLogDirectory())),
+		);
 
 		$container->add(
 			ResponseFactoryInterface::class,
@@ -134,5 +138,25 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			assert($logger instanceof LoggerInterface);
 			return new SearchIndexer($publisher, $logger);
 		});
+	}
+
+	/**
+	 * Tracy log directory, overridable per process via BACKEND_LOG_DIR.
+	 *
+	 * The default is the bind-mounted /app/log shared with the other containers, whose files are
+	 * owned by the root-run processes. The script-worker runs as an unprivileged user (see
+	 * docker/supervisord.conf) and Tracy throws when it cannot append to its log file, so that
+	 * process is pointed at its own writable subdirectory instead.
+	 *
+	 * An override that does not exist falls back to the default: Tracy exits the process when its
+	 * log directory is missing, and a mount layout that does not provide the subdirectory (the
+	 * docker-compose.test.yml override shadows it) must not take the worker down with it. Writes
+	 * that then fail surface on stderr through SafeLogger instead.
+	 */
+	private static function resolveLogDirectory(): string
+	{
+		$directory = getenv('BACKEND_LOG_DIR');
+
+		return $directory !== false && $directory !== '' && is_dir($directory) ? $directory : __DIR__ . '/../../../log';
 	}
 }
