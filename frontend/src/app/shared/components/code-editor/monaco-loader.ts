@@ -79,7 +79,9 @@ function configure(monaco: typeof Monaco): void {
     }
     configured = true;
 
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(UKOLIO_DTS, 'ts:ukolio.d.ts');
+    // Monaco 0.55 moved the nested language namespaces (languages.css/html/json/typescript)
+    // to the top level; the AMD bundle still ships the TypeScript language features.
+    monaco.typescript.javascriptDefaults.addExtraLib(UKOLIO_DTS, 'ts:ukolio.d.ts');
 
     monaco.editor.defineTheme('ukolio-light', {
         base: 'vs',
