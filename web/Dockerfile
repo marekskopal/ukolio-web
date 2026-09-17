@@ -1,4 +1,4 @@
-FROM mlocati/php-extension-installer:2.11.12 AS php-extension-installer
+FROM mlocati/php-extension-installer:2.11.15 AS php-extension-installer
 FROM composer:2.10.3 AS composer
 FROM node:24.21.0 AS node
 FROM php:8.5-apache AS php
