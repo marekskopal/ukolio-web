@@ -19,6 +19,10 @@ interface AdminServiceInterface
 
 	public function countMembers(Workspace $workspace): int;
 
+	public function countProjects(Workspace $workspace): int;
+
+	public function countTasks(Workspace $workspace): int;
+
 	public function countWorkspacesForUser(User $user): int;
 
 	public function countOwnedWorkspaces(User $user): int;

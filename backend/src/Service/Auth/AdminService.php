@@ -11,6 +11,8 @@ use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
+use Ukolio\Model\Repository\ProjectRepository;
+use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkspaceRepository;
 use Ukolio\Model\Repository\WorkspaceUserRepository;
@@ -24,6 +26,8 @@ final readonly class AdminService implements AdminServiceInterface
 		private UserRepository $userRepository,
 		private WorkspaceRepository $workspaceRepository,
 		private WorkspaceUserRepository $workspaceUserRepository,
+		private ProjectRepository $projectRepository,
+		private TaskRepository $taskRepository,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private EventProviderInterface $eventProvider,
 	) {
@@ -44,6 +48,22 @@ final readonly class AdminService implements AdminServiceInterface
 	public function countMembers(Workspace $workspace): int
 	{
 		return iterator_count($this->workspaceUserRepository->findByWorkspace($workspace->id));
+	}
+
+	public function countProjects(Workspace $workspace): int
+	{
+		return $this->projectRepository->countByWorkspace($workspace->id);
+	}
+
+	public function countTasks(Workspace $workspace): int
+	{
+		// Tasks hang off projects, not the workspace, so the count goes through the project ids.
+		$projectIds = [];
+		foreach ($this->projectRepository->findProjectsByWorkspace($workspace->id) as $project) {
+			$projectIds[] = $project->id;
+		}
+
+		return $this->taskRepository->countByProjects($projectIds);
 	}
 
 	public function countWorkspacesForUser(User $user): int

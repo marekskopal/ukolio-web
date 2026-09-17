@@ -13,6 +13,7 @@ export interface AdminUser {
     systemRole: SystemRole;
     workspaceCount: number;
     ownedWorkspaceCount: number;
+    lastLoginAt: string | null;
 }
 
 export interface AdminWorkspace {
@@ -22,6 +23,8 @@ export interface AdminWorkspace {
     ownerEmail: string;
     ownerName: string;
     memberCount: number;
+    projectCount: number;
+    taskCount: number;
     createdAt: string;
 }
 

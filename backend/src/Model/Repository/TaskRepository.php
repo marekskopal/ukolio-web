@@ -37,6 +37,18 @@ final class TaskRepository extends AbstractRepository
 			->count();
 	}
 
+	/** @param list<int> $projectIds */
+	public function countByProjects(array $projectIds): int
+	{
+		if ($projectIds === []) {
+			return 0;
+		}
+
+		return $this->select()
+			->where(['project_id', 'IN', $projectIds])
+			->count();
+	}
+
 	public function findByProjectAndSequence(int $projectId, int $sequenceNumber): ?Task
 	{
 		return $this->findOne(['project_id' => $projectId, 'sequence_number' => $sequenceNumber]);

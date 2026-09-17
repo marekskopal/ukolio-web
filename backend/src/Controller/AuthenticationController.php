@@ -236,6 +236,8 @@ final readonly class AuthenticationController
 			}
 		}
 
+		$this->userProvider->recordLogin($user);
+
 		return $this->withMercureCookie(
 			new JsonResponse($this->authenticationService->createAuthentication($user)),
 			$request,

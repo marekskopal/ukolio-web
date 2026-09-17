@@ -29,6 +29,9 @@ class User extends AEntity
 	#[Column(type: Type::Timestamp, nullable: true)]
 	public ?DateTimeImmutable $onboardingCompletedAt = null;
 
+	#[Column(type: Type::Timestamp, nullable: true)]
+	public ?DateTimeImmutable $lastLoginAt = null;
+
 	#[Column(type: Type::String, nullable: true, default: null)]
 	public ?string $googleId = null;
 

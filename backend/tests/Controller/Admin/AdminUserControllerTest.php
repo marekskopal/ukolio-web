@@ -87,6 +87,45 @@ final class AdminUserControllerTest extends IntegrationTestCase
 		self::assertFalse($updated->emailVerified);
 	}
 
+	public function testUserListReportsLastLogin(): void
+	{
+		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);
+		Fixture::createUser(email: 'signed-in@example.com', password: 'TestPass1!');
+		Fixture::createUser(email: 'never@example.com');
+
+		$login = $this->request(
+			'POST',
+			'/api/authentication/login',
+			body: ['email' => 'signed-in@example.com', 'password' => 'TestPass1!'],
+		);
+		self::assertSame(200, $login->getStatusCode());
+
+		$rows = $this->jsonList($this->request('GET', '/api/admin/users', authenticatedAs: $sysAdmin));
+		$lastLoginByEmail = array_column($rows, 'lastLoginAt', 'email');
+
+		self::assertNotNull($lastLoginByEmail['signed-in@example.com']);
+		// Never signed in — the column stays null rather than falling back to createdAt.
+		self::assertNull($lastLoginByEmail['never@example.com']);
+	}
+
+	public function testRefreshingATokenDoesNotCountAsALogin(): void
+	{
+		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);
+		$user = Fixture::createUser(email: 'refresher@example.com');
+
+		$refresh = $this->request(
+			'POST',
+			'/api/authentication/refresh-token',
+			body: ['refreshToken' => Fixture::refreshTokenFor($user)],
+			authenticatedAs: $user,
+		);
+		self::assertSame(200, $refresh->getStatusCode());
+
+		$rows = $this->jsonList($this->request('GET', '/api/admin/users', authenticatedAs: $sysAdmin));
+		$lastLoginByEmail = array_column($rows, 'lastLoginAt', 'email');
+		self::assertNull($lastLoginByEmail['refresher@example.com']);
+	}
+
 	public function testAdminEmailChangeRejectsMalformedAddress(): void
 	{
 		$sysAdmin = Fixture::createUser(email: 'root@example.com', systemRole: SystemRoleEnum::SystemAdmin);

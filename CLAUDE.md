@@ -42,7 +42,7 @@ Frontend code is base-href-agnostic (e.g. asset URLs resolve via
 - `Workspace` (owner, name) — top-level tenant; users belong to one or more workspaces.
 - `WorkspaceUser` (workspace, user, role ∈ Owner/Admin/Member) — membership.
 - `Invitation` (workspace, inviter, email, tokenHash, role, expiresAt, acceptedAt?) — pending invites.
-- `User` (email, password, name, currentWorkspaceId?, systemRole ∈ User/SystemAdmin, locale) — `currentWorkspaceId` scopes data; `systemRole = SystemAdmin` grants global admin.
+- `User` (email, password, name, currentWorkspaceId?, systemRole ∈ User/SystemAdmin, locale, lastLoginAt?) — `currentWorkspaceId` scopes data; `systemRole = SystemAdmin` grants global admin. `lastLoginAt` is stamped when the user proves their identity (password or Google login), not on token refresh, and surfaces as the "Last login" column in the admin user list.
 - `Project` (workspace, name, description) → has one `Workflow`, many `Tasks`, many `ProjectField` attachments.
 - `Workflow` (project, name) → has many `Status`.
 - `Status` (workflow, name, color, position, type ∈ Start/Normal/Finish).
@@ -110,7 +110,7 @@ All routes live in `Ukolio\Route\Routes` (single enum). Highlights:
 - Watchers (U-83): `GET /api/tasks/{id}/watchers` → `{ watchers, watching }`, `POST /api/tasks/{id}/watch`, `DELETE /api/tasks/{id}/watch`. Gated by workspace membership (watching is a personal action). Due-date reminders are sent by the `notifications:due-tick` console command (hourly in-container cron, see DEPLOY.md) to assignee + watchers for tasks due today/tomorrow, de-duplicated per day.
 - Recurrence (U-67): `GET /api/tasks/{id}/recurrence` → rule or `null`, `PUT /api/tasks/{id}/recurrence` (set/replace; body = cadence/interval/weekday/dayOfMonth/cronExpression/endType/endDate/maxOccurrences/anchorDate), `DELETE /api/tasks/{id}/recurrence` (clear). Gated by `canManageTasks`. The new-occurrence spawn runs in the background (`recurring-task-spawn` queue), not synchronously on the move.
 - Templates: `GET /api/workspaces/{id}/task-templates`, `POST /api/tasks/{id}/save-as-template` (`{name}`), `DELETE /api/task-templates/{id}`. The UI "Create from template" prefills the new-task drawer client-side and goes through the normal create endpoint.
-- Admin: `GET/PUT/DELETE /api/admin/users[/{id}]`, `GET/PUT/DELETE /api/admin/workspaces[/{id}]`, plus `/members`, `/transfer-ownership`.
+- Admin: `GET/PUT/DELETE /api/admin/users[/{id}]`, `GET/PUT/DELETE /api/admin/workspaces[/{id}]`, plus `/members`, `/transfer-ownership`. The user list carries `lastLoginAt`; the workspace list/detail carry `projectCount` + `taskCount` (tasks counted through the workspace's project ids, since `Task` has no workspace FK).
 - MCP: `POST/GET/DELETE /mcp`, OAuth discovery + flow endpoints (see below).
 
 Query enums live under `backend/src/Model/Repository/Enum/`

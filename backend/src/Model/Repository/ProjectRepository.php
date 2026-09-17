@@ -20,6 +20,13 @@ final class ProjectRepository extends AbstractRepository
 			->fetchAll();
 	}
 
+	public function countByWorkspace(int $workspaceId): int
+	{
+		return $this->select()
+			->where(['workspace_id' => $workspaceId])
+			->count();
+	}
+
 	public function findProject(int $workspaceId, int $projectId): ?Project
 	{
 		return $this->findOne(['workspace_id' => $workspaceId, 'id' => $projectId]);

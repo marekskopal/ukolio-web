@@ -28,6 +28,7 @@
                     <th>{{ 'app.admin.users.systemRole' | translate }}</th>
                     <th>{{ 'app.admin.users.workspaces' | translate }}</th>
                     <th>{{ 'app.admin.users.owned' | translate }}</th>
+                    <th>{{ 'app.admin.users.lastLogin' | translate }}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -41,6 +42,13 @@
                         </td>
                         <td>{{ u.workspaceCount }}</td>
                         <td>{{ u.ownedWorkspaceCount }}</td>
+                        <td>
+                            @if (u.lastLoginAt; as lastLogin) {
+                                <time [attr.datetime]="lastLogin">{{ lastLogin | date: 'short' }}</time>
+                            } @else {
+                                <span class="muted">{{ 'app.admin.users.neverLoggedIn' | translate }}</span>
+                            }
+                        </td>
                         <td class="admin-table-actions">
                             <button type="button" class="btn btn-ghost" (click)="toggleSystemRole(u)">
                                 @if (u.systemRole === 'SystemAdmin') {
@@ -53,7 +61,7 @@
                         </td>
                     </tr>
                 } @empty {
-                    <tr><td colspan="6" class="muted">{{ 'app.admin.users.empty' | translate }}</td></tr>
+                    <tr><td colspan="7" class="muted">{{ 'app.admin.users.empty' | translate }}</td></tr>
                 }
             </tbody>
         </table>

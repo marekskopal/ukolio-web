@@ -16,11 +16,13 @@ final readonly class AdminWorkspaceDto
 		public string $ownerEmail,
 		public string $ownerName,
 		public int $memberCount,
+		public int $projectCount,
+		public int $taskCount,
 		public string $createdAt,
 	) {
 	}
 
-	public static function fromEntity(Workspace $workspace, int $memberCount): self
+	public static function fromEntity(Workspace $workspace, int $memberCount, int $projectCount, int $taskCount): self
 	{
 		return new self(
 			id: $workspace->id,
@@ -29,6 +31,8 @@ final readonly class AdminWorkspaceDto
 			ownerEmail: $workspace->owner->email,
 			ownerName: $workspace->owner->name,
 			memberCount: $memberCount,
+			projectCount: $projectCount,
+			taskCount: $taskCount,
 			createdAt: $workspace->createdAt->format(DATE_ATOM),
 		);
 	}

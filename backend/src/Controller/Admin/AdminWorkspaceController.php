@@ -57,6 +57,8 @@ final readonly class AdminWorkspaceController
 			$workspaces[] = AdminWorkspaceDto::fromEntity(
 				$workspace,
 				$this->adminService->countMembers($workspace),
+				$this->adminService->countProjects($workspace),
+				$this->adminService->countTasks($workspace),
 			);
 		}
 
@@ -82,7 +84,12 @@ final readonly class AdminWorkspaceController
 		}
 
 		return new JsonResponse([
-			'workspace' => AdminWorkspaceDto::fromEntity($workspace, count($members)),
+			'workspace' => AdminWorkspaceDto::fromEntity(
+				$workspace,
+				count($members),
+				$this->adminService->countProjects($workspace),
+				$this->adminService->countTasks($workspace),
+			),
 			'members' => $members,
 		]);
 	}

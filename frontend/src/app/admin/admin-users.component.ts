@@ -1,3 +1,4 @@
+import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink, RouterLinkActive} from '@angular/router';
@@ -10,7 +11,7 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 @Component({
     selector: 'uk-admin-users',
     standalone: true,
-    imports: [FormsModule, RouterLink, RouterLinkActive, TranslatePipe],
+    imports: [DatePipe, FormsModule, RouterLink, RouterLinkActive, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './admin-users.component.html',
     styleUrl: './admin.scss',

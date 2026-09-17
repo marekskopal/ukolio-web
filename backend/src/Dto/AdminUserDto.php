@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\Dto;
 
 use Ukolio\Model\Entity\User;
+use const DATE_ATOM;
 
 final readonly class AdminUserDto
 {
@@ -16,6 +17,7 @@ final readonly class AdminUserDto
 		public string $systemRole,
 		public int $workspaceCount,
 		public int $ownedWorkspaceCount,
+		public ?string $lastLoginAt,
 	) {
 	}
 
@@ -29,6 +31,7 @@ final readonly class AdminUserDto
 			systemRole: $user->systemRole->value,
 			workspaceCount: $workspaceCount,
 			ownedWorkspaceCount: $ownedWorkspaceCount,
+			lastLoginAt: $user->lastLoginAt?->format(DATE_ATOM),
 		);
 	}
 }

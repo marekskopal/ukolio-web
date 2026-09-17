@@ -22,6 +22,9 @@ interface UserProviderInterface
 
 	public function linkGoogleAccount(User $user, string $googleId): User;
 
+	/** Stamps the moment the user proved their identity (password or Google), not a token refresh. */
+	public function recordLogin(User $user): void;
+
 	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null, ?ThemeEnum $theme = null): User;
 
 	public function updateDefaultSavedViewId(User $user, ?int $defaultSavedViewId): User;

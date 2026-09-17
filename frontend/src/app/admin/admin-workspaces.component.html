@@ -26,6 +26,8 @@
                     <th>{{ 'app.admin.workspaces.name' | translate }}</th>
                     <th>{{ 'app.admin.workspaces.owner' | translate }}</th>
                     <th>{{ 'app.admin.workspaces.members' | translate }}</th>
+                    <th>{{ 'app.admin.workspaces.projects' | translate }}</th>
+                    <th>{{ 'app.admin.workspaces.tasks' | translate }}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -38,6 +40,8 @@
                             <div class="muted">{{ w.ownerEmail }}</div>
                         </td>
                         <td>{{ w.memberCount }}</td>
+                        <td>{{ w.projectCount }}</td>
+                        <td>{{ w.taskCount }}</td>
                         <td class="admin-table-actions">
                             <button type="button" class="btn btn-ghost" (click)="openDetail(w)">{{ 'app.actions.view' | translate }}</button>
                             <button type="button" class="btn btn-ghost" (click)="renameWorkspace(w)">{{ 'app.actions.rename' | translate }}</button>
@@ -45,7 +49,7 @@
                         </td>
                     </tr>
                 } @empty {
-                    <tr><td colspan="4" class="muted">{{ 'app.admin.workspaces.empty' | translate }}</td></tr>
+                    <tr><td colspan="6" class="muted">{{ 'app.admin.workspaces.empty' | translate }}</td></tr>
                 }
             </tbody>
         </table>

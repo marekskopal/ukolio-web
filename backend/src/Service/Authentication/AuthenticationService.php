@@ -46,6 +46,7 @@ final readonly class AuthenticationService implements AuthenticationServiceInter
 		}
 
 		$this->loginAttempts->recordSuccess($user);
+		$this->userProvider->recordLogin($user);
 
 		return $this->createAuthentication($user);
 	}

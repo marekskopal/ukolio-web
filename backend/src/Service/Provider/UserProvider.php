@@ -76,6 +76,14 @@ final readonly class UserProvider implements UserProviderInterface
 		return $user;
 	}
 
+	public function recordLogin(User $user): void
+	{
+		// Deliberately does not touch `updatedAt` — signing in is not a change to the profile,
+		// and bumping it would make every login look like an edit in the admin list.
+		$user->lastLoginAt = new DateTimeImmutable();
+		$this->userRepository->persist($user);
+	}
+
 	public function updateUser(User $user, ?string $name = null, ?LocaleEnum $locale = null, ?ThemeEnum $theme = null): User
 	{
 		if ($name !== null) {
