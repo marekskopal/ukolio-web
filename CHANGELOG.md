@@ -5,6 +5,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-17
+
+### Added
+
+- The admin user list shows a **Last login** column. It is stamped when a user
+  proves their identity (password or Google sign-in), not on a token refresh —
+  a refresh extends an existing session rather than starting one, so counting it
+  would make every dormant account look active. Null until the account signs in
+  for the first time after upgrading.
+- The admin workspace list and detail show **project and task counts**, so how
+  much work a workspace actually holds is visible without opening it.
+
+### Fixed
+
+- Code blocks in rendered markdown were unreadable. The preview painted `pre`
+  with the theme's text/text-inverse pair, so blocks inverted against the rest
+  of the UI in dark mode, and the generic `code` rule also matched the `<code>`
+  nested inside `<pre>`, re-applying a muted background while the text kept the
+  inverse colour — white on light grey in light mode, dark on dark grey in dark
+  mode. Code now has dedicated theme-aware tokens and `pre` is styled once.
+- `docker compose up` failed on every install with `pull access denied for
+  minio/minio`: MinIO's images are no longer published to Docker Hub. The
+  compose file now pulls the identical release from quay.io.
+
 ## [1.0.2] - 2026-09-10
 
 ### Fixed
@@ -93,6 +117,7 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
+[1.1.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.1.0
 [1.0.2]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.2
 [1.0.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.1
 [1.0.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.0
