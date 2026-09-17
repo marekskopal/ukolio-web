@@ -74,6 +74,12 @@
     --prio-urgent-bg:        #18181b;
     --prio-urgent-fg:        #ffffff;
 
+    // Code (inline `code` + fenced blocks in rendered markdown)
+    --color-code-fg:         #18181b;
+    --color-code-bg:         #f1f1f4;
+    --color-code-block-bg:   #f7f7f9;
+    --color-code-border:     #e3e3e7;
+
     // Backdrop dim (drawers, modals)
     --color-backdrop:        rgba(24, 24, 27, 0.32);
 
@@ -147,6 +153,11 @@
     --prio-high-fg:          #f87171;
     --prio-urgent-bg:        #fafafa;
     --prio-urgent-fg:        #18181b;
+
+    --color-code-fg:         #e4e4e8;
+    --color-code-bg:         #2a2a31;
+    --color-code-block-bg:   #1c1c20;
+    --color-code-border:     #34343b;
 
     --color-backdrop:        rgba(0, 0, 0, 0.55);
 
@@ -227,6 +238,12 @@ $prio-high-bg:    var(--prio-high-bg);
 $prio-high-fg:    var(--prio-high-fg);
 $prio-urgent-bg:  var(--prio-urgent-bg);
 $prio-urgent-fg:  var(--prio-urgent-fg);
+
+// Code
+$color-code-fg:       var(--color-code-fg);
+$color-code-bg:       var(--color-code-bg);
+$color-code-block-bg: var(--color-code-block-bg);
+$color-code-border:   var(--color-code-border);
 
 // Backdrop dim
 $color-backdrop:  var(--color-backdrop);

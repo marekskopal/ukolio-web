@@ -82,19 +82,41 @@
         p, ul, ol { margin: $space-3 0; }
 
         code {
-            padding: 1px 4px;
+            padding: 1px 5px;
+            border: 1px solid $color-code-border;
             border-radius: $radius-xs;
-            background: $color-surface-muted;
+            background: $color-code-bg;
+            color: $color-code-fg;
             font-family: $font-mono;
-            font-size: 0.9em;
+            font-size: 0.875em;
+            line-height: 1.4;
+            white-space: break-spaces;
         }
 
         pre {
-            padding: $space-4;
+            margin: $space-4 0;
+            padding: $space-4 $space-5;
+            border: 1px solid $color-code-border;
             border-radius: $radius-md;
-            background: $color-text;
-            color: $color-text-inverse;
+            background: $color-code-block-bg;
+            color: $color-code-fg;
+            font-family: $font-mono;
+            font-size: 0.875em;
+            line-height: 1.55;
+            tab-size: 4;
             overflow-x: auto;
+
+            code {
+                display: block;
+                padding: 0;
+                border: 0;
+                border-radius: 0;
+                background: none;
+                color: inherit;
+                font-size: inherit;
+                line-height: inherit;
+                white-space: pre;
+            }
         }
     }
 }
