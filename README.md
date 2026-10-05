@@ -244,6 +244,11 @@ agent-vs-human activity ratios at `GET /api/workspaces/{id}/agent-stats`.
 `Service\Realtime\RealtimePublisher` pushes board and task changes to a
 Mercure hub. Subscriber JWTs are issued as cookies (`MercureCookieIssuer`) on
 authentication / workspace switch; publisher tokens are minted per request.
+Both are Mercure protocol 1.0 access tokens (`MercureAccessToken`: RFC 9068
+`at+jwt` with `iss` `ukolio`, an RFC 9396 `authorization_details` grant, and
+`aud` set to the hub's resource identifier, which defaults to
+`MERCURE_PUBLISH_URL`); the hub trusts them via the `issuer` block in
+`backend/Caddyfile`. Browsers subscribe with `?match=<topic>`.
 Set `MERCURE_PUBLISHER_JWT_KEY` and `MERCURE_SUBSCRIBER_JWT_KEY` to enable —
 when either is unset the boot guard wires `NullMercureHub` and the rest of
 the app keeps working without push updates.

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Realtime;
 
-use Firebase\JWT\JWT;
 use Ukolio\Model\Entity\User;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
@@ -12,10 +11,13 @@ final readonly class MercureCookieIssuer implements MercureCookieIssuerInterface
 {
 	private const string CookieName = 'mercureAuthorization';
 	private const string CookiePath = '/.well-known/mercure';
-	private const string Algorithm = 'HS256';
 	private const int TtlSeconds = 3600;
 
-	public function __construct(private WorkspaceProviderInterface $workspaceProvider, private string $subscriberKey,)
+	public function __construct(
+		private WorkspaceProviderInterface $workspaceProvider,
+		private string $subscriberKey,
+		private string $audience,
+	)
 	{
 	}
 
@@ -27,13 +29,13 @@ final readonly class MercureCookieIssuer implements MercureCookieIssuerInterface
 			$topics[] = RealtimePublisher::TopicPrefix . $membership->workspace->id;
 		}
 
-		$jwt = JWT::encode(
-			[
-				'mercure' => ['subscribe' => $topics],
-				'exp' => time() + self::TtlSeconds,
-			],
+		$jwt = MercureAccessToken::encode(
 			$this->subscriberKey,
-			self::Algorithm,
+			$this->audience,
+			(string) $user->id,
+			MercureAccessToken::ActionSubscribe,
+			$topics,
+			self::TtlSeconds,
 		);
 
 		return $this->buildCookieHeader($jwt, self::TtlSeconds, $secure);

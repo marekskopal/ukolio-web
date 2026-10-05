@@ -5,6 +5,34 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-05
+
+### Changed
+
+- The realtime hub speaks **Mercure protocol 1.0**. FrankenPHP 1.13 bundles a
+  Mercure release that only accepts the old `publisher_jwt`/`subscriber_jwt`
+  setup in a relaxed compatibility mode, so the hub now trusts a single
+  `ukolio` issuer (`issuer` block in `backend/Caddyfile`) and the backend mints
+  RFC 9068 access tokens (`typ: at+jwt`, `iss`, `aud`, `exp`) whose grants ride
+  in an RFC 9396 `authorization_details` claim instead of the legacy `mercure`
+  claim (`MercureAccessToken`). The browser subscribes with `?match=` — the hub
+  answers the old `?topic=` with `400`.
+  **Upgrade notes:** the token audience defaults to `MERCURE_PUBLISH_URL`; set
+  `MERCURE_RESOURCE_IDENTIFIER` only if the hub must be addressed by a different
+  URL. Open tabs running the previous frontend lose live updates until they
+  reload, and subscriber cookies issued before the upgrade are rejected until
+  the next sign-in or token refresh replaces them — nothing else is affected.
+- FrankenPHP 1.13 / PHP 8.5.11, Angular 22.2, and the remaining backend,
+  frontend, and Docker image dependencies updated to their latest minor/patch
+  releases. Adminer (dev profile) moves to 6.1.
+
+### Fixed
+
+- `docker compose up` failed again, this time with `unauthorized` on the MinIO
+  pull: quay.io stopped serving the image too. The compose file now uses the
+  community-maintained `pgsty/minio` build — same CLI and `RELEASE.*` tags, and
+  it reads existing data volumes unchanged.
+
 ## [1.1.0] - 2026-09-17
 
 ### Added
@@ -117,6 +145,7 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
+[1.2.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.2.0
 [1.1.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.1.0
 [1.0.2]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.2
 [1.0.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.1

@@ -109,6 +109,7 @@ services:
             MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY}
             MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY}
             MERCURE_PUBLISH_URL: ${MERCURE_PUBLISH_URL}
+            MERCURE_RESOURCE_IDENTIFIER: ${MERCURE_RESOURCE_IDENTIFIER:-}
             RABBITMQ_HOST: ${RABBITMQ_HOST}
             RABBITMQ_PORT: ${RABBITMQ_PORT}
             RABBITMQ_USER: ${RABBITMQ_USER}
@@ -161,7 +162,7 @@ services:
             - dev
 
     adminer:
-        image: adminer:5.5.1
+        image: adminer:6.1.1
         restart: unless-stopped
         networks:
             - frontend

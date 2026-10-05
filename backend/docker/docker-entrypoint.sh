@@ -18,4 +18,10 @@ mkdir -p /app/log "$SCRIPT_LOG_DIR"
 chown ukolio-script "$SCRIPT_LOG_DIR" 2>/dev/null || true
 chmod 0777 "$SCRIPT_LOG_DIR"
 
+# The Mercure hub (Caddyfile) pins its resource identifier — the "aud" every access token must
+# carry — to the URL the backend publishes to. Keep in sync with MercureAccessToken::resourceIdentifier().
+if [ -z "${MERCURE_RESOURCE_IDENTIFIER:-}" ]; then
+	export MERCURE_RESOURCE_IDENTIFIER="${MERCURE_PUBLISH_URL:-http://localhost/.well-known/mercure}"
+fi
+
 exec "$@"

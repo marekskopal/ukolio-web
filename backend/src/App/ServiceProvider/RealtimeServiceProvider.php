@@ -8,7 +8,9 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mercure\Hub;
 use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\ProtocolVersion;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
+use Ukolio\Service\Realtime\MercureAccessToken;
 use Ukolio\Service\Realtime\MercureCookieIssuer;
 use Ukolio\Service\Realtime\MercureCookieIssuerInterface;
 use Ukolio\Service\Realtime\MercurePublisherTokenProvider;
@@ -42,7 +44,8 @@ final class RealtimeServiceProvider extends AbstractServiceProvider
 			if ($url === '' || $key === '') {
 				return new NullMercureHub();
 			}
-			return new Hub($url, new MercurePublisherTokenProvider($key));
+			$tokenProvider = new MercurePublisherTokenProvider($key, MercureAccessToken::resourceIdentifier());
+			return new Hub($url, $tokenProvider, protocolVersion: ProtocolVersion::V1);
 		});
 
 		$container->add(RealtimePublisherInterface::class, static function () use ($container): RealtimePublisherInterface {
@@ -58,7 +61,11 @@ final class RealtimeServiceProvider extends AbstractServiceProvider
 		$container->add(MercureCookieIssuerInterface::class, static function () use ($container): MercureCookieIssuerInterface {
 			$workspaceProvider = $container->get(WorkspaceProviderInterface::class);
 			assert($workspaceProvider instanceof WorkspaceProviderInterface);
-			return new MercureCookieIssuer($workspaceProvider, (string) getenv('MERCURE_SUBSCRIBER_JWT_KEY'));
+			return new MercureCookieIssuer(
+				$workspaceProvider,
+				(string) getenv('MERCURE_SUBSCRIBER_JWT_KEY'),
+				MercureAccessToken::resourceIdentifier(),
+			);
 		});
 	}
 }

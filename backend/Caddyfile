@@ -10,11 +10,21 @@
 	encode zstd gzip
 
 	mercure {
-		# FrankenPHP 1.13+ (Mercure modern mode) only accepts publisher_jwt/subscriber_jwt
-		# with explicit protocol-v8 compatibility; migrating to an "issuer" block is a follow-up.
-		protocol_version_compatibility 8
-		publisher_jwt {$MERCURE_PUBLISHER_JWT_KEY} HS256
-		subscriber_jwt {$MERCURE_SUBSCRIBER_JWT_KEY} HS256
+		# Mercure protocol 1.0: tokens are RFC 9068 access JWTs minted by the backend
+		# (Ukolio\Service\Realtime\MercureAccessToken) with iss "ukolio" and aud set to the
+		# resource identifier below, which docker-entrypoint.sh derives from MERCURE_PUBLISH_URL.
+		issuer ukolio {
+			publisher {
+				jwt {$MERCURE_PUBLISHER_JWT_KEY} HS256
+			}
+			subscriber {
+				jwt {$MERCURE_SUBSCRIBER_JWT_KEY} HS256
+			}
+		}
+		resource_identifier {$MERCURE_RESOURCE_IDENTIFIER}
+		# The backend sets this HttpOnly cookie (MercureCookieIssuer); a prefix-less name keeps
+		# it working over plain HTTP in development.
+		cookie_name mercureAuthorization
 		# No wildcard fallback: a missing value fails closed instead of
 		# leaving the realtime hub open to any origin.
 		cors_origins {$BACKEND_CORS_ALLOWED_ORIGIN}

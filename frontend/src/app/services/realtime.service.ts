@@ -90,7 +90,8 @@ export class RealtimeService {
         if (this.currentUserId !== null) {
             topics.push(`${USER_TOPIC_PREFIX}${this.currentUserId}`);
         }
-        const query = topics.map((topic) => `topic=${encodeURIComponent(topic)}`).join('&');
+        // Mercure protocol 1.0 selects topics with `match` (exact); the legacy `topic` parameter is ignored.
+        const query = topics.map((topic) => `match=${encodeURIComponent(topic)}`).join('&');
         const url = `${environment.mercureHubUrl}?${query}`;
 
         const source = new EventSource(url, {withCredentials: true});
