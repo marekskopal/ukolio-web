@@ -10,6 +10,9 @@
 	encode zstd gzip
 
 	mercure {
+		# FrankenPHP 1.13+ (Mercure modern mode) only accepts publisher_jwt/subscriber_jwt
+		# with explicit protocol-v8 compatibility; migrating to an "issuer" block is a follow-up.
+		protocol_version_compatibility 8
 		publisher_jwt {$MERCURE_PUBLISHER_JWT_KEY} HS256
 		subscriber_jwt {$MERCURE_SUBSCRIBER_JWT_KEY} HS256
 		# No wildcard fallback: a missing value fails closed instead of

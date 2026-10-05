@@ -200,14 +200,8 @@ final readonly class TaskRecurrenceProvider implements TaskRecurrenceProviderInt
 			throw new RuntimeException(sprintf('Recurrence interval must be between 1 and %d.', self::MaxInterval));
 		}
 
-		if ($config->cadence === RecurrenceCadenceEnum::Cron) {
-			if (
-				$config->cronExpression === null
-				|| trim($config->cronExpression) === ''
-				|| !$this->cronEvaluator->isValid($config->cronExpression)
-			) {
-				throw new RuntimeException('A valid cron expression is required for a custom recurrence.');
-			}
+		if ($config->cadence === RecurrenceCadenceEnum::Cron && !$this->isValidCron($config->cronExpression)) {
+			throw new RuntimeException('A valid cron expression is required for a custom recurrence.');
 		}
 
 		if ($config->weekday !== null && ($config->weekday < 0 || $config->weekday > 6)) {
@@ -218,6 +212,16 @@ final readonly class TaskRecurrenceProvider implements TaskRecurrenceProviderInt
 			throw new RuntimeException('Day of month must be between 1 and 31.');
 		}
 
+		$this->validateEnd($config);
+	}
+
+	private function isValidCron(?string $cronExpression): bool
+	{
+		return $cronExpression !== null && trim($cronExpression) !== '' && $this->cronEvaluator->isValid($cronExpression);
+	}
+
+	private function validateEnd(RecurrenceConfig $config): void
+	{
 		if ($config->endType === RecurrenceEndTypeEnum::OnDate && $config->endDate === null) {
 			throw new RuntimeException('An end date is required when the recurrence ends on a date.');
 		}

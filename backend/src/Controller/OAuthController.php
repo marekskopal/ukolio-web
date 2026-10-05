@@ -62,7 +62,7 @@ final readonly class OAuthController
 	{
 		/** @var array<string, mixed> $params */
 		$params = $request->getQueryParams();
-		$clientId = is_string($params['client_id'] ?? null) ? $params['client_id'] : '';
+		$clientId = self::stringParam($params, 'client_id');
 
 		if ($clientId === '') {
 			return new ErrorResponse('client_id is required', 400);
@@ -83,11 +83,11 @@ final readonly class OAuthController
 
 		$body = $this->requestService->getRequestBody($request);
 
-		$clientId = is_string($body['clientId'] ?? null) ? $body['clientId'] : '';
-		$redirectUri = is_string($body['redirectUri'] ?? null) ? $body['redirectUri'] : '';
-		$codeChallenge = is_string($body['codeChallenge'] ?? null) ? $body['codeChallenge'] : '';
-		$codeChallengeMethod = is_string($body['codeChallengeMethod'] ?? null) ? $body['codeChallengeMethod'] : '';
-		$state = is_string($body['state'] ?? null) ? $body['state'] : '';
+		$clientId = self::stringParam($body, 'clientId');
+		$redirectUri = self::stringParam($body, 'redirectUri');
+		$codeChallenge = self::stringParam($body, 'codeChallenge');
+		$codeChallengeMethod = self::stringParam($body, 'codeChallengeMethod');
+		$state = self::stringParam($body, 'state');
 
 		if ($clientId === '' || $redirectUri === '' || $codeChallenge === '') {
 			return new ErrorResponse('client_id, redirect_uri, and code_challenge are required', 400);
@@ -145,19 +145,19 @@ final readonly class OAuthController
 			], 400);
 		}
 
-		$grantType = is_string($body['grant_type'] ?? null) ? $body['grant_type'] : '';
+		$grantType = self::stringParam($body, 'grant_type');
 
 		try {
 			$tokenPair = match ($grantType) {
 				'authorization_code' => $this->authorizationService->exchangeCode(
-					code: is_string($body['code'] ?? null) ? $body['code'] : '',
-					codeVerifier: is_string($body['code_verifier'] ?? null) ? $body['code_verifier'] : '',
-					clientId: is_string($body['client_id'] ?? null) ? $body['client_id'] : '',
-					redirectUri: is_string($body['redirect_uri'] ?? null) ? $body['redirect_uri'] : '',
+					code: self::stringParam($body, 'code'),
+					codeVerifier: self::stringParam($body, 'code_verifier'),
+					clientId: self::stringParam($body, 'client_id'),
+					redirectUri: self::stringParam($body, 'redirect_uri'),
 				),
 				'refresh_token' => $this->authorizationService->refreshToken(
-					refreshToken: is_string($body['refresh_token'] ?? null) ? $body['refresh_token'] : '',
-					clientId: is_string($body['client_id'] ?? null) ? $body['client_id'] : '',
+					refreshToken: self::stringParam($body, 'refresh_token'),
+					clientId: self::stringParam($body, 'client_id'),
 				),
 				default => throw new RuntimeException('Unsupported grant type'),
 			};
@@ -214,5 +214,11 @@ final readonly class OAuthController
 			'redirect_uris' => json_decode($client->redirectUris, true, 2, JSON_THROW_ON_ERROR),
 			'token_endpoint_auth_method' => 'none',
 		], 201);
+	}
+
+	/** @param array<mixed> $params */
+	private static function stringParam(array $params, string $key): string
+	{
+		return is_string($params[$key] ?? null) ? $params[$key] : '';
 	}
 }

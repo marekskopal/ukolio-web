@@ -44,17 +44,7 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 
 	public function canManageMembers(User $user, Workspace $workspace): bool
 	{
-		if ($this->isSystemAdmin($user)) {
-			return true;
-		}
-
-		$membership = $this->workspaceProvider->findMembership($user, $workspace);
-		if ($membership === null) {
-			return false;
-		}
-
-		return $membership->role === WorkspaceRoleEnum::Owner
-			|| $membership->role === WorkspaceRoleEnum::Admin;
+		return $this->isOwnerOrAdmin($user, $workspace);
 	}
 
 	public function canRemoveMember(User $actor, Workspace $workspace, WorkspaceUser $target): bool
@@ -104,17 +94,7 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 
 	public function canManageProjects(User $user, Workspace $workspace): bool
 	{
-		if ($this->isSystemAdmin($user)) {
-			return true;
-		}
-
-		$membership = $this->workspaceProvider->findMembership($user, $workspace);
-		if ($membership === null) {
-			return false;
-		}
-
-		return $membership->role === WorkspaceRoleEnum::Owner
-			|| $membership->role === WorkspaceRoleEnum::Admin;
+		return $this->isOwnerOrAdmin($user, $workspace);
 	}
 
 	public function canManageTasks(User $user, Workspace $workspace): bool
@@ -128,47 +108,17 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 
 	public function canManageFields(User $user, Workspace $workspace): bool
 	{
-		if ($this->isSystemAdmin($user)) {
-			return true;
-		}
-
-		$membership = $this->workspaceProvider->findMembership($user, $workspace);
-		if ($membership === null) {
-			return false;
-		}
-
-		return $membership->role === WorkspaceRoleEnum::Owner
-			|| $membership->role === WorkspaceRoleEnum::Admin;
+		return $this->isOwnerOrAdmin($user, $workspace);
 	}
 
 	public function canManageTags(User $user, Workspace $workspace): bool
 	{
-		if ($this->isSystemAdmin($user)) {
-			return true;
-		}
-
-		$membership = $this->workspaceProvider->findMembership($user, $workspace);
-		if ($membership === null) {
-			return false;
-		}
-
-		return $membership->role === WorkspaceRoleEnum::Owner
-			|| $membership->role === WorkspaceRoleEnum::Admin;
+		return $this->isOwnerOrAdmin($user, $workspace);
 	}
 
 	public function canManagePriorities(User $user, Workspace $workspace): bool
 	{
-		if ($this->isSystemAdmin($user)) {
-			return true;
-		}
-
-		$membership = $this->workspaceProvider->findMembership($user, $workspace);
-		if ($membership === null) {
-			return false;
-		}
-
-		return $membership->role === WorkspaceRoleEnum::Owner
-			|| $membership->role === WorkspaceRoleEnum::Admin;
+		return $this->isOwnerOrAdmin($user, $workspace);
 	}
 
 	public function canManageTaskTemplates(User $user, Workspace $workspace): bool
@@ -183,17 +133,7 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 
 	public function canManageScripts(User $user, Workspace $workspace): bool
 	{
-		if ($this->isSystemAdmin($user)) {
-			return true;
-		}
-
-		$membership = $this->workspaceProvider->findMembership($user, $workspace);
-		if ($membership === null) {
-			return false;
-		}
-
-		return $membership->role === WorkspaceRoleEnum::Owner
-			|| $membership->role === WorkspaceRoleEnum::Admin;
+		return $this->isOwnerOrAdmin($user, $workspace);
 	}
 
 	public function canDeleteTaskComment(User $user, Workspace $workspace, TaskComment $comment): bool
@@ -248,5 +188,20 @@ final readonly class PermissionChecker implements PermissionCheckerInterface
 		}
 
 		return false;
+	}
+
+	private function isOwnerOrAdmin(User $user, Workspace $workspace): bool
+	{
+		if ($this->isSystemAdmin($user)) {
+			return true;
+		}
+
+		$membership = $this->workspaceProvider->findMembership($user, $workspace);
+		if ($membership === null) {
+			return false;
+		}
+
+		return $membership->role === WorkspaceRoleEnum::Owner
+			|| $membership->role === WorkspaceRoleEnum::Admin;
 	}
 }

@@ -30,7 +30,7 @@ final class EventToolsTest extends IntegrationTestCase
 		$taskTools->moveTask(taskId: $task->id, statusName: 'Done');
 
 		$events = $eventTools->listEvents()->events;
-		self::assertNotEmpty($events);
+		self::assertNotSame([], $events);
 		// Newest first: the move is the most recent event.
 		self::assertSame('TaskMoved', $events[0]->type);
 		self::assertSame($task->id, $events[0]->taskId);
@@ -72,7 +72,7 @@ final class EventToolsTest extends IntegrationTestCase
 		$taskTools->moveTask(taskId: $other->id, statusName: 'Done');
 
 		$events = $eventTools->listTaskEvents(taskId: $kept->code)->events;
-		self::assertNotEmpty($events);
+		self::assertNotSame([], $events);
 		foreach ($events as $event) {
 			self::assertSame($kept->id, $event->taskId);
 		}

@@ -112,10 +112,7 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 
 		// Mentions take precedence over the generic comment ping (a mentioned watcher gets one, not two).
 		foreach ($this->intList($metadata['mentionedUserIds'] ?? []) as $userId) {
-			if ($userId === $actorId) {
-				continue;
-			}
-			$user = $this->userRepository->findUserById($userId);
+			$user = $this->findRecipient($userId, $actorId);
 			if ($user === null) {
 				continue;
 			}
@@ -125,10 +122,7 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 		}
 
 		foreach ($this->recipientIds($task) as $userId) {
-			if ($userId === $actorId || isset($notified[$userId])) {
-				continue;
-			}
-			$user = $this->userRepository->findUserById($userId);
+			$user = isset($notified[$userId]) ? null : $this->findRecipient($userId, $actorId);
 			if ($user === null) {
 				continue;
 			}
@@ -160,10 +154,7 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 		$extra = ['statusName' => is_string($metadata['toStatusName'] ?? null) ? $metadata['toStatusName'] : null];
 
 		foreach ($this->recipientIds($task) as $userId) {
-			if ($userId === $actorId) {
-				continue;
-			}
-			$user = $this->userRepository->findUserById($userId);
+			$user = $this->findRecipient($userId, $actorId);
 			if ($user === null) {
 				continue;
 			}
@@ -219,6 +210,12 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 		}
 	}
 
+	/** The actor is never notified about their own action. */
+	private function findRecipient(int $userId, ?int $actorId): ?User
+	{
+		return $userId === $actorId ? null : $this->userRepository->findUserById($userId);
+	}
+
 	/** @return list<int> task watchers ∪ assignee */
 	private function recipientIds(Task $task): array
 	{
@@ -251,11 +248,7 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 			return [];
 		}
 
-		$result = [];
-		foreach ($decoded as $key => $value) {
-			$result[(string) $key] = $value;
-		}
-		return $result;
+		return array_combine(array_map(strval(...), array_keys($decoded)), $decoded);
 	}
 
 	/**
@@ -268,15 +261,6 @@ final readonly class NotificationDispatcher implements NotificationDispatcherInt
 			return [];
 		}
 
-		$ids = [];
-		foreach ($value as $item) {
-			if (is_int($item)) {
-				$ids[] = $item;
-			} elseif (is_numeric($item)) {
-				$ids[] = (int) $item;
-			}
-		}
-
-		return array_values(array_unique($ids));
+		return array_values(array_unique(array_map(intval(...), array_filter($value, is_numeric(...)))));
 	}
 }

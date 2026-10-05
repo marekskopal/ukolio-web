@@ -1,10 +1,10 @@
 FROM composer:2.10.3 AS composer
-FROM mlocati/php-extension-installer:2.11.15 AS php-extension-installer
+FROM mlocati/php-extension-installer:2.12.0 AS php-extension-installer
 # Thread-safe (ZTS) v8js build, matching FrankenPHP's embedded ZTS PHP. Provides
 # ext-v8js for the low-code scripting sandbox (U-80); see php-v8js-docker. Pinned
 # to a digest for reproducible, tamper-evident builds (tag kept for readability).
-FROM marekskopal/php-v8js:8.5-zts-alpine@sha256:5ee0b745495ca2056aa353d1da6852afa40231b923e1b9dca5aab413722cb6ae AS v8js
-FROM dunglas/frankenphp:1.12.7-php8.5.10-alpine AS php
+FROM marekskopal/php-v8js:8.5-zts-alpine@sha256:2b6c25300e21280961d76ea0c3133449817145020def2a38d88360b349acc80d AS v8js
+FROM dunglas/frankenphp:1.13.0-php8.5.11-alpine AS php
 
 COPY --from=php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 

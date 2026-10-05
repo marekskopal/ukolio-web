@@ -30,7 +30,7 @@ final class ProjectControllerTest extends IntegrationTestCase
 		self::assertSame(200, $response->getStatusCode());
 		$project = $this->jsonBody($response);
 		self::assertSame('My Project', $project['name']);
-		self::assertNotEmpty($project['prefix']);
+		self::assertNotSame('', $project['prefix']);
 		$projectId = self::intField($project['id']);
 
 		// Project shows up in the list

@@ -43,7 +43,7 @@ final class TaskControllerTest extends IntegrationTestCase
 		$priority = $task['priority'];
 		assert(is_array($priority));
 		self::assertSame('High', $priority['name']);
-		self::assertNotEmpty($task['code']);
+		self::assertNotSame('', $task['code']);
 		$taskId = self::intField($task['id']);
 		$taskCode = self::stringField($task['code']);
 

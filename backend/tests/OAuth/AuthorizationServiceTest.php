@@ -44,8 +44,8 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 			redirectUri: 'http://localhost/cb',
 		);
 
-		self::assertNotEmpty($pair->accessToken);
-		self::assertNotEmpty($pair->refreshToken);
+		self::assertNotSame('', $pair->accessToken);
+		self::assertNotSame('', $pair->refreshToken);
 		self::assertSame(3600, $pair->expiresIn);
 	}
 
@@ -166,7 +166,7 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 
 		// Legitimate client rotates; the "stolen" token is now stale.
 		$current = $authService->refreshToken($stolen->refreshToken, $client->clientId);
-		self::assertNotEmpty($authService->validateAccessToken($current->accessToken)->clientId);
+		self::assertNotSame('', $authService->validateAccessToken($current->accessToken)->clientId);
 
 		// A thief replays the stale refresh token → the whole family dies, ...
 		try {
