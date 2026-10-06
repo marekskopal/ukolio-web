@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Ukolio\Model\Repository;
 
 use MarekSkopal\ORM\Query\Expression\RawExpression;
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\NotificationTypeEnum;
 use Ukolio\Model\Entity\Notification;
 
-/** @extends AbstractRepository<Notification> */
-final class NotificationRepository extends AbstractRepository
+/** @extends ARepository<Notification> */
+final class NotificationRepository extends ARepository
 {
 	// The ORM where-builder has no IS NULL operator (a null value binds as `col = ?`, which never
 	// matches), so the unread filter is expressed as a parenthesised raw predicate compared to 1.

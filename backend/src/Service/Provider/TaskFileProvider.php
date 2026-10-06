@@ -118,11 +118,28 @@ final readonly class TaskFileProvider implements TaskFileProviderInterface
 		);
 	}
 
-	public function deleteAllForTask(User $author, Task $task): void
+	/**
+	 * Queues deletion of the task's file rows; the caller flushes, then passes the returned storage
+	 * keys to deleteStoredFiles(). Blobs go only after the rows are gone, so a failed flush never
+	 * leaves rows pointing at missing objects.
+	 *
+	 * @return list<string>
+	 */
+	public function scheduleDeleteAllForTask(Task $task): array
 	{
+		$storageKeys = [];
 		foreach ($this->taskFileRepository->findByTask($task->id) as $file) {
-			$this->fileStorage->delete($file->storageKey);
-			$this->taskFileRepository->delete($file);
+			$storageKeys[] = $file->storageKey;
+			$this->taskFileRepository->scheduleDelete($file);
+		}
+		return $storageKeys;
+	}
+
+	/** @param list<string> $storageKeys */
+	public function deleteStoredFiles(array $storageKeys): void
+	{
+		foreach ($storageKeys as $storageKey) {
+			$this->fileStorage->delete($storageKey);
 		}
 	}
 

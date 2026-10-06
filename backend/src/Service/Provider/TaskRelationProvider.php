@@ -96,13 +96,14 @@ final readonly class TaskRelationProvider implements TaskRelationProviderInterfa
 		);
 	}
 
-	public function deleteAllForTask(Task $task): void
+	/** Queues deletion of the task's relations in both directions; the caller flushes (see TaskProvider::deleteTask). */
+	public function scheduleDeleteAllForTask(Task $task): void
 	{
 		foreach ($this->taskRelationRepository->findOutgoing($task->id) as $rel) {
-			$this->taskRelationRepository->delete($rel);
+			$this->taskRelationRepository->scheduleDelete($rel);
 		}
 		foreach ($this->taskRelationRepository->findIncoming($task->id) as $rel) {
-			$this->taskRelationRepository->delete($rel);
+			$this->taskRelationRepository->scheduleDelete($rel);
 		}
 	}
 

@@ -23,5 +23,5 @@ interface TaskWatcherProviderInterface
 	/** @return list<int> */
 	public function listWatcherUserIds(Task $task): array;
 
-	public function deleteAllForTask(Task $task): void;
+	public function scheduleDeleteAllForTask(Task $task): void;
 }

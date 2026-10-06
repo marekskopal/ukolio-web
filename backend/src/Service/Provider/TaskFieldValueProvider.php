@@ -65,6 +65,11 @@ final readonly class TaskFieldValueProvider implements TaskFieldValueProviderInt
 			$attached[$pf->field->id] = $pf;
 		}
 
+		$existingByField = [];
+		foreach ($this->taskFieldValueRepository->findByTask($task->id) as $existingValue) {
+			$existingByField[$existingValue->field->id] = $existingValue;
+		}
+
 		$changes = [];
 		$now = new DateTimeImmutable();
 
@@ -75,12 +80,12 @@ final readonly class TaskFieldValueProvider implements TaskFieldValueProviderInt
 				$normalized = null;
 			}
 
-			$existing = $this->taskFieldValueRepository->findOneByTaskAndField($task->id, $fieldId);
+			$existing = $existingByField[$fieldId] ?? null;
 			$previous = $existing?->value;
 
 			if ($normalized === null) {
 				if ($existing !== null) {
-					$this->taskFieldValueRepository->delete($existing);
+					$this->taskFieldValueRepository->scheduleDelete($existing);
 					$changes[] = ['fieldId' => $fieldId, 'from' => $previous, 'to' => null];
 				}
 				continue;
@@ -90,23 +95,25 @@ final readonly class TaskFieldValueProvider implements TaskFieldValueProviderInt
 				$value = new TaskFieldValue(task: $task, field: $pf->field, value: $normalized);
 				$value->createdAt = $now;
 				$value->updatedAt = $now;
-				$this->taskFieldValueRepository->persist($value);
+				$this->taskFieldValueRepository->schedulePersist($value);
 				$changes[] = ['fieldId' => $fieldId, 'from' => null, 'to' => $normalized];
 			} elseif ($existing->value !== $normalized) {
 				$existing->value = $normalized;
 				$existing->updatedAt = $now;
-				$this->taskFieldValueRepository->persist($existing);
+				$this->taskFieldValueRepository->schedulePersist($existing);
 				$changes[] = ['fieldId' => $fieldId, 'from' => $previous, 'to' => $normalized];
 			}
 		}
+		$this->taskFieldValueRepository->flush();
 
 		return $changes;
 	}
 
-	public function deleteAllForTask(Task $task): void
+	/** Queues deletion of the task's field values; the caller flushes (see TaskProvider::deleteTask). */
+	public function scheduleDeleteAllForTask(Task $task): void
 	{
 		foreach ($this->taskFieldValueRepository->findByTask($task->id) as $value) {
-			$this->taskFieldValueRepository->delete($value);
+			$this->taskFieldValueRepository->scheduleDelete($value);
 		}
 	}
 

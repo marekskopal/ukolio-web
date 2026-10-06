@@ -85,9 +85,10 @@ final readonly class NotificationProvider implements NotificationProviderInterfa
 		foreach ($this->notificationRepository->findUnreadForUser($user->id) as $notification) {
 			$notification->readAt = $now;
 			$notification->updatedAt = $now;
-			$this->notificationRepository->persist($notification);
+			$this->notificationRepository->schedulePersist($notification);
 			$count++;
 		}
+		$this->notificationRepository->flush();
 		return $count;
 	}
 

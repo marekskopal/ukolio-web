@@ -481,10 +481,15 @@ final readonly class TaskProvider implements TaskProviderInterface
 	public function unassignTasksForUserInWorkspace(User $user, Workspace $workspace): void
 	{
 		$now = new DateTimeImmutable();
-		foreach ($this->taskRepository->findByAssigneeInWorkspace($user->id, $workspace->id) as $task) {
+		$tasks = $this->taskRepository->findByAssigneeInWorkspace($user->id, $workspace->id);
+		foreach ($tasks as $task) {
 			$task->assignee = null;
 			$task->updatedAt = $now;
-			$this->taskRepository->persist($task);
+			$this->taskRepository->schedulePersist($task);
+		}
+		$this->taskRepository->flush();
+
+		foreach ($tasks as $task) {
 			$this->searchIndexer->queueUpsert($task->id);
 		}
 	}
@@ -501,20 +506,25 @@ final readonly class TaskProvider implements TaskProviderInterface
 			);
 		}
 
+		// The task and everything hanging off it go in one flush: a single transaction with one
+		// DELETE per table, children before the task, so a failure leaves no half-deleted task.
 		$taskId = $task->id;
-		$this->taskFieldValueProvider->deleteAllForTask($task);
-		$this->taskFileProvider->deleteAllForTask($author, $task);
-		$this->taskRelationProvider->deleteAllForTask($task);
-		$this->taskChecklistProvider->deleteAllForTask($task);
-		$this->taskWatcherProvider->deleteAllForTask($task);
+		$this->taskFieldValueProvider->scheduleDeleteAllForTask($task);
+		$storageKeys = $this->taskFileProvider->scheduleDeleteAllForTask($task);
+		$this->taskRelationProvider->scheduleDeleteAllForTask($task);
+		$this->taskChecklistProvider->scheduleDeleteAllForTask($task);
+		$this->taskWatcherProvider->scheduleDeleteAllForTask($task);
 		// Delete the recurrence row directly (not via its provider) to avoid a provider cycle:
 		// TaskRecurrenceProvider depends on TaskProvider for spawning occurrences.
 		$recurrence = $this->taskRecurrenceRepository->findByTask($taskId);
 		if ($recurrence !== null) {
-			$this->taskRecurrenceRepository->delete($recurrence);
+			$this->taskRecurrenceRepository->scheduleDelete($recurrence);
 		}
-		$this->taskTagProvider->deleteAllForTask($task);
-		$this->taskRepository->delete($task);
+		$this->taskTagProvider->scheduleDeleteAllForTask($task);
+		$this->taskRepository->scheduleDelete($task);
+		$this->taskRepository->flush();
+
+		$this->taskFileProvider->deleteStoredFiles($storageKeys);
 
 		$this->searchIndexer->queueDelete($taskId);
 	}

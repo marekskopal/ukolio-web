@@ -106,13 +106,13 @@ final readonly class PriorityProvider implements PriorityProviderInterface
 				if ($sibling->position > $oldPosition && $sibling->position <= $newPosition) {
 					$sibling->position--;
 					$sibling->updatedAt = new DateTimeImmutable();
-					$this->priorityRepository->persist($sibling);
+					$this->priorityRepository->schedulePersist($sibling);
 				}
 			} else {
 				if ($sibling->position >= $newPosition && $sibling->position < $oldPosition) {
 					$sibling->position++;
 					$sibling->updatedAt = new DateTimeImmutable();
-					$this->priorityRepository->persist($sibling);
+					$this->priorityRepository->schedulePersist($sibling);
 				}
 			}
 		}
@@ -164,7 +164,7 @@ final readonly class PriorityProvider implements PriorityProviderInterface
 			if ($sibling->isDefault && $sibling->id !== $exceptPriorityId) {
 				$sibling->isDefault = false;
 				$sibling->updatedAt = new DateTimeImmutable();
-				$this->priorityRepository->persist($sibling);
+				$this->priorityRepository->schedulePersist($sibling);
 			}
 		}
 	}

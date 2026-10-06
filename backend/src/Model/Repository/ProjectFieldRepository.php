@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\ProjectField;
 
-/** @extends AbstractRepository<ProjectField> */
-final class ProjectFieldRepository extends AbstractRepository
+/** @extends ARepository<ProjectField> */
+final class ProjectFieldRepository extends ARepository
 {
 	/** @return list<ProjectField> */
 	public function findByProject(int $projectId): array

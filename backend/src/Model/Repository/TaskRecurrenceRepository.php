@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Ukolio\Model\Repository;
 
 use DateTimeImmutable;
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskRecurrence;
 
-/** @extends AbstractRepository<TaskRecurrence> */
-final class TaskRecurrenceRepository extends AbstractRepository
+/** @extends ARepository<TaskRecurrence> */
+final class TaskRecurrenceRepository extends ARepository
 {
 	public function findById(int $id): ?TaskRecurrence
 	{

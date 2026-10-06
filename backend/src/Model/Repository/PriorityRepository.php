@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Priority;
 
-/** @extends AbstractRepository<Priority> */
-final class PriorityRepository extends AbstractRepository
+/** @extends ARepository<Priority> */
+final class PriorityRepository extends ARepository
 {
 	/** @return list<Priority> */
 	public function findByWorkspace(int $workspaceId): array

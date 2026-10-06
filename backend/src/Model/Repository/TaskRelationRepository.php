@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\TaskRelationTypeEnum;
 use Ukolio\Model\Entity\TaskRelation;
 
-/** @extends AbstractRepository<TaskRelation> */
-class TaskRelationRepository extends AbstractRepository
+/** @extends ARepository<TaskRelation> */
+class TaskRelationRepository extends ARepository
 {
 	public function findOneById(int $id): ?TaskRelation
 	{

@@ -12,6 +12,9 @@ use Ukolio\Model\Repository\TaskRepository;
 /**
  * Encapsulates the per-status position bookkeeping for tasks.
  * Extracted from TaskProvider to keep that class focused on lifecycle / events.
+ *
+ * Shifted siblings are only scheduled on the unit of work; the caller's persist() of the moved task
+ * flushes them together with it in one transaction (see TaskProvider::moveTask).
  */
 final readonly class TaskPositionManager
 {
@@ -51,7 +54,7 @@ final readonly class TaskPositionManager
 			}
 
 			$sibling->updatedAt = $now;
-			$this->taskRepository->persist($sibling);
+			$this->taskRepository->schedulePersist($sibling);
 		}
 		$task->position = $newPosition;
 	}
@@ -65,7 +68,7 @@ final readonly class TaskPositionManager
 			}
 			$sibling->position--;
 			$sibling->updatedAt = $now;
-			$this->taskRepository->persist($sibling);
+			$this->taskRepository->schedulePersist($sibling);
 		}
 	}
 
@@ -78,7 +81,7 @@ final readonly class TaskPositionManager
 			}
 			$sibling->position++;
 			$sibling->updatedAt = $now;
-			$this->taskRepository->persist($sibling);
+			$this->taskRepository->schedulePersist($sibling);
 		}
 	}
 

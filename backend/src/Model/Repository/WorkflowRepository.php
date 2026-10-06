@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Workflow;
 
-/** @extends AbstractRepository<Workflow> */
-final class WorkflowRepository extends AbstractRepository
+/** @extends ARepository<Workflow> */
+final class WorkflowRepository extends ARepository
 {
 	public function findById(int $workflowId): ?Workflow
 	{

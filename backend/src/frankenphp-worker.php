@@ -48,6 +48,6 @@ $handler = static function () use ($application, $logger, $emitter, $mcpUserCont
 };
 
 while (frankenphp_handle_request($handler)) {
-	$application->dbContext->getOrm()->getIdentityMap()->clear();
+	$application->dbContext->resetOrmState();
 	gc_collect_cycles();
 }

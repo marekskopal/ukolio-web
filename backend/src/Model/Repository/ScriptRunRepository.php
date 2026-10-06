@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\ScriptRun;
 
-/** @extends AbstractRepository<ScriptRun> */
-final class ScriptRunRepository extends AbstractRepository
+/** @extends ARepository<ScriptRun> */
+final class ScriptRunRepository extends ARepository
 {
 	/** @return list<ScriptRun> */
 	public function findByScript(int $scriptId, int $limit, int $offset): array

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskChecklistItem;
 
-/** @extends AbstractRepository<TaskChecklistItem> */
-final class TaskChecklistItemRepository extends AbstractRepository
+/** @extends ARepository<TaskChecklistItem> */
+final class TaskChecklistItemRepository extends ARepository
 {
 	/** @return list<TaskChecklistItem> */
 	public function findByTask(int $taskId): array

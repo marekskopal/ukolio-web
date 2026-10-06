@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Support;
 
-use MarekSkopal\ORM\ORM;
 use PDO;
 use Psr\Container\ContainerInterface;
 use Ukolio\App\Application;
@@ -77,9 +76,7 @@ final class AppHarness
 		}
 		$pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
 
-		$orm = self::container()->get(ORM::class);
-		assert($orm instanceof ORM);
-		$orm->getIdentityMap()->clear();
+		self::app()->dbContext->resetOrmState();
 
 		// The shared container reuses mutable, per-request contexts; production resets these at the
 		// start of every request (frankenphp-worker.php). Mirror that so an Agent actor set by an

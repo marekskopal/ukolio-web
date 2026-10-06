@@ -61,7 +61,7 @@ $channel->basic_consume(
 			$msg->nack(false, false);
 		}
 
-		$application->dbContext->getOrm()->getIdentityMap()->clear();
+		$application->dbContext->resetOrmState();
 		gc_collect_cycles();
 	},
 );

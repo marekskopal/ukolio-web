@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Ukolio\Model\Repository;
 
 use DateTimeImmutable;
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\PasswordResetToken;
 
-/** @extends AbstractRepository<PasswordResetToken> */
-final class PasswordResetTokenRepository extends AbstractRepository
+/** @extends ARepository<PasswordResetToken> */
+final class PasswordResetTokenRepository extends ARepository
 {
 	public function findByTokenHash(string $tokenHash): ?PasswordResetToken
 	{

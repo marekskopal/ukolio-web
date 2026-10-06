@@ -23,5 +23,9 @@ interface TaskFileProviderInterface
 
 	public function deleteFile(User $author, TaskFile $file): void;
 
-	public function deleteAllForTask(User $author, Task $task): void;
+	/** @return list<string> storage keys to pass to deleteStoredFiles() after flushing */
+	public function scheduleDeleteAllForTask(Task $task): array;
+
+	/** @param list<string> $storageKeys */
+	public function deleteStoredFiles(array $storageKeys): void;
 }

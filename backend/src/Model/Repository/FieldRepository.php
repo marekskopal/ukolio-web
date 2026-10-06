@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Field;
 
-/** @extends AbstractRepository<Field> */
-final class FieldRepository extends AbstractRepository
+/** @extends ARepository<Field> */
+final class FieldRepository extends ARepository
 {
 	/** @return list<Field> */
 	public function findByWorkspace(int $workspaceId): array

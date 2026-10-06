@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Tag;
 
-/** @extends AbstractRepository<Tag> */
-final class TagRepository extends AbstractRepository
+/** @extends ARepository<Tag> */
+final class TagRepository extends ARepository
 {
 	/** @return list<Tag> */
 	public function findByWorkspace(int $workspaceId): array

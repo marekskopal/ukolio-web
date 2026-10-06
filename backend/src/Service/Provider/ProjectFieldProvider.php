@@ -148,8 +148,9 @@ final readonly class ProjectFieldProvider implements ProjectFieldProviderInterfa
 		foreach ($this->taskRepository->findByProject($project->id) as $task) {
 			$value = $this->taskFieldValueRepository->findOneByTaskAndField($task->id, $fieldId);
 			if ($value !== null) {
-				$this->taskFieldValueRepository->delete($value);
+				$this->taskFieldValueRepository->scheduleDelete($value);
 			}
 		}
+		$this->taskFieldValueRepository->flush();
 	}
 }

@@ -165,9 +165,7 @@ final readonly class TaskRecurrenceProvider implements TaskRecurrenceProviderInt
 			startDate: $startDate,
 		);
 
-		foreach ($this->taskChecklistProvider->findByTask($carrier) as $item) {
-			$this->taskChecklistProvider->createItem($newTask, $item->text, $item->dueDate, $item->assignee);
-		}
+		$this->taskChecklistProvider->copyItemsUnchecked($carrier, $newTask);
 
 		// Re-point the series to the freshly spawned task (single-carrier invariant) and advance.
 		$recurrence->task = $newTask;

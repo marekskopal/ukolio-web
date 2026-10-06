@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
 use Ukolio\Model\Entity\User;
 
-/** @extends AbstractRepository<User> */
-final class UserRepository extends AbstractRepository
+/** @extends ARepository<User> */
+final class UserRepository extends ARepository
 {
 	public function findUserById(int $userId): ?User
 	{

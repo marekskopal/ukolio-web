@@ -209,7 +209,7 @@ final class TaskRelationProviderTest extends TestCase
 		$repo->stored[] = $this->makeRelation(3, $b, $c, TaskRelationTypeEnum::Related);
 
 		$provider = new TaskRelationProvider($repo, new FakeEventProvider());
-		$provider->deleteAllForTask($a);
+		$provider->scheduleDeleteAllForTask($a);
 
 		self::assertCount(1, $repo->stored);
 		self::assertSame(3, $repo->stored[0]->id);

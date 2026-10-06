@@ -115,11 +115,12 @@ final readonly class FieldProvider implements FieldProviderInterface
 		}
 
 		foreach ($this->taskFieldValueRepository->findByField($field->id) as $value) {
-			$this->taskFieldValueRepository->delete($value);
+			$this->taskFieldValueRepository->scheduleDelete($value);
 		}
 		foreach ($this->projectFieldRepository->findByField($field->id) as $projectField) {
-			$this->projectFieldRepository->delete($projectField);
+			$this->projectFieldRepository->scheduleDelete($projectField);
 		}
+		$this->projectFieldRepository->flush();
 
 		$this->eventProvider->recordWorkspaceEvent(
 			$author,

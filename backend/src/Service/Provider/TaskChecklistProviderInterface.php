@@ -18,6 +18,9 @@ interface TaskChecklistProviderInterface
 
 	public function createItem(Task $task, string $text, ?DateTimeImmutable $dueDate = null, ?User $assignee = null): TaskChecklistItem;
 
+	/** Copies the source task's items onto the target, in order and unchecked. */
+	public function copyItemsUnchecked(Task $source, Task $target): void;
+
 	/**
 	 * Partial update. Pass the `*Provided` flag together with the value to change a field;
 	 * leave the flag false (and value null) to keep the current value.
@@ -40,7 +43,7 @@ interface TaskChecklistProviderInterface
 
 	public function deleteItem(TaskChecklistItem $item): void;
 
-	public function deleteAllForTask(Task $task): void;
+	public function scheduleDeleteAllForTask(Task $task): void;
 
 	/**
 	 * @param list<int> $taskIds

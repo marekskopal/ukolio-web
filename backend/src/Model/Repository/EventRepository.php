@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\ActorTypeEnum;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Event;
 
-/** @extends AbstractRepository<Event> */
-final class EventRepository extends AbstractRepository
+/** @extends ARepository<Event> */
+final class EventRepository extends ARepository
 {
 	/** @return list<Event> */
 	public function findByProject(int $projectId, int $limit = 100, int $offset = 0): array

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\WorkspaceUser;
 
-/** @extends AbstractRepository<WorkspaceUser> */
-final class WorkspaceUserRepository extends AbstractRepository
+/** @extends ARepository<WorkspaceUser> */
+final class WorkspaceUserRepository extends ARepository
 {
 	/** @return list<WorkspaceUser> */
 	public function findByUser(int $userId): array

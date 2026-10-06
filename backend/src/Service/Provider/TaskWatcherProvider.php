@@ -67,10 +67,11 @@ final readonly class TaskWatcherProvider implements TaskWatcherProviderInterface
 		return $ids;
 	}
 
-	public function deleteAllForTask(Task $task): void
+	/** Queues deletion of the task's watchers; the caller flushes (see TaskProvider::deleteTask). */
+	public function scheduleDeleteAllForTask(Task $task): void
 	{
 		foreach ($this->taskWatcherRepository->findByTask($task->id) as $watcher) {
-			$this->taskWatcherRepository->delete($watcher);
+			$this->taskWatcherRepository->scheduleDelete($watcher);
 		}
 	}
 }

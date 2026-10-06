@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\OAuthAuthorization;
 
-/** @extends AbstractRepository<OAuthAuthorization> */
-final class OAuthAuthorizationRepository extends AbstractRepository
+/** @extends ARepository<OAuthAuthorization> */
+final class OAuthAuthorizationRepository extends ARepository
 {
 	public function findByAuthorizationCodeHash(string $hash): ?OAuthAuthorization
 	{

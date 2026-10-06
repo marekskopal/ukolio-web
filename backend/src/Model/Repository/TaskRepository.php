@@ -7,15 +7,14 @@ namespace Ukolio\Model\Repository;
 use DateTimeImmutable;
 use MarekSkopal\ORM\Query\Expression\RawExpression;
 use MarekSkopal\ORM\Query\Select;
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Repository\Enum\ArchivedFilterEnum;
 use Ukolio\Model\Repository\Enum\OrderDirectionEnum;
 use Ukolio\Model\Repository\Enum\TaskOrderByEnum;
 
-/** @extends AbstractRepository<Task> */
-final class TaskRepository extends AbstractRepository
+/** @extends ARepository<Task> */
+final class TaskRepository extends ARepository
 {
 	public function findById(int $taskId): ?Task
 	{

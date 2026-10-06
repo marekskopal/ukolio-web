@@ -26,5 +26,5 @@ interface TaskTagProviderInterface
 	 */
 	public function setTagsForTask(Workspace $workspace, Task $task, array $tagIds): array;
 
-	public function deleteAllForTask(Task $task): void;
+	public function scheduleDeleteAllForTask(Task $task): void;
 }

@@ -86,7 +86,7 @@ foreach ($queues as $queue) {
 				$msg->nack(false, true);
 			}
 
-			$application->dbContext->getOrm()->getIdentityMap()->clear();
+			$application->dbContext->resetOrmState();
 			gc_collect_cycles();
 		},
 	);

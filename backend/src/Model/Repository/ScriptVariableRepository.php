@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\ScriptVariable;
 
-/** @extends AbstractRepository<ScriptVariable> */
-final class ScriptVariableRepository extends AbstractRepository
+/** @extends ARepository<ScriptVariable> */
+final class ScriptVariableRepository extends ARepository
 {
 	/** @return list<ScriptVariable> */
 	public function findByWorkspace(int $workspaceId): array

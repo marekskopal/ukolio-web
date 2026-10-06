@@ -39,8 +39,9 @@ final readonly class CurrentUserDeletionService implements CurrentUserDeletionSe
 		}
 
 		foreach ($this->workspaceUserRepository->findByUser($user->id) as $membership) {
-			$this->workspaceUserRepository->delete($membership);
+			$this->workspaceUserRepository->scheduleDelete($membership);
 		}
+		$this->workspaceUserRepository->flush();
 
 		$this->eventProvider->recordWorkspaceEvent(
 			$user,

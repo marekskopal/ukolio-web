@@ -45,6 +45,30 @@ final readonly class StatusProvider implements StatusProviderInterface
 		return $status;
 	}
 
+	/**
+	 * Creates the given statuses at positions 0..n-1 of a workflow that has none yet, together with
+	 * anything already scheduled (the new workflow itself), in one flush.
+	 *
+	 * @param list<array{name: string, color: string, type: StatusTypeEnum}> $definitions
+	 */
+	public function seedStatuses(Workflow $workflow, array $definitions): void
+	{
+		$now = new DateTimeImmutable();
+		foreach ($definitions as $position => $definition) {
+			$status = new Status(
+				workflow: $workflow,
+				name: $definition['name'],
+				color: $definition['color'],
+				position: $position,
+				type: $definition['type'],
+			);
+			$status->createdAt = $now;
+			$status->updatedAt = $now;
+			$this->statusRepository->schedulePersist($status);
+		}
+		$this->statusRepository->flush();
+	}
+
 	public function updateStatus(Status $status, string $name, string $color, StatusTypeEnum $type): Status
 	{
 		$status->name = $name;
@@ -75,13 +99,13 @@ final readonly class StatusProvider implements StatusProviderInterface
 				if ($sibling->position > $oldPosition && $sibling->position <= $newPosition) {
 					$sibling->position--;
 					$sibling->updatedAt = new DateTimeImmutable();
-					$this->statusRepository->persist($sibling);
+					$this->statusRepository->schedulePersist($sibling);
 				}
 			} else {
 				if ($sibling->position >= $newPosition && $sibling->position < $oldPosition) {
 					$sibling->position++;
 					$sibling->updatedAt = new DateTimeImmutable();
-					$this->statusRepository->persist($sibling);
+					$this->statusRepository->schedulePersist($sibling);
 				}
 			}
 		}
@@ -119,7 +143,7 @@ final readonly class StatusProvider implements StatusProviderInterface
 			if ($sibling->position >= $fromPosition) {
 				$sibling->position++;
 				$sibling->updatedAt = new DateTimeImmutable();
-				$this->statusRepository->persist($sibling);
+				$this->statusRepository->schedulePersist($sibling);
 			}
 		}
 	}

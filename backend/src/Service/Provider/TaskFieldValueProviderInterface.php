@@ -21,5 +21,5 @@ interface TaskFieldValueProviderInterface
 	 */
 	public function persistForTask(Task $task, array $fieldValues): array;
 
-	public function deleteAllForTask(Task $task): void;
+	public function scheduleDeleteAllForTask(Task $task): void;
 }

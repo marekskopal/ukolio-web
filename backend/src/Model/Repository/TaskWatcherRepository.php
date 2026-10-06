@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskWatcher;
 
-/** @extends AbstractRepository<TaskWatcher> */
-final class TaskWatcherRepository extends AbstractRepository
+/** @extends ARepository<TaskWatcher> */
+final class TaskWatcherRepository extends ARepository
 {
 	/** @return list<TaskWatcher> */
 	public function findByTask(int $taskId): array

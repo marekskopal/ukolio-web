@@ -40,11 +40,13 @@ final readonly class WorkflowProvider implements WorkflowProviderInterface
 		$workflow->createdAt = $now;
 		$workflow->updatedAt = $now;
 
-		$this->workflowRepository->persist($workflow);
-
-		$this->statusProvider->createStatus($workflow, 'To Do', '#94a3b8', StatusTypeEnum::Start, 0);
-		$this->statusProvider->createStatus($workflow, 'In Progress', '#fbbf24', StatusTypeEnum::Normal, 1);
-		$this->statusProvider->createStatus($workflow, 'Done', '#4ade80', StatusTypeEnum::Finish, 2);
+		// The workflow and its statuses are written by seedStatuses()' flush, in one transaction.
+		$this->workflowRepository->schedulePersist($workflow);
+		$this->statusProvider->seedStatuses($workflow, [
+			['name' => 'To Do', 'color' => '#94a3b8', 'type' => StatusTypeEnum::Start],
+			['name' => 'In Progress', 'color' => '#fbbf24', 'type' => StatusTypeEnum::Normal],
+			['name' => 'Done', 'color' => '#4ade80', 'type' => StatusTypeEnum::Finish],
+		]);
 
 		return $workflow;
 	}

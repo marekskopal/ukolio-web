@@ -17,6 +17,9 @@ interface StatusProviderInterface
 
 	public function createStatus(Workflow $workflow, string $name, string $color, StatusTypeEnum $type, ?int $position = null): Status;
 
+	/** @param list<array{name: string, color: string, type: StatusTypeEnum}> $definitions */
+	public function seedStatuses(Workflow $workflow, array $definitions): void;
+
 	public function updateStatus(Status $status, string $name, string $color, StatusTypeEnum $type): Status;
 
 	public function moveStatus(Status $status, int $position): Status;

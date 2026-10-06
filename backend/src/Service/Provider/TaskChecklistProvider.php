@@ -54,6 +54,30 @@ final readonly class TaskChecklistProvider implements TaskChecklistProviderInter
 		return $item;
 	}
 
+	/**
+	 * Copies the source task's items onto the target, in order and unchecked (recurring-task spawn).
+	 * Written as one multi-row INSERT instead of an insert plus a next-position lookup per item.
+	 */
+	public function copyItemsUnchecked(Task $source, Task $target): void
+	{
+		$now = new DateTimeImmutable();
+		$position = $this->nextPosition($target);
+		foreach ($this->findByTask($source) as $sourceItem) {
+			$item = new TaskChecklistItem(
+				task: $target,
+				text: $sourceItem->text,
+				position: $position,
+				dueDate: $sourceItem->dueDate,
+				assignee: $sourceItem->assignee,
+			);
+			$item->createdAt = $now;
+			$item->updatedAt = $now;
+			$this->taskChecklistItemRepository->schedulePersist($item);
+			$position++;
+		}
+		$this->taskChecklistItemRepository->flush();
+	}
+
 	public function updateItem(
 		TaskChecklistItem $item,
 		User $actor,
@@ -106,9 +130,10 @@ final readonly class TaskChecklistProvider implements TaskChecklistProviderInter
 			if ($sibling->position !== $position) {
 				$sibling->position = $position;
 				$sibling->updatedAt = $now;
-				$this->taskChecklistItemRepository->persist($sibling);
+				$this->taskChecklistItemRepository->schedulePersist($sibling);
 			}
 		}
+		$this->taskChecklistItemRepository->flush();
 
 		return $item;
 	}
@@ -118,10 +143,11 @@ final readonly class TaskChecklistProvider implements TaskChecklistProviderInter
 		$this->taskChecklistItemRepository->delete($item);
 	}
 
-	public function deleteAllForTask(Task $task): void
+	/** Queues deletion of the task's checklist items; the caller flushes (see TaskProvider::deleteTask). */
+	public function scheduleDeleteAllForTask(Task $task): void
 	{
 		foreach ($this->taskChecklistItemRepository->findByTask($task->id) as $item) {
-			$this->taskChecklistItemRepository->delete($item);
+			$this->taskChecklistItemRepository->scheduleDelete($item);
 		}
 	}
 

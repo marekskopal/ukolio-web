@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Status;
 
-/** @extends AbstractRepository<Status> */
-final class StatusRepository extends AbstractRepository
+/** @extends ARepository<Status> */
+final class StatusRepository extends ARepository
 {
 	public function findById(int $statusId): ?Status
 	{

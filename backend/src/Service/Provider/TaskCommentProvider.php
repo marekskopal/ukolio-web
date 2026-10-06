@@ -127,9 +127,12 @@ final readonly class TaskCommentProvider implements TaskCommentProviderInterface
 		$task = $comment->task;
 
 		// Threads are single-level, so a top-level comment's replies must go first (FK restricts otherwise).
+		// They are flushed on their own: parentCommentId is a plain column, not an ORM relation, so the
+		// unit of work could not order a combined DELETE children-first.
 		foreach ($this->taskCommentRepository->findReplies($comment->id) as $reply) {
-			$this->taskCommentRepository->delete($reply);
+			$this->taskCommentRepository->scheduleDelete($reply);
 		}
+		$this->taskCommentRepository->flush();
 
 		$this->taskCommentRepository->delete($comment);
 

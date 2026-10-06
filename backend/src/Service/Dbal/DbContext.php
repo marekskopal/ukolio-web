@@ -43,6 +43,17 @@ final readonly class DbContext
 		return $this->orm;
 	}
 
+	/**
+	 * Forgets per-request ORM state in long-running processes: work scheduled on the unit of work but
+	 * never flushed (an exception between schedule*() and flush() would otherwise leak it into the next
+	 * request's flush), and the identity map with its change-detection snapshots.
+	 */
+	public function resetOrmState(): void
+	{
+		$this->orm->getUnitOfWork()->clear();
+		$this->orm->getIdentityMap()->clear();
+	}
+
 	public function getDatabase(): DatabaseInterface
 	{
 		return $this->database;

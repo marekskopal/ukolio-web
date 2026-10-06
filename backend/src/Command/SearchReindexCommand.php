@@ -69,6 +69,9 @@ final class SearchReindexCommand extends AbstractCommand
 					$workspaceCount++;
 					$totalIndexed++;
 				}
+				// Read-only run: drop the project's hydrated tasks and their change-detection snapshots so
+				// memory stays bounded by the largest project, not the whole installation.
+				$application->dbContext->resetOrmState();
 			}
 			$io->writeln(sprintf('  workspace #%d "%s" — indexed %d task(s)', $workspace->id, $workspace->name, $workspaceCount));
 		}

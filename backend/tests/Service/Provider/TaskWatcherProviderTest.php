@@ -10,6 +10,7 @@ use Ukolio\Model\Entity\Task;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\StatusRepository;
 use Ukolio\Model\Repository\TaskRepository;
+use Ukolio\Model\Repository\TaskWatcherRepository;
 use Ukolio\Model\Repository\WorkflowRepository;
 use Ukolio\Service\Provider\TaskWatcherProvider;
 use Ukolio\Service\Provider\TaskWatcherProviderInterface;
@@ -43,7 +44,7 @@ final class TaskWatcherProviderTest extends IntegrationTestCase
 		self::assertCount(0, $provider->listWatchers($task));
 	}
 
-	public function testDeleteAllForTaskClearsEveryWatcher(): void
+	public function testScheduleDeleteAllForTaskClearsEveryWatcherOnFlush(): void
 	{
 		$owner = Fixture::createUser();
 		$member = Fixture::createUser();
@@ -57,9 +58,13 @@ final class TaskWatcherProviderTest extends IntegrationTestCase
 		$provider->watch($task, $member);
 		self::assertCount(2, $provider->listWatchers($task));
 
-		$provider->deleteAllForTask($task);
+		$provider->scheduleDeleteAllForTask($task);
+		self::assertCount(2, $provider->listWatchers($task));
 
-		self::assertCount(0, $provider->listWatchers($task));
+		$watcherRepository = $this->container->get(TaskWatcherRepository::class);
+		assert($watcherRepository instanceof TaskWatcherRepository);
+		$watcherRepository->flush();
+		self::assertSame([], $watcherRepository->findByTask($task->id));
 	}
 
 	private function watcherProvider(): TaskWatcherProviderInterface

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
 use Ukolio\Model\Entity\Script;
 
-/** @extends AbstractRepository<Script> */
-final class ScriptRepository extends AbstractRepository
+/** @extends ARepository<Script> */
+final class ScriptRepository extends ARepository
 {
 	/** @return list<Script> */
 	public function findByWorkspace(int $workspaceId): array

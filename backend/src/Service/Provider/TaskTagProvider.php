@@ -87,7 +87,7 @@ final readonly class TaskTagProvider implements TaskTagProviderInterface
 			$row = new TaskTag(task: $task, tag: $tag);
 			$row->createdAt = $now;
 			$row->updatedAt = $now;
-			$this->taskTagRepository->persist($row);
+			$this->taskTagRepository->schedulePersist($row);
 			$added[] = $tagId;
 		}
 
@@ -95,9 +95,10 @@ final readonly class TaskTagProvider implements TaskTagProviderInterface
 			if (isset($desired[$tagId])) {
 				continue;
 			}
-			$this->taskTagRepository->delete($row);
+			$this->taskTagRepository->scheduleDelete($row);
 			$removed[] = $tagId;
 		}
+		$this->taskTagRepository->flush();
 
 		if ($added !== [] || $removed !== []) {
 			$this->searchIndexer->queueUpsert($task->id);
@@ -106,10 +107,11 @@ final readonly class TaskTagProvider implements TaskTagProviderInterface
 		return ['added' => $added, 'removed' => $removed];
 	}
 
-	public function deleteAllForTask(Task $task): void
+	/** Queues deletion of the task's tag links; the caller flushes (see TaskProvider::deleteTask). */
+	public function scheduleDeleteAllForTask(Task $task): void
 	{
 		foreach ($this->taskTagRepository->findByTask($task->id) as $row) {
-			$this->taskTagRepository->delete($row);
+			$this->taskTagRepository->scheduleDelete($row);
 		}
 	}
 }

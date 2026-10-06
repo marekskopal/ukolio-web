@@ -23,5 +23,5 @@ interface TaskRelationProviderInterface
 
 	public function deleteRelation(User $author, TaskRelation $relation): void;
 
-	public function deleteAllForTask(Task $task): void;
+	public function scheduleDeleteAllForTask(Task $task): void;
 }

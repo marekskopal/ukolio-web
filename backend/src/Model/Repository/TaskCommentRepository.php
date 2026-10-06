@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskComment;
 
-/** @extends AbstractRepository<TaskComment> */
-final class TaskCommentRepository extends AbstractRepository
+/** @extends ARepository<TaskComment> */
+final class TaskCommentRepository extends ARepository
 {
 	/** @return list<TaskComment> */
 	public function findByTask(int $taskId): array

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\SavedView;
 
-/** @extends AbstractRepository<SavedView> */
-final class SavedViewRepository extends AbstractRepository
+/** @extends ARepository<SavedView> */
+final class SavedViewRepository extends ARepository
 {
 	/** @return list<SavedView> */
 	public function findByWorkspaceAndUser(int $workspaceId, int $userId): array
