@@ -5,6 +5,39 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The backend runs on **`marekskopal/orm` 2.0** (and `orm-migrations` 2.0).
+  Updates write only the columns that actually changed, so two actors editing
+  different fields of the same task (say an MCP agent and a human) no longer
+  overwrite each other's change, and saving an unchanged entity costs no query.
+  Lazy relations load in batches, which removes N+1 queries when board and list
+  views read each task's status, priority, and assignee. Prepared statements are
+  reused per connection, and the database connection opens on the first query.
+- The ORM schema is **dumped to `backend/var/orm-schema.php` during the image
+  build** (`php bin/console orm:schema-dump`) and loaded from there under
+  opcache, instead of scanning entity attributes and caching the result in
+  memcached. Without the file (dev/test bind mount) the schema is built at
+  process start, so after changing an entity you restart the backend instead of
+  flushing memcached.
+  **Upgrade notes:** rebuild the backend image. The old `Orm`/`Schema` memcached
+  entry is no longer read and expires on its own.
+- Deleting a task removes it and everything attached to it (field values, files,
+  relations, checklist items, watchers, recurrence, tags) **in one transaction**.
+  Before, a failure partway through could leave a half-deleted task. Stored file
+  objects are removed only after their rows are gone.
+- Writes that used to go row by row are batched into one transaction: reordering
+  statuses, priorities, tasks, and checklist items (the moved row and its
+  shifted siblings now save together), tag and custom-field-value sync,
+  mark-all-read, unassigning a departing member's tasks, deleting a field or a
+  comment thread, and account self-deletion. New projects write their default
+  workflow and its three statuses together, and a recurring task's next
+  occurrence copies the checklist with a single insert.
+- `search:reindex` keeps memory bounded by the largest project instead of the
+  whole installation.
+
 ## [1.2.0] - 2026-10-05
 
 ### Changed
@@ -145,6 +178,7 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
+[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.2.0...HEAD
 [1.2.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.2.0
 [1.1.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.1.0
 [1.0.2]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.2
