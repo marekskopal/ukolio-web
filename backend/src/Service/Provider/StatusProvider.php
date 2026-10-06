@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Workflow;
@@ -22,8 +21,8 @@ final readonly class StatusProvider implements StatusProviderInterface
 		return $this->statusRepository->findById($statusId);
 	}
 
-	/** @return Iterator<Status> */
-	public function getStatuses(Workflow $workflow): Iterator
+	/** @return list<Status> */
+	public function getStatuses(Workflow $workflow): array
 	{
 		return $this->statusRepository->findByWorkflow($workflow->id);
 	}
@@ -65,7 +64,7 @@ final readonly class StatusProvider implements StatusProviderInterface
 			return $status;
 		}
 
-		$siblings = iterator_to_array($this->statusRepository->findByWorkflow($status->workflow->id), false);
+		$siblings = $this->statusRepository->findByWorkflow($status->workflow->id);
 
 		foreach ($siblings as $sibling) {
 			if ($sibling->id === $status->id) {
@@ -101,7 +100,7 @@ final readonly class StatusProvider implements StatusProviderInterface
 
 	private function nextPosition(Workflow $workflow): int
 	{
-		$statuses = iterator_to_array($this->statusRepository->findByWorkflow($workflow->id), false);
+		$statuses = $this->statusRepository->findByWorkflow($workflow->id);
 		if ($statuses === []) {
 			return 0;
 		}

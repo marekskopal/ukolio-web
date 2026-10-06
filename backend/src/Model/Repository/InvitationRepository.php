@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Model\Repository;
 
 use DateTimeImmutable;
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Invitation;
 
@@ -25,8 +24,8 @@ final class InvitationRepository extends AbstractRepository
 			->count();
 	}
 
-	/** @return Iterator<Invitation> */
-	public function findByWorkspace(int $workspaceId): Iterator
+	/** @return list<Invitation> */
+	public function findByWorkspace(int $workspaceId): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])
@@ -34,8 +33,8 @@ final class InvitationRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Invitation> */
-	public function findByInviter(int $userId): Iterator
+	/** @return list<Invitation> */
+	public function findByInviter(int $userId): array
 	{
 		return $this->select()
 			->where(['inviter_id' => $userId])

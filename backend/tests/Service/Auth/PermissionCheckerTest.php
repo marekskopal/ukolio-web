@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Service\Auth;
 
-use ArrayIterator;
 use DateTimeImmutable;
-use Iterator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Ukolio\Model\Entity\Enum\LocaleEnum;
@@ -229,16 +227,16 @@ final class PermissionCheckerTest extends TestCase
 				return null;
 			}
 
-			/** @return Iterator<WorkspaceUser> */
-			public function getMemberships(User $user): Iterator
+			/** @return list<WorkspaceUser> */
+			public function getMemberships(User $user): array
 			{
-				return new ArrayIterator([]);
+				return [];
 			}
 
-			/** @return Iterator<WorkspaceUser> */
-			public function getMembers(Workspace $workspace): Iterator
+			/** @return list<WorkspaceUser> */
+			public function getMembers(Workspace $workspace): array
 			{
-				return new ArrayIterator(array_values($this->memberships[$workspace->id] ?? []));
+				return array_values($this->memberships[$workspace->id] ?? []);
 			}
 
 			public function createWorkspace(User $owner, string $name): Workspace

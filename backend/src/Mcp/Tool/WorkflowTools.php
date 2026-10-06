@@ -150,7 +150,7 @@ final readonly class WorkflowTools
 	{
 		$status = $this->resolveStatusForManagement($statusId);
 
-		$siblings = iterator_to_array($this->statusProvider->getStatuses($status->workflow), false);
+		$siblings = $this->statusProvider->getStatuses($status->workflow);
 		if (count($siblings) <= 1) {
 			throw new RuntimeException('Cannot delete the last status of a workflow.');
 		}

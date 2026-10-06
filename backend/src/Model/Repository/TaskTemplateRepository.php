@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskTemplate;
 
 /** @extends AbstractRepository<TaskTemplate> */
 final class TaskTemplateRepository extends AbstractRepository
 {
-	/** @return Iterator<TaskTemplate> */
-	public function findByWorkspace(int $workspaceId): Iterator
+	/** @return list<TaskTemplate> */
+	public function findByWorkspace(int $workspaceId): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])

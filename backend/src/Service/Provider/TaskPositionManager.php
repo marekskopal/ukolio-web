@@ -21,7 +21,7 @@ final readonly class TaskPositionManager
 
 	public function nextPosition(Status $status): int
 	{
-		$tasks = iterator_to_array($this->taskRepository->findByStatus($status->id), false);
+		$tasks = $this->taskRepository->findByStatus($status->id);
 		if ($tasks === []) {
 			return 0;
 		}

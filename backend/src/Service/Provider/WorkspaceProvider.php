@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
@@ -34,14 +33,14 @@ final readonly class WorkspaceProvider implements WorkspaceProviderInterface
 		return $this->workspaceRepository->findWorkspaceById($workspaceId);
 	}
 
-	/** @return Iterator<WorkspaceUser> */
-	public function getMemberships(User $user): Iterator
+	/** @return list<WorkspaceUser> */
+	public function getMemberships(User $user): array
 	{
 		return $this->workspaceUserRepository->findByUser($user->id);
 	}
 
-	/** @return Iterator<WorkspaceUser> */
-	public function getMembers(Workspace $workspace): Iterator
+	/** @return list<WorkspaceUser> */
+	public function getMembers(Workspace $workspace): array
 	{
 		return $this->workspaceUserRepository->findByWorkspace($workspace->id);
 	}

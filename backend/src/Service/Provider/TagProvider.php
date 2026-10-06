@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Tag;
@@ -25,8 +24,8 @@ final readonly class TagProvider implements TagProviderInterface
 	) {
 	}
 
-	/** @return Iterator<Tag> */
-	public function getTags(Workspace $workspace): Iterator
+	/** @return list<Tag> */
+	public function getTags(Workspace $workspace): array
 	{
 		return $this->tagRepository->findByWorkspace($workspace->id);
 	}

@@ -60,6 +60,9 @@ RUN rm -rf /app/vendor \
     && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-progress --classmap-authoritative -d /app/ \
     && composer clear-cache
 
+# Generated ORM hydrators/extractors, loaded by DbContext under opcache instead of an attribute scan.
+RUN php bin/console orm:schema-dump
+
 # The entrypoint prepares the bind-mounted log directories (needs root), then execs the CMD.
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -58,7 +58,7 @@ final class SearchReindexCommand extends AbstractCommand
 				[$workspaceRepository->findWorkspaceById($workspaceId)],
 				static fn (?Workspace $w): bool => $w !== null,
 			)
-			: iterator_to_array($workspaceRepository->findAllWorkspaces(), false);
+			: $workspaceRepository->findAllWorkspaces();
 
 		foreach ($workspaces as $workspace) {
 			$totalWorkspaces++;

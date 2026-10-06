@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\SavedView;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 
 interface SavedViewProviderInterface
 {
-	/** @return Iterator<SavedView> */
-	public function getViews(Workspace $workspace, User $user): Iterator;
+	/** @return list<SavedView> */
+	public function getViews(Workspace $workspace, User $user): array;
 
 	public function getViewForUser(int $viewId, User $user): ?SavedView;
 

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use EmptyIterator;
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\TaskRelationTypeEnum;
 use Ukolio\Model\Entity\TaskRelation;
@@ -18,8 +16,8 @@ class TaskRelationRepository extends AbstractRepository
 		return $this->findOne(['id' => $id]);
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findOutgoing(int $taskId): Iterator
+	/** @return list<TaskRelation> */
+	public function findOutgoing(int $taskId): array
 	{
 		return $this->select()
 			->where(['source_task_id' => $taskId])
@@ -27,8 +25,8 @@ class TaskRelationRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findIncoming(int $taskId): Iterator
+	/** @return list<TaskRelation> */
+	public function findIncoming(int $taskId): array
 	{
 		return $this->select()
 			->where(['target_task_id' => $taskId])
@@ -45,8 +43,8 @@ class TaskRelationRepository extends AbstractRepository
 		]);
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findOutgoingByType(int $taskId, TaskRelationTypeEnum $type): Iterator
+	/** @return list<TaskRelation> */
+	public function findOutgoingByType(int $taskId, TaskRelationTypeEnum $type): array
 	{
 		return $this->select()
 			->where(['source_task_id' => $taskId, 'type' => $type->value])
@@ -55,12 +53,12 @@ class TaskRelationRepository extends AbstractRepository
 
 	/**
 	 * @param list<int> $sourceTaskIds
-	 * @return Iterator<TaskRelation>
+	 * @return list<TaskRelation>
 	 */
-	public function findByTypeAndSources(TaskRelationTypeEnum $type, array $sourceTaskIds): Iterator
+	public function findByTypeAndSources(TaskRelationTypeEnum $type, array $sourceTaskIds): array
 	{
 		if ($sourceTaskIds === []) {
-			return new EmptyIterator();
+			return [];
 		}
 		return $this->select()
 			->where(['type' => $type->value])
@@ -89,8 +87,8 @@ class TaskRelationRepository extends AbstractRepository
 		return ['parents' => array_keys($parents), 'children' => array_keys($children)];
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findByCreatedBy(int $userId): Iterator
+	/** @return list<TaskRelation> */
+	public function findByCreatedBy(int $userId): array
 	{
 		return $this->select()
 			->where(['created_by_id' => $userId])

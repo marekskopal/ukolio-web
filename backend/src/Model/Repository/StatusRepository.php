@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Status;
 
@@ -16,8 +15,8 @@ final class StatusRepository extends AbstractRepository
 		return $this->findOne(['id' => $statusId]);
 	}
 
-	/** @return Iterator<Status> */
-	public function findByWorkflow(int $workflowId): Iterator
+	/** @return list<Status> */
+	public function findByWorkflow(int $workflowId): array
 	{
 		return $this->select()
 			->where(['workflow_id' => $workflowId])

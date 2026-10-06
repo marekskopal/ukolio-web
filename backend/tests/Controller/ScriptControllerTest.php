@@ -109,7 +109,7 @@ final class ScriptControllerTest extends IntegrationTestCase
 		$eventProvider = AppHarness::container()->get(EventProviderInterface::class);
 		assert($eventProvider instanceof EventProviderInterface);
 
-		return count(iterator_to_array($eventProvider->getWorkspaceEventsFiltered($workspace, null, null, $type, 50, 0), false));
+		return count($eventProvider->getWorkspaceEventsFiltered($workspace, null, null, $type, 50, 0));
 	}
 
 	private function createScript(User $user, Workspace $workspace): Script

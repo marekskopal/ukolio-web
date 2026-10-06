@@ -8,6 +8,7 @@ use MarekSkopal\ORM\Database\DatabaseInterface;
 use MarekSkopal\ORM\Database\MySqlDatabase;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 final class ReconnectableDatabase implements DatabaseInterface
 {
@@ -33,6 +34,32 @@ final class ReconnectableDatabase implements DatabaseInterface
 		return $this->getInnerDatabase()->getPdo();
 	}
 
+	public function connect(): void
+	{
+		$this->getInnerDatabase()->connect();
+	}
+
+	public function isConnected(): bool
+	{
+		return $this->innerDatabase->isConnected();
+	}
+
+	/** @param list<mixed> $params */
+	public function execute(string $sql, array $params = [], bool $cached = true): PDOStatement
+	{
+		return $this->getInnerDatabase()->execute($sql, $params, $cached);
+	}
+
+	public function prepareCached(string $sql): PDOStatement
+	{
+		return $this->getInnerDatabase()->prepareCached($sql);
+	}
+
+	public function clearStatementCache(): void
+	{
+		$this->innerDatabase->clearStatementCache();
+	}
+
 	public function getIdentifierQuoteChar(): string
 	{
 		return '`';
@@ -52,6 +79,12 @@ final class ReconnectableDatabase implements DatabaseInterface
 	private function pingIfIdle(): void
 	{
 		if (time() - $this->lastPingAt < self::PingThresholdSeconds) {
+			return;
+		}
+
+		// The connection opens lazily on the first query; never open one just to ping it.
+		if (!$this->innerDatabase->isConnected()) {
+			$this->lastPingAt = time();
 			return;
 		}
 

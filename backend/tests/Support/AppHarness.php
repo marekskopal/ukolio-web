@@ -79,7 +79,7 @@ final class AppHarness
 
 		$orm = self::container()->get(ORM::class);
 		assert($orm instanceof ORM);
-		$orm->getEntityCache()->clear();
+		$orm->getIdentityMap()->clear();
 
 		// The shared container reuses mutable, per-request contexts; production resets these at the
 		// start of every request (frankenphp-worker.php). Mirror that so an Agent actor set by an

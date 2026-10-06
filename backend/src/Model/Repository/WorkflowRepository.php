@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Workflow;
 
@@ -21,8 +20,8 @@ final class WorkflowRepository extends AbstractRepository
 		return $this->findOne(['project_id' => $projectId]);
 	}
 
-	/** @return Iterator<Workflow> */
-	public function findByWorkspace(int $workspaceId): Iterator
+	/** @return list<Workflow> */
+	public function findByWorkspace(int $workspaceId): array
 	{
 		return $this->select()
 			->where(['project.workspace_id' => $workspaceId])

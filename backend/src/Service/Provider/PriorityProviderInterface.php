@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Workspace;
 
 interface PriorityProviderInterface
 {
-	/** @return Iterator<Priority> */
-	public function getPriorities(Workspace $workspace): Iterator;
+	/** @return list<Priority> */
+	public function getPriorities(Workspace $workspace): array;
 
 	public function getPriority(Workspace $workspace, int $priorityId): ?Priority;
 

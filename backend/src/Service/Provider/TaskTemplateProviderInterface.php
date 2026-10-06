@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Task;
@@ -14,8 +13,8 @@ use Ukolio\Model\Entity\Workspace;
 
 interface TaskTemplateProviderInterface
 {
-	/** @return Iterator<TaskTemplate> */
-	public function getTemplates(Workspace $workspace): Iterator;
+	/** @return list<TaskTemplate> */
+	public function getTemplates(Workspace $workspace): array;
 
 	public function getTemplate(Workspace $workspace, int $templateId): ?TaskTemplate;
 

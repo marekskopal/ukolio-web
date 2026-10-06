@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "30d2a3fb435bdaf7184ae7955288ff4f",
+    "content-hash": "690375c92d37a40f6429edb1c15ff5dd",
     "packages": [
         {
             "name": "async-aws/core",
@@ -942,16 +942,16 @@
         },
         {
             "name": "marekskopal/orm",
-            "version": "v1.4.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/orm.git",
-                "reference": "af1b4cf9f1239640b9da58dd2a16cbcccc9cb832"
+                "reference": "8991ff25568a7033fe5429393f634e6a33fce1a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/orm/zipball/af1b4cf9f1239640b9da58dd2a16cbcccc9cb832",
-                "reference": "af1b4cf9f1239640b9da58dd2a16cbcccc9cb832",
+                "url": "https://api.github.com/repos/marekskopal/orm/zipball/8991ff25568a7033fe5429393f634e6a33fce1a7",
+                "reference": "8991ff25568a7033fe5429393f634e6a33fce1a7",
                 "shasum": ""
             },
             "require": {
@@ -962,11 +962,11 @@
             },
             "require-dev": {
                 "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan": "^2.0",
-                "phpstan/phpstan-phpunit": "^2.0",
-                "phpstan/phpstan-strict-rules": "^2.0",
-                "phpunit/phpunit": "^13.0",
-                "slevomat/coding-standard": "^8.15"
+                "phpstan/phpstan": "^2.3",
+                "phpstan/phpstan-phpunit": "^2.0.21",
+                "phpstan/phpstan-strict-rules": "^2.0.12",
+                "phpunit/phpunit": "^13.4",
+                "slevomat/coding-standard": "^8.31"
             },
             "type": "library",
             "autoload": {
@@ -995,37 +995,37 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/orm/issues",
-                "source": "https://github.com/marekskopal/orm/tree/v1.4.0"
+                "source": "https://github.com/marekskopal/orm/tree/v2.0.0"
             },
-            "time": "2026-09-28T21:42:23+00:00"
+            "time": "2026-10-06T18:35:38+00:00"
         },
         {
             "name": "marekskopal/orm-migrations",
-            "version": "v1.1.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marekskopal/orm-migrations.git",
-                "reference": "13fbf35fc40133854d621d92a8e1ea3fa182996a"
+                "reference": "2c56eb3610618d0e447e59d70999173dd2969d45"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marekskopal/orm-migrations/zipball/13fbf35fc40133854d621d92a8e1ea3fa182996a",
-                "reference": "13fbf35fc40133854d621d92a8e1ea3fa182996a",
+                "url": "https://api.github.com/repos/marekskopal/orm-migrations/zipball/2c56eb3610618d0e447e59d70999173dd2969d45",
+                "reference": "2c56eb3610618d0e447e59d70999173dd2969d45",
                 "shasum": ""
             },
             "require": {
-                "marekskopal/orm": "^1.0",
+                "marekskopal/orm": "^2.0",
                 "nette/php-generator": "^4.1",
                 "php": ">=8.4",
                 "psr/log": "^3.0"
             },
             "require-dev": {
                 "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan": "^2.0",
-                "phpstan/phpstan-phpunit": "^2.0",
-                "phpstan/phpstan-strict-rules": "^2.0",
-                "phpunit/phpunit": "^13.0",
-                "slevomat/coding-standard": "^8.15"
+                "phpstan/phpstan": "^2.3",
+                "phpstan/phpstan-phpunit": "^2.1",
+                "phpstan/phpstan-strict-rules": "^2.1",
+                "phpunit/phpunit": "^13.4",
+                "slevomat/coding-standard": "^8.31"
             },
             "type": "library",
             "autoload": {
@@ -1053,9 +1053,9 @@
             ],
             "support": {
                 "issues": "https://github.com/marekskopal/orm-migrations/issues",
-                "source": "https://github.com/marekskopal/orm-migrations/tree/v1.1.0"
+                "source": "https://github.com/marekskopal/orm-migrations/tree/v2.0.0"
             },
-            "time": "2026-07-03T20:03:16+00:00"
+            "time": "2026-10-06T18:48:51+00:00"
         },
         {
             "name": "marekskopal/router",

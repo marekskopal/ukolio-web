@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Model\Repository;
 
 use DateTimeImmutable;
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskRecurrence;
 
@@ -25,9 +24,9 @@ final class TaskRecurrenceRepository extends AbstractRepository
 	/**
 	 * Active series whose next occurrence is due at or before `$now` — the daily-tick query.
 	 *
-	 * @return Iterator<TaskRecurrence>
+	 * @return list<TaskRecurrence>
 	 */
-	public function findDue(DateTimeImmutable $now): Iterator
+	public function findDue(DateTimeImmutable $now): array
 	{
 		return $this->select()
 			->where(['active' => true])

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Workspace;
@@ -18,8 +17,8 @@ final readonly class PriorityProvider implements PriorityProviderInterface
 	{
 	}
 
-	/** @return Iterator<Priority> */
-	public function getPriorities(Workspace $workspace): Iterator
+	/** @return list<Priority> */
+	public function getPriorities(Workspace $workspace): array
 	{
 		return $this->priorityRepository->findByWorkspace($workspace->id);
 	}
@@ -96,7 +95,7 @@ final readonly class PriorityProvider implements PriorityProviderInterface
 			return $priority;
 		}
 
-		$siblings = iterator_to_array($this->priorityRepository->findByWorkspace($priority->workspace->id), false);
+		$siblings = $this->priorityRepository->findByWorkspace($priority->workspace->id);
 
 		foreach ($siblings as $sibling) {
 			if ($sibling->id === $priority->id) {

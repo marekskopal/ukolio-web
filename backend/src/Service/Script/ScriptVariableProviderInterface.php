@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Script;
 
-use Iterator;
 use Ukolio\Model\Entity\ScriptVariable;
 use Ukolio\Model\Entity\Workspace;
 
 interface ScriptVariableProviderInterface
 {
-	/** @return Iterator<ScriptVariable> */
-	public function listForWorkspace(Workspace $workspace): Iterator;
+	/** @return list<ScriptVariable> */
+	public function listForWorkspace(Workspace $workspace): array;
 
 	public function get(Workspace $workspace, string $key): ?ScriptVariable;
 

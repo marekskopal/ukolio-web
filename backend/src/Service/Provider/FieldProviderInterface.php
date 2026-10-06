@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\FieldTypeEnum;
 use Ukolio\Model\Entity\Field;
 use Ukolio\Model\Entity\User;
@@ -12,8 +11,8 @@ use Ukolio\Model\Entity\Workspace;
 
 interface FieldProviderInterface
 {
-	/** @return Iterator<Field> */
-	public function getFields(Workspace $workspace): Iterator;
+	/** @return list<Field> */
+	public function getFields(Workspace $workspace): array;
 
 	public function getField(Workspace $workspace, int $fieldId): ?Field;
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use Ukolio\Model\Entity\Priority;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\Status;
@@ -21,14 +20,14 @@ interface TaskProviderInterface
 {
 	public function getTask(int $taskId): ?Task;
 
-	/** @return Iterator<Task> */
-	public function getTasksByProject(Project $project, bool $includeArchived = true): Iterator;
+	/** @return list<Task> */
+	public function getTasksByProject(Project $project, bool $includeArchived = true): array;
 
 	/**
 	 * @param list<int>|null $statusIds
 	 * @param list<int>|null $tagIds
 	 * @param list<int>|null $assigneeIds
-	 * @return Iterator<Task>
+	 * @return list<Task>
 	 */
 	public function getTasksInWorkspace(
 		Workspace $workspace,
@@ -45,7 +44,7 @@ interface TaskProviderInterface
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 		?DateTimeImmutable $dueFrom = null,
 		?DateTimeImmutable $dueTo = null,
-	): Iterator;
+	): array;
 
 	/**
 	 * @param list<int>|null $statusIds

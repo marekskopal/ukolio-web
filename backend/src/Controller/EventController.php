@@ -53,7 +53,7 @@ final readonly class EventController
 		$limit = is_numeric($query['limit'] ?? null) ? (int) $query['limit'] : 100;
 		$offset = is_numeric($query['offset'] ?? null) ? (int) $query['offset'] : 0;
 
-		$eventEntities = iterator_to_array($this->eventProvider->getEvents($project, $limit, $offset), false);
+		$eventEntities = $this->eventProvider->getEvents($project, $limit, $offset);
 		$codeByTaskId = $this->buildTaskCodeMap($eventEntities);
 
 		$events = array_map(
@@ -82,7 +82,7 @@ final readonly class EventController
 		$offset = is_numeric($query['offset'] ?? null) ? max(0, (int) $query['offset']) : 0;
 		$actorType = $this->parseActorType(is_string($query['actorType'] ?? null) ? $query['actorType'] : null);
 
-		$eventEntities = iterator_to_array($this->eventProvider->getWorkspaceEvents($workspace, $actorType, $limit, $offset), false);
+		$eventEntities = $this->eventProvider->getWorkspaceEvents($workspace, $actorType, $limit, $offset);
 		$codeByTaskId = $this->buildTaskCodeMap($eventEntities);
 
 		$events = array_map(

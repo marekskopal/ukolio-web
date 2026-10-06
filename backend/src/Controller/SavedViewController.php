@@ -50,7 +50,7 @@ final readonly class SavedViewController
 
 		$views = array_map(
 			static fn (SavedView $view): SavedViewDto => SavedViewDto::fromEntity($view),
-			iterator_to_array($this->savedViewProvider->getViews($workspace, $user), false),
+			$this->savedViewProvider->getViews($workspace, $user),
 		);
 
 		return new JsonResponse($views);

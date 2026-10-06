@@ -50,7 +50,7 @@ final readonly class TagController
 
 		$tags = array_map(
 			fn (Tag $tag): TagDto => TagDto::fromEntity($tag),
-			iterator_to_array($this->tagProvider->getTags($workspace), false),
+			$this->tagProvider->getTags($workspace),
 		);
 
 		return new JsonResponse($tags);

@@ -50,7 +50,7 @@ final readonly class FieldController
 
 		$fields = array_map(
 			fn (Field $field): FieldDto => FieldDto::fromEntity($field),
-			iterator_to_array($this->fieldProvider->getFields($workspace), false),
+			$this->fieldProvider->getFields($workspace),
 		);
 
 		return new JsonResponse($fields);

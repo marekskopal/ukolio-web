@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\OAuthClient;
 
@@ -16,8 +15,8 @@ final class OAuthClientRepository extends AbstractRepository
 		return $this->findOne(['client_id' => $clientId]);
 	}
 
-	/** @return Iterator<OAuthClient> */
-	public function findByUser(int $userId): Iterator
+	/** @return list<OAuthClient> */
+	public function findByUser(int $userId): array
 	{
 		return $this->select()
 			->where(['user_id' => $userId])

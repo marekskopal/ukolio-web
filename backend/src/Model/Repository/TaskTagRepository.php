@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskTag;
 
 /** @extends AbstractRepository<TaskTag> */
 final class TaskTagRepository extends AbstractRepository
 {
-	/** @return Iterator<TaskTag> */
-	public function findByTask(int $taskId): Iterator
+	/** @return list<TaskTag> */
+	public function findByTask(int $taskId): array
 	{
 		return $this->select()
 			->where(['task_id' => $taskId])

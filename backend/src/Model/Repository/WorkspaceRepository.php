@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Workspace;
 
@@ -16,14 +15,14 @@ final class WorkspaceRepository extends AbstractRepository
 		return $this->findOne(['id' => $workspaceId]);
 	}
 
-	/** @return Iterator<Workspace> */
-	public function findAllWorkspaces(): Iterator
+	/** @return list<Workspace> */
+	public function findAllWorkspaces(): array
 	{
 		return $this->select()->orderBy('id', 'ASC')->fetchAll();
 	}
 
-	/** @return Iterator<Workspace> */
-	public function findByOwner(int $ownerId): Iterator
+	/** @return list<Workspace> */
+	public function findByOwner(int $ownerId): array
 	{
 		return $this->select()->where(['owner_id' => $ownerId])->fetchAll();
 	}

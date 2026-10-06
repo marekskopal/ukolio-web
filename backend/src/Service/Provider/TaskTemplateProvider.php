@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Dto\TaskTemplatePayloadDto;
 use Ukolio\Model\Entity\Priority;
@@ -31,8 +30,8 @@ final readonly class TaskTemplateProvider implements TaskTemplateProviderInterfa
 	) {
 	}
 
-	/** @return Iterator<TaskTemplate> */
-	public function getTemplates(Workspace $workspace): Iterator
+	/** @return list<TaskTemplate> */
+	public function getTemplates(Workspace $workspace): array
 	{
 		return $this->taskTemplateRepository->findByWorkspace($workspace->id);
 	}

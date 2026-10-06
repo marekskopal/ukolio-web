@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\StatusTypeEnum;
 use Ukolio\Model\Entity\Status;
 use Ukolio\Model\Entity\Workflow;
@@ -13,8 +12,8 @@ interface StatusProviderInterface
 {
 	public function getStatus(int $statusId): ?Status;
 
-	/** @return Iterator<Status> */
-	public function getStatuses(Workflow $workflow): Iterator;
+	/** @return list<Status> */
+	public function getStatuses(Workflow $workflow): array;
 
 	public function createStatus(Workflow $workflow, string $name, string $color, StatusTypeEnum $type, ?int $position = null): Status;
 

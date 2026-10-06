@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use ArrayIterator;
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\OAuthAuthorization;
 
@@ -29,12 +27,12 @@ final class OAuthAuthorizationRepository extends AbstractRepository
 
 	/**
 	 * @param list<int> $userIds
-	 * @return Iterator<OAuthAuthorization>
+	 * @return list<OAuthAuthorization>
 	 */
-	public function findByUserIds(array $userIds): Iterator
+	public function findByUserIds(array $userIds): array
 	{
 		if ($userIds === []) {
-			return new ArrayIterator([]);
+			return [];
 		}
 
 		return $this->select()

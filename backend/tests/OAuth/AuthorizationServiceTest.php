@@ -179,7 +179,7 @@ final class AuthorizationServiceTest extends IntegrationTestCase
 		// Drop the identity map so the assertions below observe the raw family
 		// UPDATE, the same way a fresh request would (the worker clears the
 		// entity cache between requests).
-		AppHarness::app()->dbContext->getOrm()->getEntityCache()->clear();
+		AppHarness::app()->dbContext->getOrm()->getIdentityMap()->clear();
 
 		// ...including the live descendant pair.
 		try {

@@ -50,7 +50,7 @@ final readonly class TaskTemplateController
 
 		$templates = array_map(
 			static fn (TaskTemplate $template): TaskTemplateDto => TaskTemplateDto::fromEntity($template),
-			iterator_to_array($this->taskTemplateProvider->getTemplates($workspace), false),
+			$this->taskTemplateProvider->getTemplates($workspace),
 		);
 
 		return new JsonResponse($templates);

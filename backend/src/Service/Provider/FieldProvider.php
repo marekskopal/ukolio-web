@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\FieldTypeEnum;
@@ -28,8 +27,8 @@ final readonly class FieldProvider implements FieldProviderInterface
 	) {
 	}
 
-	/** @return Iterator<Field> */
-	public function getFields(Workspace $workspace): Iterator
+	/** @return list<Field> */
+	public function getFields(Workspace $workspace): array
 	{
 		return $this->fieldRepository->findByWorkspace($workspace->id);
 	}

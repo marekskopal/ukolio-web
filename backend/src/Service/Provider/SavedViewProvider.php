@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\SavedView;
 use Ukolio\Model\Entity\User;
@@ -23,8 +22,8 @@ final readonly class SavedViewProvider implements SavedViewProviderInterface
 	{
 	}
 
-	/** @return Iterator<SavedView> */
-	public function getViews(Workspace $workspace, User $user): Iterator
+	/** @return list<SavedView> */
+	public function getViews(Workspace $workspace, User $user): array
 	{
 		return $this->savedViewRepository->findByWorkspaceAndUser($workspace->id, $user->id);
 	}

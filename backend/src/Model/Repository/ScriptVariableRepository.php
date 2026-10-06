@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\ScriptVariable;
 
 /** @extends AbstractRepository<ScriptVariable> */
 final class ScriptVariableRepository extends AbstractRepository
 {
-	/** @return Iterator<ScriptVariable> */
-	public function findByWorkspace(int $workspaceId): Iterator
+	/** @return list<ScriptVariable> */
+	public function findByWorkspace(int $workspaceId): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])

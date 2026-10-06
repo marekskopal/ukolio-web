@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Service\Provider\Fake;
 
-use ArrayIterator;
-use Iterator;
 use MarekSkopal\ORM\Query\QueryProvider;
 use MarekSkopal\ORM\Schema\Provider\SchemaProvider;
+use MarekSkopal\ORM\UnitOfWork\UnitOfWork;
 use ReflectionClass;
 use Ukolio\Model\Entity\Enum\TaskRelationTypeEnum;
 use Ukolio\Model\Entity\TaskRelation;
@@ -26,7 +25,10 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 		/** @var SchemaProvider $schemaProvider */
 		$schemaProvider = (new ReflectionClass(SchemaProvider::class))->newInstanceWithoutConstructor();
 
-		parent::__construct(TaskRelation::class, $queryProvider, $schemaProvider);
+		/** @var UnitOfWork $unitOfWork */
+		$unitOfWork = (new ReflectionClass(UnitOfWork::class))->newInstanceWithoutConstructor();
+
+		parent::__construct(TaskRelation::class, $queryProvider, $schemaProvider, $unitOfWork);
 	}
 
 	public function findOneById(int $id): ?TaskRelation
@@ -39,8 +41,8 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 		return null;
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findOutgoing(int $taskId): Iterator
+	/** @return list<TaskRelation> */
+	public function findOutgoing(int $taskId): array
 	{
 		$out = [];
 		foreach ($this->stored as $rel) {
@@ -48,11 +50,11 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 				$out[] = $rel;
 			}
 		}
-		return new ArrayIterator($out);
+		return $out;
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findIncoming(int $taskId): Iterator
+	/** @return list<TaskRelation> */
+	public function findIncoming(int $taskId): array
 	{
 		$out = [];
 		foreach ($this->stored as $rel) {
@@ -60,7 +62,7 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 				$out[] = $rel;
 			}
 		}
-		return new ArrayIterator($out);
+		return $out;
 	}
 
 	public function findPair(int $sourceTaskId, int $targetTaskId, TaskRelationTypeEnum $type): ?TaskRelation
@@ -76,8 +78,8 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 		return null;
 	}
 
-	/** @return Iterator<TaskRelation> */
-	public function findOutgoingByType(int $taskId, TaskRelationTypeEnum $type): Iterator
+	/** @return list<TaskRelation> */
+	public function findOutgoingByType(int $taskId, TaskRelationTypeEnum $type): array
 	{
 		$out = [];
 		foreach ($this->stored as $rel) {
@@ -85,7 +87,7 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 				$out[] = $rel;
 			}
 		}
-		return new ArrayIterator($out);
+		return $out;
 	}
 
 	public function persist(object $entity): void

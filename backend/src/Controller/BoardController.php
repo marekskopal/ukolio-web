@@ -62,10 +62,10 @@ final readonly class BoardController
 
 		$statuses = array_map(
 			fn (Status $s): StatusDto => StatusDto::fromEntity($s),
-			iterator_to_array($this->statusProvider->getStatuses($workflow), false),
+			$this->statusProvider->getStatuses($workflow),
 		);
 
-		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project, includeArchived: false), false);
+		$projectTasks = $this->taskProvider->getTasksByProject($project, includeArchived: false);
 		$taskIds = array_map(static fn (Task $t): int => $t->id, $projectTasks);
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds($taskIds);
 		$subtaskCounts = $this->subtaskProvider->getSubtaskCounts($taskIds);

@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Auth;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 
 interface AdminServiceInterface
 {
-	/** @return Iterator<User> */
-	public function listUsers(): Iterator;
+	/** @return list<User> */
+	public function listUsers(): array;
 
-	/** @return Iterator<Workspace> */
-	public function listWorkspaces(): Iterator;
+	/** @return list<Workspace> */
+	public function listWorkspaces(): array;
 
 	public function countMembers(Workspace $workspace): int;
 

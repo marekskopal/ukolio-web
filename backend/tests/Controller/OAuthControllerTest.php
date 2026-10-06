@@ -204,7 +204,7 @@ final class OAuthControllerTest extends IntegrationTestCase
 
 		$fresh = $clientService->registerClient('Fresh', ['http://localhost/cb']);
 
-		AppHarness::app()->dbContext->getOrm()->getEntityCache()->clear();
+		AppHarness::app()->dbContext->getOrm()->getIdentityMap()->clear();
 		self::assertNull($clientService->findByClientId($stale->clientId));
 		self::assertNotNull($clientService->findByClientId($fresh->clientId));
 	}

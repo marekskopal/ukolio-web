@@ -34,7 +34,7 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 
 		$workspaceRepo = $this->container->get(WorkspaceRepository::class);
 		assert($workspaceRepo instanceof WorkspaceRepository);
-		$workspaces = iterator_to_array($workspaceRepo->findAll(), false);
+		$workspaces = $workspaceRepo->findAll();
 		self::assertCount(1, $workspaces);
 		self::assertSame("New Person's Workspace", $workspaces[0]->name);
 

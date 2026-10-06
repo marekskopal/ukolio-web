@@ -48,7 +48,7 @@ final readonly class ScriptVariableController
 
 		$variables = array_map(
 			static fn (ScriptVariable $variable): ScriptVariableDto => ScriptVariableDto::fromEntity($variable),
-			iterator_to_array($this->variableProvider->listForWorkspace($workspace), false),
+			$this->variableProvider->listForWorkspace($workspace),
 		);
 
 		return new JsonResponse($variables);

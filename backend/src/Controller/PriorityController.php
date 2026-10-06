@@ -52,7 +52,7 @@ final readonly class PriorityController
 
 		$priorities = array_map(
 			fn (Priority $p): PriorityDto => PriorityDto::fromEntity($p),
-			iterator_to_array($this->priorityProvider->getPriorities($workspace), false),
+			$this->priorityProvider->getPriorities($workspace),
 		);
 
 		return new JsonResponse($priorities);

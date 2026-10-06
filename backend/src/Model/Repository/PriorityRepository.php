@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Priority;
 
 /** @extends AbstractRepository<Priority> */
 final class PriorityRepository extends AbstractRepository
 {
-	/** @return Iterator<Priority> */
-	public function findByWorkspace(int $workspaceId): Iterator
+	/** @return list<Priority> */
+	public function findByWorkspace(int $workspaceId): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Query\Expression\RawExpression;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\NotificationTypeEnum;
@@ -22,8 +21,8 @@ final class NotificationRepository extends AbstractRepository
 		return $this->findOne(['id' => $id]);
 	}
 
-	/** @return Iterator<Notification> */
-	public function findForUser(int $userId, int $limit, int $offset, bool $unreadOnly): Iterator
+	/** @return list<Notification> */
+	public function findForUser(int $userId, int $limit, int $offset, bool $unreadOnly): array
 	{
 		$select = $this->select()
 			->where(['user_id' => $userId]);
@@ -39,8 +38,8 @@ final class NotificationRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Notification> */
-	public function findUnreadForUser(int $userId): Iterator
+	/** @return list<Notification> */
+	public function findUnreadForUser(int $userId): array
 	{
 		return $this->select()
 			->where(['user_id' => $userId])

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Dto\InvitationQueueDto;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
@@ -29,8 +28,8 @@ final readonly class InvitationProvider implements InvitationProviderInterface
 	) {
 	}
 
-	/** @return Iterator<Invitation> */
-	public function getInvitations(Workspace $workspace): Iterator
+	/** @return list<Invitation> */
+	public function getInvitations(Workspace $workspace): array
 	{
 		return $this->invitationRepository->findByWorkspace($workspace->id);
 	}

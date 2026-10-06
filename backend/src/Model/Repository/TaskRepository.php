@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Model\Repository;
 
 use DateTimeImmutable;
-use EmptyIterator;
-use Iterator;
 use MarekSkopal\ORM\Query\Expression\RawExpression;
 use MarekSkopal\ORM\Query\Select;
 use MarekSkopal\ORM\Repository\AbstractRepository;
@@ -56,12 +54,12 @@ final class TaskRepository extends AbstractRepository
 
 	/**
 	 * @param list<int> $taskIds
-	 * @return Iterator<Task>
+	 * @return list<Task>
 	 */
-	public function findByIds(array $taskIds): Iterator
+	public function findByIds(array $taskIds): array
 	{
 		if ($taskIds === []) {
-			return new EmptyIterator();
+			return [];
 		}
 		return $this->select()
 			->where(['id', 'IN', $taskIds])
@@ -79,8 +77,8 @@ final class TaskRepository extends AbstractRepository
 		return $max + 1;
 	}
 
-	/** @return Iterator<Task> */
-	public function findByProject(int $projectId, bool $includeArchived = true): Iterator
+	/** @return list<Task> */
+	public function findByProject(int $projectId, bool $includeArchived = true): array
 	{
 		$select = $this->select()
 			->where(['project_id' => $projectId]);
@@ -95,8 +93,8 @@ final class TaskRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Task> */
-	public function findByStatus(int $statusId): Iterator
+	/** @return list<Task> */
+	public function findByStatus(int $statusId): array
 	{
 		return $this->select()
 			->where(['status_id' => $statusId])
@@ -109,7 +107,7 @@ final class TaskRepository extends AbstractRepository
 	 * @param list<int>|null $assigneeIds
 	 * @param list<int>|null $taskIdsFilter restrict to these IDs; pass [] to force an empty result
 	 * @param list<int>|null $excludeTaskIds drop these IDs from the result
-	 * @return Iterator<Task>
+	 * @return list<Task>
 	 */
 	public function findInWorkspace(
 		int $workspaceId,
@@ -126,9 +124,9 @@ final class TaskRepository extends AbstractRepository
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 		?DateTimeImmutable $dueFrom = null,
 		?DateTimeImmutable $dueTo = null,
-	): Iterator {
+	): array {
 		if ($taskIdsFilter !== null && $taskIdsFilter === []) {
-			return new EmptyIterator();
+			return [];
 		}
 
 		$select = $this->buildWorkspaceSelect(
@@ -199,9 +197,9 @@ final class TaskRepository extends AbstractRepository
 	 * cron (U-83). `archived_at` lives only on the tasks table, so the raw IS NULL predicate is
 	 * unambiguous even with the status join.
 	 *
-	 * @return Iterator<Task>
+	 * @return list<Task>
 	 */
-	public function findDueOn(DateTimeImmutable $date): Iterator
+	public function findDueOn(DateTimeImmutable $date): array
 	{
 		return $this->select()
 			->where(['due_date' => $date->format('Y-m-d')])
@@ -210,8 +208,8 @@ final class TaskRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Task> */
-	public function findByAssigneeInWorkspace(int $userId, int $workspaceId): Iterator
+	/** @return list<Task> */
+	public function findByAssigneeInWorkspace(int $userId, int $workspaceId): array
 	{
 		return $this->select()
 			->where(['assignee_id' => $userId])

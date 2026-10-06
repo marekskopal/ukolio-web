@@ -86,7 +86,7 @@ foreach ($queues as $queue) {
 				$msg->nack(false, true);
 			}
 
-			$application->dbContext->getOrm()->getEntityCache()->clear();
+			$application->dbContext->getOrm()->getIdentityMap()->clear();
 			gc_collect_cycles();
 		},
 	);

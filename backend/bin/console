@@ -10,6 +10,7 @@ use Ukolio\Command\AdminCreateCommand;
 use Ukolio\Command\MigrationGenerateCommand;
 use Ukolio\Command\MigrationRunCommand;
 use Ukolio\Command\NotificationDueTickCommand;
+use Ukolio\Command\OrmSchemaDumpCommand;
 use Ukolio\Command\RecurringTaskTickCommand;
 use Ukolio\Command\ScriptScheduleTickCommand;
 use Ukolio\Command\SearchReindexCommand;
@@ -23,5 +24,6 @@ $application->addCommand(new SearchReindexCommand());
 $application->addCommand(new ScriptScheduleTickCommand());
 $application->addCommand(new NotificationDueTickCommand());
 $application->addCommand(new RecurringTaskTickCommand());
+$application->addCommand(new OrmSchemaDumpCommand());
 
 $application->run();

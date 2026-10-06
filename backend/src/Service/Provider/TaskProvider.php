@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Priority;
@@ -51,8 +50,8 @@ final readonly class TaskProvider implements TaskProviderInterface
 		return $this->taskRepository->findById($taskId);
 	}
 
-	/** @return Iterator<Task> */
-	public function getTasksByProject(Project $project, bool $includeArchived = true): Iterator
+	/** @return list<Task> */
+	public function getTasksByProject(Project $project, bool $includeArchived = true): array
 	{
 		return $this->taskRepository->findByProject($project->id, $includeArchived);
 	}
@@ -61,7 +60,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 	 * @param list<int>|null $statusIds
 	 * @param list<int>|null $tagIds
 	 * @param list<int>|null $assigneeIds
-	 * @return Iterator<Task>
+	 * @return list<Task>
 	 */
 	public function getTasksInWorkspace(
 		Workspace $workspace,
@@ -78,7 +77,7 @@ final readonly class TaskProvider implements TaskProviderInterface
 		ArchivedFilterEnum $archived = ArchivedFilterEnum::Active,
 		?DateTimeImmutable $dueFrom = null,
 		?DateTimeImmutable $dueTo = null,
-	): Iterator {
+	): array {
 		[$includeIds, $excludeIds] = $this->resolveSubtaskFilter($workspace, $subtaskFilter, $this->resolveTaskIdsByTags($tagIds));
 
 		return $this->taskRepository->findInWorkspace(

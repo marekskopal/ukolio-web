@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskFile;
 
 /** @extends AbstractRepository<TaskFile> */
 final class TaskFileRepository extends AbstractRepository
 {
-	/** @return Iterator<TaskFile> */
-	public function findByTask(int $taskId): Iterator
+	/** @return list<TaskFile> */
+	public function findByTask(int $taskId): array
 	{
 		return $this->select()
 			->where(['task_id' => $taskId])
@@ -25,8 +24,8 @@ final class TaskFileRepository extends AbstractRepository
 		return $this->findOne(['id' => $id]);
 	}
 
-	/** @return Iterator<TaskFile> */
-	public function findByUploader(int $userId): Iterator
+	/** @return list<TaskFile> */
+	public function findByUploader(int $userId): array
 	{
 		return $this->select()
 			->where(['uploaded_by_user_id' => $userId])

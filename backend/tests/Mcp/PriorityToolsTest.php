@@ -178,7 +178,7 @@ final class PriorityToolsTest extends IntegrationTestCase
 		self::assertNotNull($workflow);
 		$statusRepo = AppHarness::container()->get(StatusRepository::class);
 		assert($statusRepo instanceof StatusRepository);
-		$statuses = iterator_to_array($statusRepo->findByWorkflow($workflow->id), false);
+		$statuses = $statusRepo->findByWorkflow($workflow->id);
 		self::assertNotSame([], $statuses);
 
 		$taskProvider = AppHarness::container()->get(TaskProviderInterface::class);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Auth;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
@@ -33,21 +32,21 @@ final readonly class AdminService implements AdminServiceInterface
 	) {
 	}
 
-	/** @return Iterator<User> */
-	public function listUsers(): Iterator
+	/** @return list<User> */
+	public function listUsers(): array
 	{
 		return $this->userRepository->findAllUsers();
 	}
 
-	/** @return Iterator<Workspace> */
-	public function listWorkspaces(): Iterator
+	/** @return list<Workspace> */
+	public function listWorkspaces(): array
 	{
 		return $this->workspaceRepository->findAllWorkspaces();
 	}
 
 	public function countMembers(Workspace $workspace): int
 	{
-		return iterator_count($this->workspaceUserRepository->findByWorkspace($workspace->id));
+		return count($this->workspaceUserRepository->findByWorkspace($workspace->id));
 	}
 
 	public function countProjects(Workspace $workspace): int
@@ -68,12 +67,12 @@ final readonly class AdminService implements AdminServiceInterface
 
 	public function countWorkspacesForUser(User $user): int
 	{
-		return iterator_count($this->workspaceUserRepository->findByUser($user->id));
+		return count($this->workspaceUserRepository->findByUser($user->id));
 	}
 
 	public function countOwnedWorkspaces(User $user): int
 	{
-		return iterator_count($this->workspaceRepository->findByOwner($user->id));
+		return count($this->workspaceRepository->findByOwner($user->id));
 	}
 
 	/** @return list<Workspace> */

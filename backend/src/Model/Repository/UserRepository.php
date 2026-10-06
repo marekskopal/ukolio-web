@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\SystemRoleEnum;
 use Ukolio\Model\Entity\User;
@@ -27,8 +26,8 @@ final class UserRepository extends AbstractRepository
 		return $this->findOne(['google_id' => $googleId]);
 	}
 
-	/** @return Iterator<User> */
-	public function findAllUsers(): Iterator
+	/** @return list<User> */
+	public function findAllUsers(): array
 	{
 		return $this->select()->orderBy('id', 'ASC')->fetchAll();
 	}

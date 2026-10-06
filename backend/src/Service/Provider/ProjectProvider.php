@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Provider;
 
 use DateTimeImmutable;
-use Iterator;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\User;
@@ -23,8 +22,8 @@ final readonly class ProjectProvider implements ProjectProviderInterface
 	) {
 	}
 
-	/** @return Iterator<Project> */
-	public function getProjects(Workspace $workspace): Iterator
+	/** @return list<Project> */
+	public function getProjects(Workspace $workspace): array
 	{
 		return $this->projectRepository->findProjectsByWorkspace($workspace->id);
 	}

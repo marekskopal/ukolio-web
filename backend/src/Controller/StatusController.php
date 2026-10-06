@@ -118,7 +118,7 @@ final readonly class StatusController
 			return new NotAuthorizedResponse('You do not have permission to manage workflow statuses.');
 		}
 
-		$siblings = iterator_to_array($this->statusProvider->getStatuses($status->workflow), false);
+		$siblings = $this->statusProvider->getStatuses($status->workflow);
 		if (count($siblings) <= 1) {
 			return new ErrorResponse('Cannot delete the last status of a workflow.', 422);
 		}

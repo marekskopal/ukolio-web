@@ -30,7 +30,7 @@ final readonly class ProjectFieldProvider implements ProjectFieldProviderInterfa
 	/** @return list<ProjectField> */
 	public function getProjectFields(Project $project): array
 	{
-		return iterator_to_array($this->projectFieldRepository->findByProject($project->id), false);
+		return $this->projectFieldRepository->findByProject($project->id);
 	}
 
 	/** @param list<int> $fieldIdsInOrder */

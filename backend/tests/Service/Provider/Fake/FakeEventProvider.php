@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Service\Provider\Fake;
 
-use ArrayIterator;
 use DateTimeImmutable;
-use Iterator;
 use Ukolio\Model\Entity\Enum\ActorTypeEnum;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Event;
@@ -46,19 +44,19 @@ final class FakeEventProvider implements EventProviderInterface
 		return $event;
 	}
 
-	/** @return Iterator<Event> */
-	public function getEvents(Project $project, int $limit = 100, int $offset = 0): Iterator
+	/** @return list<Event> */
+	public function getEvents(Project $project, int $limit = 100, int $offset = 0): array
 	{
-		return new ArrayIterator([]);
+		return [];
 	}
 
-	/** @return Iterator<Event> */
-	public function getWorkspaceEvents(Workspace $workspace, ?ActorTypeEnum $actorType, int $limit, int $offset): Iterator
+	/** @return list<Event> */
+	public function getWorkspaceEvents(Workspace $workspace, ?ActorTypeEnum $actorType, int $limit, int $offset): array
 	{
-		return new ArrayIterator([]);
+		return [];
 	}
 
-	/** @return Iterator<Event> */
+	/** @return list<Event> */
 	public function getWorkspaceEventsFiltered(
 		Workspace $workspace,
 		?int $projectId,
@@ -66,8 +64,8 @@ final class FakeEventProvider implements EventProviderInterface
 		?EventTypeEnum $type,
 		int $limit,
 		int $offset,
-	): Iterator {
-		return new ArrayIterator([]);
+	): array {
+		return [];
 	}
 
 	public function countWorkspaceEventsSince(Workspace $workspace, int $sinceTimestamp): int

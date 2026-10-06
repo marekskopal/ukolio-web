@@ -9,6 +9,7 @@ backend/.phpunit.result.cache
 backend/.phpunit.cache/
 backend/.phpstan/
 backend/log/
+backend/var/
 
 # Frontend
 frontend/node_modules/

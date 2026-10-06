@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\ScriptRun;
 
 /** @extends AbstractRepository<ScriptRun> */
 final class ScriptRunRepository extends AbstractRepository
 {
-	/** @return Iterator<ScriptRun> */
-	public function findByScript(int $scriptId, int $limit, int $offset): Iterator
+	/** @return list<ScriptRun> */
+	public function findByScript(int $scriptId, int $limit, int $offset): array
 	{
 		return $this->select()
 			->where(['script_id' => $scriptId])

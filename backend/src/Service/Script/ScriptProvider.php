@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ukolio\Service\Script;
 
 use DateTimeImmutable;
-use Iterator;
 use RuntimeException;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
@@ -33,8 +32,8 @@ final readonly class ScriptProvider implements ScriptProviderInterface
 	) {
 	}
 
-	/** @return Iterator<Script> */
-	public function listForWorkspace(Workspace $workspace): Iterator
+	/** @return list<Script> */
+	public function listForWorkspace(Workspace $workspace): array
 	{
 		return $this->scriptRepository->findByWorkspace($workspace->id);
 	}
@@ -129,8 +128,8 @@ final readonly class ScriptProvider implements ScriptProviderInterface
 		$this->eventProvider->recordWorkspaceEvent($author, $workspace, EventTypeEnum::ScriptDeleted, $metadata);
 	}
 
-	/** @return Iterator<ScriptRun> */
-	public function runHistory(Script $script, int $limit, int $offset): Iterator
+	/** @return list<ScriptRun> */
+	public function runHistory(Script $script, int $limit, int $offset): array
 	{
 		return $this->scriptRunRepository->findByScript($script->id, $limit, $offset);
 	}

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\ActorTypeEnum;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
@@ -13,8 +12,8 @@ use Ukolio\Model\Entity\Event;
 /** @extends AbstractRepository<Event> */
 final class EventRepository extends AbstractRepository
 {
-	/** @return Iterator<Event> */
-	public function findByProject(int $projectId, int $limit = 100, int $offset = 0): Iterator
+	/** @return list<Event> */
+	public function findByProject(int $projectId, int $limit = 100, int $offset = 0): array
 	{
 		return $this->select()
 			->where(['project_id' => $projectId])
@@ -24,8 +23,8 @@ final class EventRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Event> */
-	public function findByWorkspace(int $workspaceId, ?ActorTypeEnum $actorType, int $limit, int $offset): Iterator
+	/** @return list<Event> */
+	public function findByWorkspace(int $workspaceId, ?ActorTypeEnum $actorType, int $limit, int $offset): array
 	{
 		$select = $this->select()
 			->where(['workspace_id' => $workspaceId]);
@@ -61,7 +60,7 @@ final class EventRepository extends AbstractRepository
 	/**
 	 * Workspace-scoped event lookup with optional project/task/type narrowing, newest first.
 	 *
-	 * @return Iterator<Event>
+	 * @return list<Event>
 	 */
 	public function findByWorkspaceFiltered(
 		int $workspaceId,
@@ -70,7 +69,7 @@ final class EventRepository extends AbstractRepository
 		?EventTypeEnum $type,
 		int $limit,
 		int $offset,
-	): Iterator {
+	): array {
 		$select = $this->select()
 			->where(['workspace_id' => $workspaceId]);
 
@@ -93,8 +92,8 @@ final class EventRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Event> */
-	public function findByAuthor(int $userId): Iterator
+	/** @return list<Event> */
+	public function findByAuthor(int $userId): array
 	{
 		return $this->select()
 			->where(['author_id' => $userId])

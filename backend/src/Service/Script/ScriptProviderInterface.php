@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Script;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
 use Ukolio\Model\Entity\Script;
 use Ukolio\Model\Entity\ScriptRun;
@@ -13,8 +12,8 @@ use Ukolio\Model\Entity\Workspace;
 
 interface ScriptProviderInterface
 {
-	/** @return Iterator<Script> */
-	public function listForWorkspace(Workspace $workspace): Iterator;
+	/** @return list<Script> */
+	public function listForWorkspace(Workspace $workspace): array;
 
 	public function get(Workspace $workspace, int $scriptId): ?Script;
 
@@ -43,8 +42,8 @@ interface ScriptProviderInterface
 
 	public function delete(User $author, Script $script): void;
 
-	/** @return Iterator<ScriptRun> */
-	public function runHistory(Script $script, int $limit, int $offset): Iterator;
+	/** @return list<ScriptRun> */
+	public function runHistory(Script $script, int $limit, int $offset): array;
 
 	public function runCount(Script $script): int;
 

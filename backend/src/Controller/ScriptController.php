@@ -61,7 +61,7 @@ final readonly class ScriptController
 				$this->scriptProvider->lastStatus($script),
 				$this->scriptProvider->runCount($script),
 			),
-			iterator_to_array($this->scriptProvider->listForWorkspace($workspace), false),
+			$this->scriptProvider->listForWorkspace($workspace),
 		);
 
 		return new JsonResponse($scripts);
@@ -195,7 +195,7 @@ final readonly class ScriptController
 
 		$runs = array_map(
 			static fn (ScriptRun $run): ScriptRunDto => ScriptRunDto::fromEntity($run),
-			iterator_to_array($this->scriptProvider->runHistory($script, $limit, $offset), false),
+			$this->scriptProvider->runHistory($script, $limit, $offset),
 		);
 
 		return new JsonResponse($runs);

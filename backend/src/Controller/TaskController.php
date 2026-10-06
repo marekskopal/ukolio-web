@@ -73,24 +73,21 @@ final readonly class TaskController
 			return new ErrorResponse($e->getMessage(), 400);
 		}
 
-		$tasks = iterator_to_array(
-			$this->taskProvider->getTasksInWorkspace(
-				$workspace,
-				$listQuery->limit,
-				$listQuery->offset,
-				$listQuery->orderBy,
-				$listQuery->direction,
-				$listQuery->search,
-				$listQuery->statusIds,
-				$listQuery->onlyActive,
-				$listQuery->tagIds,
-				$listQuery->assigneeIds,
-				$listQuery->subtaskFilter,
-				$listQuery->archived,
-				$listQuery->dueFrom,
-				$listQuery->dueTo,
-			),
-			false,
+		$tasks = $this->taskProvider->getTasksInWorkspace(
+			$workspace,
+			$listQuery->limit,
+			$listQuery->offset,
+			$listQuery->orderBy,
+			$listQuery->direction,
+			$listQuery->search,
+			$listQuery->statusIds,
+			$listQuery->onlyActive,
+			$listQuery->tagIds,
+			$listQuery->assigneeIds,
+			$listQuery->subtaskFilter,
+			$listQuery->archived,
+			$listQuery->dueFrom,
+			$listQuery->dueTo,
 		);
 
 		$count = $this->taskProvider->countTasksInWorkspace(
@@ -141,7 +138,7 @@ final readonly class TaskController
 			return new NotFoundResponse('Project with id "' . $projectId . '" was not found.');
 		}
 
-		$projectTasks = iterator_to_array($this->taskProvider->getTasksByProject($project, includeArchived: false), false);
+		$projectTasks = $this->taskProvider->getTasksByProject($project, includeArchived: false);
 		$tagsByTaskId = $this->taskTagProvider->getTagIdsByTaskIds(array_map(static fn (Task $t): int => $t->id, $projectTasks));
 
 		$tasks = array_map(

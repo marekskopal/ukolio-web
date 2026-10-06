@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\ActorTypeEnum;
 use Ukolio\Model\Entity\Enum\EventTypeEnum;
 use Ukolio\Model\Entity\Event;
@@ -20,16 +19,16 @@ interface EventProviderInterface
 	/** @param array<string,mixed> $metadata */
 	public function recordWorkspaceEvent(User $author, ?Workspace $workspace, EventTypeEnum $type, array $metadata): Event;
 
-	/** @return Iterator<Event> */
-	public function getEvents(Project $project, int $limit = 100, int $offset = 0): Iterator;
+	/** @return list<Event> */
+	public function getEvents(Project $project, int $limit = 100, int $offset = 0): array;
 
-	/** @return Iterator<Event> */
-	public function getWorkspaceEvents(Workspace $workspace, ?ActorTypeEnum $actorType, int $limit, int $offset): Iterator;
+	/** @return list<Event> */
+	public function getWorkspaceEvents(Workspace $workspace, ?ActorTypeEnum $actorType, int $limit, int $offset): array;
 
 	/**
 	 * Workspace-scoped events with optional project/task/type filters (newest first).
 	 *
-	 * @return Iterator<Event>
+	 * @return list<Event>
 	 */
 	public function getWorkspaceEventsFiltered(
 		Workspace $workspace,
@@ -38,7 +37,7 @@ interface EventProviderInterface
 		?EventTypeEnum $type,
 		int $limit,
 		int $offset,
-	): Iterator;
+	): array;
 
 	public function countWorkspaceEventsSince(Workspace $workspace, int $sinceTimestamp): int;
 

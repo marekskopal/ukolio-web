@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
@@ -14,11 +13,11 @@ interface WorkspaceProviderInterface
 {
 	public function getWorkspace(int $workspaceId): ?Workspace;
 
-	/** @return Iterator<WorkspaceUser> */
-	public function getMemberships(User $user): Iterator;
+	/** @return list<WorkspaceUser> */
+	public function getMemberships(User $user): array;
 
-	/** @return Iterator<WorkspaceUser> */
-	public function getMembers(Workspace $workspace): Iterator;
+	/** @return list<WorkspaceUser> */
+	public function getMembers(Workspace $workspace): array;
 
 	public function findMembership(User $user, Workspace $workspace): ?WorkspaceUser;
 

@@ -46,7 +46,7 @@ final class ProjectControllerTest extends IntegrationTestCase
 
 		$statusRepo = $this->container->get(StatusRepository::class);
 		assert($statusRepo instanceof StatusRepository);
-		$statuses = iterator_to_array($statusRepo->findByWorkflow($workflowId), false);
+		$statuses = $statusRepo->findByWorkflow($workflowId);
 		self::assertCount(3, $statuses);
 	}
 

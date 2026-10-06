@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use EmptyIterator;
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\TaskChecklistItem;
 
 /** @extends AbstractRepository<TaskChecklistItem> */
 final class TaskChecklistItemRepository extends AbstractRepository
 {
-	/** @return Iterator<TaskChecklistItem> */
-	public function findByTask(int $taskId): Iterator
+	/** @return list<TaskChecklistItem> */
+	public function findByTask(int $taskId): array
 	{
 		return $this->select()
 			->where(['task_id' => $taskId])
@@ -29,12 +27,12 @@ final class TaskChecklistItemRepository extends AbstractRepository
 
 	/**
 	 * @param list<int> $taskIds
-	 * @return Iterator<TaskChecklistItem>
+	 * @return list<TaskChecklistItem>
 	 */
-	public function findByTasks(array $taskIds): Iterator
+	public function findByTasks(array $taskIds): array
 	{
 		if ($taskIds === []) {
-			return new EmptyIterator();
+			return [];
 		}
 
 		return $this->select()

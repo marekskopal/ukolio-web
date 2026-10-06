@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\SavedView;
 
 /** @extends AbstractRepository<SavedView> */
 final class SavedViewRepository extends AbstractRepository
 {
-	/** @return Iterator<SavedView> */
-	public function findByWorkspaceAndUser(int $workspaceId, int $userId): Iterator
+	/** @return list<SavedView> */
+	public function findByWorkspaceAndUser(int $workspaceId, int $userId): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])

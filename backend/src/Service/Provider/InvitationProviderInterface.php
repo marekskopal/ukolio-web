@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\Invitation;
 use Ukolio\Model\Entity\User;
@@ -12,8 +11,8 @@ use Ukolio\Model\Entity\Workspace;
 
 interface InvitationProviderInterface
 {
-	/** @return Iterator<Invitation> */
-	public function getInvitations(Workspace $workspace): Iterator;
+	/** @return list<Invitation> */
+	public function getInvitations(Workspace $workspace): array;
 
 	public function findByToken(string $token): ?Invitation;
 

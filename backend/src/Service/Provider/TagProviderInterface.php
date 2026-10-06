@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Ukolio\Service\Provider;
 
-use Iterator;
 use Ukolio\Model\Entity\Tag;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Entity\Workspace;
 
 interface TagProviderInterface
 {
-	/** @return Iterator<Tag> */
-	public function getTags(Workspace $workspace): Iterator;
+	/** @return list<Tag> */
+	public function getTags(Workspace $workspace): array;
 
 	public function getTag(Workspace $workspace, int $tagId): ?Tag;
 

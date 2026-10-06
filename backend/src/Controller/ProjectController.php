@@ -46,7 +46,7 @@ final readonly class ProjectController
 
 		$projects = array_map(
 			fn (Project $p): ProjectDto => ProjectDto::fromEntity($p),
-			iterator_to_array($this->projectProvider->getProjects($workspace), false),
+			$this->projectProvider->getProjects($workspace),
 		);
 
 		return new JsonResponse($projects);

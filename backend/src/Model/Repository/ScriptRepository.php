@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ukolio\Model\Repository;
 
-use Iterator;
 use MarekSkopal\ORM\Repository\AbstractRepository;
 use Ukolio\Model\Entity\Enum\ScriptTriggerEnum;
 use Ukolio\Model\Entity\Script;
@@ -12,8 +11,8 @@ use Ukolio\Model\Entity\Script;
 /** @extends AbstractRepository<Script> */
 final class ScriptRepository extends AbstractRepository
 {
-	/** @return Iterator<Script> */
-	public function findByWorkspace(int $workspaceId): Iterator
+	/** @return list<Script> */
+	public function findByWorkspace(int $workspaceId): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])
@@ -49,8 +48,8 @@ final class ScriptRepository extends AbstractRepository
 			->count();
 	}
 
-	/** @return Iterator<Script> */
-	public function findActiveByTrigger(ScriptTriggerEnum $trigger): Iterator
+	/** @return list<Script> */
+	public function findActiveByTrigger(ScriptTriggerEnum $trigger): array
 	{
 		return $this->select()
 			->where(['trigger' => $trigger->value])
@@ -58,8 +57,8 @@ final class ScriptRepository extends AbstractRepository
 			->fetchAll();
 	}
 
-	/** @return Iterator<Script> */
-	public function findActiveByWorkspaceAndTrigger(int $workspaceId, ScriptTriggerEnum $trigger): Iterator
+	/** @return list<Script> */
+	public function findActiveByWorkspaceAndTrigger(int $workspaceId, ScriptTriggerEnum $trigger): array
 	{
 		return $this->select()
 			->where(['workspace_id' => $workspaceId])

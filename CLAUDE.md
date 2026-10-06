@@ -157,6 +157,13 @@ docker compose --profile dev up -d        # +Adminer
 make migrate                              # Apply migrations
 ```
 
+The ORM schema (`marekskopal/orm` 2.x, with generated hydrators/extractors) is
+dumped to `backend/var/orm-schema.php` by `php bin/console orm:schema-dump`
+during the image build and loaded by `DbContext` via `Schema::fromFile()`. When
+that file is absent (dev/test bind mount) the schema is built from the entity
+attributes at process start, so entity changes need no cache flush — but don't
+leave a locally dumped `backend/var/` around, it would shadow later entity edits.
+
 ## MCP server
 
 Exposed at `POST/GET/DELETE /mcp` (Streamable HTTP transport, `mcp/sdk`).
