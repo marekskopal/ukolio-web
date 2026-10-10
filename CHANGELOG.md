@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-10
+
 ### Changed
 
 - The backend runs on **`marekskopal/orm` 2.0** (and `orm-migrations` 2.0).
@@ -37,6 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   occurrence copies the checklist with a single insert.
 - `search:reindex` keeps memory bounded by the largest project instead of the
   whole installation.
+- The frontend no longer loads **zone.js**. The app already ran with zoneless
+  change detection, so the polyfill only added bundle weight and patched
+  browser APIs for nothing.
+- FrankenPHP 1.13.1, Angular 22.2.2, predis 3, and the remaining backend,
+  frontend, and Docker image dependencies updated to their latest minor/patch
+  releases. The unused Redis-backed cache storage (and the `contributte/redis`
+  dependency) was removed; the PSR cache stays on Memcached.
 
 ## [1.2.0] - 2026-10-05
 
@@ -178,7 +187,8 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
-[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.0
 [1.2.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.2.0
 [1.1.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.1.0
 [1.0.2]: https://github.com/marekskopal/ukolio/releases/tag/v1.0.2
