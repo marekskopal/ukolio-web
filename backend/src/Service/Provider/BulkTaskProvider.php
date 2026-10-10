@@ -46,7 +46,7 @@ final readonly class BulkTaskProvider implements BulkTaskProviderInterface
 		$succeeded = [];
 		$skipped = [];
 		foreach ($ids as $id) {
-			$outcome = $this->processOne($actor, $workspace, $op, $context, $tasksById[$id] ?? null, $id);
+			$outcome = $this->processOne($actor, $workspace, $op, $context, $tasksById[$id] ?? null);
 			if ($outcome === null) {
 				$succeeded[] = $id;
 			} else {
@@ -102,7 +102,7 @@ final readonly class BulkTaskProvider implements BulkTaskProviderInterface
 	 * @param array{status?: Status, tagIds?: list<int>, assignee?: ?User, priority?: Priority} $context
 	 * @return non-empty-string|null null on success, reason string on skip
 	 */
-	private function processOne(User $actor, Workspace $workspace, BulkOpEnum $op, array $context, ?Task $task, int $id,): ?string
+	private function processOne(User $actor, Workspace $workspace, BulkOpEnum $op, array $context, ?Task $task,): ?string
 	{
 		if ($task === null) {
 			return 'not_found';

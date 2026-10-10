@@ -38,7 +38,7 @@
         "symfony/finder": "^8.0",
         "symfony/http-client": "^8.0",
         "symfony/mailer": "^8.0",
-        "symfony/mercure": "^0.8.0",
+        "symfony/mercure": "^0.9.0",
         "symfony/mime": "^8.0",
         "tracy/tracy": "^2.10"
     },

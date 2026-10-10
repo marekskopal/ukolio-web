@@ -11,7 +11,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Ukolio\Controller\AuthenticationController;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\WorkspaceRepository;
-use Ukolio\Service\Provider\PasswordResetProviderInterface;
 use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
@@ -345,14 +344,9 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 		]);
 		self::assertSame(200, $response->getStatusCode());
 
-		// Resolve the raw token by intercepting the provider: the provider stores
-		// only the hash, but we can re-issue a token via the same provider and
-		// confirm against it. Simpler: use the provider directly to obtain a known token.
-		$provider = $this->container->get(PasswordResetProviderInterface::class);
-		assert($provider instanceof PasswordResetProviderInterface);
-
-		// The first request created a token; trigger a second so we control the value.
-		[$rawToken] = $this->issueResetToken($provider, $user);
+		// The provider stores only the hash, so insert a second token directly
+		// to control its raw value.
+		[$rawToken] = $this->issueResetToken($user);
 
 		$confirm = $this->request('POST', '/api/authentication/confirm-password-reset', [
 			'token' => $rawToken,
@@ -373,7 +367,7 @@ final class AuthenticationControllerTest extends IntegrationTestCase
 	 *
 	 * @return array{0:string}
 	 */
-	private function issueResetToken(PasswordResetProviderInterface $provider, User $user): array
+	private function issueResetToken(User $user): array
 	{
 		$rawToken = bin2hex(random_bytes(16));
 		$pdo = AppHarness::pdo();
