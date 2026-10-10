@@ -78,7 +78,7 @@ foreach ($queues as $queue) {
 
 				$handler = $application->container->get($handlerMap[$queueName]);
 				assert($handler instanceof JobHandler);
-				$handler->handle(new AmqpReceivedMessage($msg->getBody(), $queueName));
+				$handler->handle(new AmqpReceivedMessage($msg->getBody()));
 
 				$msg->ack();
 			} catch (Throwable $e) {

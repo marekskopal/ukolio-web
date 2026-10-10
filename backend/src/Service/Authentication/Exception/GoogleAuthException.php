@@ -9,8 +9,7 @@ use Throwable;
 
 final class GoogleAuthException extends RuntimeException
 {
-	/** @param array<string,mixed>|null $payload */
-	public function __construct(string $message, public readonly ?array $payload = null, ?Throwable $previous = null,)
+	public function __construct(string $message, ?Throwable $previous = null)
 	{
 		parent::__construct($message, 0, $previous);
 	}

@@ -43,3 +43,7 @@ services:
 		class: Ukolio\PhpStan\OrmReadWritePropertiesExtension
 		tags:
 			- phpstan.properties.readWriteExtension
+	-
+		class: Ukolio\PhpStan\DeadCodeUsageProvider
+		tags:
+			- shipmonk.deadCode.memberUsageProvider

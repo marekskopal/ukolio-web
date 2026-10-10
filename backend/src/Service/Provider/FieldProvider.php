@@ -136,7 +136,7 @@ final readonly class FieldProvider implements FieldProviderInterface
 	 * @param array<string>|null $options
 	 * @return array<string>|null
 	 */
-	public function normalizeOptions(FieldTypeEnum $type, ?array $options): ?array
+	private function normalizeOptions(FieldTypeEnum $type, ?array $options): ?array
 	{
 		if (!$type->hasOptions()) {
 			return null;

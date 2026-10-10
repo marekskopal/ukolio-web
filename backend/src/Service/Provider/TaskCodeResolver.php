@@ -44,7 +44,7 @@ final readonly class TaskCodeResolver implements TaskCodeResolverInterface
 		return $workspace === null ? null : $this->findByCode($workspace, $code);
 	}
 
-	public function findByCode(Workspace $workspace, string $code): ?Task
+	private function findByCode(Workspace $workspace, string $code): ?Task
 	{
 		if (preg_match('/^([A-Z0-9]+)-(\d+)$/', strtoupper(trim($code)), $matches) !== 1) {
 			return null;

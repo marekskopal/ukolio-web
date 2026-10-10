@@ -35,14 +35,6 @@ final class QueuePublisher
 		);
 	}
 
-	public function close(): void
-	{
-		$this->channel?->close();
-		$this->connection?->close();
-		$this->channel = null;
-		$this->connection = null;
-	}
-
 	private function channel(): AMQPChannel
 	{
 		if ($this->channel === null) {

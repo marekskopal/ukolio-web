@@ -39,10 +39,4 @@ interface FieldProviderInterface
 	): Field;
 
 	public function deleteField(User $author, Field $field): void;
-
-	/**
-	 * @param array<string>|null $options
-	 * @return array<string>|null
-	 */
-	public function normalizeOptions(FieldTypeEnum $type, ?array $options): ?array;
 }

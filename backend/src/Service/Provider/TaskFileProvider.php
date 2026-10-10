@@ -26,11 +26,6 @@ final readonly class TaskFileProvider implements TaskFileProviderInterface
 	) {
 	}
 
-	public function getMaxFileSizeBytes(): int
-	{
-		return $this->s3Config->maxFileSizeBytes;
-	}
-
 	/** @return list<TaskFile> */
 	public function findByTask(Task $task): array
 	{

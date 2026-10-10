@@ -15,8 +15,6 @@ use Ukolio\Model\Repository\TaskCommentRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\TaskTagRepository;
-use Ukolio\Service\Cache\CacheFactory;
-use Ukolio\Service\Cache\CacheFactoryInterface;
 use Ukolio\Service\Cors\CorsPolicy;
 use Ukolio\Service\Logger\Logger;
 use Ukolio\Service\Logger\SafeLogger;
@@ -39,7 +37,6 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			S3Client::class,
 			FileStorageInterface::class,
 			ClientInterface::class,
-			CacheFactoryInterface::class,
 			CorsPolicy::class,
 			QueuePublisher::class,
 			TaskDocumentBuilder::class,
@@ -97,12 +94,6 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 				],
 			]),
 		);
-
-		$container->add(CacheFactoryInterface::class, static function () use ($container): CacheFactoryInterface {
-			$redisClient = $container->get(ClientInterface::class);
-			assert($redisClient instanceof ClientInterface);
-			return new CacheFactory($redisClient);
-		});
 
 		$container->add(
 			CorsPolicy::class,

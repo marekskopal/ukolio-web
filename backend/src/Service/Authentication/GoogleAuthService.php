@@ -40,11 +40,11 @@ final readonly class GoogleAuthService implements GoogleAuthServiceInterface
 
 		$expectedClientId = (string) getenv('GOOGLE_CLIENT_ID');
 		if ($expectedClientId === '' || $tokenInfo->aud !== $expectedClientId) {
-			throw new GoogleAuthException('Invalid audience in Google ID token', payload: $payload);
+			throw new GoogleAuthException('Invalid audience in Google ID token');
 		}
 
 		if (!$tokenInfo->emailVerified) {
-			throw new GoogleAuthException('Email not verified with Google', payload: $payload);
+			throw new GoogleAuthException('Email not verified with Google');
 		}
 
 		return $tokenInfo;

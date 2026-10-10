@@ -114,18 +114,8 @@ final class FakeTaskRelationRepository extends TaskRelationRepository
 		));
 	}
 
-	public function schedulePersist(object $entity): void
-	{
-		$this->persist($entity);
-	}
-
 	public function scheduleDelete(object $entity): void
 	{
 		$this->delete($entity);
-	}
-
-	public function flush(): void
-	{
-		// persist() and delete() above already write immediately; nothing is ever queued.
 	}
 }

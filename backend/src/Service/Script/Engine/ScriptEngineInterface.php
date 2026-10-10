@@ -14,7 +14,4 @@ interface ScriptEngineInterface
 	 * @param int $memoryLimitBytes heap limit in bytes (0 = unlimited)
 	 */
 	public function execute(string $source, object $hostApi, int $timeLimitMs, int $memoryLimitBytes): ScriptExecutionResult;
-
-	/** Whether the underlying engine is available in this runtime (ext-v8js loaded). */
-	public function isAvailable(): bool;
 }

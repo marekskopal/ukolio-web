@@ -26,7 +26,7 @@ final readonly class V8JsScriptEngine implements ScriptEngineInterface
 	private const string GlobalObject = 'host';
 	private const string Prelude = 'var ukolio = host.api;';
 
-	public function isAvailable(): bool
+	private function isAvailable(): bool
 	{
 		return class_exists(V8Js::class);
 	}

@@ -20,11 +20,6 @@ final class ScriptRunRepository extends ARepository
 			->fetchAll();
 	}
 
-	public function findOneByScriptAndId(int $scriptId, int $id): ?ScriptRun
-	{
-		return $this->findOne(['script_id' => $scriptId, 'id' => $id]);
-	}
-
 	public function countByScript(int $scriptId): int
 	{
 		return $this->select()->where(['script_id' => $scriptId])->count();

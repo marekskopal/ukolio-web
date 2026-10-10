@@ -51,7 +51,7 @@ $channel->basic_consume(
 
 			$handler = $application->container->get(ScriptRunHandler::class);
 			assert($handler instanceof ScriptRunHandler);
-			$handler->handle(new AmqpReceivedMessage($msg->getBody(), QueueEnum::ScriptRun->value));
+			$handler->handle(new AmqpReceivedMessage($msg->getBody()));
 
 			$msg->ack();
 		} catch (Throwable $e) {

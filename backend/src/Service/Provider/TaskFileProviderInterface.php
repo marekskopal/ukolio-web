@@ -10,8 +10,6 @@ use Ukolio\Model\Entity\User;
 
 interface TaskFileProviderInterface
 {
-	public function getMaxFileSizeBytes(): int;
-
 	/** @return list<TaskFile> */
 	public function findByTask(Task $task): array;
 

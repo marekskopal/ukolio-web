@@ -9,7 +9,6 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "async-aws/s3": "^3.3",
-        "contributte/redis": "^0.6.0",
         "dragonmantank/cron-expression": "^3.6",
         "firebase/php-jwt": "^7.0",
         "laminas/laminas-diactoros": "^3.3",
@@ -49,6 +48,7 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/phpunit": "^13.0",
+        "shipmonk/dead-code-detector": "^1.4",
         "shipmonk/phpstan-rules": "^4.0",
         "slevomat/coding-standard": "^8.14",
         "tomasvotruba/cognitive-complexity": "^1.0"

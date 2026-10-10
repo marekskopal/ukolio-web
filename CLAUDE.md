@@ -286,11 +286,16 @@ Specs live in `frontend/e2e/` with page objects under `frontend/e2e/pages/`.
 
 Backend uses PHPStan at `max` level (with `bleedingEdge.neon` +
 strict/deprecation/phpunit/shipmonk rules + cognitive-complexity +
-unused-public) and PHPCS with the slevomat ruleset (tabs, single-line method
+shipmonk/dead-code-detector) and PHPCS with the slevomat ruleset (tabs, single-line method
 signatures ≤140 chars). Custom PHPStan extension
 `Ukolio\PhpStan\OrmReadWritePropertiesExtension` marks
 `Column`/`ManyToOne`/`ColumnEnum`-attributed properties as ORM-managed
 (always read, always written, always initialized).
+`Ukolio\PhpStan\DeadCodeUsageProvider` tells the dead-code detector about
+members used only via reflection/runtime: DI-autowired constructors, route and
+MCP attributes, ORM-mapped properties, public DTO properties (JSON), entity
+enums (DB-hydrated), and the public API of `Service\Script\Host\*` (called
+from script JavaScript via V8Js).
 
 Frontend uses angular-eslint + `@typescript-eslint`, with
 `simple-import-sort` and `unused-imports`. `pnpm run lint` runs with

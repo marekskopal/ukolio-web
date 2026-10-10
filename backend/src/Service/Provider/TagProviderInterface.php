@@ -15,8 +15,6 @@ interface TagProviderInterface
 
 	public function getTag(Workspace $workspace, int $tagId): ?Tag;
 
-	public function findTagByName(Workspace $workspace, string $name): ?Tag;
-
 	public function createTag(User $author, Workspace $workspace, string $name, string $color): Tag;
 
 	public function updateTag(User $author, Tag $tag, string $name, string $color): Tag;

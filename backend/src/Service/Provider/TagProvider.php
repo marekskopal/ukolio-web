@@ -35,11 +35,6 @@ final readonly class TagProvider implements TagProviderInterface
 		return $this->tagRepository->findOneByWorkspaceAndId($workspace->id, $tagId);
 	}
 
-	public function findTagByName(Workspace $workspace, string $name): ?Tag
-	{
-		return $this->tagRepository->findOneByWorkspaceAndName($workspace->id, trim($name));
-	}
-
 	public function createTag(User $author, Workspace $workspace, string $name, string $color): Tag
 	{
 		$name = $this->validateName($workspace->id, $name, null);

@@ -7,6 +7,4 @@ namespace Ukolio\Jobs\Message;
 interface ReceivedMessageInterface
 {
 	public function getPayload(): string;
-
-	public function getQueue(): string;
 }
