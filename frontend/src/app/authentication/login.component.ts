@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, inject, NgZone, signal} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AuthenticationService} from '@app/services/authentication.service';
@@ -20,7 +20,6 @@ export class LoginComponent implements AfterViewInit {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly language = inject(LanguageService);
-    private readonly zone = inject(NgZone);
 
     protected readonly saving = signal(false);
     protected readonly googleLoading = signal(false);
@@ -68,7 +67,7 @@ export class LoginComponent implements AfterViewInit {
             if (window.google?.accounts?.id !== undefined && container !== null) {
                 window.google.accounts.id.initialize({
                     client_id: googleClientId,
-                    callback: (response) => this.handleGoogleCallback(response),
+                    callback: (response) => void this.handleGoogleCallback(response),
                 });
                 window.google.accounts.id.renderButton(container, {
                     type: 'standard',
@@ -86,18 +85,16 @@ export class LoginComponent implements AfterViewInit {
         tryRender();
     }
 
-    private handleGoogleCallback(response: google.accounts.id.CredentialResponse): void {
-        this.zone.run(async () => {
-            this.googleLoading.set(true);
-            try {
-                await this.auth.googleLogin(response.credential, this.language.currentLang());
-                this.router.navigateByUrl(this.returnUrl());
-            } catch {
-                // error interceptor shows the toast
-            } finally {
-                this.googleLoading.set(false);
-            }
-        });
+    private async handleGoogleCallback(response: google.accounts.id.CredentialResponse): Promise<void> {
+        this.googleLoading.set(true);
+        try {
+            await this.auth.googleLogin(response.credential, this.language.currentLang());
+            this.router.navigateByUrl(this.returnUrl());
+        } catch {
+            // error interceptor shows the toast
+        } finally {
+            this.googleLoading.set(false);
+        }
     }
 
     private returnUrl(): string {
