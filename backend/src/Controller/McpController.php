@@ -7,6 +7,7 @@ namespace Ukolio\Controller;
 use MarekSkopal\Router\Attribute\RouteDelete;
 use MarekSkopal\Router\Attribute\RouteGet;
 use MarekSkopal\Router\Attribute\RoutePost;
+use Mcp\Server\Session\SessionLockInterface;
 use Mcp\Server\Transport\Http\Middleware\CorsMiddleware;
 use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
 use Mcp\Server\Transport\Http\Middleware\ProtocolVersionMiddleware;
@@ -33,6 +34,7 @@ final readonly class McpController
 		private ActorContextInterface $actorContext,
 		private UkolioServer $server,
 		private ClientInterface $redis,
+		private SessionLockInterface $sessionLock,
 	) {
 	}
 
@@ -77,7 +79,7 @@ final readonly class McpController
 		$this->actorContext->setAgent($authorization->clientId, $clientName);
 
 		$sessionStore = new RedisSessionStore($this->redis, $this->sessionTtl());
-		$mcpServer = $this->server->build($sessionStore);
+		$mcpServer = $this->server->build($sessionStore, $this->sessionLock);
 		$transport = new StreamableHttpTransport($request, middleware: [
 			new CorsMiddleware(),
 			new DnsRebindingProtectionMiddleware($this->allowedHosts()),

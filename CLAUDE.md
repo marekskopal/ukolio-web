@@ -178,7 +178,10 @@ request/message so unflushed work and identity-map snapshots never leak.
 
 Exposed at `POST/GET/DELETE /mcp` (Streamable HTTP transport, `mcp/sdk`).
 Sessions are persisted to Redis with a TTL of `MCP_SESSION_TTL` seconds
-(default 86400).
+(default 86400). Concurrent requests of one session are serialized by the SDK's
+opt-in session lock (`SymfonyLockSessionLock` on the same Redis, keys `mcp:lock:*`,
+wired in `InfrastructureServiceProvider`) — without it parallel tool calls in one
+session overwrite each other's session state.
 
 Auth is **OAuth 2.1 with PKCE**. Discovery endpoints:
 

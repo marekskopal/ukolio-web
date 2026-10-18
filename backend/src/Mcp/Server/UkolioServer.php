@@ -6,6 +6,7 @@ namespace Ukolio\Mcp\Server;
 
 use Mcp\Capability\Registry\ReferenceHandler;
 use Mcp\Server;
+use Mcp\Server\Session\SessionLockInterface;
 use Mcp\Server\Session\SessionStoreInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -16,7 +17,7 @@ final readonly class UkolioServer
 	{
 	}
 
-	public function build(?SessionStoreInterface $sessionStore = null): Server
+	public function build(?SessionStoreInterface $sessionStore = null, ?SessionLockInterface $sessionLock = null): Server
 	{
 		$builder = Server::builder()
 			->setContainer($this->container)
@@ -42,6 +43,9 @@ final readonly class UkolioServer
 
 		if ($sessionStore !== null) {
 			$builder->setSession($sessionStore);
+		}
+		if ($sessionLock !== null) {
+			$builder->setSessionLock($sessionLock);
 		}
 
 		return $builder->build();

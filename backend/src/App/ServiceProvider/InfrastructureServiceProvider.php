@@ -7,10 +7,14 @@ namespace Ukolio\App\ServiceProvider;
 use AsyncAws\S3\S3Client;
 use Http\Discovery\Psr17FactoryDiscovery;
 use League\Container\ServiceProvider\AbstractServiceProvider;
+use Mcp\Server\Session\SessionLockInterface;
+use Mcp\Server\Session\SymfonyLockSessionLock;
 use Predis\Client;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\RedisStore;
 use Ukolio\Model\Repository\TaskCommentRepository;
 use Ukolio\Model\Repository\TaskFieldValueRepository;
 use Ukolio\Model\Repository\TaskRepository;
@@ -37,6 +41,7 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 			S3Client::class,
 			FileStorageInterface::class,
 			ClientInterface::class,
+			SessionLockInterface::class,
 			CorsPolicy::class,
 			QueuePublisher::class,
 			TaskDocumentBuilder::class,
@@ -94,6 +99,16 @@ final class InfrastructureServiceProvider extends AbstractServiceProvider
 				],
 			]),
 		);
+
+		// Serializes concurrent requests of one MCP session across the FrankenPHP workers (they share the
+		// session through Redis); without it parallel tool calls overwrite each other's session changes.
+		$container->add(SessionLockInterface::class, static function () use ($container): SessionLockInterface {
+			$redis = $container->get(ClientInterface::class);
+			assert($redis instanceof ClientInterface);
+			$logger = $container->get(LoggerInterface::class);
+			assert($logger instanceof LoggerInterface);
+			return new SymfonyLockSessionLock(new LockFactory(new RedisStore($redis)), prefix: 'mcp:lock:', logger: $logger);
+		});
 
 		$container->add(
 			CorsPolicy::class,
