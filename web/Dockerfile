@@ -1,6 +1,6 @@
-FROM mlocati/php-extension-installer:2.12.0 AS php-extension-installer
+FROM mlocati/php-extension-installer:2.12.2 AS php-extension-installer
 FROM composer:2.10.3 AS composer
-FROM node:24.21.0 AS node
+FROM node:24.22.0 AS node
 FROM php:8.5-apache AS php
 
 COPY --from=php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
