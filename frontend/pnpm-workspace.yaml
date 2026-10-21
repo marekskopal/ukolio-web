@@ -4,3 +4,10 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - vite@8.3.5
+overrides:
+  # Patch-level security overrides for exact upstream pins; drop once
+  # @angular/build and monaco-editor release with newer versions.
+  dompurify: 3.4.17
+  vite: 8.3.5

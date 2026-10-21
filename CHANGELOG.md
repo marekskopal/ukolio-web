@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-21
+
+### Security
+
+- The backend image runs on **PHP 8.5.12** (`dunglas/frankenphp:1.13.1-php8.5.12-alpine`),
+  which fixes state corruption via bailout in the engine core
+  (GHSA-w8hw-w9fx-j79w, GHSA-6wmf-4rv5-p3rp) plus several use-after-free and
+  crash bugs.
+  **Upgrade notes:** rebuild and redeploy the backend image.
+- Frontend build and test dependencies are refreshed to patched versions:
+  `fast-uri`, `brace-expansion`, `browserslist`, `immutable`,
+  `source-map-js`, and `baseline-browser-mapping`. `vite` 8.3.5 and
+  `dompurify` 3.4.17 are forced through pnpm overrides because
+  `@angular/build` and `monaco-editor` pin older exact versions.
+
+### Fixed
+
+- Parallel tool calls in one MCP session no longer overwrite each other's
+  session state. `mcp/sdk` 0.9 answers each POST with its own responses
+  instead of draining a shared queue, and requests of one session are
+  serialized by a Redis-backed per-session lock (`SymfonyLockSessionLock`,
+  keys `mcp:lock:*`). Empty JSON objects in `structuredContent` stay `{}`.
+
+### Changed
+
+- Base images bumped within their major versions: Node 24.22.1, nginx 1.31.7,
+  RabbitMQ 4.4.0, Adminer 6.1.2, and `mlocati/php-extension-installer` 2.12.3.
+
 ## [1.3.0] - 2026-10-10
 
 ### Changed
@@ -187,7 +215,8 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
-[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.1
 [1.3.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.0
 [1.2.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.2.0
 [1.1.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.1.0
