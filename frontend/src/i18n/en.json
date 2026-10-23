@@ -444,6 +444,9 @@
             "drawer": {
                 "newTask": "New task",
                 "editTask": "Edit task",
+                "copyLink": "Copy task link",
+                "linkCopied": "Task link copied to clipboard",
+                "copyLinkFailed": "Couldn't copy the task link",
                 "close": "Close",
                 "preview": "Preview",
                 "edit": "Edit",

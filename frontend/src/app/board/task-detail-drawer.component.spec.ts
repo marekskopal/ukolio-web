@@ -20,6 +20,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {TaskDetailDrawerComponent} from './task-detail-drawer.component';
 
 interface DrawerInternals {
+    onCopyLink(task: Task): Promise<void>;
     onSubmit: () => Promise<void>;
     onDelete: () => Promise<void>;
     onCancel: () => void;
@@ -313,6 +314,17 @@ describe('TaskDetailDrawerComponent', () => {
 
         expect(stubs.taskService.duplicateTask).toHaveBeenCalledWith(original.id);
         expect(saved).toEqual([copy]);
+    });
+
+    it('onCopyLink copies the task board URL to the clipboard', async () => {
+        const task = makeTask();
+        const {component} = createFixture({task});
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        Object.defineProperty(navigator, 'clipboard', {value: {writeText}, configurable: true});
+
+        await internals(component).onCopyLink(task);
+
+        expect(writeText).toHaveBeenCalledWith(new URL('projects/1/board?task=U-42', document.baseURI).href);
     });
 
     it('onSaveAsTemplate prompts for a name and saves the template', async () => {

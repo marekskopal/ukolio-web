@@ -40,6 +40,19 @@
     letter-spacing: 0.02em;
 }
 
+.drawer-id--copy {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        color: $color-text;
+        text-decoration: underline;
+    }
+}
+
 .drawer-divider {
     width: 1px;
     height: 18px;

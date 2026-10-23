@@ -444,6 +444,9 @@
             "drawer": {
                 "newTask": "Nový úkol",
                 "editTask": "Upravit úkol",
+                "copyLink": "Kopírovat odkaz na úkol",
+                "linkCopied": "Odkaz na úkol zkopírován do schránky",
+                "copyLinkFailed": "Odkaz na úkol se nepodařilo zkopírovat",
                 "close": "Zavřít",
                 "preview": "Náhled",
                 "edit": "Editor",

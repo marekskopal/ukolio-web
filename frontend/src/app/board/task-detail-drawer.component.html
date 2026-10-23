@@ -9,7 +9,13 @@
 <aside class="drawer" [formGroup]="form">
     <header class="drawer-header">
         @if (task(); as t) {
-            <span class="drawer-id uk-mono">{{ t.code }}</span>
+            <button
+                type="button"
+                class="drawer-id drawer-id--copy uk-mono"
+                [title]="'app.board.drawer.copyLink' | translate"
+                [attr.aria-label]="'app.board.drawer.copyLink' | translate"
+                (click)="onCopyLink(t)"
+            >{{ t.code }}</button>
             <span class="drawer-divider" aria-hidden="true"></span>
         } @else {
             <span class="drawer-id uk-mono">{{ 'app.board.drawer.newTask' | translate }}</span>

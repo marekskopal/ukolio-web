@@ -516,6 +516,17 @@ export class TaskDetailDrawerComponent implements OnInit {
         }
     }
 
+    protected async onCopyLink(task: Task): Promise<void> {
+        // Canonical board link, resolved against the base href so it works under `/` and `/app/`.
+        const url = new URL(`projects/${task.projectId}/board?task=${encodeURIComponent(task.code)}`, document.baseURI).href;
+        try {
+            await navigator.clipboard.writeText(url);
+            this.alertService.success(this.translate.instant('app.board.drawer.linkCopied') as string);
+        } catch {
+            this.alertService.error(this.translate.instant('app.board.drawer.copyLinkFailed') as string);
+        }
+    }
+
     protected onCancel(): void {
         this.cancelled.emit();
     }
