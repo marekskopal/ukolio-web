@@ -129,6 +129,12 @@ Inside `LayoutComponent` (AuthGuard-protected):
 - `/workspaces` — membership management
 - `/admin/users`, `/admin/workspaces` — SystemAdmin only
 
+The open task drawer is URL-driven on both the board and `/tasks`: `?task=<CODE>`
+(e.g. `?task=U-69`). Opening a task pushes the param, closing removes it, and a
+pasted URL / Back / Forward opens or closes the drawer. Email links, the
+notification bell and global search all link this way; the board redirects to
+the task's own project if the code belongs elsewhere.
+
 Shared components live under `frontend/src/app/shared/components/`
 (`layout`, `alert`, `pagination`).
 

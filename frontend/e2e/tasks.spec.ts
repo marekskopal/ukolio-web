@@ -58,4 +58,52 @@ test.describe('Task CRUD', () => {
         await projects.goto();
         await projects.deleteProject(projectName);
     });
+
+    test('the open task drawer is reflected in the URL and can be deep-linked', async ({page}) => {
+        const projects = new ProjectsPage(page);
+        const projectForm = new AddEditProjectPage(page);
+        const board = new BoardPage(page);
+        const drawer = new TaskDrawerPage(page);
+
+        const stamp = Date.now();
+        const projectName = `Task URL ${stamp}`;
+        const taskName = `E2E deep link ${stamp}`;
+
+        await projects.goto();
+        await projects.gotoNew();
+        await projectForm.fillName(projectName);
+        await projectForm.submit();
+        await projects.openBoard(projectName);
+        await board.expectVisible();
+        await board.openNewTask();
+        await drawer.fillName(taskName);
+        await drawer.save();
+
+        // Opening puts the task code in the URL; closing takes it out again.
+        await board.openTask(taskName);
+        await expect(page).toHaveURL(/[?&]task=[A-Z0-9-]+/);
+        const taskUrl = page.url();
+        await drawer.cancel();
+        await drawer.expectClosed();
+        await expect(page).not.toHaveURL(/[?&]task=/);
+
+        // Back reopens it, Forward closes it.
+        await page.goBack();
+        await drawer.expectOpen();
+        await page.goForward();
+        await drawer.expectClosed();
+
+        // A pasted task URL opens the drawer directly — on the board and on the Tasks grid.
+        await page.goto(taskUrl);
+        await drawer.expectOpen();
+        await expect(page.locator('#task-name')).toHaveValue(taskName);
+        await page.goto('tasks?task=' + new URL(taskUrl).searchParams.get('task'));
+        await drawer.expectOpen();
+        await expect(page.locator('#task-name')).toHaveValue(taskName);
+        await drawer.cancel();
+        await expect(page).not.toHaveURL(/[?&]task=/);
+
+        await projects.goto();
+        await projects.deleteProject(projectName);
+    });
 });

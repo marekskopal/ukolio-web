@@ -180,7 +180,7 @@ export class LayoutComponent implements OnInit {
 
     protected async onSearchHit(hit: SearchHit): Promise<void> {
         this.searchOpen.set(false);
-        await this.router.navigate(['/tasks'], {queryParams: {open: hit.code}});
+        await this.router.navigate(['/tasks'], {queryParams: {task: hit.code}});
     }
 
     protected openCommandPalette(): void {

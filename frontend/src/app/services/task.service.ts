@@ -87,7 +87,8 @@ export class TaskService {
         return firstValueFrom(this.http.get<TaskList>(`${environment.apiUrl}/tasks`, {params: httpParams}));
     }
 
-    public getTask(taskId: number): Promise<Task> {
+    /** Accepts the numeric id or the task code (e.g. `U-69`). */
+    public getTask(taskId: number | string): Promise<Task> {
         return firstValueFrom(this.http.get<Task>(`${environment.apiUrl}/tasks/${taskId}`));
     }
 

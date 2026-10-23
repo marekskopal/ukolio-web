@@ -2,7 +2,7 @@ import {provideZonelessChangeDetection} from '@angular/core';
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
-import {provideRouter} from '@angular/router';
+import {provideRouter, Router} from '@angular/router';
 import {OrderDirection, TaskListItem, TaskOrderBy} from '@app/models/task';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
@@ -87,6 +87,9 @@ interface GridInternals {
     onOnlyActiveToggle: (event: Event) => void;
     onPageSizeChange: (size: number) => void;
     clearFilters: () => void;
+    drawer: () => {task: {code: string}} | null;
+    onRowClick: (row: TaskListItem) => void;
+    closeDrawer: () => void;
 }
 
 function internals(component: TasksGridComponent): GridInternals {
@@ -99,6 +102,7 @@ function checkboxEvent(checked: boolean): Event {
 
 interface CreateOptions {
     bulkUpdate?: ReturnType<typeof vi.fn>;
+    getTask?: ReturnType<typeof vi.fn>;
 }
 
 function createComponent(options: CreateOptions = {}): TasksGridComponent {
@@ -109,7 +113,7 @@ function createComponent(options: CreateOptions = {}): TasksGridComponent {
             provideTranslateStub(),
             {provide: TaskService, useValue: {
                 getTasks: vi.fn().mockResolvedValue({tasks: [], count: 0}),
-                getTask: vi.fn().mockResolvedValue(null),
+                getTask: options.getTask ?? vi.fn().mockResolvedValue(null),
                 bulkUpdate: options.bulkUpdate ?? vi.fn().mockResolvedValue({succeeded: [], skipped: []}),
             }},
             {provide: WorkflowService, useValue: {getWorkflows: vi.fn().mockResolvedValue([])}},
@@ -333,6 +337,37 @@ describe('TasksGridComponent', () => {
             await inner.onBulkAddTag(99);
 
             expect(inner.lastBulkResult()?.skipped).toEqual([{id: 2, reason: 'not_found'}]);
+        });
+    });
+
+    describe('drawer URL sync', () => {
+        const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
+        it('opens the drawer for a task code in the URL', async () => {
+            const getTask = vi.fn().mockResolvedValue({...fakeTask(5), fieldValues: []});
+            const inner = internals(createComponent({getTask}));
+            await TestBed.inject(Router).navigateByUrl('/?task=T-5');
+            await settle();
+
+            expect(getTask).toHaveBeenCalledWith('T-5');
+            expect(inner.drawer()?.task.code).toBe('T-5');
+        });
+
+        it('puts the opened task in the URL and removes it on close', async () => {
+            const getTask = vi.fn().mockResolvedValue({...fakeTask(1), fieldValues: []});
+            const inner = internals(createComponent({getTask}));
+            const router = TestBed.inject(Router);
+            await router.navigateByUrl('/');
+
+            inner.onRowClick(fakeTask(1));
+            await settle();
+            expect(router.url).toBe('/?task=T-1');
+            expect(inner.drawer()?.task.code).toBe('T-1');
+
+            inner.closeDrawer();
+            await settle();
+            expect(router.url).toBe('/');
+            expect(inner.drawer()).toBeNull();
         });
     });
 });

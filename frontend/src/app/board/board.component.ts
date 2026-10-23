@@ -20,6 +20,7 @@ import {TagService} from '@app/services/tag.service';
 import {TaskService} from '@app/services/task.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {TranslatePipe} from '@ngx-translate/core';
+import {combineLatest} from 'rxjs';
 
 interface Column {
     status: Status;
@@ -48,6 +49,8 @@ export class BoardComponent implements OnInit {
     private readonly destroyRef = inject(DestroyRef);
 
     private refreshTimer: ReturnType<typeof setTimeout> | null = null;
+    // Bumped on every route sync so a slower, older sync can't overwrite a newer one.
+    private routeSyncToken = 0;
 
     protected readonly loading = signal(true);
     protected readonly board = signal<Board | null>(null);
@@ -77,36 +80,71 @@ export class BoardComponent implements OnInit {
     });
 
     public async ngOnInit(): Promise<void> {
-        const id = Number(this.route.snapshot.paramMap.get('id'));
-        this.projectId.set(id);
+        this.realtimeService.events$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((event) => this.onRealtimeEvent(event));
+
+        // The router reuses this component across /projects/:id/board navigations, so the project
+        // and the open task (`?task=<code>`) are both driven by the route, not just the snapshot.
+        combineLatest([this.route.paramMap, this.route.queryParamMap])
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(([params, query]) => void this.syncWithRoute(Number(params.get('id')), query.get('task')));
+
         await Promise.all([
-            this.loadBoard(),
-            this.loadProjectFields(),
             this.loadWorkspaceTags(),
             this.loadWorkspacePriorities(),
             this.workspaceService.currentMembers().length === 0
                 ? this.workspaceService.loadCurrentMembers()
                 : Promise.resolve(),
         ]);
+    }
 
-        this.realtimeService.events$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((event) => this.onRealtimeEvent(event));
-
-        const openTaskParam = this.route.snapshot.queryParamMap.get('openTask');
-        if (openTaskParam !== null) {
-            const openId = Number(openTaskParam);
-            if (Number.isFinite(openId) && openId > 0) {
-                try {
-                    const task = await this.taskService.getTask(openId);
-                    this.editingTask.set(task);
-                    this.defaultStatusId.set(null);
-                    this.drawerOpen.set(true);
-                } catch {
-                    // task may have been deleted; ignore
-                }
-            }
+    private async syncWithRoute(projectId: number, taskCode: string | null): Promise<void> {
+        const token = ++this.routeSyncToken;
+        if (projectId !== this.projectId()) {
+            this.resetDrawer();
+            this.projectId.set(projectId);
+            await Promise.all([this.loadBoard(), this.loadProjectFields()]);
+            if (token !== this.routeSyncToken) return;
         }
+
+        if (taskCode === null) {
+            // Create mode has no task in the URL — only close a drawer that was showing a task.
+            if (this.editingTask() !== null) {
+                this.resetDrawer();
+            }
+            return;
+        }
+        if (this.editingTask()?.code === taskCode) {
+            return;
+        }
+
+        let task: Task;
+        try {
+            task = await this.taskService.getTask(taskCode);
+        } catch {
+            // Unknown / deleted task — drop the stale param.
+            if (token === this.routeSyncToken) {
+                void this.setTaskParam(null, true);
+            }
+            return;
+        }
+        if (token !== this.routeSyncToken) return;
+
+        if (task.projectId !== projectId) {
+            await this.router.navigate(['/projects', task.projectId, 'board'], {queryParams: {task: task.code}, replaceUrl: true});
+            return;
+        }
+
+        // Close + reopen so the drawer re-initializes for the new task.
+        this.drawerOpen.set(false);
+        this.editingTask.set(task);
+        this.defaultStatusId.set(null);
+        queueMicrotask(() => this.drawerOpen.set(true));
+    }
+
+    private setTaskParam(code: string | null, replaceUrl = false): Promise<boolean> {
+        return this.router.navigate([], {relativeTo: this.route, queryParams: {task: code}, queryParamsHandling: 'merge', replaceUrl});
     }
 
     private async loadBoard(): Promise<void> {
@@ -199,9 +237,17 @@ export class BoardComponent implements OnInit {
         this.editingTask.set(task);
         this.defaultStatusId.set(null);
         this.drawerOpen.set(true);
+        void this.setTaskParam(task.code);
     }
 
-    protected closeDrawer(): void {
+    protected closeDrawer(replaceUrl = false): void {
+        this.resetDrawer();
+        if (this.route.snapshot.queryParamMap.has('task')) {
+            void this.setTaskParam(null, replaceUrl);
+        }
+    }
+
+    private resetDrawer(): void {
         this.drawerOpen.set(false);
         this.editingTask.set(null);
     }
@@ -212,7 +258,8 @@ export class BoardComponent implements OnInit {
     }
 
     protected onTaskDeleted(_id: number): void {
-        this.closeDrawer();
+        // Replace, so Back doesn't land on the deleted task's URL.
+        this.closeDrawer(true);
         void this.loadBoard();
     }
 
@@ -241,20 +288,10 @@ export class BoardComponent implements OnInit {
     }
 
     protected async onOpenRelatedTask(item: TaskListItem): Promise<void> {
-        const currentProjectId = this.projectId();
-        if (item.projectId !== currentProjectId) {
-            this.closeDrawer();
-            await this.router.navigate(['/projects', item.projectId, 'board'], {queryParams: {openTask: item.id}});
+        if (item.projectId !== this.projectId()) {
+            await this.router.navigate(['/projects', item.projectId, 'board'], {queryParams: {task: item.code}});
             return;
         }
-        try {
-            const task = await this.taskService.getTask(item.id);
-            this.drawerOpen.set(false);
-            this.editingTask.set(task);
-            this.defaultStatusId.set(null);
-            queueMicrotask(() => this.drawerOpen.set(true));
-        } catch {
-            // error interceptor
-        }
+        await this.setTaskParam(item.code);
     }
 }

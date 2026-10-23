@@ -79,7 +79,7 @@ export class TaskTimelineComponent {
     public readonly filters = input.required<CalendarTaskFilters>();
     public readonly refreshKey = input<number>(0);
 
-    public readonly openTask = output<{id: number; projectId: number}>();
+    public readonly openTask = output<{code: string}>();
     public readonly changed = output<void>();
 
     private readonly track = viewChild<ElementRef<HTMLElement>>('track');
@@ -308,7 +308,7 @@ export class TaskTimelineComponent {
         // A press with no real movement is a click → open the task.
         if (!drag.moved || preview === null) {
             this.preview.set(null);
-            this.openTask.emit({id: bar.task.id, projectId: bar.task.projectId});
+            this.openTask.emit({code: bar.task.code});
             return;
         }
         if (preview.start === drag.origStart && preview.end === drag.origEnd) {
@@ -342,7 +342,7 @@ export class TaskTimelineComponent {
     }
 
     protected openTaskFor(bar: TimelineBar): void {
-        this.openTask.emit({id: bar.task.id, projectId: bar.task.projectId});
+        this.openTask.emit({code: bar.task.code});
     }
 
     protected priorityInitial(name: string): string {

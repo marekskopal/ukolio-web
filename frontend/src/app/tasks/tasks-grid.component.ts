@@ -27,7 +27,7 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
 import {CalendarTaskFilters, TaskCalendarComponent} from '@app/tasks/task-calendar.component';
 import {TaskTimelineComponent} from '@app/tasks/task-timeline.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {debounceTime, distinctUntilChanged} from 'rxjs';
+import {debounceTime, distinctUntilChanged, map as mapRx} from 'rxjs';
 
 interface DrawerContext {
     task: Task;
@@ -121,6 +121,8 @@ export class TasksGridComponent implements OnInit {
     });
 
     protected readonly drawer = signal<DrawerContext | null>(null);
+    // Bumped on every drawer open/close so a slower, older task load can't reopen the drawer.
+    private drawerLoadToken = 0;
 
     // Bulk-selection state. Kept as a plain Set for cheap membership tests; signal value is the set ref.
     protected readonly selectedIds = signal<Set<number>>(new Set());
@@ -235,7 +237,10 @@ export class TasksGridComponent implements OnInit {
                 firstUrlPush = false;
                 return;
             }
-            void this.router.navigate([], {relativeTo: this.route, queryParams: urlParams, replaceUrl: true});
+            // Keep the open task (`?task=<code>`) — it's owned by the drawer, not the filters.
+            const task = this.route.snapshot.queryParamMap.get('task');
+            const queryParams = task === null ? urlParams : {...urlParams, task};
+            void this.router.navigate([], {relativeTo: this.route, queryParams, replaceUrl: true});
 
             // Clear active view tag when state diverges from the view's saved config.
             const id = this.activeViewId();
@@ -258,6 +263,12 @@ export class TasksGridComponent implements OnInit {
         this.realtimeService.events$
             .pipe(takeUntilDestroyed())
             .subscribe((event) => this.onRealtimeEvent(event));
+
+        // The drawer follows `?task=<code>`: opening a task pushes it, closing removes it, and a
+        // pasted task URL (or Back/Forward) opens the drawer directly.
+        this.route.queryParamMap
+            .pipe(mapRx((params) => params.get('task')), distinctUntilChanged(), takeUntilDestroyed())
+            .subscribe((code) => void this.syncDrawerWithUrl(code));
     }
 
     private applyQueryParams(map: ParamMap): void {
@@ -352,8 +363,8 @@ export class TasksGridComponent implements OnInit {
         this.view.set(view);
     }
 
-    protected async onCalendarOpenTask(event: {id: number; projectId: number}): Promise<void> {
-        await this.openTaskById(event.id, event.projectId);
+    protected onCalendarOpenTask(event: {code: string}): void {
+        void this.setTaskParam(event.code);
     }
 
     protected onCalendarChanged(): void {
@@ -404,7 +415,7 @@ export class TasksGridComponent implements OnInit {
         try {
             const views = await this.savedViewService.loadForWorkspace(workspaceId);
             // If the URL came in empty and the user has a default for this workspace, apply it.
-            if (this.isEmptyFilterState() && this.route.snapshot.queryParamMap.keys.length === 0) {
+            if (this.isEmptyFilterState() && this.route.snapshot.queryParamMap.keys.every((key) => key === 'task')) {
                 const defaultId = this.currentUserService.currentUser()?.defaultSavedViewId ?? null;
                 if (defaultId !== null) {
                     const view = views.find((v) => v.id === defaultId);
@@ -872,7 +883,7 @@ export class TasksGridComponent implements OnInit {
             if (op === 'delete') {
                 const drawerTaskId = this.drawer()?.task.id;
                 if (drawerTaskId !== undefined && result.succeeded.includes(drawerTaskId)) {
-                    this.closeDrawer();
+                    this.closeDrawer(true);
                 }
             }
 
@@ -918,36 +929,56 @@ export class TasksGridComponent implements OnInit {
 
     // ─── Drawer + rows ─────────────────────────────────────────
 
-    protected async onRowClick(row: TaskListItem): Promise<void> {
-        await this.openTaskById(row.id, row.projectId);
+    protected onRowClick(row: TaskListItem): void {
+        void this.setTaskParam(row.code);
     }
 
-    protected async onOpenRelatedTask(item: TaskListItem): Promise<void> {
+    protected onOpenRelatedTask(item: TaskListItem): void {
+        void this.setTaskParam(item.code);
+    }
+
+    private setTaskParam(code: string | null, replaceUrl = false): Promise<boolean> {
+        return this.router.navigate([], {relativeTo: this.route, queryParams: {task: code}, queryParamsHandling: 'merge', replaceUrl});
+    }
+
+    private async syncDrawerWithUrl(code: string | null): Promise<void> {
+        const token = ++this.drawerLoadToken;
+        if (code === null) {
+            this.drawer.set(null);
+            return;
+        }
+        if (this.drawer()?.task.code === code) {
+            return;
+        }
         // Close + reopen so the drawer re-initializes for the new task.
         this.drawer.set(null);
-        await this.openTaskById(item.id, item.projectId);
-    }
-
-    private async openTaskById(taskId: number, projectId: number): Promise<void> {
         try {
-            const [task, board, fields] = await Promise.all([
-                this.taskService.getTask(taskId),
-                this.boardService.getBoard(projectId),
-                this.fieldService.listProjectFields(projectId).catch(() => [] as ProjectField[]),
+            const task = await this.taskService.getTask(code);
+            const [board, fields] = await Promise.all([
+                this.boardService.getBoard(task.projectId),
+                this.fieldService.listProjectFields(task.projectId).catch(() => [] as ProjectField[]),
             ]);
+            if (token !== this.drawerLoadToken) return;
             this.drawer.set({
                 task,
                 statuses: board.statuses,
-                projectId,
+                projectId: task.projectId,
                 projectFields: fields,
             });
         } catch {
-            // error interceptor will surface failure
+            // Unknown / deleted task (the error interceptor surfaces it) — drop the stale param.
+            if (token === this.drawerLoadToken) {
+                void this.setTaskParam(null, true);
+            }
         }
     }
 
-    protected closeDrawer(): void {
+    protected closeDrawer(replaceUrl = false): void {
+        this.drawerLoadToken++;
         this.drawer.set(null);
+        if (this.route.snapshot.queryParamMap.has('task')) {
+            void this.setTaskParam(null, replaceUrl);
+        }
     }
 
     protected onTaskSaved(): void {
@@ -957,7 +988,8 @@ export class TasksGridComponent implements OnInit {
     }
 
     protected onTaskDeleted(): void {
-        this.closeDrawer();
+        // Replace, so Back doesn't land on the deleted task's URL.
+        this.closeDrawer(true);
         void this.fetchTasks(this.queryParams());
         this.calendarRefreshKey.update((k) => k + 1);
     }

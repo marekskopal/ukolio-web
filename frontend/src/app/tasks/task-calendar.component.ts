@@ -69,7 +69,7 @@ export class TaskCalendarComponent {
     // Bumped by the shell after a drawer save/delete so the calendar refetches.
     public readonly refreshKey = input<number>(0);
 
-    public readonly openTask = output<{id: number; projectId: number}>();
+    public readonly openTask = output<{code: string}>();
     // Emitted after a drag-reschedule so the shell can refresh its own list.
     public readonly changed = output<void>();
 
@@ -234,7 +234,7 @@ export class TaskCalendarComponent {
     }
 
     protected onChipClick(task: TaskListItem): void {
-        this.openTask.emit({id: task.id, projectId: task.projectId});
+        this.openTask.emit({code: task.code});
     }
 
     // ── Drag to reschedule ──
