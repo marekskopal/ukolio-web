@@ -145,7 +145,7 @@
             <div class="assignee-row">
                 @if (selectedAssignee(); as a) {
                     <span class="assignee-chip">
-                        <span class="assignee-avatar" aria-hidden="true">{{ memberInitials(a.name) }}</span>
+                        <span class="assignee-avatar" aria-hidden="true"><uk-avatar [name]="a.name" [avatarUrl]="a.avatarUrl" /></span>
                         <span>{{ a.name }}</span>
                         <button
                             type="button"
@@ -169,7 +169,7 @@
                                 class="assignee-option"
                                 (click)="assignMember(member)"
                             >
-                                <span class="assignee-avatar" aria-hidden="true">{{ memberInitials(member.name) }}</span>
+                                <span class="assignee-avatar" aria-hidden="true"><uk-avatar [name]="member.name" [avatarUrl]="member.avatarUrl" /></span>
                                 <span>{{ member.name }}</span>
                             </button>
                         }
@@ -770,7 +770,7 @@
                                 @for (m of mentionResults(); track m.userId) {
                                     <li>
                                         <button type="button" class="mention-option" (click)="selectMention(m)">
-                                            <span class="mention-avatar">{{ memberInitials(m.name) }}</span>
+                                            <span class="mention-avatar"><uk-avatar [name]="m.name" [avatarUrl]="m.avatarUrl" /></span>
                                             <span class="mention-name">{{ m.name }}</span>
                                             <span class="mention-email">{{ m.email }}</span>
                                         </button>
@@ -796,6 +796,7 @@
 
     <ng-template #commentTpl let-c>
         <div class="comment-head">
+            <span class="uk-avatar comment-avatar" aria-hidden="true"><uk-avatar [name]="c.authorName" [avatarUrl]="c.authorAvatarUrl" /></span>
             <span class="comment-author">{{ c.authorName }}</span>
             @if (c.createdByAgent) {
                 <span class="uk-badge uk-badge--ai comment-agent-badge">

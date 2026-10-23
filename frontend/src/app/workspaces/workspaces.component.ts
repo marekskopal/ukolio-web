@@ -16,6 +16,7 @@ import {PriorityService} from '@app/services/priority.service';
 import {TagService} from '@app/services/tag.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 interface FieldEditorState {
@@ -50,7 +51,7 @@ const DEFAULT_PRIORITY_COLOR = '#fbf2dd';
 @Component({
     selector: 'uk-workspaces',
     standalone: true,
-    imports: [DatePipe, FormsModule, TranslatePipe],
+    imports: [AvatarComponent, DatePipe, FormsModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './workspaces.component.html',
     styleUrl: './workspaces.component.scss',

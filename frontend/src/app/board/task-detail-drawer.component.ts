@@ -31,7 +31,9 @@ import {TaskTemplateService} from '@app/services/task-template.service';
 import {TaskWatcherService} from '@app/services/task-watcher.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {MarkdownEditorComponent} from '@app/shared/components/markdown-editor/markdown-editor.component';
+import {initials} from '@app/shared/initials';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {MarkdownComponent} from 'ngx-markdown';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
@@ -95,6 +97,7 @@ const FILE_TYPE_FALLBACK: FileTypeChip = {tag: 'FILE', fg: '#52525b', bg: '#f4f4
         CdkDropList,
         CdkDrag,
         CdkDragHandle,
+        AvatarComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-detail-drawer.component.html',
@@ -676,10 +679,7 @@ export class TaskDetailDrawerComponent implements OnInit {
     }
 
     protected memberInitials(name: string): string {
-        const parts = name.trim().split(/\s+/);
-        if (parts.length === 0 || parts[0] === '') return '?';
-        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        return initials(name);
     }
 
     protected async onFileSelected(event: Event): Promise<void> {

@@ -738,6 +738,17 @@
             "themeSystem": "Podle systému",
             "themeLight": "Světlý",
             "themeDark": "Tmavý",
+            "avatar": {
+                "title": "Profilový obrázek",
+                "description": "Zobrazuje se u vašeho jména na kartách, v komentářích a v seznamech členů.",
+                "upload": "Nahrát obrázek",
+                "change": "Změnit obrázek",
+                "uploading": "Nahrávání…",
+                "remove": "Odebrat",
+                "hint": "JPEG, PNG nebo WebP, nejvýše 1 MB. Obrázek bude oříznut do čtverce.",
+                "errorType": "Vyberte obrázek ve formátu JPEG, PNG nebo WebP.",
+                "errorSize": "Obrázek je větší než 1 MB."
+            },
             "changePassword": {
                 "title": "Změna hesla",
                 "description": "Použijte silné heslo s malými i velkými písmeny a alespoň jednou číslicí.",

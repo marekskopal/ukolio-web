@@ -3,6 +3,7 @@ limit_req_zone $binary_remote_addr zone=auth_signup:10m  rate=3r/m;
 limit_req_zone $binary_remote_addr zone=auth_oauth:10m   rate=10r/m;
 limit_req_zone $binary_remote_addr zone=invitations:10m  rate=20r/m;
 limit_req_zone $binary_remote_addr zone=auth_reset:10m   rate=5r/m;
+limit_req_zone $binary_remote_addr zone=avatars:10m     rate=10r/s;
 limit_req_status 429;
 
 upstream http_frontend {
@@ -229,6 +230,25 @@ server {
         add_header X-Content-Type-Options nosniff always;
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header Retry-After "60" always;
+    }
+
+    # Avatars are public, content-addressed (the key rotates on every upload), so
+    # the backend's long-lived Cache-Control must not be overridden with no-store.
+    location ^~ /api/avatars/ {
+        # Cached clients rarely hit this; the burst covers a cold board loading every member's avatar at once.
+        limit_req zone=avatars burst=100 nodelay;
+
+        proxy_pass http://http_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Never trust a client-supplied forwarded host (discovery-URL poisoning).
+        proxy_set_header X-Forwarded-Host "";
+
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
     }
 
     location /api/ {

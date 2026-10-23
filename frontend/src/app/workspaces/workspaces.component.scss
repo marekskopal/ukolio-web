@@ -161,6 +161,12 @@
     font-size: $font-size-13;
 }
 
+.member-identity {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+}
+
 .member-email {
     margin-left: $space-2;
     color: $color-text-subtle;

@@ -14,6 +14,7 @@ export interface AdminUser {
     workspaceCount: number;
     ownedWorkspaceCount: number;
     lastLoginAt: string | null;
+    avatarUrl: string | null;
 }
 
 export interface AdminWorkspace {

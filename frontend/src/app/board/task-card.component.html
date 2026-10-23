@@ -80,6 +80,6 @@
         </div>
     }
     @if (assignee(); as a) {
-        <span class="task-card-assignee" [title]="a.name">{{ memberInitials(a.name) }}</span>
+        <span class="task-card-assignee" [title]="a.name"><uk-avatar [name]="a.name" [avatarUrl]="a.avatarUrl" /></span>
     }
 </div>

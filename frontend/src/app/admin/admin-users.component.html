@@ -36,7 +36,12 @@
                 @for (u of filtered(); track u.id) {
                     <tr>
                         <td>{{ u.email }}</td>
-                        <td>{{ u.name }}</td>
+                        <td>
+                            <span class="user-identity">
+                                <span class="uk-avatar" aria-hidden="true"><uk-avatar [name]="u.name" [avatarUrl]="u.avatarUrl" /></span>
+                                {{ u.name }}
+                            </span>
+                        </td>
                         <td>
                             <span class="role-chip role-chip--{{ u.systemRole.toLowerCase() }}">{{ ('app.admin.users.systemRole.' + u.systemRole) | translate }}</span>
                         </td>

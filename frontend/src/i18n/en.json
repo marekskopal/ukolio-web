@@ -738,6 +738,17 @@
             "themeSystem": "System",
             "themeLight": "Light",
             "themeDark": "Dark",
+            "avatar": {
+                "title": "Profile picture",
+                "description": "Shown next to your name on cards, comments and member lists.",
+                "upload": "Upload picture",
+                "change": "Change picture",
+                "uploading": "Uploading…",
+                "remove": "Remove",
+                "hint": "JPEG, PNG or WebP, up to 1 MB. It will be cropped to a square.",
+                "errorType": "Choose a JPEG, PNG or WebP image.",
+                "errorSize": "The image is larger than 1 MB."
+            },
             "changePassword": {
                 "title": "Change password",
                 "description": "Use a strong password with a mix of upper and lower case letters and at least one digit.",

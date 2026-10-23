@@ -3,6 +3,7 @@ import {Tag} from '@app/models/tag';
 import {Task} from '@app/models/task';
 import {WorkspaceMember} from '@app/models/workspace';
 import {pickReadableForeground} from '@app/shared/color-contrast';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {TranslatePipe} from '@ngx-translate/core';
 
 const MAX_VISIBLE_TAGS = 3;
@@ -10,7 +11,7 @@ const MAX_VISIBLE_TAGS = 3;
 @Component({
     selector: 'uk-task-card',
     standalone: true,
-    imports: [TranslatePipe],
+    imports: [AvatarComponent, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './task-card.component.html',
     styleUrl: './task-card.component.scss',
@@ -25,13 +26,6 @@ export class TaskCardComponent {
         if (id === null) return null;
         return this.members().find((m) => m.userId === id) ?? null;
     });
-
-    protected memberInitials(name: string): string {
-        const parts = name.trim().split(/\s+/);
-        if (parts.length === 0 || parts[0] === '') return '?';
-        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
 
     protected readonly visibleTags = computed<Tag[]>(() => this.taskTags().slice(0, MAX_VISIBLE_TAGS));
 

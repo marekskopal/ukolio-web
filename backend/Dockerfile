@@ -17,7 +17,9 @@ RUN install-php-extensions \
     sockets \
     zip \
     igbinary \
-    memcached
+    memcached \
+    gd \
+    exif
 
 # curl/tzdata/supervisor for the runtime; supercronic runs the in-container cron
 # (see docker/cron.d/ukolio); nodejs-libs provides the libnode that v8js.so links

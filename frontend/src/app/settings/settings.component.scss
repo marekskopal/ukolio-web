@@ -94,3 +94,38 @@
 .danger-row-action {
     flex: 0 0 auto;
 }
+
+.avatar-row {
+    display: flex;
+    align-items: center;
+    gap: $space-5;
+}
+
+.avatar-preview {
+    width: 64px;
+    height: 64px;
+    font-size: $font-size-20;
+}
+
+.avatar-actions {
+    display: flex;
+    gap: $space-2;
+}
+
+// The native file input is hidden; the wrapping <label class="btn"> is the click target.
+.avatar-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.avatar-error {
+    color: $color-danger;
+}

@@ -11,6 +11,7 @@ use Ukolio\Model\Entity\Enum\SystemRoleEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkspaceUserRepository;
+use Ukolio\Service\Avatar\AvatarServiceInterface;
 use Ukolio\Service\Provider\EventProviderInterface;
 
 final readonly class CurrentUserDeletionService implements CurrentUserDeletionServiceInterface
@@ -21,6 +22,7 @@ final readonly class CurrentUserDeletionService implements CurrentUserDeletionSe
 		private AdminServiceInterface $adminService,
 		private EventProviderInterface $eventProvider,
 		private LoggerInterface $logger,
+		private AvatarServiceInterface $avatarService,
 	) {
 	}
 
@@ -60,5 +62,6 @@ final readonly class CurrentUserDeletionService implements CurrentUserDeletionSe
 		]);
 
 		$this->userRepository->delete($user);
+		$this->avatarService->deleteObject($user);
 	}
 }

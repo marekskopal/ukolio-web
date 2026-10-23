@@ -23,6 +23,8 @@ use Ukolio\Service\Auth\PermissionChecker;
 use Ukolio\Service\Auth\PermissionCheckerInterface;
 use Ukolio\Service\Auth\UserDataExportService;
 use Ukolio\Service\Auth\UserDataExportServiceInterface;
+use Ukolio\Service\Avatar\AvatarService;
+use Ukolio\Service\Avatar\AvatarServiceInterface;
 use Ukolio\Service\Notification\NotificationDispatcher;
 use Ukolio\Service\Notification\NotificationDispatcherInterface;
 use Ukolio\Service\Provider\BulkTaskProvider;
@@ -121,6 +123,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 			AdminServiceInterface::class,
 			CurrentUserDeletionServiceInterface::class,
 			UserDataExportServiceInterface::class,
+			AvatarServiceInterface::class,
 			InvitationProviderInterface::class,
 			PasswordResetProviderInterface::class,
 			EmailVerificationProviderInterface::class,
@@ -178,6 +181,7 @@ final class DomainServiceProvider extends AbstractServiceProvider
 		$c->add(AdminServiceInterface::class, AdminService::class);
 		$c->add(CurrentUserDeletionServiceInterface::class, CurrentUserDeletionService::class);
 		$c->add(UserDataExportServiceInterface::class, UserDataExportService::class);
+		$c->add(AvatarServiceInterface::class, AvatarService::class);
 		$c->add(TranslatorServiceInterface::class, static fn (): TranslatorService => new TranslatorService(
 			translationsDir: __DIR__ . '/../../../translations',
 		));

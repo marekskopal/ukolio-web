@@ -23,6 +23,7 @@ import {BulkOp, BulkResult, TaskService} from '@app/services/task.service';
 import {WorkflowService} from '@app/services/workflow.service';
 import {WorkspaceService} from '@app/services/workspace.service';
 import {pickReadableForeground} from '@app/shared/color-contrast';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
 import {CalendarTaskFilters, TaskCalendarComponent} from '@app/tasks/task-calendar.component';
 import {TaskTimelineComponent} from '@app/tasks/task-timeline.component';
@@ -57,7 +58,7 @@ interface QueryParams {
     standalone: true,
     imports: [
         ReactiveFormsModule, PaginationComponent, TaskDetailDrawerComponent,
-        TaskCalendarComponent, TaskTimelineComponent, TranslatePipe,
+        TaskCalendarComponent, TaskTimelineComponent, TranslatePipe, AvatarComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './tasks-grid.component.html',
@@ -758,11 +759,9 @@ export class TasksGridComponent implements OnInit {
         return this.memberById().get(userId)?.name ?? '';
     }
 
-    protected memberInitials(name: string): string {
-        const parts = name.trim().split(/\s+/);
-        if (parts.length === 0 || parts[0] === '') return '?';
-        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    protected memberAvatarUrl(userId: number | null): string | null {
+        if (userId === null) return null;
+        return this.memberById().get(userId)?.avatarUrl ?? null;
     }
 
     protected tagsForTask(taskTagIds: number[] | undefined): Tag[] {

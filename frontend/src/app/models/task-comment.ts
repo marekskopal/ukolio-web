@@ -3,6 +3,7 @@ export interface TaskComment {
     taskId: number;
     authorId: number;
     authorName: string;
+    authorAvatarUrl: string | null;
     body: string;
     createdByAgent: boolean;
     mcpClientId: string | null;

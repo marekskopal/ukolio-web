@@ -15,4 +15,5 @@ export interface User {
     systemRole: SystemRole;
     emailVerified: boolean;
     onboardingCompletedAt: string | null;
+    avatarUrl: string | null;
 }

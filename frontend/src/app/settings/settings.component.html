@@ -5,6 +5,39 @@
     </header>
 
     <section class="settings-section">
+        <h2 class="uk-h3 settings-section-title">{{ 'app.settings.avatar.title' | translate }}</h2>
+        <p class="uk-caption settings-section-subtitle">{{ 'app.settings.avatar.description' | translate }}</p>
+
+        @if (user(); as u) {
+            <div class="avatar-row">
+                <span class="uk-avatar avatar-preview" aria-hidden="true">
+                    <uk-avatar [name]="u.name.trim() || u.email" [avatarUrl]="u.avatarUrl" />
+                </span>
+                <div class="avatar-actions">
+                    <label class="btn btn-secondary" [class.is-disabled]="avatarBusy()">
+                        {{ (avatarBusy() ? 'app.settings.avatar.uploading' : (u.avatarUrl ? 'app.settings.avatar.change' : 'app.settings.avatar.upload')) | translate }}
+                        <input
+                            type="file"
+                            class="avatar-input"
+                            accept="image/jpeg,image/png,image/webp"
+                            [disabled]="avatarBusy()"
+                            (change)="onAvatarSelected($event)"
+                        />
+                    </label>
+                    @if (u.avatarUrl) {
+                        <button type="button" class="btn btn-ghost" [disabled]="avatarBusy()" (click)="onAvatarRemove()">
+                            {{ 'app.settings.avatar.remove' | translate }}
+                        </button>
+                    }
+                </div>
+            </div>
+            <p class="field-hint" [class.avatar-error]="avatarError()">
+                {{ (avatarError() ?? 'app.settings.avatar.hint') | translate }}
+            </p>
+        }
+    </section>
+
+    <section class="settings-section">
         <h2 class="uk-h3 settings-section-title">{{ 'app.settings.changePassword.title' | translate }}</h2>
         <p class="uk-caption settings-section-subtitle">{{ 'app.settings.changePassword.description' | translate }}</p>
 

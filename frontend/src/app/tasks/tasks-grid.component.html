@@ -533,7 +533,7 @@
                         <td class="td-assignee">
                             @if (task.assigneeId !== null && memberName(task.assigneeId)) {
                                 <span class="assignee-cell">
-                                    <span class="assignee-cell-avatar" aria-hidden="true">{{ memberInitials(memberName(task.assigneeId)) }}</span>
+                                    <span class="assignee-cell-avatar" aria-hidden="true"><uk-avatar [name]="memberName(task.assigneeId)" [avatarUrl]="memberAvatarUrl(task.assigneeId)" /></span>
                                     <span>{{ memberName(task.assigneeId) }}</span>
                                 </span>
                             } @else {

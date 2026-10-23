@@ -26,6 +26,20 @@ export class CurrentUserService {
         return user;
     }
 
+    public async uploadAvatar(file: File): Promise<User> {
+        const body = new FormData();
+        body.append('file', file);
+        const user = await firstValueFrom(this.http.post<User>(`${environment.apiUrl}/current-user/avatar`, body));
+        this.currentUser.set(user);
+        return user;
+    }
+
+    public async removeAvatar(): Promise<User> {
+        const user = await firstValueFrom(this.http.delete<User>(`${environment.apiUrl}/current-user/avatar`));
+        this.currentUser.set(user);
+        return user;
+    }
+
     public async exportData(): Promise<Blob> {
         return firstValueFrom(this.http.get(`${environment.apiUrl}/current-user/export`, {
             responseType: 'blob',

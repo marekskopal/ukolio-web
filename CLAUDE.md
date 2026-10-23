@@ -42,7 +42,7 @@ Frontend code is base-href-agnostic (e.g. asset URLs resolve via
 - `Workspace` (owner, name) — top-level tenant; users belong to one or more workspaces.
 - `WorkspaceUser` (workspace, user, role ∈ Owner/Admin/Member) — membership.
 - `Invitation` (workspace, inviter, email, tokenHash, role, expiresAt, acceptedAt?) — pending invites.
-- `User` (email, password, name, currentWorkspaceId?, systemRole ∈ User/SystemAdmin, locale, lastLoginAt?) — `currentWorkspaceId` scopes data; `systemRole = SystemAdmin` grants global admin. `lastLoginAt` is stamped when the user proves their identity (password or Google login), not on token refresh, and surfaces as the "Last login" column in the admin user list.
+- `User` (email, password, name, currentWorkspaceId?, systemRole ∈ User/SystemAdmin, locale, lastLoginAt?, avatarKey?) — `currentWorkspaceId` scopes data; `systemRole = SystemAdmin` grants global admin. `lastLoginAt` is stamped when the user proves their identity (password or Google login), not on token refresh, and surfaces as the "Last login" column in the admin user list. `avatarKey` (U-79) is a random token naming the S3 object `avatars/{userId}/{avatarKey}.webp`; null = initials. It rotates on every upload, so it doubles as the cache-buster in the public avatar URL.
 - `Project` (workspace, name, description) → has one `Workflow`, many `Tasks`, many `ProjectField` attachments.
 - `Workflow` (project, name) → has many `Status`.
 - `Status` (workflow, name, color, position, type ∈ Start/Normal/Finish).
@@ -95,6 +95,7 @@ All routes live in `Ukolio\Route\Routes` (single enum). Highlights:
 
 - `POST /api/authentication/{login,logout,sign-up,refresh-token}` — `logout` is open and expires the HttpOnly Mercure subscriber cookie (web JWTs are stateless; it does not revoke them).
 - `GET/PATCH /api/current-user`
+- Avatars (U-79): `POST /api/current-user/avatar` (multipart `file`; jpg/png/webp ≤ 1 MB, EXIF-rotated, center-cropped and re-encoded to 256×256 webp by `AvatarService` via ext-gd), `DELETE /api/current-user/avatar` (back to initials). `GET /api/avatars/{userId}/{avatarKey}` is **open** (prefix-matched in `AuthorizationMiddleware` — `<img src>` can't send the bearer token, and the bucket is private) and served `Cache-Control: immutable`; the proxy has a dedicated `/api/avatars/` location so its `/api/` `no-store` doesn't override that. `avatarUrl` rides on `UserDto`, `WorkspaceMemberDto`, `AdminUserDto`, and `TaskCommentDto.authorAvatarUrl`; the frontend renders it through `<uk-avatar>` (`shared/components/avatar/`), which falls back to initials when there is no URL or the image fails to load. Deleting a user deletes the object.
 - `GET/POST /api/workspaces`, `PUT/DELETE /api/workspaces/{id}`, plus `/switch`, `/members`, `/transfer-ownership`, `/invitations`, `/fields`, `/mcp-clients`, `/events`, `/agent-stats`.
 - `GET/POST/PUT/DELETE /api/invitations/...`
 - `GET/POST/PUT/DELETE /api/projects[/{id}]`, plus `/board`, `/events`, `/workflow`, `/tasks`, `/fields`.

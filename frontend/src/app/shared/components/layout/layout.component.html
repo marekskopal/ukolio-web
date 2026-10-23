@@ -109,7 +109,11 @@
                 aria-haspopup="menu"
                 [attr.aria-label]="'app.nav.openUserMenu' | translate"
             >
-                {{ userInitials() }}
+                @if (user(); as u) {
+                    <uk-avatar [name]="u.name.trim() || u.email" [avatarUrl]="u.avatarUrl" />
+                } @else {
+                    ·
+                }
             </button>
             @if (userMenuOpen()) {
                 <div class="menu menu--right" role="menu">

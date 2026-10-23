@@ -68,7 +68,8 @@
                                 <ul class="member-list">
                                     @for (member of members(); track member.userId) {
                                         <li class="member">
-                                            <div>
+                                            <div class="member-identity">
+                                                <span class="uk-avatar" aria-hidden="true"><uk-avatar [name]="member.name" [avatarUrl]="member.avatarUrl" /></span>
                                                 <strong>{{ member.name }}</strong>
                                                 <span class="member-email">{{ member.email }}</span>
                                             </div>

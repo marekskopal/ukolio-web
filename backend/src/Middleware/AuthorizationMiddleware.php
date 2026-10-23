@@ -46,6 +46,12 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 		Routes::OAuthClientInfo->value,
 	];
 
+	/** Parameterized open routes, matched as anchored patterns so nothing else under the same prefix opens up. */
+	private const array OpenRoutePatterns = [
+		// Routes::Avatar
+		'#^/api/avatars/\d+/[a-f0-9]+$#',
+	];
+
 	public function __construct(private UserProviderInterface $userProvider, private RealtimeOriginContextInterface $realtimeOriginContext,)
 	{
 	}
@@ -54,7 +60,7 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 	{
 		$this->captureOriginClientId($request);
 
-		if (in_array($request->getUri()->getPath(), self::OpenRoutes, strict: true)) {
+		if ($this->isOpenRoute($request->getUri()->getPath())) {
 			return $handler->handle($request);
 		}
 
@@ -154,5 +160,20 @@ final readonly class AuthorizationMiddleware implements MiddlewareInterface
 	private function tokenVersion(object $token): int
 	{
 		return isset($token->tv) && is_int($token->tv) ? $token->tv : 0;
+	}
+
+	private function isOpenRoute(string $path): bool
+	{
+		if (in_array($path, self::OpenRoutes, strict: true)) {
+			return true;
+		}
+
+		foreach (self::OpenRoutePatterns as $pattern) {
+			if (preg_match($pattern, $path) === 1) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

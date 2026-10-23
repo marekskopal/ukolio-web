@@ -12,6 +12,7 @@ export interface WorkspaceMember {
     name: string;
     email: string;
     role: WorkspaceRole;
+    avatarUrl: string | null;
 }
 
 export interface Invitation {

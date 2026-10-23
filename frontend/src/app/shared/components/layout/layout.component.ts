@@ -11,6 +11,7 @@ import {PermissionsService} from '@app/services/permissions.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {ThemeService} from '@app/services/theme.service';
 import {WorkspaceService} from '@app/services/workspace.service';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {BrandLogoComponent} from '@app/shared/components/brand-logo/brand-logo.component';
 import {NotificationBellComponent} from '@app/shared/components/notification-bell/notification-bell.component';
 import {SearchPopoverComponent} from '@app/shared/components/search-popover/search-popover.component';
@@ -19,7 +20,10 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 @Component({
     selector: 'uk-layout',
     standalone: true,
-    imports: [BrandLogoComponent, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, SearchPopoverComponent, NotificationBellComponent],
+    imports: [
+        AvatarComponent, BrandLogoComponent, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe,
+        SearchPopoverComponent, NotificationBellComponent,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss',
@@ -50,16 +54,6 @@ export class LayoutComponent implements OnInit {
     protected readonly workspaceInitial = computed<string>(() => {
         const name = this.currentWorkspace()?.name?.trim() ?? '';
         return name.length > 0 ? name.charAt(0).toUpperCase() : '·';
-    });
-    protected readonly userInitials = computed<string>(() => {
-        const u = this.user();
-        if (!u) {
-            return '·';
-        }
-        const source = (u.name?.trim() ?? '') || u.email;
-        const parts = source.split(/[\s@.]+/).filter((p) => p.length > 0);
-        const letters = parts.slice(0, 2).map((p) => p.charAt(0).toUpperCase()).join('');
-        return letters.length > 0 ? letters : '·';
     });
     protected readonly switcherOpen = signal(false);
     protected readonly userMenuOpen = signal(false);

@@ -6,6 +6,7 @@ namespace Ukolio\Dto;
 
 use Ukolio\Model\Entity\Enum\ActorTypeEnum;
 use Ukolio\Model\Entity\TaskComment;
+use Ukolio\Service\Avatar\AvatarUrl;
 use const DATE_ATOM;
 
 final readonly class TaskCommentDto
@@ -15,6 +16,7 @@ final readonly class TaskCommentDto
 		public int $taskId,
 		public int $authorId,
 		public string $authorName,
+		public ?string $authorAvatarUrl,
 		public string $body,
 		public bool $createdByAgent,
 		public ?string $mcpClientId,
@@ -32,6 +34,7 @@ final readonly class TaskCommentDto
 			taskId: $comment->task->id,
 			authorId: $comment->author->id,
 			authorName: $comment->author->name,
+			authorAvatarUrl: AvatarUrl::forUser($comment->author),
 			body: $comment->body,
 			createdByAgent: $comment->actorType === ActorTypeEnum::Agent,
 			mcpClientId: $comment->mcpClientId,

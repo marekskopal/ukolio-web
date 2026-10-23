@@ -6,12 +6,13 @@ import {SystemRole} from '@app/models/user';
 import {AdminService, AdminUser} from '@app/services/admin.service';
 import {AlertService} from '@app/services/alert.service';
 import {CurrentUserService} from '@app/services/current-user.service';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-admin-users',
     standalone: true,
-    imports: [DatePipe, FormsModule, RouterLink, RouterLinkActive, TranslatePipe],
+    imports: [AvatarComponent, DatePipe, FormsModule, RouterLink, RouterLinkActive, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './admin-users.component.html',
     styleUrl: './admin.scss',

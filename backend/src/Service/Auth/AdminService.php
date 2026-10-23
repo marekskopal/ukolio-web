@@ -15,6 +15,7 @@ use Ukolio\Model\Repository\TaskRepository;
 use Ukolio\Model\Repository\UserRepository;
 use Ukolio\Model\Repository\WorkspaceRepository;
 use Ukolio\Model\Repository\WorkspaceUserRepository;
+use Ukolio\Service\Avatar\AvatarServiceInterface;
 use Ukolio\Service\Provider\EventProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use const FILTER_VALIDATE_EMAIL;
@@ -29,6 +30,7 @@ final readonly class AdminService implements AdminServiceInterface
 		private TaskRepository $taskRepository,
 		private WorkspaceProviderInterface $workspaceProvider,
 		private EventProviderInterface $eventProvider,
+		private AvatarServiceInterface $avatarService,
 	) {
 	}
 
@@ -187,6 +189,7 @@ final readonly class AdminService implements AdminServiceInterface
 		);
 
 		$this->userRepository->delete($target);
+		$this->avatarService->deleteObject($target);
 	}
 
 	public function deleteWorkspace(User $actor, Workspace $workspace): void

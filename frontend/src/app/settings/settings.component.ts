@@ -3,12 +3,13 @@ import {AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Val
 import {AlertService} from '@app/services/alert.service';
 import {AuthenticationService} from '@app/services/authentication.service';
 import {CurrentUserService} from '@app/services/current-user.service';
+import {AvatarComponent} from '@app/shared/components/avatar/avatar.component';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'uk-settings',
     standalone: true,
-    imports: [ReactiveFormsModule, TranslatePipe],
+    imports: [AvatarComponent, ReactiveFormsModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss',
@@ -20,6 +21,9 @@ export class SettingsComponent {
     private readonly translate = inject(TranslateService);
     private readonly alertService = inject(AlertService);
 
+    protected readonly user = this.currentUserService.currentUser;
+    protected readonly avatarBusy = signal(false);
+    protected readonly avatarError = signal<string | null>(null);
     protected readonly saving = signal(false);
     protected readonly exporting = signal(false);
     protected readonly deleting = signal(false);
@@ -34,6 +38,45 @@ export class SettingsComponent {
     protected readonly hasMismatch = computed<boolean>(() => {
         return this.form.errors?.['passwordMismatch'] === true && this.form.controls.confirmPassword.dirty;
     });
+
+    protected async onAvatarSelected(event: Event): Promise<void> {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
+        target.value = '';
+        if (!file) {
+            return;
+        }
+        // Mirrors the backend's checks so the common mistakes fail fast, without an upload.
+        if (!AVATAR_TYPES.includes(file.type)) {
+            this.avatarError.set('app.settings.avatar.errorType');
+            return;
+        }
+        if (file.size > AVATAR_MAX_BYTES) {
+            this.avatarError.set('app.settings.avatar.errorSize');
+            return;
+        }
+        this.avatarError.set(null);
+        this.avatarBusy.set(true);
+        try {
+            await this.currentUserService.uploadAvatar(file);
+        } catch {
+            // error interceptor
+        } finally {
+            this.avatarBusy.set(false);
+        }
+    }
+
+    protected async onAvatarRemove(): Promise<void> {
+        this.avatarError.set(null);
+        this.avatarBusy.set(true);
+        try {
+            await this.currentUserService.removeAvatar();
+        } catch {
+            // error interceptor
+        } finally {
+            this.avatarBusy.set(false);
+        }
+    }
 
     protected async onSubmit(): Promise<void> {
         if (this.form.invalid) {
@@ -88,6 +131,9 @@ export class SettingsComponent {
         }
     }
 }
+
+const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const AVATAR_MAX_BYTES = 1024 * 1024;
 
 function matchPasswords(control: AbstractControl): ValidationErrors | null {
     const password = control.get('newPassword')?.value;

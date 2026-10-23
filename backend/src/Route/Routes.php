@@ -23,6 +23,8 @@ enum Routes: string
 	case CurrentUserResendVerification = '/api/current-user/resend-verification';
 	case CurrentUserExport = '/api/current-user/export';
 	case CurrentUserOnboardingComplete = '/api/current-user/onboarding-complete';
+	case CurrentUserAvatar = '/api/current-user/avatar';
+	case Avatar = '/api/avatars/{userId:number}/{avatarKey:[a-f0-9]+}';
 
 	case Workspaces = '/api/workspaces';
 	case Workspace = '/api/workspaces/{workspaceId:number}';

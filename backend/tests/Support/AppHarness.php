@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Ukolio\Tests\Support;
 
+use League\Container\Container;
 use PDO;
 use Psr\Container\ContainerInterface;
 use Ukolio\App\Application;
 use Ukolio\App\ApplicationFactory;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Storage\FileStorageInterface;
 
 /**
  * Shared per-suite singleton: builds the Application once, exposes the
@@ -21,12 +23,28 @@ final class AppHarness
 	/** @var list<string>|null */
 	private static ?array $tables = null;
 
+	private static ?InMemoryFileStorage $fileStorage = null;
+
 	public static function initialize(): void
 	{
 		if (self::$application !== null) {
 			return;
 		}
 		self::$application = ApplicationFactory::create();
+
+		// The suite has no S3 endpoint; swap object storage for an in-memory fake before anything resolves it.
+		$container = self::$application->container;
+		assert($container instanceof Container);
+		self::$fileStorage = new InMemoryFileStorage();
+		$container->extend(FileStorageInterface::class)->setConcrete(self::$fileStorage);
+	}
+
+	public static function fileStorage(): InMemoryFileStorage
+	{
+		if (self::$fileStorage === null) {
+			throw new \LogicException('AppHarness not initialized; tests bootstrap missed.');
+		}
+		return self::$fileStorage;
 	}
 
 	public static function app(): Application
@@ -77,6 +95,7 @@ final class AppHarness
 		$pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
 
 		self::app()->dbContext->resetOrmState();
+		self::fileStorage()->clear();
 
 		// The shared container reuses mutable, per-request contexts; production resets these at the
 		// start of every request (frankenphp-worker.php). Mirror that so an Agent actor set by an

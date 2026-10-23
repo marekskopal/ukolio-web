@@ -6,6 +6,7 @@
     "require": {
         "php": ">=8.5",
         "ext-filter": "*",
+        "ext-gd": "*",
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "async-aws/s3": "^3.3",

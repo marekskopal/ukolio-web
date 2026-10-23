@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\Dto;
 
 use Ukolio\Model\Entity\User;
+use Ukolio\Service\Avatar\AvatarUrl;
 use const DATE_ATOM;
 
 final readonly class AdminUserDto
@@ -18,6 +19,7 @@ final readonly class AdminUserDto
 		public int $workspaceCount,
 		public int $ownedWorkspaceCount,
 		public ?string $lastLoginAt,
+		public ?string $avatarUrl,
 	) {
 	}
 
@@ -32,6 +34,7 @@ final readonly class AdminUserDto
 			workspaceCount: $workspaceCount,
 			ownedWorkspaceCount: $ownedWorkspaceCount,
 			lastLoginAt: $user->lastLoginAt?->format(DATE_ATOM),
+			avatarUrl: AvatarUrl::forUser($user),
 		);
 	}
 }

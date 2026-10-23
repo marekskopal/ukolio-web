@@ -6,6 +6,7 @@ namespace Ukolio\Dto;
 
 use DateTimeImmutable;
 use Ukolio\Model\Entity\User;
+use Ukolio\Service\Avatar\AvatarUrl;
 
 final readonly class UserDto
 {
@@ -20,6 +21,7 @@ final readonly class UserDto
 		public string $systemRole,
 		public bool $emailVerified,
 		public ?string $onboardingCompletedAt,
+		public ?string $avatarUrl,
 	) {
 	}
 
@@ -36,6 +38,7 @@ final readonly class UserDto
 			systemRole: $user->systemRole->value,
 			emailVerified: $user->emailVerified,
 			onboardingCompletedAt: $user->onboardingCompletedAt?->format(DateTimeImmutable::ATOM),
+			avatarUrl: AvatarUrl::forUser($user),
 		);
 	}
 }

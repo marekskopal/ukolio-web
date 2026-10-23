@@ -38,6 +38,10 @@ class User extends AEntity
 	#[Column(type: Type::Int, nullable: true, default: null)]
 	public ?int $defaultSavedViewId = null;
 
+	/** Random token naming the current avatar object (`avatars/{id}/{key}.webp`); null = initials. */
+	#[Column(type: Type::String, size: 32, nullable: true, default: null)]
+	public ?string $avatarKey = null;
+
 	public function __construct(
 		#[Column(type: Type::String)]
 		public string $email,
