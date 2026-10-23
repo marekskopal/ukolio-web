@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-23
+
+### Added
+
+- **User avatars.** Upload a profile picture (JPEG, PNG, or WebP, up to 1 MB)
+  in Settings, or remove it to go back to initials. The backend fixes EXIF
+  rotation, crops the image to a centered square, and re-encodes it to a
+  256×256 WebP, which also strips metadata such as location. Pictures appear
+  on board cards, in the task drawer (assignee, mentions), on comments, in the
+  tasks grid, in workspace member lists, in the admin user list, and in the
+  top bar. `avatarUrl` is added to the current-user, workspace-member, and
+  admin-user responses, and comments carry `authorAvatarUrl`.
+  Images are served from `GET /api/avatars/{userId}/{key}` without
+  authentication, because `<img>` can't send the bearer token and the bucket
+  stays private. The key changes on every upload, so responses are cached as
+  immutable. nginx serves the route from its own rate-limited location.
+  **Upgrade notes:** rebuild the backend image (it now installs the `gd` and
+  `exif` PHP extensions) and the proxy image, then run the migrations.
+- The open task is reflected in the URL as `?task=<CODE>` on the board and on
+  every Tasks view (list, calendar, timeline). Opening, closing, a pasted link,
+  and Back/Forward all keep the drawer in sync.
+- Clicking the task code in the drawer header copies the task's board link to
+  the clipboard.
+
+### Fixed
+
+- Links in notification emails, the notification bell, and global search now
+  open the task they point to. Opening a related task from another project
+  switches the board to that project.
+
 ## [1.3.1] - 2026-10-21
 
 ### Security
@@ -215,7 +245,8 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
-[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.4.0
 [1.3.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.1
 [1.3.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.0
 [1.2.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.2.0
