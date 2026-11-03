@@ -9,7 +9,9 @@ use RuntimeException;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Mcp\Tool\ProjectTools;
 use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
+use Ukolio\Model\Entity\Project;
 use Ukolio\Model\Entity\User;
+use Ukolio\Model\Entity\Workspace;
 use Ukolio\Service\Actor\ActorContextInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Tests\Support\AppHarness;
@@ -117,21 +119,69 @@ final class ProjectToolsTest extends IntegrationTestCase
 
 	public function testMemberCannotUpdateProject(): void
 	{
+		[$tools, $project] = $this->bootAsMemberWithProject();
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('do not have permission');
+		$tools->updateProject($project->id, name: 'Hijacked');
+	}
+
+	public function testMemberCannotCreateProject(): void
+	{
+		[$tools] = $this->bootAsMemberWithProject();
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('do not have permission');
+		$tools->createProject('Spam');
+	}
+
+	public function testMemberCannotDeleteProject(): void
+	{
+		[$tools, $project] = $this->bootAsMemberWithProject();
+
+		try {
+			$tools->deleteProject($project->id);
+			self::fail('Expected a permission error.');
+		} catch (RuntimeException $e) {
+			self::assertStringContainsString('do not have permission', $e->getMessage());
+		}
+
+		self::assertCount(1, $tools->listProjects()->projects);
+	}
+
+	public function testAdminCanCreateAndDeleteProject(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$admin = Fixture::createUser(email: 'admin@example.com');
+		Fixture::addMember($workspace, $admin, WorkspaceRoleEnum::Admin);
+		$this->switchWorkspace($admin, $workspace);
+
+		$tools = $this->bootMcpAs($admin);
+		$project = $tools->createProject('Apollo');
+		$tools->deleteProject($project->id);
+
+		self::assertCount(0, $tools->listProjects()->projects);
+	}
+
+	/** @return array{ProjectTools, Project} */
+	private function bootAsMemberWithProject(): array
+	{
 		$owner = Fixture::createUser();
 		$workspace = Fixture::createWorkspace($owner);
 		$project = Fixture::createProject($owner, $workspace, 'Apollo');
 		$member = Fixture::createUser(email: 'member@example.com');
 		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+		$this->switchWorkspace($member, $workspace);
 
+		return [$this->bootMcpAs($member), $project];
+	}
+
+	private function switchWorkspace(User $user, Workspace $workspace): void
+	{
 		$workspaceProvider = AppHarness::container()->get(WorkspaceProviderInterface::class);
 		assert($workspaceProvider instanceof WorkspaceProviderInterface);
-		$workspaceProvider->switchCurrentWorkspace($member, $workspace);
-
-		$tools = $this->bootMcpAs($member);
-
-		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessageIsOrContains('do not have permission');
-		$tools->updateProject($project->id, name: 'Hijacked');
+		$workspaceProvider->switchCurrentWorkspace($user, $workspace);
 	}
 
 	public function testDeleteProjectRemovesIt(): void

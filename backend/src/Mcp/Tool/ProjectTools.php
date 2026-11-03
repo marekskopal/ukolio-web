@@ -92,7 +92,12 @@ final readonly class ProjectTools
 	public function createProject(string $name, ?string $description = null): McpProjectDto
 	{
 		$workspace = $this->requireWorkspace();
-		$project = $this->projectProvider->createProject($this->userContext->getUser(), $workspace, $name, $description);
+		$user = $this->userContext->getUser();
+		if (!$this->permissionChecker->canManageProjects($user, $workspace)) {
+			throw new RuntimeException('You do not have permission to create projects.');
+		}
+
+		$project = $this->projectProvider->createProject($user, $workspace, $name, $description);
 
 		return McpProjectDto::fromEntity($project);
 	}
@@ -143,6 +148,10 @@ final readonly class ProjectTools
 	public function deleteProject(int $projectId): string
 	{
 		$workspace = $this->requireWorkspace();
+		if (!$this->permissionChecker->canManageProjects($this->userContext->getUser(), $workspace)) {
+			throw new RuntimeException('You do not have permission to delete projects.');
+		}
+
 		$project = $this->projectProvider->getProject($workspace, $projectId);
 		if ($project === null) {
 			throw new RuntimeException(sprintf('Project %d not found.', $projectId));
