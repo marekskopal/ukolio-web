@@ -425,6 +425,8 @@
             "created": "Project created.",
             "updated": "Project updated.",
             "edit": "Edit project",
+            "rename": "Rename project",
+            "renamed": "Project renamed.",
             "namePlaceholder": "Project name",
             "descriptionPlaceholder": "Optional description"
         },

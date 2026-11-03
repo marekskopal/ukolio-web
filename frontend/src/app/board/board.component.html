@@ -10,7 +10,37 @@
                 </svg>
                 <span>{{ board.project.name }}</span>
             </nav>
-            <h1 class="uk-h2 board-title">{{ board.project.name }}</h1>
+            @if (renaming()) {
+                <input
+                    #renameInput
+                    type="text"
+                    class="input board-title-input"
+                    maxlength="255"
+                    [value]="board.project.name"
+                    [attr.aria-label]="'app.projects.rename' | translate"
+                    (keydown.enter)="commitRename(renameInput.value)"
+                    (keydown.escape)="cancelRename()"
+                    (blur)="commitRename(renameInput.value)"
+                />
+            } @else {
+                <div class="board-title-row">
+                    <h1 class="uk-h2 board-title">{{ board.project.name }}</h1>
+                    @if (canManageProjects()) {
+                        <button
+                            type="button"
+                            class="btn btn-ghost btn-icon btn-xs board-title-edit"
+                            [disabled]="renameSaving()"
+                            [attr.aria-label]="'app.projects.rename' | translate"
+                            [attr.title]="'app.projects.rename' | translate"
+                            (click)="startRename()"
+                        >
+                            <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+                                <path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    }
+                </div>
+            }
         </div>
         <div class="board-header-actions">
             <div class="board-views" role="tablist">

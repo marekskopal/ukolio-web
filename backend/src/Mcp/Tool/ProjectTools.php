@@ -10,6 +10,7 @@ use Ukolio\Mcp\Dto\McpProjectDto;
 use Ukolio\Mcp\Dto\McpProjectListDto;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Model\Entity\Workspace;
+use Ukolio\Service\Auth\PermissionCheckerInterface;
 use Ukolio\Service\Provider\ProjectProviderInterface;
 use Ukolio\Service\Provider\WorkspaceProviderInterface;
 
@@ -19,6 +20,7 @@ final readonly class ProjectTools
 		private McpUserContextInterface $userContext,
 		private ProjectProviderInterface $projectProvider,
 		private WorkspaceProviderInterface $workspaceProvider,
+		private PermissionCheckerInterface $permissionChecker,
 	) {
 	}
 
@@ -91,6 +93,43 @@ final readonly class ProjectTools
 	{
 		$workspace = $this->requireWorkspace();
 		$project = $this->projectProvider->createProject($this->userContext->getUser(), $workspace, $name, $description);
+
+		return McpProjectDto::fromEntity($project);
+	}
+
+	/**
+	 * Rename a project and/or change its description. Omitted parameters keep their current value; pass an empty
+	 * description to clear it. Renaming regenerates the project prefix from the new name, which changes the task
+	 * codes (e.g. "OLD-12" → "NEW-12") — the returned project carries the new prefix.
+	 *
+	 * @param int $projectId Project ID
+	 * @param string|null $name New project name (omit to keep the current name)
+	 * @param string|null $description New description in markdown (omit to keep, empty string to clear)
+	 */
+	#[McpTool(
+		name: 'update_project',
+		description: 'Rename a project and/or change its description. Renaming regenerates the project prefix used in task codes.',
+	)]
+	public function updateProject(int $projectId, ?string $name = null, ?string $description = null): McpProjectDto
+	{
+		$workspace = $this->requireWorkspace();
+		$user = $this->userContext->getUser();
+		if (!$this->permissionChecker->canManageProjects($user, $workspace)) {
+			throw new RuntimeException('You do not have permission to update projects.');
+		}
+
+		$project = $this->projectProvider->getProject($workspace, $projectId);
+		if ($project === null) {
+			throw new RuntimeException(sprintf('Project %d not found.', $projectId));
+		}
+
+		$newDescription = match (true) {
+			$description === null => $project->description,
+			trim($description) === '' => null,
+			default => $description,
+		};
+
+		$project = $this->projectProvider->updateProject($user, $project, $name ?? $project->name, $newDescription);
 
 		return McpProjectDto::fromEntity($project);
 	}

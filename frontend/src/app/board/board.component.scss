@@ -20,6 +20,7 @@
 
 .board-header-titles {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: $space-2;
     min-width: 0;
@@ -52,6 +53,36 @@
 
 .board-title {
     margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.board-title-row {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    min-width: 0;
+}
+
+// Hidden until the title row is hovered or the button itself is focused.
+.board-title-edit {
+    opacity: 0;
+    transition: opacity 120ms ease;
+
+    .board-title-row:hover &,
+    &:focus-visible {
+        opacity: 1;
+    }
+
+    @media (hover: none) {
+        opacity: 1;
+    }
+}
+
+.board-title-input {
+    width: min(36rem, 100%);
+    font-size: $font-size-20;
+    font-weight: 600;
 }
 
 // ─── View switcher (segmented control) ──────────────────────

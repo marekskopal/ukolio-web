@@ -425,6 +425,8 @@
             "created": "Projekt vytvořen.",
             "updated": "Projekt aktualizován.",
             "edit": "Upravit projekt",
+            "rename": "Přejmenovat projekt",
+            "renamed": "Projekt přejmenován.",
             "namePlaceholder": "Název projektu",
             "descriptionPlaceholder": "Volitelný popis"
         },

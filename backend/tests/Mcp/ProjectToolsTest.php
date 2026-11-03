@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Ukolio\Tests\Mcp;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use RuntimeException;
 use Ukolio\Mcp\McpUserContextInterface;
 use Ukolio\Mcp\Tool\ProjectTools;
+use Ukolio\Model\Entity\Enum\WorkspaceRoleEnum;
 use Ukolio\Model\Entity\User;
 use Ukolio\Service\Actor\ActorContextInterface;
+use Ukolio\Service\Provider\WorkspaceProviderInterface;
 use Ukolio\Tests\Support\AppHarness;
 use Ukolio\Tests\Support\Fixture;
 use Ukolio\Tests\Support\IntegrationTestCase;
@@ -52,8 +55,83 @@ final class ProjectToolsTest extends IntegrationTestCase
 
 		$tools = $this->bootMcpAs($user);
 
-		$this->expectException(\RuntimeException::class);
+		$this->expectException(RuntimeException::class);
 		$tools->getProject(9999);
+	}
+
+	public function testUpdateProjectRenamesAndRegeneratesPrefix(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace, 'Apollo');
+
+		$tools = $this->bootMcpAs($user);
+		$updated = $tools->updateProject($project->id, name: '  Zenith  ');
+
+		self::assertSame('Zenith', $updated->name);
+		self::assertSame('Z', $updated->prefix);
+		self::assertSame('Zenith', $tools->getProject($project->id)->name);
+	}
+
+	public function testUpdateProjectKeepsOmittedFieldsAndClearsEmptyDescription(): void
+	{
+		$user = Fixture::createUser();
+		Fixture::createWorkspace($user);
+		$tools = $this->bootMcpAs($user);
+		$project = $tools->createProject('Apollo', 'Original');
+
+		$updated = $tools->updateProject($project->id, description: 'Changed');
+		self::assertSame('Apollo', $updated->name);
+		self::assertSame('Changed', $updated->description);
+
+		$renamed = $tools->updateProject($project->id, name: 'Artemis');
+		self::assertSame('Changed', $renamed->description);
+
+		self::assertNull($tools->updateProject($project->id, description: '')->description);
+	}
+
+	public function testUpdateProjectRejectsBlankName(): void
+	{
+		$user = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($user);
+		$project = Fixture::createProject($user, $workspace, 'Apollo');
+
+		$tools = $this->bootMcpAs($user);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('name is required');
+		$tools->updateProject($project->id, name: '   ');
+	}
+
+	public function testUpdateProjectThrowsWhenNotFound(): void
+	{
+		$user = Fixture::createUser();
+		Fixture::createWorkspace($user);
+
+		$tools = $this->bootMcpAs($user);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('Project 9999 not found');
+		$tools->updateProject(9999, name: 'Nope');
+	}
+
+	public function testMemberCannotUpdateProject(): void
+	{
+		$owner = Fixture::createUser();
+		$workspace = Fixture::createWorkspace($owner);
+		$project = Fixture::createProject($owner, $workspace, 'Apollo');
+		$member = Fixture::createUser(email: 'member@example.com');
+		Fixture::addMember($workspace, $member, WorkspaceRoleEnum::Member);
+
+		$workspaceProvider = AppHarness::container()->get(WorkspaceProviderInterface::class);
+		assert($workspaceProvider instanceof WorkspaceProviderInterface);
+		$workspaceProvider->switchCurrentWorkspace($member, $workspace);
+
+		$tools = $this->bootMcpAs($member);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageIsOrContains('do not have permission');
+		$tools->updateProject($project->id, name: 'Hijacked');
 	}
 
 	public function testDeleteProjectRemovesIt(): void

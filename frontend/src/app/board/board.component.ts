@@ -1,5 +1,5 @@
 import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {TaskCardComponent} from '@app/board/task-card.component';
@@ -11,15 +11,18 @@ import {RealtimeEvent, TASK_EVENT_TYPES} from '@app/models/realtime-event';
 import {Status} from '@app/models/status';
 import {Tag} from '@app/models/tag';
 import {Task, TaskListItem} from '@app/models/task';
+import {AlertService} from '@app/services/alert.service';
 import {BoardService} from '@app/services/board.service';
 import {CurrentUserService} from '@app/services/current-user.service';
 import {FieldService} from '@app/services/field.service';
+import {PermissionsService} from '@app/services/permissions.service';
 import {PriorityService} from '@app/services/priority.service';
+import {ProjectService} from '@app/services/project.service';
 import {RealtimeService} from '@app/services/realtime.service';
 import {TagService} from '@app/services/tag.service';
 import {TaskService} from '@app/services/task.service';
 import {WorkspaceService} from '@app/services/workspace.service';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {combineLatest} from 'rxjs';
 
 interface Column {
@@ -46,6 +49,10 @@ export class BoardComponent implements OnInit {
     private readonly workspaceService = inject(WorkspaceService);
     private readonly currentUserService = inject(CurrentUserService);
     private readonly realtimeService = inject(RealtimeService);
+    private readonly projectService = inject(ProjectService);
+    private readonly permissionsService = inject(PermissionsService);
+    private readonly alertService = inject(AlertService);
+    private readonly translate = inject(TranslateService);
     private readonly destroyRef = inject(DestroyRef);
 
     private refreshTimer: ReturnType<typeof setTimeout> | null = null;
@@ -59,6 +66,11 @@ export class BoardComponent implements OnInit {
     protected readonly workspaceTags = signal<Tag[]>([]);
     protected readonly workspacePriorities = signal<Priority[]>([]);
     protected readonly members = this.workspaceService.currentMembers;
+
+    protected readonly canManageProjects = computed(() => this.permissionsService.canManageProjects(this.members()));
+    protected readonly renaming = signal(false);
+    protected readonly renameSaving = signal(false);
+    private readonly renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
     protected readonly drawerOpen = signal(false);
     protected readonly editingTask = signal<Task | null>(null);
@@ -141,6 +153,46 @@ export class BoardComponent implements OnInit {
         this.editingTask.set(task);
         this.defaultStatusId.set(null);
         queueMicrotask(() => this.drawerOpen.set(true));
+    }
+
+    protected startRename(): void {
+        if (!this.canManageProjects() || this.renameSaving()) return;
+        this.renaming.set(true);
+        setTimeout(() => {
+            const input = this.renameInput()?.nativeElement;
+            input?.focus();
+            input?.select();
+        });
+    }
+
+    protected cancelRename(): void {
+        this.renaming.set(false);
+    }
+
+    protected async commitRename(value: string): Promise<void> {
+        // Enter and the blur that follows both land here — only the first one acts.
+        if (!this.renaming()) return;
+        this.renaming.set(false);
+
+        const project = this.board()?.project;
+        const name = value.trim();
+        if (!project || name === '' || name === project.name) return;
+
+        this.renameSaving.set(true);
+        try {
+            const updated = await this.projectService.updateProject(project.id, name, project.description);
+            this.alertService.success(this.translate.instant('app.projects.renamed') as string);
+            if (updated.prefix !== project.prefix) {
+                // A new prefix changes every task code on the board — reload rather than patch.
+                await this.loadBoard();
+            } else {
+                this.board.update((board) => (board ? {...board, project: updated} : board));
+            }
+        } catch {
+            // error interceptor
+        } finally {
+            this.renameSaving.set(false);
+        }
     }
 
     private setTaskParam(code: string | null, replaceUrl = false): Promise<boolean> {

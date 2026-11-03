@@ -206,7 +206,7 @@ secret. Access token lifetime 1 h, refresh 30 d. Storage: `oauth_clients` and
 
 Tools live in `backend/src/Mcp/Tool/` (auto-discovered by basePath/scanDirs):
 
-- `ProjectTools` — list/find/get/create/delete projects
+- `ProjectTools` — list/find/get/create/update/delete projects (`update_project` renames and/or edits the description; Admin/Owner only — a rename regenerates the prefix, so task codes change)
 - `WorkflowTools` — list/find statuses for a project's workflow
 - `TaskTools` — list/find/get/create/update/move/archive/unarchive/duplicate/delete tasks (move accepts `statusId` or `statusName`; `list_tasks` hides archived unless `includeArchived: true`)
 - `TaskRelationTools` — `list_task_relations`, `link_tasks`, `unlink_tasks`, `create_subtask` (create + Parent-link in one call)
