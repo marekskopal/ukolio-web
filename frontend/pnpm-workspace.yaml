@@ -7,7 +7,6 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - vite@8.3.5
 overrides:
-  # Patch-level security overrides for exact upstream pins; drop once
-  # @angular/build and monaco-editor release with newer versions.
+  # Patch-level security override for an exact upstream pin; drop once
+  # monaco-editor releases with a newer dompurify.
   dompurify: 3.4.17
-  vite: 8.3.5
