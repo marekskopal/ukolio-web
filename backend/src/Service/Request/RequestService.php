@@ -55,13 +55,20 @@ final readonly class RequestService implements RequestServiceInterface
 	{
 		$body = $this->getRequestBody($request);
 
-		// DTO `fromArray` reads keys unguarded, so a missing key (warning promoted to
-		// ErrorException) or wrong type (TypeError/ValueError) is a malformed *client*
-		// request — surface it as 400, not a 500 with an error-level log entry.
+		// DTO `fromArray` reads keys unguarded, so a missing key (warning) or wrong type
+		// (TypeError/ValueError) is a malformed *client* request — surface it as 400, not a
+		// 500 with an error-level log entry. The warning is promoted here rather than relying
+		// on whichever global error handler is installed (Tracy in prod, PHPUnit in tests).
+		set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
+			throw new ErrorException($message, 0, $severity, $file, $line);
+		});
+
 		try {
 			return $dtoClass::fromArray($body);
 		} catch (TypeError | ValueError | ErrorException $e) {
 			throw new RuntimeException('Request body is missing required fields or has invalid field types.', 400, $e);
+		} finally {
+			restore_error_handler();
 		}
 	}
 }
