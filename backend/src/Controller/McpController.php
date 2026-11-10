@@ -80,6 +80,9 @@ final readonly class McpController
 
 		$sessionStore = new RedisSessionStore($this->redis, $this->sessionTtl());
 		$mcpServer = $this->server->build($sessionStore, $this->sessionLock);
+		// Bind MCP sessions to the authenticated user: the SDK answers 404 when a session id is
+		// replayed with another principal's token (our OAuth is not the SDK's, so it can't infer one).
+		$request = $request->withAttribute(StreamableHttpTransport::PRINCIPAL_ATTRIBUTE, 'user:' . $authorization->user->id);
 		$transport = new StreamableHttpTransport($request, middleware: [
 			new CorsMiddleware(),
 			new DnsRebindingProtectionMiddleware($this->allowedHosts()),

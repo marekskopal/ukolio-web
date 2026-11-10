@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ukolio\Mcp\Tool;
 
-use Mcp\Capability\Attribute\McpTool;
+use Mcp\Server\Capability\Attribute\McpTool;
 use RuntimeException;
 use Ukolio\Mcp\Dto\McpSearchHitDto;
 use Ukolio\Mcp\Dto\McpSearchResultDto;

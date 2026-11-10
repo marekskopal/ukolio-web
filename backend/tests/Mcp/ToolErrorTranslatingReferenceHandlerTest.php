@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Ukolio\Tests\Mcp;
 
 use MarekSkopal\ORM\Exception\QueryException;
-use Mcp\Capability\Registry\ElementReference;
-use Mcp\Capability\Registry\ReferenceHandlerInterface;
-use Mcp\Exception\ToolCallException;
+use Mcp\Server\Capability\Registry\ElementReference;
+use Mcp\Server\Capability\Registry\ReferenceHandlerInterface;
+use Mcp\Server\Exception\ToolCallException;
 use PDOException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

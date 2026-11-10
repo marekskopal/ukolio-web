@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c01eb8ff0c6a085a7da25597b1b673d",
+    "content-hash": "9d3566bd00191687f38b7c96fa2cd1ee",
     "packages": [
         {
             "name": "async-aws/core",
@@ -1055,26 +1055,25 @@
         },
         {
             "name": "mcp/sdk",
-            "version": "v0.9.0",
+            "version": "v0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/modelcontextprotocol/php-sdk.git",
-                "reference": "be71c78bc3bce25f50d6a7e592017b8af6a2120f"
+                "reference": "5701e69b3f8dcbaf481f8d1ee28a8796a0b7807f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/modelcontextprotocol/php-sdk/zipball/be71c78bc3bce25f50d6a7e592017b8af6a2120f",
-                "reference": "be71c78bc3bce25f50d6a7e592017b8af6a2120f",
+                "url": "https://api.github.com/repos/modelcontextprotocol/php-sdk/zipball/5701e69b3f8dcbaf481f8d1ee28a8796a0b7807f",
+                "reference": "5701e69b3f8dcbaf481f8d1ee28a8796a0b7807f",
                 "shasum": ""
             },
             "require": {
-                "ext-fileinfo": "*",
                 "opis/json-schema": "^2.4",
-                "php": "^8.1",
+                "php": "^8.2",
                 "php-http/discovery": "^1.20",
-                "phpdocumentor/reflection-docblock": "^5.6 || ^6.0",
+                "phpdocumentor/reflection-docblock": "^6.0",
                 "psr/clock": "^1.0",
-                "psr/container": "^1.0 || ^2.0",
+                "psr/container": "^1.1 || ^2.0",
                 "psr/event-dispatcher": "^1.0",
                 "psr/http-client": "^1.0",
                 "psr/http-factory": "^1.1",
@@ -1089,7 +1088,10 @@
                 "phpstan/phpstan": "2.3.0"
             },
             "require-dev": {
+                "amphp/amp": "^3.0",
+                "amphp/http-server": "^3.3",
                 "composer/semver": "^3.0",
+                "deptrac/deptrac": "^3.0",
                 "ext-openssl": "*",
                 "firebase/php-jwt": "^6.10 || ^7.0",
                 "laminas/laminas-httphandlerrunner": "^2.12",
@@ -1102,18 +1104,16 @@
                 "phpunit/phpunit": "^10.5",
                 "psr/cache": "^1.0 || ^2.0 || ^3.0",
                 "psr/simple-cache": "^2.0 || ^3.0",
+                "react/async": "^4.3",
+                "react/http": "^1.11",
+                "react/promise": "^3.0",
+                "revolt/event-loop": "^1.0",
                 "symfony/cache": "^5.4 || ^6.4 || ^7.3 || ^8.0",
                 "symfony/console": "^5.4 || ^6.4 || ^7.3 || ^8.0",
                 "symfony/finder": "^5.4 || ^6.4 || ^7.3 || ^8.0",
                 "symfony/http-client": "^5.4 || ^6.4 || ^7.3 || ^8.0",
                 "symfony/lock": "^5.4 || ^6.4 || ^7.3 || ^8.0",
                 "symfony/process": "^5.4 || ^6.4 || ^7.3 || ^8.0"
-            },
-            "suggest": {
-                "firebase/php-jwt": "Required for the JwtTokenValidator.",
-                "psr/cache-implementation": "Required for JwtTokenValidator::fromIssuer() to cache metadata and keys.",
-                "symfony/finder": "Required for file-based discovery.",
-                "symfony/lock": "Required for the SymfonyLockSessionLock."
             },
             "type": "library",
             "autoload": {
@@ -1142,10 +1142,10 @@
             "description": "Model Context Protocol SDK for Client and Server applications in PHP",
             "support": {
                 "issues": "https://github.com/modelcontextprotocol/php-sdk/issues",
-                "source": "https://github.com/modelcontextprotocol/php-sdk/tree/v0.9.0"
+                "source": "https://github.com/modelcontextprotocol/php-sdk/tree/v0.10.0"
             },
-            "time": "2026-10-18T14:29:29+00:00",
-            "published-time": "2026-10-18T14:45:02+00:00"
+            "time": "2026-11-10T17:11:02+00:00",
+            "published-time": "2026-11-10T17:17:23+00:00"
         },
         {
             "name": "meilisearch/meilisearch-php",
@@ -1602,16 +1602,16 @@
         },
         {
             "name": "opis/json-schema",
-            "version": "2.6.0",
+            "version": "2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opis/json-schema.git",
-                "reference": "8458763e0dd0b6baa310e04f1829fc73da4e8c8a"
+                "reference": "7d8685a78db131eb6a1571cc7b4db8f4b59e8628"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opis/json-schema/zipball/8458763e0dd0b6baa310e04f1829fc73da4e8c8a",
-                "reference": "8458763e0dd0b6baa310e04f1829fc73da4e8c8a",
+                "url": "https://api.github.com/repos/opis/json-schema/zipball/7d8685a78db131eb6a1571cc7b4db8f4b59e8628",
+                "reference": "7d8685a78db131eb6a1571cc7b4db8f4b59e8628",
                 "shasum": ""
             },
             "require": {
@@ -1661,10 +1661,10 @@
             ],
             "support": {
                 "issues": "https://github.com/opis/json-schema/issues",
-                "source": "https://github.com/opis/json-schema/tree/2.6.0"
+                "source": "https://github.com/opis/json-schema/tree/2.6.1"
             },
-            "time": "2025-10-17T12:46:48+00:00",
-            "published-time": "2025-10-17T12:48:22+00:00"
+            "time": "2026-11-06T04:25:16+00:00",
+            "published-time": "2026-11-06T04:35:54+00:00"
         },
         {
             "name": "opis/string",

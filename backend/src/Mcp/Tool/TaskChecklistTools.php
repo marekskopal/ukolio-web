@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Ukolio\Mcp\Tool;
 
 use DateTimeImmutable;
-use Mcp\Capability\Attribute\McpTool;
+use Mcp\Server\Capability\Attribute\McpTool;
 use RuntimeException;
 use Ukolio\Mcp\Dto\McpChecklistItemDto;
 use Ukolio\Mcp\Dto\McpChecklistListDto;

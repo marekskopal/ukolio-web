@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ukolio\Mcp\Server;
 
-use Mcp\Capability\Registry\ReferenceHandler;
-use Mcp\Server;
+use Mcp\Server\Capability\Registry\ReferenceHandler;
+use Mcp\Server\Server;
 use Mcp\Server\Session\SessionLockInterface;
 use Mcp\Server\Session\SessionStoreInterface;
 use Psr\Container\ContainerInterface;

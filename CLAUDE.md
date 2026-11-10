@@ -188,7 +188,9 @@ Sessions are persisted to Redis with a TTL of `MCP_SESSION_TTL` seconds
 (default 86400). Concurrent requests of one session are serialized by the SDK's
 opt-in session lock (`SymfonyLockSessionLock` on the same Redis, keys `mcp:lock:*`,
 wired in `InfrastructureServiceProvider`) — without it parallel tool calls in one
-session overwrite each other's session state.
+session overwrite each other's session state. Sessions are bound to the authenticated user:
+`McpController` sets `StreamableHttpTransport::PRINCIPAL_ATTRIBUTE` to `user:{id}`, so a session id
+replayed with another user's token gets `404` (SDK ≥ 0.10).
 
 Auth is **OAuth 2.1 with PKCE**. Discovery endpoints:
 

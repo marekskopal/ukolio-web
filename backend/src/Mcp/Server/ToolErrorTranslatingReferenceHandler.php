@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Ukolio\Mcp\Server;
 
 use MarekSkopal\ORM\Exception\ORMException;
-use Mcp\Capability\Registry\ElementReference;
-use Mcp\Capability\Registry\ReferenceHandlerInterface;
-use Mcp\Exception\ExceptionInterface;
-use Mcp\Exception\ToolCallException;
+use Mcp\Server\Capability\Registry\ElementReference;
+use Mcp\Server\Capability\Registry\ReferenceHandlerInterface;
+use Mcp\Server\Exception\ExceptionInterface;
+use Mcp\Server\Exception\ToolCallException;
 use PDOException;
 use RuntimeException;
 use Throwable;
