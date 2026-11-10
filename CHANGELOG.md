@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-10
+
+### Added
+
+- Admins and Owners can rename a project inline by clicking its title in the
+  board header. Agents get the matching MCP `update_project` tool, which
+  changes the name and/or description (Admin/Owner only). Renaming regenerates
+  the project prefix, so task codes change too (e.g. `OLD-12` → `NEW-12`).
+
+### Security
+
+- The MCP `create_project` and `delete_project` tools now require the
+  project-management permission (`canManageProjects`), as the web API does.
+  Before this, Members could create and delete projects over MCP.
+- MCP sessions are bound to the authenticated user (`mcp/sdk` 0.10). A
+  session id replayed with another user's token gets `404`.
+
+### Fixed
+
+- A request body missing a required key always returns `400`. Before this,
+  the response depended on which error handler was active.
+
+### Changed
+
+- Backend dependencies bumped: `mcp/sdk` 0.10 (with the namespace changes
+  that came with it) and `symfony/mercure` 0.10.
+- Frontend dependencies bumped within their major versions: Angular 22.2.5,
+  ngx-translate 18.1, `marked` 18.1.3, Vitest 5.1, Playwright 1.65, ESLint
+  10.14, and typescript-eslint 8.72.2.
+- Base images bumped within their major versions: FrankenPHP 1.13.5 (PHP
+  8.5.12), Node 24.22.2, nginx 1.31.8, Redis 8.10.3, Adminer 6.3.0, Mailpit
+  1.33, Composer 2.11.1, and `mlocati/php-extension-installer` 2.13.2.
+  **Upgrade notes:** rebuild the backend, frontend, and proxy images.
+
 ## [1.4.0] - 2026-10-23
 
 ### Added
@@ -246,6 +280,7 @@ first-class actors.
   than error level.
 
 [Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.4.0...HEAD
+[1.5.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.5.0
 [1.4.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.4.0
 [1.3.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.1
 [1.3.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.0
