@@ -218,15 +218,21 @@ export class BoardComponent implements OnInit {
         }
     }
 
-    private async loadWorkspaceTags(): Promise<void> {
-        let workspaceId = this.workspaceService.currentWorkspaceId();
-        if (workspaceId === null) {
-            try {
-                workspaceId = (await this.currentUserService.load()).currentWorkspaceId;
-            } catch {
-                workspaceId = null;
-            }
+    // On a fresh page load the workspace signal isn't populated yet, so fall back to the current user.
+    private async resolveCurrentWorkspaceId(): Promise<number | null> {
+        const workspaceId = this.workspaceService.currentWorkspaceId();
+        if (workspaceId !== null) {
+            return workspaceId;
         }
+        try {
+            return (await this.currentUserService.load()).currentWorkspaceId;
+        } catch {
+            return null;
+        }
+    }
+
+    private async loadWorkspaceTags(): Promise<void> {
+        const workspaceId = await this.resolveCurrentWorkspaceId();
         if (workspaceId === null) {
             this.workspaceTags.set([]);
             return;
@@ -239,7 +245,7 @@ export class BoardComponent implements OnInit {
     }
 
     private async loadWorkspacePriorities(): Promise<void> {
-        const workspaceId = this.workspaceService.currentWorkspaceId();
+        const workspaceId = await this.resolveCurrentWorkspaceId();
         if (workspaceId === null) {
             this.workspacePriorities.set([]);
             return;
