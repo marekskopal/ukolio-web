@@ -38,7 +38,7 @@
 | Frontend | Angular 22 (standalone components + signals), SCSS, ngx-translate |
 | Backend  | FrankenPHP, PHP 8.5, [`marekskopal/orm`](https://github.com/marekskopal/orm), [`marekskopal/router`](https://github.com/marekskopal/router), Symfony Mailer |
 | Scripting | Google V8 via [`ext-v8js`](https://github.com/phpv8/v8js) (ZTS build), isolated in a dedicated script-worker process |
-| Database | MariaDB 11.4 |
+| Database | MariaDB 12.3 LTS |
 | Cache    | Redis (sessions, rate limits, hot paths) + Memcached |
 | Queue    | RabbitMQ — async jobs (search indexing, email, etc.) |
 | Search   | Meilisearch — typo-tolerant full-text over tasks |
