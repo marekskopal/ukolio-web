@@ -112,13 +112,15 @@ services:
             - ./log:/app/log
 
     db:
-        image: mariadb:11.8
+        image: mariadb:12.3
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DATABASE}
             MYSQL_USER: ${MYSQL_USER}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            # Run mariadb-upgrade on start when the data dir is from an older version.
+            MARIADB_AUTO_UPGRADE: "1"
         healthcheck:
             test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
             interval: 10s
