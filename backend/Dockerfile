@@ -1,4 +1,4 @@
-FROM composer:2.11.1 AS composer
+FROM composer:2.11.2 AS composer
 FROM mlocati/php-extension-installer:2.13.2 AS php-extension-installer
 # Thread-safe (ZTS) v8js build, matching FrankenPHP's embedded ZTS PHP. Provides
 # ext-v8js for the low-code scripting sandbox (U-80); see php-v8js-docker. Pinned
