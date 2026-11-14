@@ -258,7 +258,7 @@ services:
             - ukolio_meilisearch:/meili_data
 
     mariadb-backup-aws:
-        image: marekskopal/mariadb-backup-aws:1.0.1
+        image: marekskopal/mariadb-backup-aws:1.0.2
         environment:
             DB_HOST: ${MYSQL_HOST}
             DB_DATABASE: ${MYSQL_DATABASE}
