@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-14
+
+### Fixed
+
+- The priority dropdown in the board's task drawer is no longer empty after
+  a page reload or when opening a task from a direct link
+  (`?task=<CODE>`). The board now waits for the current workspace before
+  loading priorities, as it already did for tags.
+
+### Changed
+
+- MariaDB upgraded to the 12.3 LTS (from 11.8). The `db` service sets
+  `MARIADB_AUTO_UPGRADE=1`, so `mariadb-upgrade` runs on the first start
+  against an existing data directory.
+- Node.js upgraded to the 26 LTS (26.13.1) for the frontend build image and
+  CI.
+- Backend dependencies bumped: `nette/caching` 4.0, PHPUnit 13.4.7, and
+  `laminas/laminas-httphandlerrunner` 2.15.
+- Frontend dependencies bumped: Angular 22.2.6 (CLI/CDK/build 22.2.7),
+  jsdom 31, `marked` 18.2, sass 1.108.2, and
+  `@analogjs/vite-plugin-angular` 2.9.7.
+- Base images bumped: Composer 2.11.2.
+
+**Upgrade notes:** back up the database before upgrading. MariaDB data
+upgraded to 12.3 can't be downgraded. Then rebuild the backend and frontend
+images and pull the new `mariadb` image.
+
 ## [1.5.0] - 2026-11-10
 
 ### Added
@@ -279,7 +306,8 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
-[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.5.1
 [1.5.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.5.0
 [1.4.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.4.0
 [1.3.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.3.1
