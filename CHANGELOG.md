@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-11-19
+
+### Changed
+
+- PHP upgraded to 8.5.13 (FrankenPHP 1.13.6), with the `php-v8js` script
+  extension rebuilt for it.
+- Backend dependencies bumped: `firebase/php-jwt` 7.2.2, `ramsey/uuid` 4.10,
+  PHPStan 2.3.7, and PHPUnit 13.4.8.
+- Frontend dependencies bumped: `@angular/cdk` 22.3, `marked` 18.2.1,
+  angular-eslint 22.8, typescript-eslint 8.73, ESLint 10.15, Vitest 5.1.1,
+  and Playwright 1.65.1.
+- Base images bumped: nginx 1.31.9, RabbitMQ 4.4.1, and Mailpit 1.34.
+
+### Security
+
+- Transitive `minimatch` (dev tooling) upgraded to 11.0.9, fixing
+  GHSA-g3hv-75wg-m249.
+
+**Upgrade notes:** rebuild the backend, frontend, and proxy images and pull
+the new `rabbitmq` image. No database migrations.
+
 ## [1.5.1] - 2026-11-14
 
 ### Fixed
@@ -306,7 +327,8 @@ first-class actors.
   return `400 Bad Request` instead of `500`, and are logged at warning rather
   than error level.
 
-[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/marekskopal/ukolio/compare/v1.5.2...HEAD
+[1.5.2]: https://github.com/marekskopal/ukolio/releases/tag/v1.5.2
 [1.5.1]: https://github.com/marekskopal/ukolio/releases/tag/v1.5.1
 [1.5.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.5.0
 [1.4.0]: https://github.com/marekskopal/ukolio/releases/tag/v1.4.0
